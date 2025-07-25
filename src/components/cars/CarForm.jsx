@@ -12,7 +12,7 @@ const CarForm = ({ initialData, onSubmit, onCancel }) => {
     brand: '',
     model: '',
     year: '',
-    plate_number: '',
+    plateNumber: '', // Cambiado de plate_number a plateNumber
     color: '',
     photo_url: ''
   });
@@ -69,7 +69,7 @@ const CarForm = ({ initialData, onSubmit, onCancel }) => {
         brand: initialData.brand || '',
         model: initialData.model || '',
         year: initialData.year?.toString() || '',
-        plate_number: initialData.plate_number || '',
+        plateNumber: initialData.plate_number || '', // Mapear desde plate_number del response
         color: initialData.color || '',
         photo_url: initialData.photo_url || ''
       });
@@ -140,12 +140,12 @@ const CarForm = ({ initialData, onSubmit, onCancel }) => {
       }
     }
 
-    if (!formData.plate_number.trim()) {
-      newErrors.plate_number = 'La placa es requerida';
+    if (!formData.plateNumber.trim()) {
+      newErrors.plateNumber = 'La placa es requerida';
     } else {
-      const plateUpper = formData.plate_number.toUpperCase().replace(/\s/g, '');
+      const plateUpper = formData.plateNumber.toUpperCase().replace(/\s/g, '');
       if (!validatePlate(plateUpper)) {
-        newErrors.plate_number = 'Formato de placa inválido (Ej: ABC123 o ABC12D)';
+        newErrors.plateNumber = 'Formato de placa inválido (Ej: ABC123 o ABC12D)';
       }
     }
 
@@ -189,7 +189,7 @@ const CarForm = ({ initialData, onSubmit, onCancel }) => {
     const formatted = formatPlate(e.target.value);
     handleInputChange({
       target: {
-        name: 'plate_number',
+        name: 'plateNumber', // Cambiado de plate_number a plateNumber
         value: formatted
       }
     });
@@ -211,7 +211,7 @@ const CarForm = ({ initialData, onSubmit, onCancel }) => {
       const submitData = {
         ...formData,
         year: parseInt(formData.year),
-        plate_number: formData.plate_number.toUpperCase(),
+        plateNumber: formData.plateNumber.toUpperCase(), // Cambiado de plate_number a plateNumber
         photo_url: formData.photo_url.trim() || null
       };
 
@@ -277,12 +277,12 @@ const CarForm = ({ initialData, onSubmit, onCancel }) => {
           </label>
           <Input
             type="text"
-            name="plate_number"
-            value={formData.plate_number}
+            name="plateNumber" // Cambiado de plate_number a plateNumber
+            value={formData.plateNumber} // Cambiado de plate_number a plateNumber
             onChange={handlePlateChange}
             placeholder="ABC123 o ABC12D"
             maxLength={6}
-            error={errors.plate_number}
+            error={errors.plateNumber} // Cambiado de plate_number a plateNumber
             className="uppercase"
           />
           <p className="mt-1 text-xs text-gray-500">
