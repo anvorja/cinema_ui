@@ -1,15 +1,17 @@
 // src/components/ui/Button.jsx
+import { forwardRef } from 'react';
 import { cn } from '../../utils';
 
-const Button = ({
+const Button = forwardRef(({
   children,
   variant = 'primary',
   size = 'md',
   className,
   disabled,
   loading,
+  as: Component = 'button', // Prop 'as' que permite cambiar el elemento a renderizar
   ...props
-}) => {
+}, ref) => {
   const baseClasses = 'btn';
 
   const variants = {
@@ -26,7 +28,8 @@ const Button = ({
   };
 
   return (
-    <button
+    <Component
+      ref={ref}
       className={cn(
         baseClasses,
         variants[variant],
@@ -41,9 +44,10 @@ const Button = ({
         <div className="spinner w-4 h-4 mr-2" />
       )}
       {children}
-    </button>
+    </Component>
   );
-};
+});
+
+Button.displayName = 'Button';
 
 export default Button;
-
