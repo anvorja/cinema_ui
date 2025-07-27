@@ -3,6 +3,7 @@ import { ToastProvider } from './components/ui/Toast';
 
 // Layout Components
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import Layout from './components/layout/Layout';
 
 // Pages
 import HomePage from './pages/HomePage';
@@ -13,18 +14,17 @@ import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
 import { AuthProvider } from "./components/auth/AuthProvider.jsx";
 import { ThemeProvider } from "./components/providers/ThemeProvider.jsx"; // Nueva ruta
-import Header from "./components/layout/Header.jsx";
+
 
 function App() {
   return (
-      <ThemeProvider> {/* Envolver toda la app con ThemeProvider */}
+      <ThemeProvider>
         <AuthProvider>
           <ToastProvider>
             <Router>
-              <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
-                <Header />
-                <main>
+              <Layout>
                   <Routes>
+
                     {/* Rutas públicas */}
                     <Route path="/" element={<HomePage />} />
                     <Route path="/login" element={<LoginPage />} />
@@ -47,8 +47,8 @@ function App() {
                     <Route path="/404" element={<NotFoundPage />} />
                     <Route path="*" element={<Navigate to="/404" replace />} />
                   </Routes>
-                </main>
-              </div>
+
+              </Layout>
             </Router>
           </ToastProvider>
         </AuthProvider>
