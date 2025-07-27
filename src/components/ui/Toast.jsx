@@ -1,5 +1,5 @@
 // src/components/ui/Toast.jsx
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useMemo } from 'react';
 import { Transition } from '@headlessui/react';
 import {
   CheckCircleIcon,
@@ -31,16 +31,17 @@ export const ToastProvider = ({ children }) => {
     return id;
   }, [removeToast]);
 
-  const toast = {
-    success: (message, duration) => addToast(message, 'success', duration),
-    error: (message, duration) => addToast(message, 'error', duration),
-    warning: (message, duration) => addToast(message, 'warning', duration),
-    info: (message, duration) => addToast(message, 'info', duration),
+  // Memoizar el objeto toast para evitar re-renders innecesarios
+  const toastMethods = useMemo(() => ({
+    success: (message, duration = 2000) => addToast(message, 'success', duration), // Reducido a 2s para login
+    error: (message, duration = 4000) => addToast(message, 'error', duration),
+    warning: (message, duration = 3000) => addToast(message, 'warning', duration),
+    info: (message, duration = 3000) => addToast(message, 'info', duration),
     showToast: (message, type = 'info', duration) => addToast(message, type, duration),
-  };
+  }), [addToast]);
 
   return (
-    <ToastContext.Provider value={toast}>
+    <ToastContext.Provider value={toastMethods}>
       {children}
       <ToastContainer toasts={toasts} onRemove={removeToast} />
     </ToastContext.Provider>
@@ -82,28 +83,30 @@ const ToastItem = ({ toast, onRemove }) => {
     <Transition
       appear
       show={true}
-      enter="transform ease-out duration-300 transition"
-      enterFrom="translate-y-2 opacity-0 sm:translate-y-0 sm:translate-x-2"
-      enterTo="translate-y-0 opacity-100 sm:translate-x-0"
-      leave="transition ease-in duration-100"
-      leaveFrom="opacity-100"
-      leaveTo="opacity-0"
+      enter="transition-all duration-300 ease-out"
+      enterFrom="opacity-0 translate-x-full"
+      enterTo="opacity-100 translate-x-0"
+      leave="transition-all duration-200 ease-in"
+      leaveFrom="opacity-100 translate-x-0"
+      leaveTo="opacity-0 translate-x-full"
     >
       <div className={`toast ${styles[toast.type]}`}>
         <div className="flex items-start">
           <div className="flex-shrink-0">
-            <Icon className="h-6 w-6 text-current" />
+            <Icon className="h-5 w-5" />
           </div>
-          <div className="ml-3 w-0 flex-1 pt-0.5">
+          <div className="ml-3 w-0 flex-1">
             <p className="text-sm font-medium text-gray-900">
               {toast.message}
             </p>
           </div>
           <div className="ml-4 flex-shrink-0 flex">
             <button
-              className="bg-white rounded-md inline-flex text-gray-400 hover:text-gray-600 focus:outline-none"
+              type="button"
+              className="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
               onClick={onRemove}
             >
+              <span className="sr-only">Cerrar</span>
               <XMarkIcon className="h-5 w-5" />
             </button>
           </div>

@@ -1,5 +1,5 @@
 // src/components/auth/AuthProvider.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useCallback } from 'react';
 import Cookies from 'js-cookie';
 import { AuthContext } from '../../hooks/useAuth';
 import { authService } from '../../services/api';
@@ -17,6 +17,7 @@ export const AuthProvider = ({ children }) => {
     if (token && userInfo) {
       try {
         const parsedUser = JSON.parse(userInfo);
+        // Actualizar estados en batch para evitar múltiples re-renders
         setUser(parsedUser);
         setIsAuthenticated(true);
       } catch (error) {
@@ -27,7 +28,7 @@ export const AuthProvider = ({ children }) => {
     setIsLoading(false);
   }, []);
 
-  const login = async (credentials) => {
+  const login = useCallback(async (credentials) => {
     try {
       const response = await authService.login(credentials);
 
@@ -38,6 +39,7 @@ export const AuthProvider = ({ children }) => {
         Cookies.set('token', access_token, { expires: 1 });
         Cookies.set('userInfo', JSON.stringify(user_info), { expires: 1 });
 
+        // Actualizar estados en batch para evitar múltiples re-renders
         setUser(user_info);
         setIsAuthenticated(true);
 
@@ -47,9 +49,9 @@ export const AuthProvider = ({ children }) => {
       const message = error.response?.data?.message || 'Error al iniciar sesión';
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const register = async (userData) => {
+  const register = useCallback(async (userData) => {
     try {
       const response = await authService.register(userData);
 
@@ -60,6 +62,7 @@ export const AuthProvider = ({ children }) => {
         Cookies.set('token', access_token, { expires: 1 });
         Cookies.set('userInfo', JSON.stringify(user_info), { expires: 1 });
 
+        // Actualizar estados en batch
         setUser(user_info);
         setIsAuthenticated(true);
 
@@ -69,9 +72,9 @@ export const AuthProvider = ({ children }) => {
       const message = error.response?.data?.message || 'Error al crear la cuenta';
       return { success: false, error: message };
     }
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     // Intentar logout en el servidor
     try {
       authService.logout();
@@ -79,19 +82,20 @@ export const AuthProvider = ({ children }) => {
       console.error('Error during logout:', error);
     }
 
-    // Limpiar datos locales
+    // Limpiar datos locales en batch
     Cookies.remove('token');
     Cookies.remove('userInfo');
     setUser(null);
     setIsAuthenticated(false);
-  };
+  }, []);
 
-  const updateUser = (newUserInfo) => {
+  const updateUser = useCallback((newUserInfo) => {
     setUser(newUserInfo);
     Cookies.set('userInfo', JSON.stringify(newUserInfo), { expires: 1 });
-  };
+  }, []);
 
-  const value = {
+  // Memoizar el value para evitar re-renders innecesarios
+  const value = useMemo(() => ({
     user,
     isAuthenticated,
     isLoading,
@@ -99,7 +103,7 @@ export const AuthProvider = ({ children }) => {
     register,
     logout,
     updateUser,
-  };
+  }), [user, isAuthenticated, isLoading, login, register, logout, updateUser]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -1,5 +1,5 @@
 // src/components/layout/Header.jsx
-import { useState } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, Transition } from '@headlessui/react';
 import {
@@ -19,17 +19,29 @@ const Header = () => {
   const location = useLocation();
   const navigate = useNavigate();
 
-  const handleLogout = () => {
+  const handleLogout = useCallback(() => {
     logout();
     navigate('/');
-  };
+  }, [logout, navigate]);
 
-  const navigation = [
+  // Memoizar la navegación para evitar recalcular en cada render
+  const navigation = useMemo(() => [
     { name: 'Inicio', href: '/', current: location.pathname === '/' },
     ...(isAuthenticated ? [
       { name: 'Mis Autos', href: '/cars', current: location.pathname === '/cars' },
     ] : [])
-  ];
+  ], [location.pathname, isAuthenticated]);
+
+  // Cerrar menú móvil
+  const closeMobileMenu = useCallback(() => {
+    setMobileMenuOpen(false);
+  }, []);
+
+  // Combinar logout y cerrar menú
+  const handleMobileLogout = useCallback(() => {
+    handleLogout();
+    closeMobileMenu();
+  }, [handleLogout, closeMobileMenu]);
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -170,7 +182,7 @@ const Header = () => {
                       : 'border-transparent text-gray-500 hover:bg-gray-50 hover:border-gray-300 hover:text-gray-700',
                     'block pl-3 pr-4 py-2 border-l-4 text-base font-medium'
                   )}
-                  onClick={() => setMobileMenuOpen(false)}
+                  onClick={closeMobileMenu}
                 >
                   {item.name}
                 </Link>
@@ -195,15 +207,12 @@ const Header = () => {
                     <Link
                       to="/profile"
                       className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                      onClick={() => setMobileMenuOpen(false)}
+                      onClick={closeMobileMenu}
                     >
                       Mi Perfil
                     </Link>
                     <button
-                      onClick={() => {
-                        handleLogout();
-                        setMobileMenuOpen(false);
-                      }}
+                      onClick={handleMobileLogout}
                       className="block w-full text-left px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
                     >
                       Cerrar Sesión
@@ -215,14 +224,14 @@ const Header = () => {
                   <Link
                     to="/login"
                     className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     Iniciar Sesión
                   </Link>
                   <Link
                     to="/register"
                     className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100"
-                    onClick={() => setMobileMenuOpen(false)}
+                    onClick={closeMobileMenu}
                   >
                     Registrarse
                   </Link>
