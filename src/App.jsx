@@ -2,7 +2,6 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { ToastProvider } from './components/ui/Toast';
 
 // Layout Components
-import Layout from './components/layout/Layout';
 import ProtectedRoute from './components/auth/ProtectedRoute';
 
 // Pages
@@ -12,41 +11,48 @@ import RegisterPage from './pages/RegisterPage';
 import CarsPage from './pages/CarsPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
-import {AuthProvider} from "./components/auth/AuthProvider.jsx";
+import { AuthProvider } from "./components/auth/AuthProvider.jsx";
+import { ThemeProvider } from "./components/providers/ThemeProvider.jsx"; // Nueva ruta
+import Header from "./components/layout/Header.jsx";
 
 function App() {
   return (
-    <AuthProvider>
-      <ToastProvider>
-        <Router>
-          <Layout>
-            <Routes>
-              {/* Rutas públicas */}
-              <Route path="/" element={<HomePage />} />
-              <Route path="/login" element={<LoginPage />} />
-              <Route path="/register" element={<RegisterPage />} />
+      <ThemeProvider> {/* Envolver toda la app con ThemeProvider */}
+        <AuthProvider>
+          <ToastProvider>
+            <Router>
+              <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors duration-200">
+                <Header />
+                <main>
+                  <Routes>
+                    {/* Rutas públicas */}
+                    <Route path="/" element={<HomePage />} />
+                    <Route path="/login" element={<LoginPage />} />
+                    <Route path="/register" element={<RegisterPage />} />
 
-              {/* Rutas protegidas */}
-              <Route path="/cars" element={
-                <ProtectedRoute>
-                  <CarsPage />
-                </ProtectedRoute>
-              } />
+                    {/* Rutas protegidas */}
+                    <Route path="/cars" element={
+                      <ProtectedRoute>
+                        <CarsPage />
+                      </ProtectedRoute>
+                    } />
 
-              <Route path="/profile" element={
-                <ProtectedRoute>
-                  <ProfilePage />
-                </ProtectedRoute>
-              } />
+                    <Route path="/profile" element={
+                      <ProtectedRoute>
+                        <ProfilePage />
+                      </ProtectedRoute>
+                    } />
 
-              {/* Ruta 404 */}
-              <Route path="/404" element={<NotFoundPage />} />
-              <Route path="*" element={<Navigate to="/404" replace />} />
-            </Routes>
-          </Layout>
-        </Router>
-      </ToastProvider>
-    </AuthProvider>
+                    {/* Ruta 404 */}
+                    <Route path="/404" element={<NotFoundPage />} />
+                    <Route path="*" element={<Navigate to="/404" replace />} />
+                  </Routes>
+                </main>
+              </div>
+            </Router>
+          </ToastProvider>
+        </AuthProvider>
+      </ThemeProvider>
   );
 }
 

@@ -1,5 +1,5 @@
-// src/pages/CarsPage.jsx
-import { useState, useEffect, useCallback } from 'react'; // Agregar useCallback
+// src/pages/CarsPage.jsx - Dark Mode optimizado
+import { useState, useEffect, useCallback } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useToast } from '../hooks/useToast';
 import { carService } from '../services/api';
@@ -40,7 +40,7 @@ const CarsPage = () => {
 
   const { showToast } = useToast();
 
-  // Cargar lista de autos - con useCallback para evitar warnings
+  // Cargar lista de autos
   const loadCars = useCallback(async () => {
     try {
       setLoading(true);
@@ -52,9 +52,9 @@ const CarsPage = () => {
     } finally {
       setLoading(false);
     }
-  }, [showToast]); // showToast como dependencia
+  }, [showToast]);
 
-  // Cargar estadísticas - con useCallback para evitar warnings
+  // Cargar estadísticas
   const loadStats = useCallback(async () => {
     try {
       const response = await carService.getStats();
@@ -62,13 +62,13 @@ const CarsPage = () => {
     } catch (error) {
       console.error('Error cargando estadísticas:', error);
     }
-  }, []); // Sin dependencias porque no usa ningún estado o prop
+  }, []);
 
   // Cargar datos iniciales
   useEffect(() => {
     loadCars();
     loadStats();
-  }, [loadCars, loadStats]); // Ambas funciones como dependencias
+  }, [loadCars, loadStats]);
 
   // Aplicar filtros y búsqueda
   useEffect(() => {
@@ -113,7 +113,7 @@ const CarsPage = () => {
     setFilteredCars(filtered);
   }, [cars, searchTerm, filters]);
 
-  // Crear auto
+  // Funciones CRUD
   const handleCreate = async (carData) => {
     try {
       await carService.create(carData);
@@ -128,13 +128,11 @@ const CarsPage = () => {
     }
   };
 
-  // Editar auto
   const handleEdit = (car) => {
     setEditingCar(car);
     setShowEditModal(true);
   };
 
-  // Actualizar auto
   const handleUpdate = async (carData) => {
     try {
       await carService.update(editingCar.car_id, carData);
@@ -150,11 +148,8 @@ const CarsPage = () => {
     }
   };
 
-  // Eliminar auto
   const handleDelete = async (carId) => {
-    if (!confirm('¿Estás seguro de que quieres eliminar este auto?')) {
-      return;
-    }
+    if (!confirm('¿Estás seguro de que quieres eliminar este auto?')) return;
 
     try {
       await carService.delete(carId);
@@ -168,9 +163,7 @@ const CarsPage = () => {
     }
   };
 
-  // Limpiar filtros
   const clearFilters = () => {
-    setSearchTerm('');
     setFilters({
       brand: '',
       model: '',
@@ -179,26 +172,27 @@ const CarsPage = () => {
       minYear: '',
       maxYear: ''
     });
+    setSearchTerm('');
   };
 
   if (loading) {
     return (
-      <div className="flex justify-center items-center min-h-screen">
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center transition-colors duration-200">
         <LoadingSpinner size="lg" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      {/* Header */}
-      <div className="mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header mejorado */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">
-              🚗 Mis Autos
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 transition-colors duration-200">
+              Mis Autos
             </h1>
-            <p className="mt-2 text-gray-600">
+            <p className="mt-2 text-gray-600 dark:text-slate-300 transition-colors duration-200 font-medium">
               Gestiona tu colección de autos de forma fácil y organizada
             </p>
           </div>
@@ -206,134 +200,140 @@ const CarsPage = () => {
             <Button
               onClick={() => setShowStats(!showStats)}
               variant="secondary"
+              className="bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors duration-200"
             >
-              📊 {showStats ? 'Ocultar' : 'Ver'} Estadísticas
+              📊 Ver Estadísticas
             </Button>
             <Button
               onClick={() => setShowAddModal(true)}
-              className="flex items-center"
+              className="shadow-lg hover:shadow-xl transition-shadow duration-200"
             >
               <PlusIcon className="h-5 w-5 mr-2" />
               Agregar Auto
             </Button>
           </div>
         </div>
-      </div>
 
-      {/* Estadísticas */}
-      {showStats && stats && (
-        <div className="mb-8">
-          <CarStats stats={stats} />
-        </div>
-      )}
+        {/* Estadísticas mejoradas */}
+        {showStats && stats && (
+          <div className="mb-8">
+            <CarStats stats={stats} />
+          </div>
+        )}
 
-      {/* Barra de búsqueda */}
-      <div className="mb-6">
-        <div className="max-w-lg">
+        {/* Búsqueda mejorada */}
+        <div className="mb-6">
           <Input
-            type="text"
+            type="search"
             placeholder="🔍 Buscar por marca, modelo, placa o color..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full"
+            className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:border-primary-500 dark:focus:border-primary-400 transition-colors duration-200"
           />
         </div>
-      </div>
 
-      {/* Filtros */}
-      <div className="mb-8">
-        <CarFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          onClear={clearFilters}
-          cars={cars}
-        />
-      </div>
-
-      {/* Contador de resultados */}
-      <div className="mb-6">
-        <p className="text-sm text-gray-600">
-          {filteredCars.length === cars.length
-            ? `Mostrando ${cars.length} auto${cars.length !== 1 ? 's' : ''}`
-            : `Mostrando ${filteredCars.length} de ${cars.length} auto${cars.length !== 1 ? 's' : ''}`
-          }
-        </p>
-      </div>
-
-      {/* Lista de autos */}
-      {filteredCars.length === 0 ? (
-        <div className="text-center py-12">
-          {cars.length === 0 ? (
-            <div>
-              <div className="text-6xl mb-4">🚗</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No tienes autos registrados
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Comienza agregando tu primer auto para empezar a organizar tu colección
-              </p>
-              <Button onClick={() => setShowAddModal(true)}>
-                🚀 Agregar Mi Primer Auto
-              </Button>
-            </div>
-          ) : (
-            <div>
-              <div className="text-6xl mb-4">🔍</div>
-              <h3 className="text-lg font-medium text-gray-900 mb-2">
-                No se encontraron autos
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Intenta ajustar tus filtros o términos de búsqueda
-              </p>
-              <Button onClick={clearFilters} variant="secondary">
-                🗑️ Limpiar Filtros
-              </Button>
-            </div>
-          )}
+        {/* Filtros mejorados */}
+        <div className="mb-8">
+          <CarFilters
+            filters={filters}
+            onFiltersChange={setFilters}
+            onClear={clearFilters}
+          />
         </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredCars.map((car) => (
-            <CarCard
-              key={car.car_id}
-              car={car}
-              onEdit={handleEdit}
-              onDelete={handleDelete}
-            />
-          ))}
+
+        {/* Contador de resultados mejorado */}
+        <div className="mb-6">
+          <p className="text-sm text-gray-600 dark:text-slate-400 transition-colors duration-200 font-medium">
+            {filteredCars.length === cars.length
+              ? `Mostrando ${cars.length} auto${cars.length !== 1 ? 's' : ''}`
+              : `Mostrando ${filteredCars.length} de ${cars.length} auto${cars.length !== 1 ? 's' : ''}`
+            }
+          </p>
         </div>
-      )}
 
-      {/* Modal para agregar auto */}
-      <Modal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        title="🚗 Agregar Nuevo Auto"
-      >
-        <CarForm
-          onSubmit={handleCreate}
-          onCancel={() => setShowAddModal(false)}
-        />
-      </Modal>
+        {/* Lista de autos / Estados vacíos mejorados */}
+        {filteredCars.length === 0 ? (
+          <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 transition-colors duration-200">
+            {cars.length === 0 ? (
+              <div>
+                <div className="text-8xl mb-6">🚗</div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-3 transition-colors duration-200">
+                  No tienes autos registrados
+                </h3>
+                <p className="text-gray-600 dark:text-slate-300 mb-8 max-w-md mx-auto leading-relaxed transition-colors duration-200">
+                  Comienza agregando tu primer auto para empezar a organizar tu colección
+                </p>
+                <Button
+                  onClick={() => setShowAddModal(true)}
+                  size="lg"
+                  className="shadow-lg hover:shadow-xl transition-shadow duration-200"
+                >
+                  🚀 Agregar Mi Primer Auto
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <div className="text-8xl mb-6">🔍</div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-3 transition-colors duration-200">
+                  No se encontraron autos
+                </h3>
+                <p className="text-gray-600 dark:text-slate-300 mb-8 max-w-md mx-auto leading-relaxed transition-colors duration-200">
+                  Intenta ajustar tus filtros o términos de búsqueda
+                </p>
+                <Button
+                  onClick={clearFilters}
+                  variant="secondary"
+                  size="lg"
+                  className="bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors duration-200"
+                >
+                  🗑️ Limpiar Filtros
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCars.map((car) => (
+              <CarCard
+                key={car.car_id}
+                car={car}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
 
-      {/* Modal para editar auto */}
-      <Modal
-        isOpen={showEditModal}
-        onClose={() => {
-          setShowEditModal(false);
-          setEditingCar(null);
-        }}
-        title="✏️ Editar Auto"
-      >
-        <CarForm
-          initialData={editingCar}
-          onSubmit={handleUpdate}
-          onCancel={() => {
+        {/* Modales */}
+        <Modal
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          title="🚗 Agregar Nuevo Auto"
+        >
+          <CarForm
+            onSubmit={handleCreate}
+            onCancel={() => setShowAddModal(false)}
+          />
+        </Modal>
+
+        <Modal
+          isOpen={showEditModal}
+          onClose={() => {
             setShowEditModal(false);
             setEditingCar(null);
           }}
-        />
-      </Modal>
+          title="✏️ Editar Auto"
+        >
+          <CarForm
+            initialData={editingCar}
+            onSubmit={handleUpdate}
+            onCancel={() => {
+              setShowEditModal(false);
+              setEditingCar(null);
+            }}
+          />
+        </Modal>
+      </div>
     </div>
   );
 };

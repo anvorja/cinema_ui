@@ -1,4 +1,4 @@
-// src/components/ui/Modal.jsx
+// components/ui/Modal.jsx - Dark Mode optimizado
 import { Fragment } from 'react';
 import { Dialog, Transition } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
@@ -9,26 +9,18 @@ const Modal = ({
   title,
   children,
   size = 'md',
-  showCloseButton = true,
-  closeOnOverlayClick = true
+  showCloseButton = true
 }) => {
-  // Tamaños del modal
   const sizeClasses = {
     sm: 'max-w-md',
     md: 'max-w-lg',
     lg: 'max-w-2xl',
-    xl: 'max-w-4xl',
-    full: 'max-w-7xl'
+    xl: 'max-w-4xl'
   };
 
   return (
     <Transition appear show={isOpen} as={Fragment}>
-      <Dialog
-        as="div"
-        className="relative z-50"
-        onClose={closeOnOverlayClick ? onClose : () => {}}
-      >
-        {/* Overlay */}
+      <Dialog as="div" className="relative z-50" onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-out duration-300"
@@ -38,10 +30,9 @@ const Modal = ({
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-black bg-opacity-25 backdrop-blur-sm" />
+          <div className="fixed inset-0 bg-black/50 dark:bg-black/70 transition-colors duration-200" />
         </Transition.Child>
 
-        {/* Modal container */}
         <div className="fixed inset-0 overflow-y-auto">
           <div className="flex min-h-full items-center justify-center p-4 text-center">
             <Transition.Child
@@ -55,38 +46,33 @@ const Modal = ({
             >
               <Dialog.Panel
                 className={`
-                  w-full ${sizeClasses[size]} 
-                  transform overflow-hidden rounded-lg bg-white 
-                  shadow-xl transition-all
-                  text-left align-middle
+                  w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl 
+                  bg-white dark:bg-slate-800 p-6 text-left align-middle shadow-2xl 
+                  border border-gray-200 dark:border-slate-700 transition-all duration-200
                 `}
               >
-                {/* Header */}
-                {(title || showCloseButton) && (
-                  <div className="flex items-center justify-between p-6 border-b border-gray-200">
-                    {title && (
-                      <Dialog.Title
-                        as="h3"
-                        className="text-lg font-semibold leading-6 text-gray-900"
-                      >
-                        {title}
-                      </Dialog.Title>
-                    )}
-                    {showCloseButton && (
-                      <button
-                        type="button"
-                        className="rounded-md bg-white text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-                        onClick={onClose}
-                      >
-                        <span className="sr-only">Cerrar</span>
-                        <XMarkIcon className="h-6 w-6" aria-hidden="true" />
-                      </button>
-                    )}
-                  </div>
-                )}
+                {/* Header mejorado */}
+                <div className="flex items-center justify-between mb-6">
+                  <Dialog.Title
+                    as="h3"
+                    className="text-xl font-bold leading-6 text-gray-900 dark:text-slate-100 transition-colors duration-200"
+                  >
+                    {title}
+                  </Dialog.Title>
+                  {showCloseButton && (
+                    <button
+                      type="button"
+                      className="rounded-lg p-2 text-gray-400 dark:text-slate-400 hover:text-gray-600 dark:hover:text-slate-200 hover:bg-gray-100 dark:hover:bg-slate-700 transition-all duration-200"
+                      onClick={onClose}
+                    >
+                      <span className="sr-only">Cerrar</span>
+                      <XMarkIcon className="h-5 w-5" />
+                    </button>
+                  )}
+                </div>
 
-                {/* Content */}
-                <div className={title || showCloseButton ? "p-6" : "p-6"}>
+                {/* Contenido */}
+                <div className="text-gray-700 dark:text-slate-300 transition-colors duration-200">
                   {children}
                 </div>
               </Dialog.Panel>

@@ -1,92 +1,74 @@
-// src/components/ui/Input.jsx
+// components/ui/Input.jsx - Dark Mode optimizado
 import { forwardRef } from 'react';
 import { cn } from '../../utils';
 
 const Input = forwardRef(({
-  type = 'text',
-  placeholder,
-  value,
-  onChange,
-  onBlur,
-  onFocus,
+  className = '',
+  label,
   error,
+  helper,
+  type = 'text',
   disabled = false,
   required = false,
-  size = 'md',
-  className,
-  name,
-  id,
-  autoComplete,
-  maxLength,
-  minLength,
-  pattern,
-  min,
-  max,
-  step,
-  readOnly = false,
-  autoFocus = false,
   ...props
 }, ref) => {
-
-  // Tamaños del input
-  const sizeClasses = {
-    sm: 'h-8 text-sm px-2',
-    md: 'h-10 text-sm px-3',
-    lg: 'h-12 text-base px-4'
-  };
-
   const inputClasses = cn(
-    // Estilos base
-    'w-full rounded-md border shadow-sm',
-    'focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500 focus:border-primary-500',
-    'transition-colors duration-200',
-    'placeholder:text-gray-400',
-
-    // Tamaños
-    sizeClasses[size],
-
-    // Estados
-    {
-      'border-gray-300 text-gray-900 bg-white': !error && !disabled && !readOnly,
-      'border-red-300 text-red-900 focus:border-red-500 focus:ring-red-500 bg-white': error && !disabled,
-      'border-gray-200 bg-gray-50 text-gray-500 cursor-not-allowed': disabled,
-      'border-gray-200 bg-gray-50 text-gray-700': readOnly && !disabled,
-    },
-
+    `
+      w-full px-3 py-2 border rounded-lg shadow-sm transition-all duration-200
+      placeholder-gray-400 dark:placeholder-slate-400
+      focus:outline-none focus:ring-2 focus:ring-offset-1
+      disabled:opacity-50 disabled:cursor-not-allowed
+    `,
+    error
+      ? `
+          border-red-300 dark:border-red-600 text-red-900 dark:text-red-100 
+          bg-red-50 dark:bg-red-900/20 focus:border-red-500 dark:focus:border-red-400 
+          focus:ring-red-500 dark:focus:ring-red-400
+        `
+      : `
+          border-gray-300 dark:border-slate-600 text-gray-900 dark:text-slate-100 
+          bg-white dark:bg-slate-800 focus:border-primary-500 dark:focus:border-primary-400 
+          focus:ring-primary-500 dark:focus:ring-primary-400
+        `,
     className
+  );
+
+  const labelClasses = cn(
+    'block text-sm font-medium mb-2 transition-colors duration-200',
+    error
+      ? 'text-red-700 dark:text-red-300'
+      : 'text-gray-700 dark:text-slate-300'
+  );
+
+  const helperClasses = cn(
+    'mt-1 text-xs transition-colors duration-200',
+    error
+      ? 'text-red-600 dark:text-red-400'
+      : 'text-gray-500 dark:text-slate-400'
   );
 
   return (
     <div className="w-full">
+      {label && (
+        <label className={labelClasses}>
+          {label}
+          {required && (
+            <span className="text-red-500 dark:text-red-400 ml-1">*</span>
+          )}
+        </label>
+      )}
+
       <input
         ref={ref}
         type={type}
-        name={name}
-        id={id || name}
-        value={value}
-        onChange={onChange}
-        onBlur={onBlur}
-        onFocus={onFocus}
-        placeholder={placeholder}
         disabled={disabled}
-        required={required}
-        readOnly={readOnly}
-        autoComplete={autoComplete}
-        autoFocus={autoFocus}
-        maxLength={maxLength}
-        minLength={minLength}
-        pattern={pattern}
-        min={min}
-        max={max}
-        step={step}
         className={inputClasses}
         {...props}
       />
 
-      {/* Mensaje de error */}
-      {error && (
-        <p className="mt-1 text-sm text-red-600">
-          {error}
+      {(error || helper) && (
+        <p className={helperClasses}>
+          {error || helper}
         </p>
       )}
     </div>

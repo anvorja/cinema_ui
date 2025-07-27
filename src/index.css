@@ -75,8 +75,149 @@
   }
 }
 
-@layer utilities {
-  .text-balance {
-    text-wrap: balance;
-  }
+/* Transiciones suaves para el cambio de tema */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Estilos para scrollbar mejorados */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 dark:bg-gray-800;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 dark:bg-gray-600 rounded-full;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  @apply bg-gray-400 dark:bg-gray-500;
+}
+
+/* MEJORAS DARK MODE - Mejor contraste y legibilidad */
+.dark {
+  /* Fondos con mejor contraste */
+  --dark-bg-primary: #0f172a;     /* Azul oscuro más profundo */
+  --dark-bg-secondary: #1e293b;   /* Gris azulado */
+  --dark-bg-card: #334155;        /* Cards más claros */
+  --dark-bg-hover: #475569;       /* Hover states */
+
+  /* Textos con mejor legibilidad */
+  --dark-text-primary: #f8fafc;   /* Blanco casi puro */
+  --dark-text-secondary: #cbd5e1; /* Gris claro */
+  --dark-text-muted: #94a3b8;     /* Gris medio */
+  --dark-text-subtle: #64748b;    /* Gris sutil */
+
+  /* Bordes más definidos */
+  --dark-border: #475569;
+  --dark-border-light: #64748b;
+}
+
+/* Aplicar los colores mejorados */
+.dark body {
+  background-color: var(--dark-bg-primary);
+  color: var(--dark-text-primary);
+}
+
+/* Mejorar contraste para inputs en modo oscuro */
+.dark input,
+.dark textarea,
+.dark select {
+  @apply bg-slate-800 border-slate-600 text-slate-100 placeholder-slate-400;
+  background-color: var(--dark-bg-secondary);
+  border-color: var(--dark-border);
+  color: var(--dark-text-primary);
+}
+
+.dark input:focus,
+.dark textarea:focus,
+.dark select:focus {
+  @apply border-primary-400 ring-primary-400/20;
+}
+
+/* Botones mejorados en modo oscuro */
+.dark .btn-primary {
+  @apply bg-primary-600 hover:bg-primary-500 text-white;
+}
+
+.dark .btn-secondary {
+  background-color: var(--dark-bg-card);
+  color: var(--dark-text-primary);
+  border-color: var(--dark-border);
+}
+
+.dark .btn-secondary:hover {
+  background-color: var(--dark-bg-hover);
+}
+
+/* Cards y modales mejorados */
+.dark .card {
+  background-color: var(--dark-bg-secondary);
+  border-color: var(--dark-border);
+  color: var(--dark-text-primary);
+}
+
+.dark .modal {
+  background-color: var(--dark-bg-secondary);
+  border-color: var(--dark-border);
+}
+
+/* Textos con mejor jerarquía visual */
+.dark .text-primary {
+  color: var(--dark-text-primary);
+}
+
+.dark .text-secondary {
+  color: var(--dark-text-secondary);
+}
+
+.dark .text-muted {
+  color: var(--dark-text-muted);
+}
+
+.dark .text-subtle {
+  color: var(--dark-text-subtle);
+}
+
+/* Mejoras específicas para elementos interactivos */
+.dark .hover\:bg-gray-50:hover {
+  background-color: var(--dark-bg-hover);
+}
+
+.dark .border-gray-200 {
+  border-color: var(--dark-border);
+}
+
+.dark .border-gray-300 {
+  border-color: var(--dark-border-light);
+}
+
+/* Dropdowns y menús mejorados */
+.dark .dropdown-menu {
+  background-color: var(--dark-bg-secondary);
+  border-color: var(--dark-border);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+}
+
+/* Estados de loading y disabled mejorados */
+.dark .disabled {
+  color: var(--dark-text-subtle);
+  background-color: var(--dark-bg-card);
+}
+
+/* Mejoras para badges y alerts */
+.dark .badge {
+  background-color: var(--dark-bg-card);
+  color: var(--dark-text-primary);
+}
+
+.dark .alert {
+  background-color: var(--dark-bg-secondary);
+  border-color: var(--dark-border);
+  color: var(--dark-text-primary);
 }
