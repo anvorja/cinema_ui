@@ -1,5 +1,5 @@
 // src/pages/CarsPage.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react'; // Agregar useCallback
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useToast } from '../hooks/useToast';
 import { carService } from '../services/api';
@@ -40,11 +40,35 @@ const CarsPage = () => {
 
   const { showToast } = useToast();
 
+  // Cargar lista de autos - con useCallback para evitar warnings
+  const loadCars = useCallback(async () => {
+    try {
+      setLoading(true);
+      const response = await carService.getAll();
+      setCars(response.data.data || []);
+    } catch (error) {
+      console.error('Error cargando autos:', error);
+      showToast('Error al cargar los autos', 'error');
+    } finally {
+      setLoading(false);
+    }
+  }, [showToast]); // showToast como dependencia
+
+  // Cargar estadísticas - con useCallback para evitar warnings
+  const loadStats = useCallback(async () => {
+    try {
+      const response = await carService.getStats();
+      setStats(response.data.data);
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error);
+    }
+  }, []); // Sin dependencias porque no usa ningún estado o prop
+
   // Cargar datos iniciales
   useEffect(() => {
     loadCars();
     loadStats();
-  }, []);
+  }, [loadCars, loadStats]); // Ambas funciones como dependencias
 
   // Aplicar filtros y búsqueda
   useEffect(() => {
@@ -88,30 +112,6 @@ const CarsPage = () => {
 
     setFilteredCars(filtered);
   }, [cars, searchTerm, filters]);
-
-  // Cargar lista de autos
-  const loadCars = async () => {
-    try {
-      setLoading(true);
-      const response = await carService.getAll();
-      setCars(response.data.data || []);
-    } catch (error) {
-      console.error('Error cargando autos:', error);
-      showToast('Error al cargar los autos', 'error');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Cargar estadísticas
-  const loadStats = async () => {
-    try {
-      const response = await carService.getStats();
-      setStats(response.data.data);
-    } catch (error) {
-      console.error('Error cargando estadísticas:', error);
-    }
-  };
 
   // Crear auto
   const handleCreate = async (carData) => {
