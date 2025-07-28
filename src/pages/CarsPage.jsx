@@ -66,7 +66,9 @@ const CarsPage = () => {
 
   // Cargar datos al montar el componente
   useEffect(() => {
-    loadCars();
+    loadCars().catch((error) => {
+      console.error('Error loading cars on mount:', error);
+    });
   }, [loadCars]);
 
   // ✅ APLICAR FILTROS - Efecto para filtrar autos
@@ -77,10 +79,10 @@ const CarsPage = () => {
     if (searchTerm) {
       const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(car =>
-        car.brand.toLowerCase().includes(searchLower) ||
-        car.model.toLowerCase().includes(searchLower) ||
-        car.plate_number.toLowerCase().includes(searchLower) ||
-        car.color.toLowerCase().includes(searchLower)
+          car.brand.toLowerCase().includes(searchLower) ||
+          car.model.toLowerCase().includes(searchLower) ||
+          car.plate_number.toLowerCase().includes(searchLower) ||
+          car.color.toLowerCase().includes(searchLower)
       );
     }
 
@@ -203,182 +205,182 @@ const CarsPage = () => {
   // Mostrar loading spinner mientras carga
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <LoadingSpinner size="lg" />
-        <span className="ml-3 text-lg text-gray-600">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <LoadingSpinner size="lg" />
+          <span className="ml-3 text-lg text-gray-600">
           Cargando tus autos...
         </span>
-      </div>
+        </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-            Mis Autos
-          </h1>
-          <p className="text-gray-600 dark:text-gray-400">
-            Gestiona tu colección de autos de forma fácil y organizada
-          </p>
-        </div>
-
-        <div className="flex items-center gap-3">
-          <Button
-            onClick={loadStats}
-            variant="secondary"
-            className="flex items-center"
-          >
-            📊 Ver Estadísticas
-          </Button>
-          <Button
-            onClick={() => setShowAddModal(true)}
-            className="flex items-center"
-          >
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Agregar Auto
-          </Button>
-        </div>
-      </div>
-
-      {/* Barra de búsqueda */}
-      <div className="relative">
-        <Input
-          type="text"
-          placeholder="🔍 Buscar por marca, modelo, placa o color..."
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-          className="pl-4"
-        />
-      </div>
-
-      {/* ✅ SOLUCIÓN: Solo renderizar CarFilters si hay datos */}
-      {cars.length > 0 && (
-        <CarFilters
-          filters={filters}
-          onFiltersChange={setFilters}
-          onClear={clearFilters}
-          cars={cars}
-        />
-      )}
-
-      {/* ✅ Mensaje si no hay autos cargados */}
-      {cars.length === 0 && !loading && (
-        <div className="text-center py-12">
-          <div className="text-6xl mb-4">🚗</div>
-          <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-            No tienes autos registrados
-          </h3>
-          <p className="text-gray-600 dark:text-gray-400 mb-6">
-            Comienza agregando tu primer auto a la colección
-          </p>
-          <Button
-            onClick={() => setShowAddModal(true)}
-            className="inline-flex items-center"
-          >
-            <PlusIcon className="h-4 w-4 mr-2" />
-            Agregar tu primer auto
-          </Button>
-        </div>
-      )}
-
-      {/* Lista de autos */}
-      {cars.length > 0 && (
-        <div className="space-y-4">
-          {/* Contador de resultados */}
-          <div className="flex items-center justify-between">
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Mostrando {filteredCars.length} de {cars.length} autos
+      <div className="space-y-6">
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+              Mis Autos
+            </h1>
+            <p className="text-gray-600 dark:text-gray-400">
+              Gestiona tu colección de autos de forma fácil y organizada
             </p>
-            {(Object.values(filters).some(v => v !== '') || searchTerm) && (
-              <Button
-                onClick={clearFilters}
-                variant="ghost"
-                size="sm"
-                className="text-gray-500 hover:text-gray-700"
-              >
-                Limpiar filtros
-              </Button>
-            )}
           </div>
 
-          {/* Grid de autos */}
-          {filteredCars.length > 0 ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {filteredCars.map((car) => (
-                <CarCard
-                  key={car.car_id}
-                  car={car}
-                  onEdit={handleEditCar}
-                  onDelete={handleDeleteCar}
-                />
-              ))}
-            </div>
-          ) : (
+          <div className="flex items-center gap-3">
+            <Button
+                onClick={loadStats}
+                variant="secondary"
+                className="flex items-center"
+            >
+              📊 Ver Estadísticas
+            </Button>
+            <Button
+                onClick={() => setShowAddModal(true)}
+                className="flex items-center"
+            >
+              <PlusIcon className="h-4 w-4 mr-2" />
+              Agregar Auto
+            </Button>
+          </div>
+        </div>
+
+        {/* Barra de búsqueda */}
+        <div className="relative">
+          <Input
+              type="text"
+              placeholder="🔍 Buscar por marca, modelo, placa o color..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-4"
+          />
+        </div>
+
+        {/* ✅ SOLUCIÓN: Solo renderizar CarFilters si hay datos */}
+        {cars.length > 0 && (
+            <CarFilters
+                filters={filters}
+                onFiltersChange={setFilters}
+                onClear={clearFilters}
+                cars={cars}
+            />
+        )}
+
+        {/* ✅ Mensaje si no hay autos cargados */}
+        {cars.length === 0 && !loading && (
             <div className="text-center py-12">
-              <div className="text-4xl mb-4">🔍</div>
+              <div className="text-6xl mb-4">🚗</div>
               <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                No se encontraron autos
+                No tienes autos registrados
               </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-4">
-                Intenta ajustar los filtros o la búsqueda
+              <p className="text-gray-600 dark:text-gray-400 mb-6">
+                Comienza agregando tu primer auto a la colección
               </p>
               <Button
-                onClick={clearFilters}
-                variant="secondary"
+                  onClick={() => setShowAddModal(true)}
+                  className="inline-flex items-center"
               >
-                Limpiar filtros
+                <PlusIcon className="h-4 w-4 mr-2" />
+                Agregar tu primer auto
               </Button>
             </div>
-          )}
-        </div>
-      )}
+        )}
 
-      {/* Modal para agregar auto */}
-      <Modal
-        isOpen={showAddModal}
-        onClose={() => setShowAddModal(false)}
-        title="Agregar Nuevo Auto"
-        size="lg"
-      >
-        <CarForm
-          onSubmit={handleAddCar}
-          onCancel={() => setShowAddModal(false)}
-        />
-      </Modal>
+        {/* Lista de autos */}
+        {cars.length > 0 && (
+            <div className="space-y-4">
+              {/* Contador de resultados */}
+              <div className="flex items-center justify-between">
+                <p className="text-sm text-gray-600 dark:text-gray-400">
+                  Mostrando {filteredCars.length} de {cars.length} autos
+                </p>
+                {(Object.values(filters).some(v => v !== '') || searchTerm) && (
+                    <Button
+                        onClick={clearFilters}
+                        variant="ghost"
+                        size="sm"
+                        className="text-gray-500 hover:text-gray-700"
+                    >
+                      Limpiar filtros
+                    </Button>
+                )}
+              </div>
 
-      {/* Modal para editar auto */}
-      <Modal
-        isOpen={showEditModal}
-        onClose={() => {
-          setShowEditModal(false);
-          setEditingCar(null);
-        }}
-        title="Editar Auto"
-        size="lg"
-      >
-        <CarForm
-          initialData={editingCar}
-          onSubmit={handleUpdateCar}
-          onCancel={() => {
-            setShowEditModal(false);
-            setEditingCar(null);
-          }}
-        />
-      </Modal>
+              {/* Grid de autos */}
+              {filteredCars.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredCars.map((car) => (
+                        <CarCard
+                            key={car.car_id}
+                            car={car}
+                            onEdit={handleEditCar}
+                            onDelete={handleDeleteCar}
+                        />
+                    ))}
+                  </div>
+              ) : (
+                  <div className="text-center py-12">
+                    <div className="text-4xl mb-4">🔍</div>
+                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
+                      No se encontraron autos
+                    </h3>
+                    <p className="text-gray-600 dark:text-gray-400 mb-4">
+                      Intenta ajustar los filtros o la búsqueda
+                    </p>
+                    <Button
+                        onClick={clearFilters}
+                        variant="secondary"
+                    >
+                      Limpiar filtros
+                    </Button>
+                  </div>
+              )}
+            </div>
+        )}
 
-      {/* Modal de estadísticas */}
-      <Modal
-        isOpen={showStats}
-        onClose={() => setShowStats(false)}
-        title="Estadísticas de tu Colección"
-        size="lg"
-      >
-        {stats && <CarStats stats={stats} />}
-      </Modal>
-    </div>
+        {/* Modal para agregar auto */}
+        <Modal
+            isOpen={showAddModal}
+            onClose={() => setShowAddModal(false)}
+            title="Agregar Nuevo Auto"
+            size="lg"
+        >
+          <CarForm
+              onSubmit={handleAddCar}
+              onCancel={() => setShowAddModal(false)}
+          />
+        </Modal>
+
+        {/* Modal para editar auto */}
+        <Modal
+            isOpen={showEditModal}
+            onClose={() => {
+              setShowEditModal(false);
+              setEditingCar(null);
+            }}
+            title="Editar Auto"
+            size="lg"
+        >
+          <CarForm
+              initialData={editingCar}
+              onSubmit={handleUpdateCar}
+              onCancel={() => {
+                setShowEditModal(false);
+                setEditingCar(null);
+              }}
+          />
+        </Modal>
+
+        {/* Modal de estadísticas */}
+        <Modal
+            isOpen={showStats}
+            onClose={() => setShowStats(false)}
+            title="Estadísticas de tu Colección"
+            size="lg"
+        >
+          {stats && <CarStats stats={stats} />}
+        </Modal>
+      </div>
   );
 };
 
