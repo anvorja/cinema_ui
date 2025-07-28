@@ -226,141 +226,143 @@ const CarForm = ({ initialData, onSubmit, onCancel }) => {
   const isEditing = !!initialData;
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Marca */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Marca *
-        </label>
-        <Select
-          name="brand"
-          value={formData.brand}
-          onChange={handleInputChange}
-          options={brandOptions}
-          error={errors.brand}
-        />
-      </div>
-
-      {/* Modelo */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Modelo *
-        </label>
-        <Input
-          type="text"
-          name="model"
-          value={formData.model}
-          onChange={handleInputChange}
-          placeholder="Ej: Corolla, Civic, Focus"
-          error={errors.model}
-        />
-      </div>
-
-      {/* Año y Placa en la misma fila */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <form onSubmit={handleSubmit} className="space-y-6">
+        {/* Marca */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Año *
+            Marca *
           </label>
           <Select
-            name="year"
-            value={formData.year}
-            onChange={handleInputChange}
-            options={generateYearOptions()}
-            error={errors.year}
+              name="brand"
+              value={formData.brand}
+              onChange={handleInputChange}
+              options={brandOptions}
+              error={errors.brand}
           />
         </div>
 
+        {/* Modelo */}
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-2">
-            Placa *
+            Modelo *
           </label>
           <Input
-            type="text"
-            name="plateNumber" // Cambiado de plate_number a plateNumber
-            value={formData.plateNumber} // Cambiado de plate_number a plateNumber
-            onChange={handlePlateChange}
-            placeholder="ABC123 o ABC12D"
-            maxLength={6}
-            error={errors.plateNumber} // Cambiado de plate_number a plateNumber
-            className="uppercase"
+              type="text"
+              name="model"
+              value={formData.model}
+              onChange={handleInputChange}
+              placeholder="Ej: Corolla, Civic, Focus"
+              error={errors.model}
           />
-          <p className="mt-1 text-xs text-gray-500">
-            Formato: ABC123 (tradicional) o ABC12D (nuevo)
-          </p>
         </div>
-      </div>
 
-      {/* Color */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          Color *
-        </label>
-        <Select
-          name="color"
-          value={formData.color}
-          onChange={handleInputChange}
-          options={colorOptions}
-          error={errors.color}
-        />
-      </div>
-
-      {/* URL de Foto (opcional) */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">
-          URL de Foto (opcional)
-        </label>
-        <Input
-          type="url"
-          name="photo_url"
-          value={formData.photo_url}
-          onChange={handleInputChange}
-          placeholder="https://ejemplo.com/foto-auto.jpg"
-          error={errors.photo_url}
-        />
-        <p className="mt-1 text-xs text-gray-500">
-          Agrega una URL de imagen para mostrar una foto de tu auto
-        </p>
-      </div>
-
-      {/* Vista previa de imagen */}
-      {formData.photo_url && isValidUrl(formData.photo_url) && (
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-2">
-            Vista previa
-          </label>
-          <div className="w-32 h-24 bg-gray-100 rounded-lg overflow-hidden">
-            <img
-              src={formData.photo_url}
-              alt="Vista previa"
-              className="w-full h-full object-cover"
-              onError={(e) => {
-                const target = e.target;
-                target.style.display = 'none';
-              }}
+        {/* Año y Placa en la misma fila */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Año *
+            </label>
+            <Select
+                name="year"
+                value={formData.year}
+                onChange={handleInputChange}
+                options={generateYearOptions()}
+                error={errors.year}
             />
           </div>
-        </div>
-      )}
 
-      {/* Botones de acción */}
-      <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
-        <Button
-          type="button"
-          onClick={onCancel}
-          variant="secondary"
-          disabled={loading}
-        >
-          Cancelar
-        </Button>
-        <Button
-          type="submit"
-          disabled={loading}
-        >
-          {loading ? 'Guardando...' : (isEditing ? '✏️ Actualizar Auto' : '🚗 Crear Auto')}
-        </Button>
-      </div>
-    </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-2">
+              Placa *
+            </label>
+            <Input
+                type="text"
+                name="plateNumber" // Cambiado de plate_number a plateNumber
+                value={formData.plateNumber} // Cambiado de plate_number a plateNumber
+                onChange={handlePlateChange}
+                placeholder="ABC123 o ABC12D"
+                maxLength={6}
+                error={errors.plateNumber} // Cambiado de plate_number a plateNumber
+                className="uppercase"
+            />
+            <p className="mt-1 text-xs text-gray-500">
+              Formato: ABC123 (tradicional) o ABC12D (nuevo)
+            </p>
+          </div>
+        </div>
+
+        {/* Color */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Color *
+          </label>
+          <Select
+              name="color"
+              value={formData.color}
+              onChange={handleInputChange}
+              options={colorOptions}
+              error={errors.color}
+          />
+        </div>
+
+        {/* URL de Foto (opcional) */}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            URL de Foto (opcional)
+          </label>
+          <Input
+              type="url"
+              name="photo_url"
+              value={formData.photo_url}
+              onChange={handleInputChange}
+              placeholder="https://ejemplo.com/foto-auto.jpg"
+              error={errors.photo_url}
+          />
+          <p className="mt-1 text-xs text-gray-500">
+            Agrega una URL de imagen para mostrar una foto de tu auto
+          </p>
+        </div>
+
+        {/* Vista previa de imagen */}
+        {formData.photo_url && isValidUrl(formData.photo_url) && (
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Vista previa
+              </label>
+              <div className="w-32 h-24 bg-gray-100 rounded-lg overflow-hidden">
+                <img
+                    src={formData.photo_url}
+                    alt="Vista previa"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      const target = e.target;
+                      if (target instanceof HTMLImageElement) {
+                        target.style.display = 'none';
+                      }
+                    }}
+                />
+              </div>
+            </div>
+        )}
+
+        {/* Botones de acción */}
+        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-200">
+          <Button
+              type="button"
+              onClick={onCancel}
+              variant="secondary"
+              disabled={loading}
+          >
+            Cancelar
+          </Button>
+          <Button
+              type="submit"
+              disabled={loading}
+          >
+            {loading ? 'Guardando...' : (isEditing ? '✏️ Actualizar Auto' : '🚗 Crear Auto')}
+          </Button>
+        </div>
+      </form>
   );
 };
 
