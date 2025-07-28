@@ -1,4 +1,4 @@
-// src/pages/CarsPage.jsx - SOLUCIÓN del problema de timing
+// src/pages/CarsPage.jsx - Dark Mode optimizado
 import { useState, useEffect, useCallback } from 'react';
 import { PlusIcon } from '@heroicons/react/24/outline';
 import { useToast } from '../hooks/useToast';
@@ -45,77 +45,129 @@ const CarsPage = () => {
     try {
       setLoading(true);
       const response = await carService.getAll();
-
-      if (response.data.success) {
-        const carsData = response.data.data || [];
-        setCars(carsData);
-
-        // ✅ DEBUG: Verificar que los datos lleguen
-        console.log('🚗 Cars loaded:', carsData.length, carsData[0]);
-
-        showToast('Autos cargados correctamente', 'success');
-      }
+      setCars(response.data.data || []);
     } catch (error) {
-      console.error('Error loading cars:', error);
+      console.error('Error cargando autos:', error);
       showToast('Error al cargar los autos', 'error');
-      setCars([]); // ✅ Asegurar que cars sea un array
     } finally {
       setLoading(false);
     }
   }, [showToast]);
 
-  // Cargar datos al montar el componente
+  // Cargar estadísticas
+  const loadStats = useCallback(async () => {
+    try {
+      const response = await carService.getStats();
+      setStats(response.data.data);
+    } catch (error) {
+      console.error('Error cargando estadísticas:', error);
+    }
+  }, []);
+
+  // Cargar datos iniciales
   useEffect(() => {
+    // ✅ CAMBIO 1: Manejar la Promise correctamente
     loadCars().catch((error) => {
       console.error('Error loading cars on mount:', error);
     });
-  }, [loadCars]);
+    loadStats().catch((error) => {
+      console.error('Error loading stats on mount:', error);
+    });
+  }, [loadCars, loadStats]);
 
-  // ✅ APLICAR FILTROS - Efecto para filtrar autos
+  // Aplicar filtros y búsqueda
   useEffect(() => {
     let filtered = [...cars];
 
-    // Filtro por búsqueda
+    // Búsqueda por término
     if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
       filtered = filtered.filter(car =>
-          car.brand.toLowerCase().includes(searchLower) ||
-          car.model.toLowerCase().includes(searchLower) ||
-          car.plate_number.toLowerCase().includes(searchLower) ||
-          car.color.toLowerCase().includes(searchLower)
+        car.brand.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.model.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.plate_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        car.color.toLowerCase().includes(searchTerm.toLowerCase())
       );
     }
 
-    // Filtros específicos
+    // Aplicar filtros
     if (filters.brand) {
-      filtered = filtered.filter(car => car.brand === filters.brand);
+      filtered = filtered.filter(car =>
+        car.brand.toLowerCase().includes(filters.brand.toLowerCase())
+      );
     }
-
     if (filters.model) {
-      filtered = filtered.filter(car => car.model === filters.model);
+      filtered = filtered.filter(car =>
+        car.model.toLowerCase().includes(filters.model.toLowerCase())
+      );
     }
-
     if (filters.year) {
       filtered = filtered.filter(car => car.year.toString() === filters.year);
     }
-
     if (filters.color) {
-      filtered = filtered.filter(car => car.color === filters.color);
+      filtered = filtered.filter(car =>
+        car.color.toLowerCase().includes(filters.color.toLowerCase())
+      );
     }
-
-    // Filtros de rango de años
     if (filters.minYear) {
       filtered = filtered.filter(car => car.year >= parseInt(filters.minYear));
     }
-
     if (filters.maxYear) {
       filtered = filtered.filter(car => car.year <= parseInt(filters.maxYear));
     }
 
     setFilteredCars(filtered);
-  }, [cars, filters, searchTerm]);
+  }, [cars, searchTerm, filters]);
 
-  // Limpiar filtros
+  // Funciones CRUD
+  const handleCreate = async (carData) => {
+    try {
+      await carService.create(carData);
+      showToast('Auto creado exitosamente', 'success');
+      setShowAddModal(false);
+      loadCars();
+      loadStats();
+    } catch (error) {
+      console.error('Error creando auto:', error);
+      const message = error.response?.data?.message || 'Error al crear el auto';
+      showToast(message, 'error');
+    }
+  };
+
+  const handleEdit = (car) => {
+    setEditingCar(car);
+    setShowEditModal(true);
+  };
+
+  const handleUpdate = async (carData) => {
+    try {
+      await carService.update(editingCar.car_id, carData);
+      showToast('Auto actualizado exitosamente', 'success');
+      setShowEditModal(false);
+      setEditingCar(null);
+      loadCars();
+      loadStats();
+    } catch (error) {
+      console.error('Error actualizando auto:', error);
+      const message = error.response?.data?.message || 'Error al actualizar el auto';
+      showToast(message, 'error');
+    }
+  };
+
+  const handleDelete = async (carId) => {
+    if (!confirm('¿Estás seguro de que quieres eliminar este auto?')) return;
+
+    try {
+      await carService.delete(carId);
+      showToast('Auto eliminado exitosamente', 'success');
+      loadCars();
+      loadStats();
+    } catch (error) {
+      console.error('Error eliminando auto:', error);
+      const message = error.response?.data?.message || 'Error al eliminar el auto';
+      showToast(message, 'error');
+    }
+  };
+
   const clearFilters = () => {
     setFilters({
       brand: '',
@@ -128,259 +180,171 @@ const CarsPage = () => {
     setSearchTerm('');
   };
 
-  // Agregar auto
-  const handleAddCar = async (carData) => {
-    try {
-      const response = await carService.create(carData);
-
-      if (response.data.success) {
-        await loadCars(); // Recargar la lista
-        setShowAddModal(false);
-        showToast('Auto agregado exitosamente', 'success');
-      }
-    } catch (error) {
-      console.error('Error adding car:', error);
-      const message = error.response?.data?.message || 'Error al agregar el auto';
-      showToast(message, 'error');
-    }
-  };
-
-  // Editar auto
-  const handleEditCar = (car) => {
-    setEditingCar(car);
-    setShowEditModal(true);
-  };
-
-  const handleUpdateCar = async (carData) => {
-    try {
-      const response = await carService.update(editingCar.car_id, carData);
-
-      if (response.data.success) {
-        await loadCars(); // Recargar la lista
-        setShowEditModal(false);
-        setEditingCar(null);
-        showToast('Auto actualizado exitosamente', 'success');
-      }
-    } catch (error) {
-      console.error('Error updating car:', error);
-      const message = error.response?.data?.message || 'Error al actualizar el auto';
-      showToast(message, 'error');
-    }
-  };
-
-  // Eliminar auto
-  const handleDeleteCar = async (carId) => {
-    if (!window.confirm('¿Estás seguro de que quieres eliminar este auto?')) {
-      return;
-    }
-
-    try {
-      const response = await carService.delete(carId);
-
-      if (response.data.success) {
-        await loadCars(); // Recargar la lista
-        showToast('Auto eliminado exitosamente', 'success');
-      }
-    } catch (error) {
-      console.error('Error deleting car:', error);
-      const message = error.response?.data?.message || 'Error al eliminar el auto';
-      showToast(message, 'error');
-    }
-  };
-
-  // Cargar estadísticas
-  const loadStats = async () => {
-    try {
-      const response = await carService.getStats();
-      if (response.data.success) {
-        setStats(response.data.data);
-        setShowStats(true);
-      }
-    } catch (error) {
-      console.error('Error loading stats:', error);
-      showToast('Error al cargar estadísticas', 'error');
-    }
-  };
-
-  // Mostrar loading spinner mientras carga
   if (loading) {
     return (
-        <div className="flex items-center justify-center min-h-[400px]">
-          <LoadingSpinner size="lg" />
-          <span className="ml-3 text-lg text-gray-600">
-          Cargando tus autos...
-        </span>
-        </div>
+      <div className="min-h-screen bg-gray-50 dark:bg-slate-900 flex items-center justify-center transition-colors duration-200">
+        <LoadingSpinner size="lg" />
+      </div>
     );
   }
 
   return (
-      <div className="space-y-6">
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="min-h-screen bg-gray-50 dark:bg-slate-900 transition-colors duration-200">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* Header mejorado */}
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+            <h1 className="text-3xl font-bold text-gray-900 dark:text-slate-100 transition-colors duration-200">
               Mis Autos
             </h1>
-            <p className="text-gray-600 dark:text-gray-400">
+            <p className="mt-2 text-gray-600 dark:text-slate-300 transition-colors duration-200 font-medium">
               Gestiona tu colección de autos de forma fácil y organizada
             </p>
           </div>
-
-          <div className="flex items-center gap-3">
+          <div className="mt-4 sm:mt-0 flex space-x-3">
             <Button
-                onClick={loadStats}
-                variant="secondary"
-                className="flex items-center"
+              onClick={() => setShowStats(!showStats)}
+              variant="secondary"
+              className="bg-white dark:bg-slate-800 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors duration-200"
             >
               📊 Ver Estadísticas
             </Button>
             <Button
-                onClick={() => setShowAddModal(true)}
-                className="flex items-center"
+              onClick={() => setShowAddModal(true)}
+              className="shadow-lg hover:shadow-xl transition-shadow duration-200"
             >
-              <PlusIcon className="h-4 w-4 mr-2" />
+              <PlusIcon className="h-5 w-5 mr-2" />
               Agregar Auto
             </Button>
           </div>
         </div>
 
-        {/* Barra de búsqueda */}
-        <div className="relative">
+        {/* Estadísticas mejoradas */}
+        {showStats && stats && (
+          <div className="mb-8">
+            <CarStats stats={stats} />
+          </div>
+        )}
+
+        {/* Búsqueda mejorada */}
+        <div className="mb-6">
           <Input
-              type="text"
-              placeholder="🔍 Buscar por marca, modelo, placa o color..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="pl-4"
+            type="search"
+            placeholder="🔍 Buscar por marca, modelo, placa o color..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="bg-white dark:bg-slate-800 border-gray-300 dark:border-slate-600 text-gray-900 dark:text-slate-100 placeholder-gray-500 dark:placeholder-slate-400 focus:border-primary-500 dark:focus:border-primary-400 transition-colors duration-200"
           />
         </div>
 
-        {/* ✅ SOLUCIÓN: Solo renderizar CarFilters si hay datos */}
+        {/* ✅ CAMBIO 2: Filtros solo cuando hay datos */}
         {cars.length > 0 && (
+          <div className="mb-8">
             <CarFilters
-                filters={filters}
-                onFiltersChange={setFilters}
-                onClear={clearFilters}
-                cars={cars}
+              filters={filters}
+              onFiltersChange={setFilters}
+              onClear={clearFilters}
+              cars={cars}
             />
+          </div>
         )}
 
-        {/* ✅ Mensaje si no hay autos cargados */}
-        {cars.length === 0 && !loading && (
-            <div className="text-center py-12">
-              <div className="text-6xl mb-4">🚗</div>
-              <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                No tienes autos registrados
-              </h3>
-              <p className="text-gray-600 dark:text-gray-400 mb-6">
-                Comienza agregando tu primer auto a la colección
-              </p>
-              <Button
-                  onClick={() => setShowAddModal(true)}
-                  className="inline-flex items-center"
-              >
-                <PlusIcon className="h-4 w-4 mr-2" />
-                Agregar tu primer auto
-              </Button>
-            </div>
-        )}
-
-        {/* Lista de autos */}
+        {/* ✅ CAMBIO 3: Contador solo cuando hay datos */}
         {cars.length > 0 && (
-            <div className="space-y-4">
-              {/* Contador de resultados */}
-              <div className="flex items-center justify-between">
-                <p className="text-sm text-gray-600 dark:text-gray-400">
-                  Mostrando {filteredCars.length} de {cars.length} autos
-                </p>
-                {(Object.values(filters).some(v => v !== '') || searchTerm) && (
-                    <Button
-                        onClick={clearFilters}
-                        variant="ghost"
-                        size="sm"
-                        className="text-gray-500 hover:text-gray-700"
-                    >
-                      Limpiar filtros
-                    </Button>
-                )}
-              </div>
-
-              {/* Grid de autos */}
-              {filteredCars.length > 0 ? (
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredCars.map((car) => (
-                        <CarCard
-                            key={car.car_id}
-                            car={car}
-                            onEdit={handleEditCar}
-                            onDelete={handleDeleteCar}
-                        />
-                    ))}
-                  </div>
-              ) : (
-                  <div className="text-center py-12">
-                    <div className="text-4xl mb-4">🔍</div>
-                    <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">
-                      No se encontraron autos
-                    </h3>
-                    <p className="text-gray-600 dark:text-gray-400 mb-4">
-                      Intenta ajustar los filtros o la búsqueda
-                    </p>
-                    <Button
-                        onClick={clearFilters}
-                        variant="secondary"
-                    >
-                      Limpiar filtros
-                    </Button>
-                  </div>
-              )}
-            </div>
+          <div className="mb-6">
+            <p className="text-sm text-gray-600 dark:text-slate-400 transition-colors duration-200 font-medium">
+              {filteredCars.length === cars.length
+                ? `Mostrando ${cars.length} auto${cars.length !== 1 ? 's' : ''}`
+                : `Mostrando ${filteredCars.length} de ${cars.length} auto${cars.length !== 1 ? 's' : ''}`
+              }
+            </p>
+          </div>
         )}
 
-        {/* Modal para agregar auto */}
+        {/* Lista de autos / Estados vacíos mejorados */}
+        {filteredCars.length === 0 ? (
+          <div className="text-center py-16 bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 transition-colors duration-200">
+            {cars.length === 0 ? (
+              <div>
+                <div className="text-8xl mb-6">🚗</div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-3 transition-colors duration-200">
+                  No tienes autos registrados
+                </h3>
+                <p className="text-gray-600 dark:text-slate-300 mb-8 max-w-md mx-auto leading-relaxed transition-colors duration-200">
+                  Comienza agregando tu primer auto para empezar a organizar tu colección
+                </p>
+                <Button
+                  onClick={() => setShowAddModal(true)}
+                  size="lg"
+                  className="shadow-lg hover:shadow-xl transition-shadow duration-200"
+                >
+                  🚀 Agregar Mi Primer Auto
+                </Button>
+              </div>
+            ) : (
+              <div>
+                <div className="text-8xl mb-6">🔍</div>
+                <h3 className="text-xl font-bold text-gray-900 dark:text-slate-100 mb-3 transition-colors duration-200">
+                  No se encontraron autos
+                </h3>
+                <p className="text-gray-600 dark:text-slate-300 mb-8 max-w-md mx-auto leading-relaxed transition-colors duration-200">
+                  Intenta ajustar tus filtros o términos de búsqueda
+                </p>
+                <Button
+                  onClick={clearFilters}
+                  variant="secondary"
+                  size="lg"
+                  className="bg-white dark:bg-slate-700 text-gray-700 dark:text-slate-200 border-gray-300 dark:border-slate-600 hover:bg-gray-50 dark:hover:bg-slate-600 transition-colors duration-200"
+                >
+                  🗑️ Limpiar Filtros
+                </Button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {filteredCars.map((car) => (
+              <CarCard
+                key={car.car_id}
+                car={car}
+                onEdit={handleEdit}
+                onDelete={handleDelete}
+              />
+            ))}
+          </div>
+        )}
+
+        {/* Modales */}
         <Modal
-            isOpen={showAddModal}
-            onClose={() => setShowAddModal(false)}
-            title="Agregar Nuevo Auto"
-            size="lg"
+          isOpen={showAddModal}
+          onClose={() => setShowAddModal(false)}
+          title="🚗 Agregar Nuevo Auto"
         >
           <CarForm
-              onSubmit={handleAddCar}
-              onCancel={() => setShowAddModal(false)}
+            onSubmit={handleCreate}
+            onCancel={() => setShowAddModal(false)}
           />
         </Modal>
 
-        {/* Modal para editar auto */}
         <Modal
-            isOpen={showEditModal}
-            onClose={() => {
+          isOpen={showEditModal}
+          onClose={() => {
+            setShowEditModal(false);
+            setEditingCar(null);
+          }}
+          title="✏️ Editar Auto"
+        >
+          <CarForm
+            initialData={editingCar}
+            onSubmit={handleUpdate}
+            onCancel={() => {
               setShowEditModal(false);
               setEditingCar(null);
             }}
-            title="Editar Auto"
-            size="lg"
-        >
-          <CarForm
-              initialData={editingCar}
-              onSubmit={handleUpdateCar}
-              onCancel={() => {
-                setShowEditModal(false);
-                setEditingCar(null);
-              }}
           />
         </Modal>
-
-        {/* Modal de estadísticas */}
-        <Modal
-            isOpen={showStats}
-            onClose={() => setShowStats(false)}
-            title="Estadísticas de tu Colección"
-            size="lg"
-        >
-          {stats && <CarStats stats={stats} />}
-        </Modal>
       </div>
+    </div>
   );
 };
 
