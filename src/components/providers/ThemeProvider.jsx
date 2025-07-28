@@ -1,10 +1,9 @@
 // src/components/providers/ThemeProvider.jsx
-import { createContext, useState, useEffect } from 'react';
-
-export const ThemeContext = createContext();
+import { useState, useEffect } from 'react';
+import { ThemeContext } from '../contexts/ThemeContext';
 
 export const ThemeProvider = ({ children }) => {
-  const [theme, setTheme] = useState('dark'); // Por defecto oscuro para el glassmorphism
+  const [theme, setTheme] = useState('dark');
 
   useEffect(() => {
     // Cargar tema desde localStorage
