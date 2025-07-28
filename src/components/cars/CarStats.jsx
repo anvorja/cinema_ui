@@ -1,5 +1,6 @@
 // src/components/cars/CarStats.jsx
 import { useState } from 'react';
+import PropTypes from 'prop-types';
 import {
   ChartBarIcon,
   TruckIcon,
@@ -289,6 +290,25 @@ const CarStats = ({ stats }) => {
       </div>
     </div>
   );
+};
+
+CarStats.propTypes = {
+  stats: PropTypes.shape({
+    total_cars: PropTypes.number,
+    unique_brands: PropTypes.number,
+    average_year: PropTypes.number,
+    unique_colors: PropTypes.number,
+    oldest_year: PropTypes.number,
+    newest_year: PropTypes.number,
+    brand_distribution: PropTypes.objectOf(PropTypes.number),
+    year_distribution: PropTypes.objectOf(PropTypes.number),
+    most_common_color: PropTypes.string,
+    most_common_color_count: PropTypes.number,
+    vintage_count: PropTypes.number,
+    new_count: PropTypes.number,
+    favorite_brand: PropTypes.string,
+    favorite_brand_count: PropTypes.number,
+  })
 };
 
 export default CarStats;
