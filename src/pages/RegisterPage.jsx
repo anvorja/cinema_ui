@@ -1,12 +1,3 @@
-// // src/pages/RegisterPage.jsx
-// import RegisterForm from '../components/auth/RegisterForm';
-//
-// const RegisterPage = () => {
-//   return <RegisterForm />;
-// };
-//
-// export default RegisterPage;
-
 // src/pages/RegisterPage.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';

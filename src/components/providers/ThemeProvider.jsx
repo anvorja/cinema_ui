@@ -1,19 +1,3 @@
-// // components/providers/ThemeProvider.jsx
-// import React from 'react';
-// import { ThemeContext, useThemeLogic } from '../../hooks/useTheme';
-//
-// export const ThemeProvider = ({ children }) => {
-//   const themeValue = useThemeLogic();
-//
-//   return (
-//     <ThemeContext.Provider value={themeValue}>
-//       {children}
-//     </ThemeContext.Provider>
-//   );
-// };
-
-
-// version 2
 // src/components/providers/ThemeProvider.jsx
 import { createContext, useState, useEffect } from 'react';
 

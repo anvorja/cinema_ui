@@ -4,6 +4,7 @@ import { useTheme } from '../../hooks/useTheme';
 import Header from './Header';
 import ParticleBackground from '../ui/ParticleBackground';
 import { cn } from '../../utils';
+import {Footer} from "./Footer.jsx";
 
 const Layout = ({ children }) => {
   const location = useLocation();
@@ -12,6 +13,10 @@ const Layout = ({ children }) => {
   // Páginas que no necesitan el header (como login y register)
   const hideHeaderRoutes = ['/login', '/register'];
   const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
+
+  // Páginas que no deben mostrar el footer (solo login)
+  const hideFooterRoutes = ['/login'];
+  const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
 
   // Páginas de autenticación tienen layout diferente
   const isAuthPage = ['/login', '/register'].includes(location.pathname);
@@ -25,8 +30,12 @@ const Layout = ({ children }) => {
           : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 text-gray-900'
       )}>
         <ParticleBackground />
-        <div className="relative z-10">
-          {children}
+        <div className="relative z-10 flex flex-col min-h-screen">
+          <div className="flex-grow">
+            {children}
+          </div>
+          {/* Solo mostrar footer en register, no en login */}
+          {!shouldHideFooter && <Footer />}
         </div>
       </div>
     );
@@ -41,14 +50,16 @@ const Layout = ({ children }) => {
     )}>
       <ParticleBackground />
 
-      <div className="relative z-10">
+      <div className="relative z-10 flex flex-col min-h-screen">
         {!shouldHideHeader && <Header />}
         <main className={cn(
-          'transition-all duration-300',
+          'flex-grow transition-all duration-300',
           !shouldHideHeader && 'pt-0' // El header ya tiene margin
         )}>
           {children}
         </main>
+        {/* Footer siempre visible en páginas normales */}
+        <Footer />
       </div>
     </div>
   );
