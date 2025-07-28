@@ -1,4 +1,4 @@
-// src/components/auth/RegisterForm.jsx - Dark Mode optimizado
+// src/components/auth/RegisterForm.jsx
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import Button from '../ui/Button';

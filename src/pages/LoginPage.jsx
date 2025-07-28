@@ -182,9 +182,9 @@ const LoginPage = () => {
                       className="absolute right-1 top-1/2 -translate-y-1/2 h-10 w-10 hover:bg-white/10 rounded-lg flex items-center justify-center transition-colors"
                   >
                     {showPassword ? (
-                        <EyeSlashIcon className="w-4 h-4" />
+                        <EyeSlashIcon className="w-4 h-4 text-purple-300 group-hover:text-white transition-colors" />
                     ) : (
-                        <EyeIcon className="w-4 h-4" />
+                        <EyeIcon className="w-4 h-4 text-purple-300 group-hover:text-white transition-colors" />
                     )}
                   </button>
                   <div className={cn(

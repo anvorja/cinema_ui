@@ -54,7 +54,7 @@ const Layout = ({ children }) => {
         {!shouldHideHeader && <Header />}
         <main className={cn(
           'flex-grow transition-all duration-300',
-          !shouldHideHeader && 'pt-0' // El header ya tiene margin
+          !shouldHideHeader && 'pt-0'
         )}>
           {children}
         </main>
