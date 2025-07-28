@@ -9,69 +9,15 @@ export const AuthProvider = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
 
-  // Verificar autenticación al iniciar
-  useEffect(() => {
-    const token = Cookies.get('token');
-    const userInfo = Cookies.get('userInfo');
+  // Helper function para manejar autenticación exitosa
+  const handleAuthSuccess = useCallback((access_token, user_info) => {
+    // Guardar token e info del usuario
+    Cookies.set('token', access_token, { expires: 1 });
+    Cookies.set('userInfo', JSON.stringify(user_info), { expires: 1 });
 
-    if (token && userInfo) {
-      try {
-        const parsedUser = JSON.parse(userInfo);
-        // Actualizar estados en batch para evitar múltiples re-renders
-        setUser(parsedUser);
-        setIsAuthenticated(true);
-      } catch (error) {
-        console.error('Error parsing user info:', error);
-        logout();
-      }
-    }
-    setIsLoading(false);
-  }, []);
-
-  const login = useCallback(async (credentials) => {
-    try {
-      const response = await authService.login(credentials);
-
-      if (response.data.success) {
-        const { access_token, user_info } = response.data.data;
-
-        // Guardar token y info del usuario
-        Cookies.set('token', access_token, { expires: 1 });
-        Cookies.set('userInfo', JSON.stringify(user_info), { expires: 1 });
-
-        // Actualizar estados en batch para evitar múltiples re-renders
-        setUser(user_info);
-        setIsAuthenticated(true);
-
-        return { success: true };
-      }
-    } catch (error) {
-      const message = error.response?.data?.message || 'Error al iniciar sesión';
-      return { success: false, error: message };
-    }
-  }, []);
-
-  const register = useCallback(async (userData) => {
-    try {
-      const response = await authService.register(userData);
-
-      if (response.data.success) {
-        const { access_token, user_info } = response.data.data;
-
-        // Guardar token y info del usuario
-        Cookies.set('token', access_token, { expires: 1 });
-        Cookies.set('userInfo', JSON.stringify(user_info), { expires: 1 });
-
-        // Actualizar estados en batch
-        setUser(user_info);
-        setIsAuthenticated(true);
-
-        return { success: true };
-      }
-    } catch (error) {
-      const message = error.response?.data?.message || 'Error al crear la cuenta';
-      return { success: false, error: message };
-    }
+    // Actualizar estados
+    setUser(user_info);
+    setIsAuthenticated(true);
   }, []);
 
   const logout = useCallback(() => {
@@ -82,12 +28,61 @@ export const AuthProvider = ({ children }) => {
       console.error('Error during logout:', error);
     }
 
-    // Limpiar datos locales en batch
+    // Limpiar datos locales
     Cookies.remove('token');
     Cookies.remove('userInfo');
     setUser(null);
     setIsAuthenticated(false);
   }, []);
+
+  // Verificar autenticación al iniciar
+  useEffect(() => {
+    const token = Cookies.get('token');
+    const userInfo = Cookies.get('userInfo');
+
+    if (token && userInfo) {
+      try {
+        const parsedUser = JSON.parse(userInfo);
+        // Actualizar estados en batch para evitar múltiples renders
+        setUser(parsedUser);
+        setIsAuthenticated(true);
+      } catch (error) {
+        console.error('Error parsing user info:', error);
+        logout();
+      }
+    }
+    setIsLoading(false);
+  }, [logout]);
+
+  const login = useCallback(async (credentials) => {
+    try {
+      const response = await authService.login(credentials);
+
+      if (response.data.success) {
+        const { access_token, user_info } = response.data.data;
+        handleAuthSuccess(access_token, user_info);
+        return { success: true };
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Error al iniciar sesión';
+      return { success: false, error: message };
+    }
+  }, [handleAuthSuccess]);
+
+  const register = useCallback(async (userData) => {
+    try {
+      const response = await authService.register(userData);
+
+      if (response.data.success) {
+        const { access_token, user_info } = response.data.data;
+        handleAuthSuccess(access_token, user_info);
+        return { success: true };
+      }
+    } catch (error) {
+      const message = error.response?.data?.message || 'Error al crear la cuenta';
+      return { success: false, error: message };
+    }
+  }, [handleAuthSuccess]);
 
   const updateUser = useCallback((newUserInfo) => {
     setUser(newUserInfo);
