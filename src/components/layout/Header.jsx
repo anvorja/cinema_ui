@@ -819,7 +819,7 @@ const Header = () => {
 
           {/* Auth Section con mejor estilo */}
           <div className="flex items-center space-x-3 ml-6 pl-3 border-l border-gray-200/50 dark:border-gray-700/50">
-            <ThemeToggle />
+            <ThemeToggle height="sm"/>
 
             {isAuthenticated ? (
               <>
