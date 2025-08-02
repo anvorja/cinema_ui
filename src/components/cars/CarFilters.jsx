@@ -215,34 +215,34 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
       {isExpanded && (
         <div className="space-y-4 border-t border-white/20 dark:border-white/10 pt-4">
 
-          {/* 💰 RANGO DE PRECIO */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Precio mínimo
-              </label>
-              <input
-                type="number"
-                value={filters.minPrice}
-                onChange={(e) => handleFilterChange('minPrice', e.target.value)}
-                placeholder="Ej: 10000"
-                className="w-full h-8 px-2 text-sm rounded-lg border backdrop-blur-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-500/70 dark:placeholder-slate-400/70 transition-all duration-300 ease-out hover:bg-white/20 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 dark:focus:border-blue-300/50"
-              />
-            </div>
+          {/*/!* 💰 RANGO DE PRECIO *!/*/}
+          {/*<div className="grid grid-cols-1 md:grid-cols-2 gap-4">*/}
+          {/*  <div>*/}
+          {/*    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">*/}
+          {/*      Precio mínimo*/}
+          {/*    </label>*/}
+          {/*    <input*/}
+          {/*      type="number"*/}
+          {/*      value={filters.minPrice}*/}
+          {/*      onChange={(e) => handleFilterChange('minPrice', e.target.value)}*/}
+          {/*      placeholder="Ej: 10000"*/}
+          {/*      className="w-full h-8 px-2 text-sm rounded-lg border backdrop-blur-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-500/70 dark:placeholder-slate-400/70 transition-all duration-300 ease-out hover:bg-white/20 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 dark:focus:border-blue-300/50"*/}
+          {/*    />*/}
+          {/*  </div>*/}
 
-            <div>
-              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Precio máximo
-              </label>
-              <input
-                type="number"
-                value={filters.maxPrice}
-                onChange={(e) => handleFilterChange('maxPrice', e.target.value)}
-                placeholder="Ej: 50000"
-                className="w-full h-8 px-2 text-sm rounded-lg border backdrop-blur-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-500/70 dark:placeholder-slate-400/70 transition-all duration-300 ease-out hover:bg-white/20 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 dark:focus:border-blue-300/50"
-              />
-            </div>
-          </div>
+          {/*  <div>*/}
+          {/*    <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">*/}
+          {/*      Precio máximo*/}
+          {/*    </label>*/}
+          {/*    <input*/}
+          {/*      type="number"*/}
+          {/*      value={filters.maxPrice}*/}
+          {/*      onChange={(e) => handleFilterChange('maxPrice', e.target.value)}*/}
+          {/*      placeholder="Ej: 50000"*/}
+          {/*      className="w-full h-8 px-2 text-sm rounded-lg border backdrop-blur-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-500/70 dark:placeholder-slate-400/70 transition-all duration-300 ease-out hover:bg-white/20 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 dark:focus:border-blue-300/50"*/}
+          {/*    />*/}
+          {/*  </div>*/}
+          {/*</div>*/}
 
           {/* 📆 RANGO DE AÑOS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -275,19 +275,19 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
             </div>
           </div>
 
-          {/* 🔢 BÚSQUEDA POR PLACA */}
-          <div>
-            <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Placa
-            </label>
-            <input
-              type="text"
-              value={filters.plate}
-              onChange={(e) => handleFilterChange('plate', e.target.value)}
-              placeholder="Ej: ABC123"
-              className="w-full h-8 px-2 text-sm rounded-lg border backdrop-blur-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-500/70 dark:placeholder-slate-400/70 transition-all duration-300 ease-out hover:bg-white/20 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 dark:focus:border-blue-300/50"
-            />
-          </div>
+          {/*/!* 🔢 BÚSQUEDA POR PLACA *!/*/}
+          {/*<div>*/}
+          {/*  <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">*/}
+          {/*    Placa*/}
+          {/*  </label>*/}
+          {/*  <input*/}
+          {/*    type="text"*/}
+          {/*    value={filters.plate}*/}
+          {/*    onChange={(e) => handleFilterChange('plate', e.target.value)}*/}
+          {/*    placeholder="Ej: ABC123"*/}
+          {/*    className="w-full h-8 px-2 text-sm rounded-lg border backdrop-blur-xl bg-white/10 dark:bg-white/5 border-white/20 dark:border-white/10 text-slate-800 dark:text-slate-100 placeholder-slate-500/70 dark:placeholder-slate-400/70 transition-all duration-300 ease-out hover:bg-white/20 dark:hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 dark:focus:border-blue-300/50"*/}
+          {/*  />*/}
+          {/*</div>*/}
 
           {/* 🔧 FILTROS ADICIONALES (Opcional) */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
