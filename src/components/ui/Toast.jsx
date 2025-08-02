@@ -1,11 +1,12 @@
-// src/components/ui/Toast.jsx
+// src/components/ui/Toast.jsx - Versión alternativa usando clases CSS
 import { useState, useCallback, useMemo } from 'react';
 import { Transition } from '@headlessui/react';
 import {
   CheckCircleIcon,
   ExclamationTriangleIcon,
   XCircleIcon,
-  XMarkIcon
+  XMarkIcon,
+  InformationCircleIcon
 } from '@heroicons/react/24/outline';
 import { ToastContext } from '../../hooks/useToast';
 
@@ -31,9 +32,8 @@ export const ToastProvider = ({ children }) => {
     return id;
   }, [removeToast]);
 
-  // Memoizar el objeto toast para evitar re-renders innecesarios
   const toastMethods = useMemo(() => ({
-    success: (message, duration = 2000) => addToast(message, 'success', duration), // Reducido a 2s para login
+    success: (message, duration = 2000) => addToast(message, 'success', duration),
     error: (message, duration = 4000) => addToast(message, 'error', duration),
     warning: (message, duration = 3000) => addToast(message, 'warning', duration),
     info: (message, duration = 3000) => addToast(message, 'info', duration),
@@ -50,7 +50,7 @@ export const ToastProvider = ({ children }) => {
 
 const ToastContainer = ({ toasts, onRemove }) => {
   return (
-    <div className="fixed top-4 right-4 z-50 space-y-2">
+    <div className="toast-container">
       {toasts.map((toast) => (
         <ToastItem
           key={toast.id}
@@ -67,14 +67,14 @@ const ToastItem = ({ toast, onRemove }) => {
     success: CheckCircleIcon,
     error: XCircleIcon,
     warning: ExclamationTriangleIcon,
-    info: CheckCircleIcon,
+    info: InformationCircleIcon,
   };
 
   const styles = {
     success: 'toast-success',
     error: 'toast-error',
     warning: 'toast-warning',
-    info: 'toast border-l-primary-500',
+    info: 'toast-info',
   };
 
   const Icon = icons[toast.type];
@@ -83,31 +83,32 @@ const ToastItem = ({ toast, onRemove }) => {
     <Transition
       appear
       show={true}
-      enter="transition-all duration-300 ease-out"
-      enterFrom="opacity-0 translate-x-full"
-      enterTo="opacity-100 translate-x-0"
-      leave="transition-all duration-200 ease-in"
-      leaveFrom="opacity-100 translate-x-0"
-      leaveTo="opacity-0 translate-x-full"
+      enter="toast-enter"
+      leave="toast-exit"
     >
-      <div className={`toast ${styles[toast.type]}`}>
-        <div className="flex items-start">
+      <div className={styles[toast.type]}>
+        <div className="flex items-start p-4">
+          {/* Icono */}
           <div className="flex-shrink-0">
-            <Icon className="h-5 w-5" />
+            <Icon className="h-5 w-5 toast-icon" />
           </div>
+
+          {/* Mensaje */}
           <div className="ml-3 w-0 flex-1">
-            <p className="text-sm font-medium text-gray-900">
+            <p className="toast-text">
               {toast.message}
             </p>
           </div>
+
+          {/* Botón de cerrar */}
           <div className="ml-4 flex-shrink-0 flex">
             <button
               type="button"
-              className="inline-flex text-gray-400 hover:text-gray-500 focus:outline-none focus:ring-2 focus:ring-primary-500"
+              className="toast-close"
               onClick={onRemove}
             >
               <span className="sr-only">Cerrar</span>
-              <XMarkIcon className="h-5 w-5" />
+              <XMarkIcon className="h-4 w-4" />
             </button>
           </div>
         </div>
