@@ -43,7 +43,6 @@ export const AuthProvider = ({ children }) => {
     if (token && userInfo) {
       try {
         const parsedUser = JSON.parse(userInfo);
-        // Actualizar estados en batch para evitar múltiples renders
         setUser(parsedUser);
         setIsAuthenticated(true);
       } catch (error) {
@@ -71,14 +70,33 @@ export const AuthProvider = ({ children }) => {
 
   const register = useCallback(async (userData) => {
     try {
-      const response = await authService.register(userData);
+      console.log('AuthProvider - Datos recibidos para registro:', userData);
+
+      // Asegurar que los datos estén en el formato correcto
+      const formattedData = {
+        firstName: userData.firstName || userData.first_name,
+        lastName: userData.lastName || userData.last_name,
+        email: userData.email,
+        password: userData.password
+      };
+
+      console.log('AuthProvider - Datos formateados para enviar:', formattedData);
+
+      const response = await authService.register(formattedData);
+
+      console.log('AuthProvider - Respuesta del servidor:', response.data);
 
       if (response.data.success) {
         const { access_token, user_info } = response.data.data;
         handleAuthSuccess(access_token, user_info);
         return { success: true };
+      } else {
+        return { success: false, error: response.data.message || 'Error al crear la cuenta' };
       }
     } catch (error) {
+      console.error('AuthProvider - Error completo:', error);
+      console.error('AuthProvider - Response data:', error.response?.data);
+
       const message = error.response?.data?.message || 'Error al crear la cuenta';
       return { success: false, error: message };
     }
