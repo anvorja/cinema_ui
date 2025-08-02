@@ -411,3 +411,274 @@
     transform: translateY(-10px);
   }
 }
+
+@layer components {
+  /* Select glassmórfico mejorado */
+  .dark select {
+    color-scheme: dark;
+    background: rgba(30, 41, 59, 0.1) !important;
+    backdrop-filter: blur(16px);
+    color: rgb(248, 250, 252) !important;
+    border-color: rgba(255, 255, 255, 0.1) !important;
+  }
+
+  .dark select:focus {
+    background: rgba(30, 41, 59, 0.15) !important;
+    border-color: rgba(59, 130, 246, 0.5) !important;
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
+  }
+
+  .dark select:hover {
+    background: rgba(255, 255, 255, 0.1) !important;
+    border-color: rgba(255, 255, 255, 0.2) !important;
+  }
+
+  /* Options con glassmorphism */
+  .dark select option {
+    background: rgba(30, 41, 59, 0.95) !important;
+    color: rgb(248, 250, 252) !important;
+    padding: 10px 14px;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  }
+
+  .dark select option:hover {
+    background: rgba(51, 65, 85, 0.9) !important;
+    color: rgb(147, 197, 253) !important;
+  }
+
+  .dark select option:checked {
+    background: rgba(59, 130, 246, 0.3) !important;
+    color: rgb(219, 234, 254) !important;
+    font-weight: 500;
+  }
+
+  /* Light mode glassmorphic */
+  select {
+    color-scheme: light;
+  }
+
+  select option {
+    background: rgba(255, 255, 255, 0.9) !important;
+    color: rgb(17, 24, 39) !important;
+    padding: 10px 14px;
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+  }
+
+  select option:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+    color: rgb(30, 64, 175) !important;
+  }
+
+  select option:checked {
+    background: rgba(59, 130, 246, 0.2) !important;
+    color: rgb(30, 58, 138) !important;
+    font-weight: 500;
+  }
+
+  /* Animaciones glassmórficas para select */
+  .glass-select-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-select-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+    pointer-events: none;
+  }
+
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+
+  /* Scrollbar glassmórfico para select dropdown */
+  select::-webkit-scrollbar {
+    width: 8px;
+    background: transparent;
+  }
+
+  select::-webkit-scrollbar-track {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+  }
+
+  select::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.3);
+    border-radius: 4px;
+    backdrop-filter: blur(8px);
+  }
+
+  select::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.5);
+  }
+
+  .dark select::-webkit-scrollbar-track {
+    background: rgba(0, 0, 0, 0.2);
+  }
+
+  .dark select::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.2);
+  }
+
+  .dark select::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+/* Efecto shimmer para selects */
+@layer components {
+  .glass-select-shimmer {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .glass-select-shimmer::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.2),
+      transparent
+    );
+    animation: shimmer 2s infinite;
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  .dark .glass-select-shimmer::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.1),
+      transparent
+    );
+  }
+
+  @keyframes shimmer {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+}
+
+/* Animación shimmer integrada */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Animación shimmer integrada */
+@keyframes shimmer {
+  0% {
+    left: -100%;
+    opacity: 0;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    left: 100%;
+    opacity: 0;
+  }
+}
+
+.animate-shimmer {
+  animation: shimmer 2s infinite;
+}
+
+/* Shimmer con colores del tema TuCarro */
+@layer components {
+  .shimmer-theme {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .shimmer-theme::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(59, 130, 246, 0.15),   /* Azul */
+      rgba(147, 51, 234, 0.15),   /* Púrpura */
+      rgba(245, 158, 11, 0.15),   /* Ámbar */
+      transparent
+    );
+    animation: shimmer-theme 3s infinite;
+    pointer-events: none;
+    z-index: 1;
+    border-radius: 0.5rem;
+  }
+
+  /* Versión para modo dark - más sutil */
+  .dark .shimmer-theme::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(59, 130, 246, 0.08),
+      rgba(147, 51, 234, 0.08),
+      rgba(245, 158, 11, 0.08),
+      transparent
+    );
+  }
+
+  @keyframes shimmer-theme {
+    0% { left: -100%; opacity: 0; }
+    20% { opacity: 1; }
+    80% { opacity: 1; }
+    100% { left: 100%; opacity: 0; }
+  }
+
+  /* Versión intensa */
+  .shimmer-theme-intense::before {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(59, 130, 246, 0.25),
+      rgba(147, 51, 234, 0.25),
+      rgba(245, 158, 11, 0.25),
+      transparent
+    );
+    animation: shimmer-theme-fast 2s infinite;
+  }
+
+  @keyframes shimmer-theme-fast {
+    0% { left: -100%; }
+    100% { left: 100%; }
+  }
+}

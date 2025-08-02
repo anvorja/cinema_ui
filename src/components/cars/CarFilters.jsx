@@ -8,6 +8,8 @@ import {
 } from '@heroicons/react/24/outline';
 import Button from '../ui/Button';
 import Select from '../ui/Select';
+import GlassSelect from "../ui/GlassSelect.jsx";
+import ThemeShimmerSelect from "../ui/ThemeShimmerSelect.jsx";
 
 const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
   const [isExpanded, setIsExpanded] = useState(false);
@@ -140,13 +142,30 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
           <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
             Marca
           </label>
-          <Select
-            value={filters.brand}
-            onChange={(e) => handleFilterChange('brand', e.target.value)}
-            options={brandOptions}
-            size="sm"
-            className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
-          />
+{/*<GlassSelect*/}
+{/*  value={filters.brand}*/}
+{/*  onChange={(e) => handleFilterChange('brand', e.target.value)}*/}
+{/*  options={brandOptions}*/}
+{/*  size="sm"*/}
+{/*/>*/}
+
+{/*          <Select*/}
+{/*  value={filters.model}*/}
+{/*  onChange={(e) => handleFilterChange('model', e.target.value)}*/}
+{/*  options={modelOptions}*/}
+{/*  size="sm"*/}
+{/*  enableShimmer={true} // 👈 ACTIVAR SHIMMER*/}
+{/*  className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"*/}
+{/*/>*/}
+            <ThemeShimmerSelect
+    value={filters.brand}
+    onChange={(e) => handleFilterChange('brand', e.target.value)}
+    options={brandOptions}
+    size="sm"
+    intensity="normal" // o "intense"
+    className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
+  />
+
         </div>
 
         <div>
