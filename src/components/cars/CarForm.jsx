@@ -1,66 +1,130 @@
 // src/components/cars/CarForm.jsx
-import { useState, useEffect } from 'react';
-import { useToast } from '../../hooks/useToast';
+import {useEffect, useState} from 'react';
+import {useToast} from '../../hooks/useToast';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
 import Select from '../ui/Select';
 
-const CarForm = ({ initialData, onSubmit, onCancel }) => {
+const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
   const { showToast } = useToast();
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     brand: '',
     model: '',
     year: '',
-    plateNumber: '', // Cambiado de plate_number a plateNumber
+    plateNumber: '',
     color: '',
     photo_url: ''
   });
 
   const [errors, setErrors] = useState({});
 
-  // Opciones predefinidas
-  const brandOptions = [
-    { value: '', label: 'Selecciona una marca' },
-    { value: 'Toyota', label: 'Toyota' },
-    { value: 'Honda', label: 'Honda' },
-    { value: 'Ford', label: 'Ford' },
-    { value: 'Chevrolet', label: 'Chevrolet' },
-    { value: 'Nissan', label: 'Nissan' },
-    { value: 'BMW', label: 'BMW' },
-    { value: 'Mercedes-Benz', label: 'Mercedes-Benz' },
-    { value: 'Audi', label: 'Audi' },
-    { value: 'Volkswagen', label: 'Volkswagen' },
-    { value: 'Hyundai', label: 'Hyundai' },
-    { value: 'Kia', label: 'Kia' },
-    { value: 'Mazda', label: 'Mazda' },
-    { value: 'Subaru', label: 'Subaru' },
-    { value: 'Mitsubishi', label: 'Mitsubishi' },
-    { value: 'Renault', label: 'Renault' },
-    { value: 'Peugeot', label: 'Peugeot' },
-    { value: 'Fiat', label: 'Fiat' },
-    { value: 'Jeep', label: 'Jeep' },
-    { value: 'Land Rover', label: 'Land Rover' },
-    { value: 'Otro', label: 'Otro' }
+  const getBaseBrandOptions = () => [
+    'Aston Martin', 'Audi', 'BMW', 'Bentley', 'Bugatti', 'Cadillac',
+    'Chevrolet', 'Chrysler', 'Citroën', 'Dodge', 'Ferrari', 'Fiat',
+    'Ford', 'Genesis', 'Honda', 'Hyundai', 'Infiniti', 'Jaguar',
+    'Jeep', 'Kia', 'Lamborghini', 'Land Rover', 'Lexus', 'Lincoln',
+    'Maserati', 'Mazda', 'McLaren', 'Mercedes-Benz', 'Mini', 'Mitsubishi',
+    'Nissan', 'Peugeot', 'Porsche', 'Ram', 'Renault', 'Rolls-Royce',
+    'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
   ];
 
-  const colorOptions = [
-    { value: '', label: 'Selecciona un color' },
-    { value: 'Blanco', label: 'Blanco' },
-    { value: 'Negro', label: 'Negro' },
-    { value: 'Gris', label: 'Gris' },
-    { value: 'Plata', label: 'Plata' },
-    { value: 'Rojo', label: 'Rojo' },
-    { value: 'Azul', label: 'Azul' },
-    { value: 'Verde', label: 'Verde' },
-    { value: 'Amarillo', label: 'Amarillo' },
-    { value: 'Naranja', label: 'Naranja' },
-    { value: 'Morado', label: 'Morado' },
-    { value: 'Marrón', label: 'Marrón' },
-    { value: 'Beige', label: 'Beige' },
-    { value: 'Dorado', label: 'Dorado' },
-    { value: 'Otro', label: 'Otro' }
-  ];
+  // Opciones predefinidas
+  // const brandOptions = [
+  //   { value: '', label: 'Selecciona una marca' },
+  //   { value: 'Toyota', label: 'Toyota' },
+  //   { value: 'Honda', label: 'Honda' },
+  //   { value: 'Ford', label: 'Ford' },
+  //   { value: 'Chevrolet', label: 'Chevrolet' },
+  //   { value: 'Nissan', label: 'Nissan' },
+  //   { value: 'BMW', label: 'BMW' },
+  //   { value: 'Mercedes-Benz', label: 'Mercedes-Benz' },
+  //   { value: 'Audi', label: 'Audi' },
+  //   { value: 'Volkswagen', label: 'Volkswagen' },
+  //   { value: 'Hyundai', label: 'Hyundai' },
+  //   { value: 'Kia', label: 'Kia' },
+  //   { value: 'Mazda', label: 'Mazda' },
+  //   { value: 'Subaru', label: 'Subaru' },
+  //   { value: 'Mitsubishi', label: 'Mitsubishi' },
+  //   { value: 'Renault', label: 'Renault' },
+  //   { value: 'Peugeot', label: 'Peugeot' },
+  //   { value: 'Fiat', label: 'Fiat' },
+  //   { value: 'Jeep', label: 'Jeep' },
+  //   { value: 'Land Rover', label: 'Land Rover' },
+  //   { value: 'Otro', label: 'Otro' }
+  // ];
+  //
+  // const colorOptions = [
+  //   { value: '', label: 'Selecciona un color' },
+  //   { value: 'Blanco', label: 'Blanco' },
+  //   { value: 'Negro', label: 'Negro' },
+  //   { value: 'Gris', label: 'Gris' },
+  //   { value: 'Plata', label: 'Plata' },
+  //   { value: 'Rojo', label: 'Rojo' },
+  //   { value: 'Azul', label: 'Azul' },
+  //   { value: 'Verde', label: 'Verde' },
+  //   { value: 'Amarillo', label: 'Amarillo' },
+  //   { value: 'Naranja', label: 'Naranja' },
+  //   { value: 'Morado', label: 'Morado' },
+  //   { value: 'Marrón', label: 'Marrón' },
+  //   { value: 'Beige', label: 'Beige' },
+  //   { value: 'Dorado', label: 'Dorado' },
+  //   { value: 'Otro', label: 'Otro' }
+  // ];
+
+  const getDynamicBrandOptions = () => {
+    // Obtener marcas de autos existentes
+    const existingBrands = allCars
+        .map(car => car.brand)
+        .filter(brand => brand && brand.trim() !== ''); // Filtrar valores vacíos
+
+    // Combinar con marcas base y eliminar duplicados
+    const allBrands = [...new Set([...getBaseBrandOptions(), ...existingBrands])];
+
+    // Ordenar alfabéticamente
+    allBrands.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
+    // Crear opciones para el select
+    return [
+      {value: '', label: 'Selecciona una marca'},
+      ...allBrands.map(brand => ({
+        value: brand,
+        label: brand
+      })),
+      {value: 'Otro', label: 'Otro'}
+    ];
+  };
+
+  const getDynamicColorOptions = () => {
+    // Colores base
+    const baseColors = [
+      'Blanco', 'Negro', 'Gris', 'Plata', 'Rojo', 'Azul', 'Verde',
+      'Amarillo', 'Naranja', 'Morado', 'Marrón', 'Beige', 'Dorado'
+    ];
+
+    // Obtener colores de autos existentes
+    const existingColors = allCars
+        .map(car => car.color)
+        .filter(color => color && color.trim() !== '');
+
+    // Combinar y eliminar duplicados
+    const allColors = [...new Set([...baseColors, ...existingColors])];
+
+    // Ordenar alfabéticamente
+    allColors.sort((a, b) => a.localeCompare(b, 'es', { sensitivity: 'base' }));
+
+    return [
+      { value: '', label: 'Selecciona un color' },
+      ...allColors.map(color => ({
+        value: color,
+        label: color
+      })),
+      { value: 'Otro', label: 'Otro' }
+    ];
+  };
+
+  const brandOptions = getDynamicBrandOptions();
+  const colorOptions = getDynamicColorOptions();
 
   // Cargar datos iniciales si es edición
   useEffect(() => {

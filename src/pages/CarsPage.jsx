@@ -160,6 +160,7 @@ const CarsPage = () => {
   };
 
   const handleEdit = (car) => {
+    console.log('Car data:', car);
     setEditingCar(car);
     setShowEditModal(true);
   };
@@ -169,7 +170,7 @@ const CarsPage = () => {
       try {
         await carService.delete(carId);
         showToast('Auto eliminado exitosamente', 'success');
-        loadCars();
+        await loadCars();
       } catch (error) {
         console.error('Error eliminando auto:', error);
         showToast('Error al eliminar el auto', 'error');
@@ -190,7 +191,7 @@ const CarsPage = () => {
       setShowAddModal(false);
       setShowEditModal(false);
       setEditingCar(null);
-      loadCars();
+      await loadCars();
     } catch (error) {
       console.error('Error guardando auto:', error);
       showToast(
@@ -385,6 +386,7 @@ const CarsPage = () => {
               title="Agregar Nuevo Auto"
           >
             <CarForm
+                allCars={cars}
                 onSubmit={handleFormSubmit}
                 onCancel={() => setShowAddModal(false)}
             />
@@ -399,7 +401,8 @@ const CarsPage = () => {
               title="Editar Auto"
           >
             <CarForm
-                car={editingCar}
+                initialData={editingCar}
+                allCars={cars}
                 onSubmit={handleFormSubmit}
                 onCancel={() => {
                   setShowEditModal(false);
