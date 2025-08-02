@@ -2,50 +2,22 @@
 import { useState } from 'react';
 import PropTypes from 'prop-types';
 import {
+  EyeIcon,
   PencilIcon,
   TrashIcon,
-  EyeIcon,
   CalendarIcon,
   TagIcon,
-  SwatchIcon
+  ChevronDownIcon,
+  ChevronUpIcon,
 } from '@heroicons/react/24/outline';
-import Button from '../ui/Button';
+
+import { GlassCard, Badge, GlassButton } from '../ui/GlassComponents';
 
 const CarCard = ({ car, onEdit, onDelete }) => {
   const [showDetails, setShowDetails] = useState(false);
-  const [imageError, setImageError] = useState(false);
-
-  // Calcular la edad del auto
-  const currentYear = new Date().getFullYear();
-  const carAge = currentYear - car.year;
-
-  // Determinar si es vintage o nuevo
-  const isVintage = car.is_vintage || carAge >= 25;
-  const isNew = car.is_new || carAge <= 3;
-
-  // Placeholder para imagen
-  const getCarEmoji = (brand) => {
-    const brandEmojis = {
-      'toyota': '🚗',
-      'honda': '🚙',
-      'ford': '🚐',
-      'chevrolet': '🚕',
-      'nissan': '🚘',
-      'bmw': '🏎️',
-      'mercedes': '🚗',
-      'audi': '🚙',
-      'volkswagen': '🚐',
-      'hyundai': '🚕',
-      'kia': '🚘',
-      'mazda': '🚗',
-      'subaru': '🚙',
-      'mitsubishi': '🚐'
-    };
-    return brandEmojis[brand?.toLowerCase()] || '🚗';
-  };
 
   const formatDate = (dateString) => {
-    if (!dateString) return 'No especificada';
+    if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('es-ES', {
       year: 'numeric',
       month: 'short',
@@ -53,127 +25,153 @@ const CarCard = ({ car, onEdit, onDelete }) => {
     });
   };
 
+  const getCarAge = (year) => {
+    const currentYear = new Date().getFullYear();
+    return currentYear - year;
+  };
+
   return (
-    <div className="bg-white rounded-lg border border-gray-200 shadow-sm hover:shadow-md transition-shadow duration-200">
-      {/* Header de la tarjeta */}
-      <div className="p-6">
-        {/* Imagen o emoji del auto */}
-        <div className="flex items-center mb-4">
-          <div className="w-16 h-16 bg-gray-100 rounded-lg flex items-center justify-center text-3xl mr-4">
-            {car.photo_url && !imageError ? (
+    <GlassCard className="p-6 relative">
+      {/* Header con imagen y badges */}
+      <div className="flex items-start justify-between mb-4">
+        <div className="flex-1">
+          {/* Imagen del auto */}
+          {car.photo_url ? (
+            <div className="w-16 h-16 rounded-xl overflow-hidden mb-3 shadow-lg ring-2 ring-white/20 dark:ring-white/10">
               <img
                 src={car.photo_url}
                 alt={`${car.brand} ${car.model}`}
-                className="w-full h-full object-cover rounded-lg"
-                onError={() => setImageError(true)}
+                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"
               />
-            ) : (
-              getCarEmoji(car.brand)
-            )}
-          </div>
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900">
+            </div>
+          ) : (
+            <div className="w-16 h-16 rounded-xl bg-gradient-to-br from-slate-200 to-slate-300 dark:from-slate-700 dark:to-slate-800 flex items-center justify-center mb-3 shadow-lg">
+              <span className="text-slate-500 dark:text-slate-400 text-sm font-medium">
+                {car.brand?.[0]}{car.model?.[0]}
+              </span>
+            </div>
+          )}
+
+          {/* Información principal */}
+          <div>
+            <h3 className="text-xl font-bold text-slate-800 dark:text-white mb-1 group-hover:text-blue-600 dark:group-hover:text-blue-400 transition-colors">
               {car.brand} {car.model}
             </h3>
-            <p className="text-sm text-gray-600">Año {car.year}</p>
-            <div className="flex items-center mt-1">
-              <span className="text-xs font-medium text-gray-500 bg-gray-100 px-2 py-1 rounded-full">
-                {car.plate_number}
-              </span>
-              {isVintage && (
-                <span className="ml-2 text-xs font-medium text-amber-700 bg-amber-100 px-2 py-1 rounded-full">
-                  🏛️ Vintage
-                </span>
-              )}
-              {isNew && (
-                <span className="ml-2 text-xs font-medium text-green-700 bg-green-100 px-2 py-1 rounded-full">
-                  ✨ Nuevo
-                </span>
-              )}
-            </div>
+            <p className="text-slate-600 dark:text-slate-300 font-medium mb-2">
+              {car.year} • {car.color}
+            </p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 font-mono bg-white/30 dark:bg-white/10 px-2 py-1 rounded-lg inline-block">
+              {car.plate_number}
+            </p>
           </div>
         </div>
 
-        {/* Información básica */}
-        <div className="space-y-2 mb-4">
-          <div className="flex items-center text-sm text-gray-600">
-            <SwatchIcon className="h-4 w-4 mr-2" />
-            <span>Color: {car.color}</span>
-          </div>
-          <div className="flex items-center text-sm text-gray-600">
-            <CalendarIcon className="h-4 w-4 mr-2" />
-            <span>Antigüedad: {carAge} año{carAge !== 1 ? 's' : ''}</span>
-          </div>
-        </div>
-
-        {/* Detalles expandibles */}
-        {showDetails && (
-          <div className="border-t border-gray-200 pt-4 mt-4 space-y-2">
-            <div className="flex items-center text-sm text-gray-600">
-              <TagIcon className="h-4 w-4 mr-2" />
-              <span>ID: {car.car_id}</span>
-            </div>
-            <div className="flex items-center text-sm text-gray-600">
-              <CalendarIcon className="h-4 w-4 mr-2" />
-              <span>Registrado: {formatDate(car.created_at)}</span>
-            </div>
-            {car.updated_at && car.updated_at !== car.created_at && (
-              <div className="flex items-center text-sm text-gray-600">
-                <PencilIcon className="h-4 w-4 mr-2" />
-                <span>Actualizado: {formatDate(car.updated_at)}</span>
-              </div>
-            )}
-            {car.photo_url && (
-              <div className="flex items-center text-sm text-gray-600">
-                <EyeIcon className="h-4 w-4 mr-2" />
-                <span>Tiene foto</span>
-              </div>
-            )}
-          </div>
-        )}
-
-        {/* Acciones */}
-        <div className="flex items-center justify-between mt-6">
-          <Button
-            onClick={() => setShowDetails(!showDetails)}
-            variant="ghost"
-            size="sm"
-            className="text-gray-500 hover:text-gray-700"
-          >
-            <EyeIcon className="h-4 w-4 mr-1" />
-            {showDetails ? 'Menos' : 'Más'} detalles
-          </Button>
-
-          <div className="flex space-x-2">
-            <Button
-              onClick={() => onEdit(car)}
-              variant="secondary"
-              size="sm"
-              className="flex items-center"
-            >
-              <PencilIcon className="h-4 w-4 mr-1" />
-              Editar
-            </Button>
-            <Button
-              onClick={() => onDelete(car.car_id)}
-              variant="danger"
-              size="sm"
-              className="flex items-center"
-            >
-              <TrashIcon className="h-4 w-4 mr-1" />
-              Eliminar
-            </Button>
-          </div>
+        {/* Badges */}
+        <div className="flex flex-col gap-2 ml-4">
+          {car.is_vintage && (
+            <Badge variant="vintage">
+              Clásico
+            </Badge>
+          )}
+          {car.is_new && (
+            <Badge variant="new">
+              Nuevo
+            </Badge>
+          )}
+          <Badge>
+            {getCarAge(car.year)} año{getCarAge(car.year) !== 1 ? 's' : ''}
+          </Badge>
         </div>
       </div>
 
-      {/* Indicador de estado visual */}
-      <div className="h-1 bg-gradient-to-r from-primary-500 to-primary-600"></div>
-    </div>
+      {/* Detalles expandibles */}
+      {showDetails && (
+        <div className="border-t border-white/20 dark:border-white/10 pt-4 mt-4 space-y-3 animate-fadeIn">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div className="flex items-center text-sm text-slate-600 dark:text-slate-300 bg-white/20 dark:bg-white/5 p-3 rounded-lg">
+              <TagIcon className="h-4 w-4 mr-2 text-blue-500" />
+              <span className="font-medium">ID:</span>
+              <span className="ml-1 font-mono">{car.car_id}</span>
+            </div>
+
+            <div className="flex items-center text-sm text-slate-600 dark:text-slate-300 bg-white/20 dark:bg-white/5 p-3 rounded-lg">
+              <CalendarIcon className="h-4 w-4 mr-2 text-green-500" />
+              <span className="font-medium">Registrado:</span>
+              <span className="ml-1">{formatDate(car.created_at)}</span>
+            </div>
+          </div>
+
+          {car.updated_at && car.updated_at !== car.created_at && (
+            <div className="flex items-center text-sm text-slate-600 dark:text-slate-300 bg-white/20 dark:bg-white/5 p-3 rounded-lg">
+              <PencilIcon className="h-4 w-4 mr-2 text-purple-500" />
+              <span className="font-medium">Actualizado:</span>
+              <span className="ml-1">{formatDate(car.updated_at)}</span>
+            </div>
+          )}
+
+          {car.photo_url && (
+            <div className="flex items-center text-sm text-slate-600 dark:text-slate-300 bg-white/20 dark:bg-white/5 p-3 rounded-lg">
+              <EyeIcon className="h-4 w-4 mr-2 text-indigo-500" />
+              <span className="font-medium">Imagen disponible</span>
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Acciones */}
+      <div className="flex items-center justify-between mt-6 pt-4 border-t border-white/20 dark:border-white/10">
+        {/* Botón de detalles */}
+        <GlassButton
+          onClick={() => setShowDetails(!showDetails)}
+          variant="secondary"
+          className={`group/btn transition-all duration-300 px-3 py-2 ${
+            showDetails ? 'mr-auto' : ''
+          }`}
+        >
+          {showDetails ? (
+            <>
+              <ChevronUpIcon className="h-4 w-4 mr-2 transition-transform group-hover/btn:scale-110" />
+              <span className="font-semibold text-sm leading-tight">
+                Menos<br />detalles
+              </span>
+            </>
+          ) : (
+            <>
+              <ChevronDownIcon className="h-4 w-4 mr-2 transition-transform group-hover/btn:scale-110" />
+              <span className="font-semibold">Más detalles</span>
+            </>
+          )}
+        </GlassButton>
+
+        {/* Botones de acción */}
+        <div className="flex space-x-2">
+          <GlassButton
+            onClick={() => onEdit(car)}
+            variant="primary"
+            className="group/edit"
+          >
+            <PencilIcon className="h-4 w-4 mr-1 transition-transform group-hover/edit:scale-110" />
+            <span className="font-semibold">Editar</span>
+          </GlassButton>
+
+          <GlassButton
+            onClick={() => onDelete(car.car_id)}
+            variant="danger"
+            className="group/delete"
+          >
+            <TrashIcon className="h-4 w-4 mr-1 transition-transform group-hover/delete:scale-110" />
+            <span className="font-semibold">Eliminar</span>
+          </GlassButton>
+        </div>
+      </div>
+
+      {/* Línea decorativa con gradiente */}
+      <div className="absolute bottom-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-500 via-purple-500 to-blue-500 opacity-50 group-hover:opacity-100 transition-opacity duration-300"></div>
+    </GlassCard>
   );
 };
 
-// ✅ PropTypes para definir la estructura del objeto car
+// PropTypes para validación
 CarCard.propTypes = {
   car: PropTypes.shape({
     car_id: PropTypes.oneOfType([PropTypes.string, PropTypes.number]).isRequired,

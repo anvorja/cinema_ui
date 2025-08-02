@@ -412,273 +412,146 @@
   }
 }
 
-@layer components {
-  /* Select glassmórfico mejorado */
-  .dark select {
-    color-scheme: dark;
-    background: rgba(30, 41, 59, 0.1) !important;
-    backdrop-filter: blur(16px);
-    color: rgb(248, 250, 252) !important;
-    border-color: rgba(255, 255, 255, 0.1) !important;
-  }
+/* src/styles/glassmorphism.css */
 
-  .dark select:focus {
-    background: rgba(30, 41, 59, 0.15) !important;
-    border-color: rgba(59, 130, 246, 0.5) !important;
-    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2) !important;
-  }
+/* ==============================================
+   ANIMACIONES GLASSMÓRFICAS
+   ============================================== */
 
-  .dark select:hover {
-    background: rgba(255, 255, 255, 0.1) !important;
-    border-color: rgba(255, 255, 255, 0.2) !important;
+/* Animación fadeIn para contenido expandible */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
   }
-
-  /* Options con glassmorphism */
-  .dark select option {
-    background: rgba(30, 41, 59, 0.95) !important;
-    color: rgb(248, 250, 252) !important;
-    padding: 10px 14px;
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-  }
-
-  .dark select option:hover {
-    background: rgba(51, 65, 85, 0.9) !important;
-    color: rgb(147, 197, 253) !important;
-  }
-
-  .dark select option:checked {
-    background: rgba(59, 130, 246, 0.3) !important;
-    color: rgb(219, 234, 254) !important;
-    font-weight: 500;
-  }
-
-  /* Light mode glassmorphic */
-  select {
-    color-scheme: light;
-  }
-
-  select option {
-    background: rgba(255, 255, 255, 0.9) !important;
-    color: rgb(17, 24, 39) !important;
-    padding: 10px 14px;
-    backdrop-filter: blur(12px);
-    border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-  }
-
-  select option:hover {
-    background: rgba(59, 130, 246, 0.1) !important;
-    color: rgb(30, 64, 175) !important;
-  }
-
-  select option:checked {
-    background: rgba(59, 130, 246, 0.2) !important;
-    color: rgb(30, 58, 138) !important;
-    font-weight: 500;
-  }
-
-  /* Animaciones glassmórficas para select */
-  .glass-select-shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .glass-select-shimmer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent
-    );
-    animation: shimmer 2s infinite;
-    pointer-events: none;
-  }
-
-  @keyframes shimmer {
-    0% { left: -100%; }
-    100% { left: 100%; }
-  }
-
-  /* Scrollbar glassmórfico para select dropdown */
-  select::-webkit-scrollbar {
-    width: 8px;
-    background: transparent;
-  }
-
-  select::-webkit-scrollbar-track {
-    background: rgba(255, 255, 255, 0.1);
-    border-radius: 4px;
-  }
-
-  select::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.3);
-    border-radius: 4px;
-    backdrop-filter: blur(8px);
-  }
-
-  select::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.5);
-  }
-
-  .dark select::-webkit-scrollbar-track {
-    background: rgba(0, 0, 0, 0.2);
-  }
-
-  .dark select::-webkit-scrollbar-thumb {
-    background: rgba(255, 255, 255, 0.2);
-  }
-
-  .dark select::-webkit-scrollbar-thumb:hover {
-    background: rgba(255, 255, 255, 0.3);
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
 
-/* Efecto shimmer para selects */
-@layer components {
-  .glass-select-shimmer {
-    position: relative;
-    overflow: hidden;
-  }
-
-  .glass-select-shimmer::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.2),
-      transparent
-    );
-    animation: shimmer 2s infinite;
-    pointer-events: none;
-    z-index: 1;
-  }
-
-  .dark .glass-select-shimmer::before {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(255, 255, 255, 0.1),
-      transparent
-    );
-  }
-
-  @keyframes shimmer {
-    0% { left: -100%; }
-    100% { left: 100%; }
-  }
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out forwards;
 }
 
-/* Animación shimmer integrada */
+/* Animación shimmer mejorada para efectos de brillo */
 @keyframes shimmer {
   0% {
-    left: -100%;
+    transform: translateX(-100%) skewX(-12deg);
     opacity: 0;
   }
   50% {
     opacity: 1;
   }
   100% {
-    left: 100%;
+    transform: translateX(100%) skewX(-12deg);
     opacity: 0;
   }
 }
 
 .animate-shimmer {
-  animation: shimmer 2s infinite;
+  animation: shimmer 3s infinite;
 }
 
-/* Animación shimmer integrada */
-@keyframes shimmer {
-  0% {
-    left: -100%;
-    opacity: 0;
-  }
-  50% {
-    opacity: 1;
-  }
-  100% {
-    left: 100%;
-    opacity: 0;
-  }
+/* ==============================================
+   SOMBRAS GLASSMÓRFICAS AVANZADAS
+   ============================================== */
+
+/* Sombras glassmórficas para cards */
+.shadow-3xl {
+  box-shadow:
+    0 35px 60px -12px rgba(0, 0, 0, 0.25),
+    0 0 0 1px rgba(255, 255, 255, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.2),
+    0 4px 25px rgba(59, 130, 246, 0.1);
 }
 
-.animate-shimmer {
-  animation: shimmer 2s infinite;
+.dark .shadow-3xl {
+  box-shadow:
+    0 35px 60px -12px rgba(0, 0, 0, 0.4),
+    0 0 0 1px rgba(255, 255, 255, 0.05),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 4px 25px rgba(59, 130, 246, 0.05);
 }
 
-/* Shimmer con colores del tema TuCarro */
-@layer components {
-  .shimmer-theme {
-    position: relative;
-    overflow: hidden;
-  }
+/* ==============================================
+   EFECTOS ADICIONALES
+   ============================================== */
 
-  .shimmer-theme::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(59, 130, 246, 0.15),   /* Azul */
-      rgba(147, 51, 234, 0.15),   /* Púrpura */
-      rgba(245, 158, 11, 0.15),   /* Ámbar */
-      transparent
-    );
-    animation: shimmer-theme 3s infinite;
-    pointer-events: none;
-    z-index: 1;
-    border-radius: 0.5rem;
-  }
+/* Efectos de hover glassmórficos */
+.glass-hover {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
 
-  /* Versión para modo dark - más sutil */
-  .dark .shimmer-theme::before {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(59, 130, 246, 0.08),
-      rgba(147, 51, 234, 0.08),
-      rgba(245, 158, 11, 0.08),
-      transparent
-    );
-  }
+.glass-hover:hover {
+  transform: translateY(-4px) scale(1.01);
+  box-shadow:
+    0 40px 80px -12px rgba(0, 0, 0, 0.3),
+    0 0 0 1px rgba(255, 255, 255, 0.15),
+    inset 0 1px 0 rgba(255, 255, 255, 0.25);
+}
 
-  @keyframes shimmer-theme {
-    0% { left: -100%; opacity: 0; }
-    20% { opacity: 1; }
-    80% { opacity: 1; }
-    100% { left: 100%; opacity: 0; }
-  }
+.dark .glass-hover:hover {
+  box-shadow:
+    0 40px 80px -12px rgba(0, 0, 0, 0.5),
+    0 0 0 1px rgba(255, 255, 255, 0.08),
+    inset 0 1px 0 rgba(255, 255, 255, 0.15);
+}
 
-  /* Versión intensa */
-  .shimmer-theme-intense::before {
-    background: linear-gradient(
-      90deg,
-      transparent,
-      rgba(59, 130, 246, 0.25),
-      rgba(147, 51, 234, 0.25),
-      rgba(245, 158, 11, 0.25),
-      transparent
-    );
-    animation: shimmer-theme-fast 2s infinite;
-  }
+/* Gradientes glassmórficos para backgrounds */
+.glass-gradient {
+  background: rgba(255, 255, 255, 0.15);
+}
 
-  @keyframes shimmer-theme-fast {
-    0% { left: -100%; }
-    100% { left: 100%; }
-  }
+.dark .glass-gradient {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+/* Efectos de texto brillante */
+.text-glow {
+  text-shadow:
+    0 0 10px rgba(59, 130, 246, 0.3),
+    0 0 20px rgba(59, 130, 246, 0.2),
+    0 0 30px rgba(59, 130, 246, 0.1);
+}
+
+.dark .text-glow {
+  text-shadow:
+    0 0 10px rgba(59, 130, 246, 0.4),
+    0 0 20px rgba(59, 130, 246, 0.3),
+    0 0 30px rgba(59, 130, 246, 0.2);
+}
+
+/* Efectos de vidrio con diferentes intensidades */
+.glass-light {
+  background: rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.glass-medium {
+  background: rgba(255, 255, 255, 0.15);
+  backdrop-filter: blur(15px);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.glass-strong {
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+}
+
+.dark .glass-light {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dark .glass-medium {
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.dark .glass-strong {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
 }
