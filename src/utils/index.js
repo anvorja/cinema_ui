@@ -1,8 +1,6 @@
 // src/utils/index.js
 import clsx from "clsx";
 
-// Función para combinar clases CSS
-
 export const cn = (...classes) => clsx(classes);
 
 // Validaciones

@@ -1,4 +1,4 @@
-// src/pages/HomePage.jsx - Diseño mejorado con glassmorphism y UX moderna
+// src/pages/HomePage.jsx
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import Button from '../components/ui/Button';

@@ -13,7 +13,6 @@ import CarStats from '../components/cars/CarStats';
 import Modal from '../components/ui/Modal';
 import { Search, Filter, BarChart3, Sparkles } from 'lucide-react';
 
-// Componente GlassCard para efectos glassmórficos
 const GlassCard = ({ children, className = "", hover = true, ...props }) => {
   return (
       <div

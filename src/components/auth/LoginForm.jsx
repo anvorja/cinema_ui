@@ -1,4 +1,4 @@
-// src/components/auth/LoginForm.jsx - Dark Mode optimizado
+// src/components/auth/LoginForm.jsx
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import Button from '../ui/Button';

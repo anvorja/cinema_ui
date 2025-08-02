@@ -10,14 +10,12 @@ import LoadingSpinner from '../components/ui/LoadingSpinner';
 
 import {
   User,
-  Mail,
   Calendar,
   Car,
   Shield,
   Edit,
   Save,
   X,
-  Settings,
   ArrowLeft,
   Trash2,
   AlertTriangle,
@@ -25,7 +23,6 @@ import {
 } from 'lucide-react';
 import {Avatar, AvatarImage, AvatarFallback} from '../components/ui/avatar';
 
-// Componente GlassCard para efectos glassmórficos
 const GlassCard = ({ children, className = "", hover = true, ...props }) => {
   return (
       <div
@@ -44,7 +41,6 @@ const GlassCard = ({ children, className = "", hover = true, ...props }) => {
   );
 };
 
-// Componente para efectos de brillo animado
 const ShimmerEffect = ({ children, className = "" }) => {
   return (
       <div className={`relative overflow-hidden ${className}`}>
@@ -80,7 +76,7 @@ const ProfilePage = () => {
 
   // Cargar datos del usuario
   useEffect(() => {
-    loadUserProfile(); // ← Cargar datos de la API primero
+    loadUserProfile();
     loadUserStats();
   }, []);
 
@@ -96,12 +92,11 @@ const ProfilePage = () => {
       const userData = response.data.data;
       console.log('👤 Datos del usuario:', userData);
 
-      setProfile(userData); // ← Guardar datos del perfil
+      setProfile(userData);
 
-      // 🎯 CORRECCIÓN: Usar los campos correctos de la API
       setFormData({
-        firstName: userData.first_name || '', // ← first_name NO firstName
-        lastName: userData.last_name || '',   // ← last_name NO lastName
+        firstName: userData.first_name || '',
+        lastName: userData.last_name || '',
         email: userData.email || ''
       });
 
@@ -198,7 +193,6 @@ const ProfilePage = () => {
     setLoading(true);
 
     try {
-      // 🎯 CORRECCIÓN: Enviar como firstName/lastName, NO como name
       const updateData = {
         firstName: formData.firstName,
         lastName: formData.lastName,
@@ -274,7 +268,6 @@ const handleCancel = () => {
 
       console.log('🔄 Iniciando cambio de contraseña...');
 
-      // CORRECCIÓN: Enviar exactamente como funciona en Postman
       const passwordChangeData = {
         currentPassword: passwordData.currentPassword.trim(),
         newPassword: passwordData.newPassword.trim(),
@@ -335,35 +328,6 @@ const handleCancel = () => {
       setLoading(false);
     }
   };
-  // const handlePasswordSubmit = async (e) => {
-  //   e.preventDefault();
-  //
-  //   if (passwordData.newPassword !== passwordData.confirmPassword) {
-  //     showToast('Las contraseñas no coinciden', 'error');
-  //     return;
-  //   }
-  //
-  //   setLoading(true);
-  //   try {
-  //     await userService.changePassword({
-  //       currentPassword: passwordData.currentPassword,
-  //       newPassword: passwordData.newPassword
-  //     });
-  //
-  //     showToast('Contraseña actualizada exitosamente', 'success');
-  //     setShowChangePassword(false);
-  //     setPasswordData({
-  //       currentPassword: '',
-  //       newPassword: '',
-  //       confirmPassword: ''
-  //     });
-  //   } catch (error) {
-  //     console.error('Error changing password:', error);
-  //     showToast('Error al cambiar la contraseña', 'error');
-  //   } finally {
-  //     setLoading(false);
-  //   }
-  // };
 
   const handleDeleteAccount = async () => {
     try {
