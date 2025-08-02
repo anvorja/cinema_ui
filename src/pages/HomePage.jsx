@@ -249,19 +249,12 @@
 //         </div>
 //       )}
 //
-//       {/* Footer único */}
-//       <div className="relative z-10 py-8 border-t border-slate-200/50 dark:border-white/10">
-//         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-//           <p className="text-slate-500 dark:text-gray-400">
-//             © 2025 TuCarro Premium. Gestiona tu colección de autos de forma simple y organizada.
-//           </p>
-//         </div>
-//       </div>
 //     </div>
 //   );
 // };
 //
 // export default HomePage;
+
 // src/pages/HomePage.jsx - Diseño mejorado con glassmorphism y UX moderna
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
@@ -403,7 +396,7 @@ const HomePage = () => {
                     to="/login"
                     variant="outline"
                     size="lg"
-                    className="border-white/30 text-white hover:bg-white/10 px-8 py-4 text-lg rounded-2xl backdrop-blur-sm transition-all duration-300"
+                    className="border-slate-300 dark:border-white/30 text-slate-700 dark:text-white hover:bg-slate-100 dark:hover:bg-white/10 px-8 py-4 text-lg rounded-2xl backdrop-blur-sm transition-all duration-300"
                   >
                     Iniciar Sesión
                   </Button>
