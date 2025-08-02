@@ -10,7 +10,6 @@ import Layout from './components/layout/Layout';
 import HomePage from './pages/HomePage';
 import LoginPage from './pages/LoginPage';
 import RegisterPage from './pages/RegisterPage';
-import DashboardPage from './pages/DashboardPage'; // Nueva página
 import CarsPage from './pages/CarsPage';
 import ProfilePage from './pages/ProfilePage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -33,12 +32,6 @@ function App() {
                 <Route path="/register" element={<RegisterPage />} />
 
                 {/* Rutas protegidas */}
-                <Route path="/dashboard" element={
-                  <ProtectedRoute>
-                    <DashboardPage />
-                  </ProtectedRoute>
-                } />
-
                 <Route path="/cars" element={
                   <ProtectedRoute>
                     <CarsPage />
