@@ -13,30 +13,30 @@ const api = axios.create({
 
 // Interceptor para agregar token automáticamente
 api.interceptors.request.use(
-  (config) => {
-    const token = Cookies.get('token');
-    if (token) {
-      config.headers.Authorization = `Bearer ${token}`;
+    (config) => {
+      const token = Cookies.get('token');
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+      return config;
+    },
+    (error) => {
+      return Promise.reject(error);
     }
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
-  }
 );
 
 // Interceptor para manejar respuestas y errores
 api.interceptors.response.use(
-  (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Token expirado o inválido
-      Cookies.remove('token');
-      Cookies.remove('userInfo');
-      window.location.href = '/login';
+    (response) => response,
+    (error) => {
+      if (error.response?.status === 401) {
+        // Token expirado o inválido
+        Cookies.remove('token');
+        Cookies.remove('userInfo');
+        window.location.href = '/login';
+      }
+      return Promise.reject(error);
     }
-    return Promise.reject(error);
-  }
 );
 
 // Servicios de autenticación
@@ -75,7 +75,7 @@ export const carService = {
 
   // Verificaciones
   checkPlateAvailability: (plateNumber) =>
-    api.get('/v1/cars/plate-available', { params: { plateNumber } }),
+      api.get('/v1/cars/plate-available', { params: { plateNumber } }),
 
   // Búsqueda avanzada
   advancedSearch: (searchData) => api.post('/v1/cars/search', searchData),
@@ -84,8 +84,17 @@ export const carService = {
 // Servicios de usuario
 export const userService = {
   getProfile: () => api.get('/v1/users/profile'),
-  updateProfile: (userData) => api.put('/v1/users/profile', userData),
-    changePassword: (passwordData) => {
+
+  updateProfile: (userData) => {
+    const requestData = {
+      firstName: userData.firstName,
+      lastName: userData.lastName,
+      email: userData.email
+    };
+    return api.put('/v1/users/profile', requestData);
+  },
+
+  changePassword: (passwordData) => {
     const requestData = {
       currentPassword: passwordData.currentPassword,
       newPassword: passwordData.newPassword,
@@ -96,7 +105,7 @@ export const userService = {
   deleteAccount: () => api.delete('/v1/users/profile'),
   getStats: () => api.get('/v1/users/stats'),
   checkEmailAvailability: (email) =>
-    api.get('/v1/users/email-available', { params: { email } }),
+      api.get('/v1/users/email-available', { params: { email } }),
 };
 
 export default api;
