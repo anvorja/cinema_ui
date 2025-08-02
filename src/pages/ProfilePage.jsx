@@ -1057,34 +1057,129 @@ const ProfilePage = () => {
   };
 
   const handlePasswordSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      showToast('Las contraseñas no coinciden', 'error');
-      return;
-    }
+  // Validaciones del frontend
+  if (!passwordData.currentPassword) {
+    showToast('La contraseña actual es requerida', 'error');
+    return;
+  }
 
+  if (!passwordData.newPassword) {
+    showToast('La nueva contraseña es requerida', 'error');
+    return;
+  }
+
+  if (passwordData.newPassword !== passwordData.confirmPassword) {
+    showToast('Las contraseñas no coinciden', 'error');
+    return;
+  }
+
+  if (passwordData.newPassword.length < 6) {
+    showToast('La nueva contraseña debe tener al menos 6 caracteres', 'error');
+    return;
+  }
+
+  if (passwordData.currentPassword === passwordData.newPassword) {
+    showToast('La nueva contraseña debe ser diferente a la actual', 'error');
+    return;
+  }
+
+  try {
     setLoading(true);
-    try {
-      await userService.changePassword({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword
-      });
 
-      showToast('Contraseña actualizada exitosamente', 'success');
-      setShowChangePassword(false);
+    console.log('🔄 Iniciando cambio de contraseña...');
+
+    // CORRECCIÓN: Enviar exactamente como funciona en Postman
+    const passwordChangeData = {
+      currentPassword: passwordData.currentPassword.trim(),
+      newPassword: passwordData.newPassword.trim(),
+      confirmPassword: passwordData.newPassword.trim() // Debe ser igual a newPassword
+    };
+
+    console.log('📤 Enviando datos:', {
+      currentPassword: '***',
+      newPassword: '***',
+      confirmPassword: '***'
+    });
+
+    const response = await userService.changePassword(passwordChangeData);
+
+    console.log('✅ Respuesta del servidor:', response.data);
+
+    // Verificar si la respuesta es exitosa
+    if (response.data.success) {
+      showToast('Contraseña cambiada exitosamente', 'success');
+
+      // Limpiar el formulario
       setPasswordData({
         currentPassword: '',
         newPassword: '',
         confirmPassword: ''
       });
-    } catch (error) {
-      console.error('Error changing password:', error);
-      showToast('Error al cambiar la contraseña', 'error');
-    } finally {
-      setLoading(false);
+    } else {
+      showToast(response.data.message || 'Error al cambiar la contraseña', 'error');
     }
-  };
+
+  } catch (error) {
+    console.error('❌ Error changing password:', error);
+    console.error('📄 Error response:', error.response);
+
+    // Manejar diferentes tipos de errores
+    let errorMessage = 'Error al cambiar la contraseña';
+
+    if (error.response) {
+      // El servidor respondió con un error
+      const { status, data } = error.response;
+
+      if (status === 400) {
+        errorMessage = data.message || 'Datos de contraseña inválidos';
+      } else if (status === 401) {
+        errorMessage = 'La contraseña actual es incorrecta';
+      } else if (status === 403) {
+        errorMessage = 'No tienes permisos para cambiar la contraseña';
+      } else {
+        errorMessage = data.message || `Error del servidor (${status})`;
+      }
+    } else if (error.request) {
+      // La petición se hizo pero no hubo respuesta
+      errorMessage = 'No se pudo conectar con el servidor';
+    }
+
+    showToast(errorMessage, 'error');
+  } finally {
+    setLoading(false);
+  }
+};
+  // const handlePasswordSubmit = async (e) => {
+  //   e.preventDefault();
+  //
+  //   if (passwordData.newPassword !== passwordData.confirmPassword) {
+  //     showToast('Las contraseñas no coinciden', 'error');
+  //     return;
+  //   }
+  //
+  //   setLoading(true);
+  //   try {
+  //     await userService.changePassword({
+  //       currentPassword: passwordData.currentPassword,
+  //       newPassword: passwordData.newPassword
+  //     });
+  //
+  //     showToast('Contraseña actualizada exitosamente', 'success');
+  //     setShowChangePassword(false);
+  //     setPasswordData({
+  //       currentPassword: '',
+  //       newPassword: '',
+  //       confirmPassword: ''
+  //     });
+  //   } catch (error) {
+  //     console.error('Error changing password:', error);
+  //     showToast('Error al cambiar la contraseña', 'error');
+  //   } finally {
+  //     setLoading(false);
+  //   }
+  // };
 
   const handleDeleteAccount = async () => {
     try {

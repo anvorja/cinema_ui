@@ -85,7 +85,14 @@ export const carService = {
 export const userService = {
   getProfile: () => api.get('/v1/users/profile'),
   updateProfile: (userData) => api.put('/v1/users/profile', userData),
-  changePassword: (passwordData) => api.post('/v1/users/change-password', passwordData),
+    changePassword: (passwordData) => {
+    const requestData = {
+      currentPassword: passwordData.currentPassword,
+      newPassword: passwordData.newPassword,
+      confirmPassword: passwordData.newPassword // Debe ser igual a newPassword
+    };
+    return api.post('/v1/users/change-password', requestData);
+  },
   deleteAccount: () => api.delete('/v1/users/profile'),
   getStats: () => api.get('/v1/users/stats'),
   checkEmailAvailability: (email) =>
