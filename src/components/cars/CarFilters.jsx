@@ -86,15 +86,15 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
   const activeFiltersCount = Object.values(filters).filter(value => value !== '').length;
 
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-4">
+    <div className="bg-white/10 dark:bg-white/5 backdrop-blur-xl border border-white/20 dark:border-white/10 rounded-2xl shadow-2xl p-4">
       {/* Header de filtros */}
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
-          <FunnelIcon className="h-5 w-5 text-gray-500 mr-2" />
-          <h3 className="text-sm font-medium text-gray-900">
+          <FunnelIcon className="h-5 w-5 text-slate-600 dark:text-slate-400 mr-2" />
+          <h3 className="text-sm font-medium text-slate-800 dark:text-slate-200">
             Filtros
             {activeFiltersCount > 0 && (
-              <span className="ml-2 bg-primary-100 text-primary-800 text-xs font-medium px-2 py-1 rounded-full">
+              <span className="ml-2 bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200 text-xs font-medium px-2 py-1 rounded-full">
                 {activeFiltersCount}
               </span>
             )}
@@ -107,7 +107,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
               onClick={onClear}
               variant="ghost"
               size="sm"
-              className="text-gray-500 hover:text-gray-700"
+              className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-white/10"
             >
               <XMarkIcon className="h-4 w-4 mr-1" />
               Limpiar
@@ -117,17 +117,17 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
             onClick={() => setIsExpanded(!isExpanded)}
             variant="ghost"
             size="sm"
-            className="text-gray-500 hover:text-gray-700"
+            className="text-slate-600 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 hover:bg-white/20 dark:hover:bg-white/10"
           >
             {isExpanded ? (
               <>
                 <ChevronUpIcon className="h-4 w-4 mr-1" />
-                Menos
+                <span className="text-slate-700 dark:text-slate-300">Menos</span>
               </>
             ) : (
               <>
                 <ChevronDownIcon className="h-4 w-4 mr-1" />
-                Más filtros
+                <span className="text-slate-700 dark:text-slate-300 font-medium">Más filtros</span>
               </>
             )}
           </Button>
@@ -137,7 +137,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
       {/* Filtros básicos - siempre visibles */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
             Marca
           </label>
           <Select
@@ -145,11 +145,12 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
             onChange={(e) => handleFilterChange('brand', e.target.value)}
             options={brandOptions}
             size="sm"
+            className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
             Modelo
           </label>
           <Select
@@ -157,11 +158,12 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
             onChange={(e) => handleFilterChange('model', e.target.value)}
             options={modelOptions}
             size="sm"
+            className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
             Año
           </label>
           <Select
@@ -169,11 +171,12 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
             onChange={(e) => handleFilterChange('year', e.target.value)}
             options={yearOptions}
             size="sm"
+            className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
           />
         </div>
 
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
+          <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-1">
             Color
           </label>
           <Select
@@ -181,21 +184,22 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
             onChange={(e) => handleFilterChange('color', e.target.value)}
             options={colorOptions}
             size="sm"
+            className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
           />
         </div>
       </div>
 
       {/* Filtros avanzados - expandibles */}
       {isExpanded && (
-        <div className="border-t border-gray-200 pt-4">
-          <h4 className="text-sm font-medium text-gray-900 mb-3">
+        <div className="border-t border-white/20 dark:border-white/10 pt-4">
+          <h4 className="text-sm font-medium text-slate-800 dark:text-slate-200 mb-3">
             Filtros Avanzados
           </h4>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
             {/* Rango de años */}
             <div className="md:col-span-2 lg:col-span-1">
-              <label className="block text-xs font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Rango de Años
               </label>
               <div className="grid grid-cols-2 gap-2">
@@ -208,6 +212,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                       ...yearRangeOptions.slice(1)
                     ]}
                     size="sm"
+                    className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
                   />
                 </div>
                 <div>
@@ -219,6 +224,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                       ...yearRangeOptions.slice(1)
                     ]}
                     size="sm"
+                    className="bg-white/20 dark:bg-white/10 border-white/30 dark:border-white/20 text-slate-800 dark:text-slate-200"
                   />
                 </div>
               </div>
@@ -226,7 +232,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
 
             {/* Filtros rápidos por categorías */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Categorías Rápidas
               </label>
               <div className="space-y-2">
@@ -238,7 +244,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                   }}
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start text-xs"
+                  className="w-full justify-start text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/20 dark:hover:bg-white/10"
                 >
                   ✨ Autos nuevos (últimos 3 años)
                 </Button>
@@ -249,7 +255,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                   }}
                   variant="ghost"
                   size="sm"
-                  className="w-full justify-start text-xs"
+                  className="w-full justify-start text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/20 dark:hover:bg-white/10"
                 >
                   🏛️ Autos vintage (+25 años)
                 </Button>
@@ -258,21 +264,21 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
 
             {/* Estadísticas del filtro */}
             <div>
-              <label className="block text-xs font-medium text-gray-700 mb-2">
+              <label className="block text-xs font-medium text-slate-700 dark:text-slate-300 mb-2">
                 Estadísticas
               </label>
-              <div className="bg-gray-50 rounded-lg p-3 space-y-1">
-                <div className="text-xs text-gray-600">
-                  Total de autos: <span className="font-medium">{cars.length}</span>
+              <div className="bg-white/20 dark:bg-white/10 rounded-lg p-3 space-y-1">
+                <div className="text-xs text-slate-600 dark:text-slate-400">
+                  Total de autos: <span className="font-medium text-slate-800 dark:text-slate-200">{cars.length}</span>
                 </div>
                 {brandOptions.length > 1 && (
-                  <div className="text-xs text-gray-600">
-                    Marcas únicas: <span className="font-medium">{brandOptions.length - 1}</span>
+                  <div className="text-xs text-slate-600 dark:text-slate-400">
+                    Marcas únicas: <span className="font-medium text-slate-800 dark:text-slate-200">{brandOptions.length - 1}</span>
                   </div>
                 )}
                 {yearOptions.length > 1 && (
-                  <div className="text-xs text-gray-600">
-                    Años disponibles: <span className="font-medium">{yearOptions.length - 1}</span>
+                  <div className="text-xs text-slate-600 dark:text-slate-400">
+                    Años disponibles: <span className="font-medium text-slate-800 dark:text-slate-200">{yearOptions.length - 1}</span>
                   </div>
                 )}
               </div>
@@ -280,7 +286,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
           </div>
 
           {/* Acciones rápidas adicionales */}
-          <div className="mt-4 pt-4 border-t border-gray-200">
+          <div className="mt-4 pt-4 border-t border-white/20 dark:border-white/10">
             <div className="flex flex-wrap gap-2">
               <Button
                 onClick={() => {
@@ -295,7 +301,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                 }}
                 variant="ghost"
                 size="sm"
-                className="text-xs"
+                className="text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/20 dark:hover:bg-white/10"
               >
                 🔄 Resetear todo
               </Button>
@@ -316,7 +322,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                     }}
                     variant="ghost"
                     size="sm"
-                    className="text-xs"
+                    className="text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/20 dark:hover:bg-white/10"
                   >
                     🏆 Marca más común
                   </Button>
@@ -328,7 +334,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                     }}
                     variant="ghost"
                     size="sm"
-                    className="text-xs"
+                    className="text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/20 dark:hover:bg-white/10"
                   >
                     🆕 Año más reciente
                   </Button>
@@ -341,61 +347,61 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
 
       {/* Indicador de filtros activos */}
       {hasActiveFilters && !isExpanded && (
-        <div className="mt-3 pt-3 border-t border-gray-200">
+        <div className="mt-3 pt-3 border-t border-white/20 dark:border-white/10">
           <div className="flex flex-wrap gap-2">
             {filters.brand && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-blue-100 dark:bg-blue-900/50 text-blue-800 dark:text-blue-200">
                 Marca: {filters.brand}
                 <button
                   onClick={() => handleFilterChange('brand', '')}
-                  className="ml-1 text-blue-600 hover:text-blue-800"
+                  className="ml-1 text-blue-600 dark:text-blue-400 hover:text-blue-800 dark:hover:text-blue-300"
                 >
                   <XMarkIcon className="h-3 w-3" />
                 </button>
               </span>
             )}
             {filters.model && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/50 text-green-800 dark:text-green-200">
                 Modelo: {filters.model}
                 <button
                   onClick={() => handleFilterChange('model', '')}
-                  className="ml-1 text-green-600 hover:text-green-800"
+                  className="ml-1 text-green-600 dark:text-green-400 hover:text-green-800 dark:hover:text-green-300"
                 >
                   <XMarkIcon className="h-3 w-3" />
                 </button>
               </span>
             )}
             {filters.year && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-purple-100 dark:bg-purple-900/50 text-purple-800 dark:text-purple-200">
                 Año: {filters.year}
                 <button
                   onClick={() => handleFilterChange('year', '')}
-                  className="ml-1 text-purple-600 hover:text-purple-800"
+                  className="ml-1 text-purple-600 dark:text-purple-400 hover:text-purple-800 dark:hover:text-purple-300"
                 >
                   <XMarkIcon className="h-3 w-3" />
                 </button>
               </span>
             )}
             {filters.color && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-orange-100 dark:bg-orange-900/50 text-orange-800 dark:text-orange-200">
                 Color: {filters.color}
                 <button
                   onClick={() => handleFilterChange('color', '')}
-                  className="ml-1 text-orange-600 hover:text-orange-800"
+                  className="ml-1 text-orange-600 dark:text-orange-400 hover:text-orange-800 dark:hover:text-orange-300"
                 >
                   <XMarkIcon className="h-3 w-3" />
                 </button>
               </span>
             )}
             {(filters.minYear || filters.maxYear) && (
-              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 text-indigo-800">
+              <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-indigo-100 dark:bg-indigo-900/50 text-indigo-800 dark:text-indigo-200">
                 Rango: {filters.minYear || '∞'} - {filters.maxYear || '∞'}
                 <button
                   onClick={() => {
                     handleFilterChange('minYear', '');
                     handleFilterChange('maxYear', '');
                   }}
-                  className="ml-1 text-indigo-600 hover:text-indigo-800"
+                  className="ml-1 text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300"
                 >
                   <XMarkIcon className="h-3 w-3" />
                 </button>

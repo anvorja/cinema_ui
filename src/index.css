@@ -335,6 +335,45 @@
   .backdrop-blur-3xl {
     backdrop-filter: blur(64px);
   }
+
+  /* Mejoras específicas para filtros */
+  .filter-button {
+    @apply transition-all duration-200 backdrop-blur-sm;
+  }
+
+  .filter-button:hover {
+    @apply transform scale-105;
+  }
+
+  /* Text shadows para mejor legibilidad */
+  .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+  }
+
+  .dark .text-shadow-sm {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  }
+
+  /* Backgrounds más seguros para elementos interactivos */
+  .bg-interactive-light {
+    background-color: rgba(255, 255, 255, 0.8);
+    color: rgb(51, 65, 85);
+  }
+
+  .dark .bg-interactive-light {
+    background-color: rgba(255, 255, 255, 0.1);
+    color: rgb(226, 232, 240);
+  }
+
+  .bg-interactive-primary {
+    background: linear-gradient(135deg, #3b82f6, #8b5cf6);
+    color: white;
+  }
+
+  .dark .bg-interactive-primary {
+    background: linear-gradient(135deg, #2563eb, #7c3aed);
+    color: white;
+  }
 }
 
 /* Transiciones suaves para el cambio de tema */
