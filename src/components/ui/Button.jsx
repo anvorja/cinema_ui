@@ -9,6 +9,7 @@ const Button = forwardRef(({
   disabled = false,
   loading = false,
   children,
+    // eslint-disable-next-line no-unused-vars
   as: Component = 'button',
   ...props
 }, ref) => {
