@@ -70,7 +70,6 @@ export const AuthProvider = ({ children }) => {
 
   const register = useCallback(async (userData) => {
     try {
-      console.log('AuthProvider - Datos recibidos para registro:', userData);
 
       // Asegurar que los datos estén en el formato correcto
       const formattedData = {
@@ -80,11 +79,7 @@ export const AuthProvider = ({ children }) => {
         password: userData.password
       };
 
-      console.log('AuthProvider - Datos formateados para enviar:', formattedData);
-
       const response = await authService.register(formattedData);
-
-      console.log('AuthProvider - Respuesta del servidor:', response.data);
 
       if (response.data.success) {
         const { access_token, user_info } = response.data.data;
