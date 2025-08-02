@@ -14,7 +14,7 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
     year: '',
     plateNumber: '',
     color: '',
-    photo_url: ''
+    photoUrl: ''
   });
 
   const [errors, setErrors] = useState({});
@@ -28,49 +28,6 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
     'Nissan', 'Peugeot', 'Porsche', 'Ram', 'Renault', 'Rolls-Royce',
     'Subaru', 'Tesla', 'Toyota', 'Volkswagen', 'Volvo'
   ];
-
-  // Opciones predefinidas
-  // const brandOptions = [
-  //   { value: '', label: 'Selecciona una marca' },
-  //   { value: 'Toyota', label: 'Toyota' },
-  //   { value: 'Honda', label: 'Honda' },
-  //   { value: 'Ford', label: 'Ford' },
-  //   { value: 'Chevrolet', label: 'Chevrolet' },
-  //   { value: 'Nissan', label: 'Nissan' },
-  //   { value: 'BMW', label: 'BMW' },
-  //   { value: 'Mercedes-Benz', label: 'Mercedes-Benz' },
-  //   { value: 'Audi', label: 'Audi' },
-  //   { value: 'Volkswagen', label: 'Volkswagen' },
-  //   { value: 'Hyundai', label: 'Hyundai' },
-  //   { value: 'Kia', label: 'Kia' },
-  //   { value: 'Mazda', label: 'Mazda' },
-  //   { value: 'Subaru', label: 'Subaru' },
-  //   { value: 'Mitsubishi', label: 'Mitsubishi' },
-  //   { value: 'Renault', label: 'Renault' },
-  //   { value: 'Peugeot', label: 'Peugeot' },
-  //   { value: 'Fiat', label: 'Fiat' },
-  //   { value: 'Jeep', label: 'Jeep' },
-  //   { value: 'Land Rover', label: 'Land Rover' },
-  //   { value: 'Otro', label: 'Otro' }
-  // ];
-  //
-  // const colorOptions = [
-  //   { value: '', label: 'Selecciona un color' },
-  //   { value: 'Blanco', label: 'Blanco' },
-  //   { value: 'Negro', label: 'Negro' },
-  //   { value: 'Gris', label: 'Gris' },
-  //   { value: 'Plata', label: 'Plata' },
-  //   { value: 'Rojo', label: 'Rojo' },
-  //   { value: 'Azul', label: 'Azul' },
-  //   { value: 'Verde', label: 'Verde' },
-  //   { value: 'Amarillo', label: 'Amarillo' },
-  //   { value: 'Naranja', label: 'Naranja' },
-  //   { value: 'Morado', label: 'Morado' },
-  //   { value: 'Marrón', label: 'Marrón' },
-  //   { value: 'Beige', label: 'Beige' },
-  //   { value: 'Dorado', label: 'Dorado' },
-  //   { value: 'Otro', label: 'Otro' }
-  // ];
 
   const getDynamicBrandOptions = () => {
     // Obtener marcas de autos existentes
@@ -133,9 +90,9 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
         brand: initialData.brand || '',
         model: initialData.model || '',
         year: initialData.year?.toString() || '',
-        plateNumber: initialData.plate_number || '', // Mapear desde plate_number del response
+        plateNumber: initialData.plate_number || initialData.plateNumber || '',
         color: initialData.color || '',
-        photo_url: initialData.photo_url || ''
+        photoUrl: initialData.photo_url || initialData.photoUrl || '' // SOPORTE PARA AMBOS FORMATOS
       });
     }
   }, [initialData]);
@@ -217,8 +174,8 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
       newErrors.color = 'El color es requerido';
     }
 
-    if (formData.photo_url && !isValidUrl(formData.photo_url)) {
-      newErrors.photo_url = 'URL de foto inválida';
+    if (formData.photoUrl && !isValidUrl(formData.photoUrl)) {
+      newErrors.photoUrl = 'URL de foto inválida';
     }
 
     setErrors(newErrors);
@@ -253,7 +210,7 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
     const formatted = formatPlate(e.target.value);
     handleInputChange({
       target: {
-        name: 'plateNumber', // Cambiado de plate_number a plateNumber
+        name: 'plateNumber',
         value: formatted
       }
     });
@@ -275,8 +232,8 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
       const submitData = {
         ...formData,
         year: parseInt(formData.year),
-        plateNumber: formData.plateNumber.toUpperCase(), // Cambiado de plate_number a plateNumber
-        photo_url: formData.photo_url.trim() || null
+        plateNumber: formData.plateNumber.toUpperCase(),
+        photoUrl: formData.photoUrl.trim() || null
       };
 
       await onSubmit(submitData);
@@ -341,12 +298,12 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
             </label>
             <Input
                 type="text"
-                name="plateNumber" // Cambiado de plate_number a plateNumber
-                value={formData.plateNumber} // Cambiado de plate_number a plateNumber
+                name="plateNumber"
+                value={formData.plateNumber}
                 onChange={handlePlateChange}
                 placeholder="ABC123 o ABC12D"
                 maxLength={6}
-                error={errors.plateNumber} // Cambiado de plate_number a plateNumber
+                error={errors.plateNumber}
                 className="uppercase"
             />
             <p className="mt-1 text-xs text-gray-500">
@@ -376,11 +333,11 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
           </label>
           <Input
               type="url"
-              name="photo_url"
-              value={formData.photo_url}
+              name="photoUrl"
+              value={formData.photoUrl}
               onChange={handleInputChange}
               placeholder="https://ejemplo.com/foto-auto.jpg"
-              error={errors.photo_url}
+              error={errors.photoUrl}
           />
           <p className="mt-1 text-xs text-gray-500">
             Agrega una URL de imagen para mostrar una foto de tu auto
@@ -388,14 +345,14 @@ const CarForm = ({ initialData, onSubmit, onCancel, allCars }) => {
         </div>
 
         {/* Vista previa de imagen */}
-        {formData.photo_url && isValidUrl(formData.photo_url) && (
+        {formData.photoUrl && isValidUrl(formData.photoUrl) && (
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Vista previa
               </label>
               <div className="w-32 h-24 bg-gray-100 rounded-lg overflow-hidden">
                 <img
-                    src={formData.photo_url}
+                    src={formData.photoUrl}
                     alt="Vista previa"
                     className="w-full h-full object-cover"
                     onError={(e) => {

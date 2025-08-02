@@ -160,7 +160,6 @@ const CarsPage = () => {
   };
 
   const handleEdit = (car) => {
-    console.log('Car data:', car);
     setEditingCar(car);
     setShowEditModal(true);
   };
