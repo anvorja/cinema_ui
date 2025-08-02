@@ -42,8 +42,8 @@ export const Footer = () => {
 
             {/* Logo y marca */}
             <div className="flex items-center space-x-2 group">
-              <span className="text-xl group-hover:scale-110 transition-transform duration-300">🚗</span>
-              <span className="font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
+              <span className="text-2xl group-hover:scale-110 transition-transform duration-300">🚗</span>
+              <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
                 TuCarro
               </span>
             </div>
@@ -62,7 +62,7 @@ export const Footer = () => {
                     aria-label={`Visitar ${social.name}`}
                     title={`Síguenos en ${social.name}`}
                   >
-                    <Icon className="w-4 h-4 transform group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300" />
+                    <Icon className="w-7 h-7 transform group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300" />
                   </a>
                 );
               })}
