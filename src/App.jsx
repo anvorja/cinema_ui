@@ -44,13 +44,6 @@ function App() {
                   </ProtectedRoute>
                 } />
 
-                {/* Redirección después del login */}
-                <Route path="/cars" element={
-                  <ProtectedRoute>
-                    <Navigate to="/dashboard" replace />
-                  </ProtectedRoute>
-                } />
-
                 {/* Ruta 404 */}
                 <Route path="/404" element={<NotFoundPage />} />
                 <Route path="*" element={<Navigate to="/404" replace />} />
