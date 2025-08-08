@@ -35,6 +35,7 @@ const port = process.env.PORT || 3000;
 const distPath = path.join(__dirname, 'dist');
 const indexPath = path.join(distPath, 'index.html');
 
+console.log('DEBUG...');
 console.log('🔍 Checking build files...');
 console.log('📁 Dist directory:', distPath);
 console.log('📄 Index file:', indexPath);
