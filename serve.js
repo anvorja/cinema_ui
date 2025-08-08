@@ -77,7 +77,8 @@ app.on('error', (error) => {
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`🚗 TuCarro frontend serving on port ${port}`);
   console.log(`🌐 Server ready and waiting for requests...`);
-  console.log('///////////////////////////////////////////////////////////')
+  console.log('///////////////////////////////////////////////////////////////');
+  console.log('==> ///////////////////////////////////////////////////////////');
 });
 
 // Manejar señales de cierre
