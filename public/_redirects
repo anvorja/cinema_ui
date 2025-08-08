@@ -1,6 +1,2 @@
 # Redirects for SPA routing in Render
 /*    /index.html   200
-
-# Optional: Handle specific redirects if needed
-# /old-path    /new-path    301
-# /api/*       https://your-backend.render.com/api/:splat    200
