@@ -354,14 +354,15 @@ const handleCancel = () => {
           {/* Botón Volver */}
           <div className="mb-6">
             <Button
-                as={Link}
-                to="/cars"
+                asChild
                 variant="ghost"
                 size="sm"
                 className="backdrop-blur-sm bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10"
             >
+                <Link to="/cars">
               <ArrowLeft className="w-4 h-4 mr-2" />
               Volver a Mis Autos
+                </Link>
             </Button>
           </div>
 
@@ -721,14 +722,15 @@ const handleCancel = () => {
                 <div className="space-y-3">
                   <ShimmerEffect>
                     <Button
-                        as={Link}
-                        to="/cars"
+                        asChild
                         variant="primary"
                         size="sm"
                         className="w-full justify-center"
                     >
+                       <Link to="/cars">
                       <Car className="w-4 h-4 mr-2" />
                       Ver Mis Autos
+                       </Link>
                     </Button>
                   </ShimmerEffect>
 
