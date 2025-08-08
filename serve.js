@@ -29,9 +29,9 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const port = process.env.PORT || 3000;
+const port = process.env.PORT || 5173;
 
-// Verificar que existe el directorio dist y index.html
+// Verificar que existe el directorio dist, index.html
 const distPath = path.join(__dirname, 'dist');
 const indexPath = path.join(distPath, 'index.html');
 
@@ -77,6 +77,7 @@ app.on('error', (error) => {
 const server = app.listen(port, '0.0.0.0', () => {
   console.log(`🚗 TuCarro frontend serving on port ${port}`);
   console.log(`🌐 Server ready and waiting for requests...`);
+  console.log('///////////////////////////////////////////////////////////')
 });
 
 // Manejar señales de cierre
