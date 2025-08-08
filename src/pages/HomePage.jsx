@@ -153,13 +153,15 @@ const HomePage = () => {
                     </>
                 ) : (
                     <Button
-                        as={Link}
+                        asChild
                         to="/cars"
                         size="lg"
                         className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-8 py-4 text-lg font-semibold rounded-2xl shadow-2xl transition-all duration-300 transform hover:scale-105"
                     >
-                      <Car className="w-5 h-5 mr-2" />
-                      Ver Mis Autos
+                      <Link to="/cars">
+                        <Car className="w-5 h-5 mr-2" />
+                        Ver Mis Autos
+                      </Link>
                     </Button>
                 )}
               </div>
@@ -241,10 +243,10 @@ const HomePage = () => {
                             size="lg"
                             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white px-10 py-5 text-xl font-semibold rounded-2xl shadow-2xl hover:shadow-purple-500/25 transition-all duration-300 transform hover:scale-105"
                     >
-                       <Link to="/register">
-                      <Sparkles className="w-6 h-6 mr-3" />
-                      Comenzar Ahora
-                       </Link>
+                      <Link to="/register">
+                        <Sparkles className="w-6 h-6 mr-3" />
+                        Comenzar Ahora
+                      </Link>
                     </Button>
                   </ShimmerEffect>
 
