@@ -1,7 +1,0 @@
-services:
-  - type: web
-    name: tucarro-frontend
-    env: node
-    buildCommand: pnpm install && pnpm run build
-    startCommand: pnpm start
-    plan: free
