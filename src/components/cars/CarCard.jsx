@@ -124,7 +124,7 @@ const CarCard = ({ car, onEdit, onDelete }) => {
         <GlassButton
           onClick={() => setShowDetails(!showDetails)}
           variant="secondary"
-          className={`group/btn transition-all duration-300 px-3 py-2 ${
+          className={`group/btn transition-all duration-300 px-3 py-2 mr-3 sm:mr-4 ${
             showDetails ? 'mr-auto' : ''
           }`}
         >
