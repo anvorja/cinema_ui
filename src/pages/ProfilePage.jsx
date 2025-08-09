@@ -1,5 +1,5 @@
 // src/pages/ProfilePage.jsx
-import { useState, useEffect, useCallback } from 'react';
+import {useState, useEffect, useCallback} from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../hooks/useAuth';
 import { useToast } from '../hooks/useToast';
@@ -22,7 +22,7 @@ import {
     Key,
     Download
 } from 'lucide-react';
-import {Avatar, AvatarImage, AvatarFallback} from '../components/ui/avatar';
+import AvatarUser from "../components/ui/AvatarUser.jsx";
 
 const GlassCard = ({ children, className = "", hover = true, ...props }) => {
     return (
@@ -45,7 +45,7 @@ const GlassCard = ({ children, className = "", hover = true, ...props }) => {
 const ShimmerEffect = ({ children, className = "" }) => {
     return (
         <div className={`relative overflow-hidden rounded-lg ${className}`}>
-            {/* ↑ Ahora tiene rounded-lg para coincidir con los botones */}
+            {/* ↑ tiene rounded-lg para coincidir con los botones */}
             <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 animate-shimmer" />
             {children}
         </div>
@@ -76,25 +76,20 @@ const ProfilePage = () => {
         confirmPassword: ''
     });
 
-    // Función para cargar datos del usuario usando useCallback
+    // Función para cargar datos del usuario
     const loadUserProfile = useCallback(async () => {
         try {
             setLoading(true);
-
             const response = await userService.getProfile();
-
-            // Acceder a los datos como muestra Postman: response.data.data
             const userData = response.data.data;
 
             setProfile(userData);
-
             setFormData({
                 firstName: userData.first_name || '',
                 lastName: userData.last_name || '',
                 email: userData.email || ''
             });
-
-        } catch  {
+        } catch {
             showToast('Error al cargar el perfil', 'error');
         } finally {
             setLoading(false);
@@ -140,18 +135,10 @@ const ProfilePage = () => {
 
     const formatDate = (dateString) => {
         if (!dateString) return 'No disponible';
-
         try {
-            // El backend devuelve: "2025-08-02 00:19:56"
-            // Convertir a formato ISO para JavaScript
             const isoString = dateString.replace(' ', 'T') + 'Z';
             const date = new Date(isoString);
-
-            if (isNaN(date.getTime())) {
-                console.log('📅 Fecha inválida:', dateString);
-                return 'Fecha inválida';
-            }
-
+            if (isNaN(date.getTime())) return 'Fecha inválida';
             return new Intl.DateTimeFormat('es-ES', {
                 year: 'numeric',
                 month: 'long',
@@ -159,17 +146,10 @@ const ProfilePage = () => {
                 hour: '2-digit',
                 minute: '2-digit'
             }).format(date);
-
         } catch (error) {
-            console.error('📅 Error formateando fecha:', error);
+            console.error('Error formateando fecha:', error);
             return 'Error en fecha';
         }
-    };
-
-    const getInitials = () => {
-        const firstName = profile?.first_name || formData.firstName || '';
-        const lastName = profile?.last_name || formData.lastName || '';
-        return `${firstName.charAt(0)}${lastName.charAt(0)}`.toUpperCase() || 'NN';
     };
 
     const handleInputChange = (e) => {
@@ -191,33 +171,22 @@ const ProfilePage = () => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
-
         try {
             const updateData = {
                 firstName: formData.firstName,
                 lastName: formData.lastName,
                 email: formData.email
             };
-
-            console.log('📤 Enviando datos de actualización:', updateData);
-
             const response = await userService.updateProfile(updateData);
-            console.log('✅ Respuesta de actualización:', response.data);
-
-            // Actualizar el perfil local con la respuesta
             setProfile(response.data.data);
-
-            // También actualizar el contexto si es necesario
             updateUser({
                 ...user,
                 name: `${formData.firstName} ${formData.lastName}`.trim(),
                 email: formData.email
             });
-
             showToast('Perfil actualizado exitosamente', 'success');
             setEditing(false);
         } catch (error) {
-            console.error('❌ Error updating profile:', error);
             const errorMessage = error.response?.data?.message || 'Error al actualizar el perfil';
             showToast(errorMessage, 'error');
         } finally {
@@ -266,23 +235,13 @@ const ProfilePage = () => {
         try {
             setLoading(true);
 
-            console.log('🔄 Iniciando cambio de contraseña...');
-
             const passwordChangeData = {
                 currentPassword: passwordData.currentPassword.trim(),
                 newPassword: passwordData.newPassword.trim(),
                 confirmPassword: passwordData.newPassword.trim() // Debe ser igual a newPassword
             };
 
-            console.log('📤 Enviando datos:', {
-                currentPassword: '***',
-                newPassword: '***',
-                confirmPassword: '***'
-            });
-
             const response = await userService.changePassword(passwordChangeData);
-
-            console.log('✅ Respuesta del servidor:', response.data);
 
             // Verificar si la respuesta es exitosa
             if (response.data.success) {
@@ -369,14 +328,18 @@ const ProfilePage = () => {
                     </Button>
                 </div>
 
-                {/* Header con Avatar */}
+
+
+                {/* Header con Avatar Simplificado */}
                 <div className="text-center mb-8">
-                    <Avatar className="size-24 mx-auto mb-4 ring-4 ring-white/20 dark:ring-white/10">
-                        <AvatarImage src={user?.avatar} alt={user?.name} />
-                        <AvatarFallback className="text-2xl bg-gradient-to-r from-blue-500 to-purple-600 text-white">
-                            {getInitials()}
-                        </AvatarFallback>
-                    </Avatar>
+                    <div className="flex justify-center mb-6">
+                        <AvatarUser
+                            user={profile || user}
+                            size="xl"
+                            showOnlineIndicator={true}
+                            showParticles={true}
+                        />
+                    </div>
 
                     <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent mb-2">
                         Mi Perfil
@@ -385,6 +348,8 @@ const ProfilePage = () => {
                         Gestiona tu información personal y configuraciones
                     </p>
                 </div>
+
+
 
 
                 <div className="flex flex-col lg:grid lg:grid-cols-3 gap-8">
