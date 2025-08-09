@@ -391,7 +391,11 @@ const CarsPage = () => {
                             title="Agregar Nuevo Auto"
                             size="lg"
                         >
-                            <CarForm onSubmit={handleFormSubmit} />
+                            <CarForm
+                                allCars={cars}
+                                onSubmit={handleFormSubmit}
+                                onCancel={() => setShowAddModal(false)}
+                            />
                         </Modal>
 
                         <Modal
@@ -405,8 +409,12 @@ const CarsPage = () => {
                         >
                             <CarForm
                                 initialData={editingCar}
+                                allCars={cars}
                                 onSubmit={handleFormSubmit}
-                                isEditing={true}
+                                onCancel={() => {
+                                    setShowEditModal(false);
+                                    setEditingCar(null);
+                                }}
                             />
                         </Modal>
                     </>
