@@ -364,25 +364,26 @@ const ProfilePage = () => {
 
 
                                 <div className="flex items-center justify-between mb-6">
-    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center">
-        <User className="w-6 h-6 mr-3 text-blue-500" />
-        Información Personal
-    </h2>
+                                    <h2 className="text-2xl font-bold text-slate-800 dark:text-slate-100 flex items-center">
+                                        <User className="w-6 h-6 mr-3 text-blue-500" />
+                                        Información Personal
+                                    </h2>
 
-    {!editing && (
-        <ShimmerEffect>
-            <Button
-                onClick={() => setEditing(true)}
-                variant="ghost"
-                size="sm"
-                className="backdrop-blur-sm bg-white/10 dark:bg-white/5 border border-white/20 dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 -ml-2 sm:ml-0"
-            >
-                <Edit className="w-4 h-4 mr-2" />
-                Editar
-            </Button>
-        </ShimmerEffect>
-    )}
-</div>
+                                    {!editing && (
+                                        <ShimmerEffect>
+                                            <Button
+                                                onClick={() => setEditing(true)}
+                                                variant="ghost"
+                                                size="sm"
+                                                className="backdrop-blur-sm bg-white/10 dark:bg-white/5 border border-white/20
+                                                dark:border-white/10 hover:bg-white/20 dark:hover:bg-white/10 mr-7 sm:mr-0"
+                                            >
+                                                <Edit className="w-4 h-4 mr-2" />
+                                                Editar
+                                            </Button>
+                                        </ShimmerEffect>
+                                    )}
+                                </div>
 
 
 
