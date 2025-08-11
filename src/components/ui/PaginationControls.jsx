@@ -5,7 +5,6 @@ const PaginationControls = ({ pageInfo, onPageChange, className = "", compact = 
     const { page, totalPages, hasNext, hasPrevious, totalElements, size } = pageInfo;
 
     const getVisiblePages = () => {
-        // Menos páginas en móviles y versión compacta
         const delta = compact ? 1 : (window.innerWidth < 640 ? 1 : 2);
         const range = [];
         const start = Math.max(0, page - delta);
@@ -25,7 +24,8 @@ const PaginationControls = ({ pageInfo, onPageChange, className = "", compact = 
 
     return (
         <div className={`flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between ${className}`}>
-            {/* Información de elementos - solo en versión completa */}
+
+            {/* Información de elementos*/}
             {!compact && (
                 <div className="text-xs sm:text-sm text-gray-600 dark:text-gray-400 text-center sm:text-left order-2 sm:order-1">
                     Mostrando <span className="font-medium">{startItem}</span> a{' '}
@@ -36,6 +36,7 @@ const PaginationControls = ({ pageInfo, onPageChange, className = "", compact = 
 
             {/* Controles de navegación */}
             <div className={`flex items-center justify-center gap-1 sm:gap-1 order-1 sm:order-2 ${compact ? 'mx-auto' : ''}`}>
+
                 {/* Primera página */}
                 <button
                     onClick={() => onPageChange(0)}
@@ -137,7 +138,7 @@ const PaginationControls = ({ pageInfo, onPageChange, className = "", compact = 
                 </button>
             </div>
 
-            {/* Selector de tamaño de página - solo en versión completa */}
+            {/* Selector de tamaño de página*/}
             {!compact && (
                 <div className="flex items-center justify-center sm:justify-end gap-2 order-3">
                     <span className="text-xs sm:text-sm text-gray-600 dark:text-gray-400">Por página:</span>

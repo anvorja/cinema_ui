@@ -99,7 +99,7 @@ const CarsPage = () => {
                 }
             } catch (error) {
                 console.error('Error cargando estadísticas:', error);
-                // Aquí podrías agregar más lógica de manejo de errores en el futuro
+                // Aquí se podría agregar más lógica de manejo de errores en el futuro
                 // Por ejemplo: mostrar un toast, ocultar la sección de stats, etc.
             }
         };
