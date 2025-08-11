@@ -17,44 +17,51 @@ import NotFoundPage from './pages/NotFoundPage';
 // Providers
 import { AuthProvider } from "./components/auth/AuthProvider.jsx";
 import { ThemeProvider } from "./components/providers/ThemeProvider.jsx";
+import CarsPagePaginated from "./pages/CarsPagePaginated.jsx";
 
 function App() {
-  return (
-    <ThemeProvider>
-      <AuthProvider>
-        <ToastProvider>
-          <Router>
-            <Layout>
-              <Routes>
-                {/* Rutas públicas */}
-                <Route path="/" element={<HomePage />} />
-                <Route path="/login" element={<LoginPage />} />
-                <Route path="/register" element={<RegisterPage />} />
+    return (
+        <ThemeProvider>
+            <AuthProvider>
+                <ToastProvider>
+                    <Router>
+                        <Layout>
+                            <Routes>
+                                {/* Rutas públicas */}
+                                <Route path="/" element={<HomePage />} />
+                                <Route path="/login" element={<LoginPage />} />
+                                <Route path="/register" element={<RegisterPage />} />
 
-                {/* Rutas protegidas */}
-                <Route path="/cars" element={
-                  <ProtectedRoute>
-                    <CarsPage />
-                  </ProtectedRoute>
-                } />
+                                {/* Rutas protegidas */}
+                                <Route path="/cars" element={
+                                    <ProtectedRoute>
+                                        <CarsPage />
+                                    </ProtectedRoute>
+                                } />
 
-                <Route path="/profile" element={
-                  <ProtectedRoute>
-                    <ProfilePage />
-                  </ProtectedRoute>
-                } />
+                                {/*<Route path="/cars-paginated" element={*/}
+                                {/*    <ProtectedRoute>*/}
+                                {/*        <CarsPagePaginated />*/}
+                                {/*    </ProtectedRoute>*/}
+                                {/*} />*/}
 
-                {/* Ruta 404 */}
-                <Route path="/404" element={<NotFoundPage />} />
-                <Route path="*" element={<Navigate to="/404" replace />} />
+                                <Route path="/profile" element={
+                                    <ProtectedRoute>
+                                        <ProfilePage />
+                                    </ProtectedRoute>
+                                } />
 
-              </Routes>
-            </Layout>
-          </Router>
-        </ToastProvider>
-      </AuthProvider>
-    </ThemeProvider>
-  );
+                                {/* Ruta 404 */}
+                                <Route path="/404" element={<NotFoundPage />} />
+                                <Route path="*" element={<Navigate to="/404" replace />} />
+
+                            </Routes>
+                        </Layout>
+                    </Router>
+                </ToastProvider>
+            </AuthProvider>
+        </ThemeProvider>
+    );
 }
 
 export default App;
