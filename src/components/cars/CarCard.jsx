@@ -86,7 +86,7 @@ const CarCard = ({ car, onEdit, onDelete, onImagePreview }) => {
                 {/* Badges */}
                 <div className="flex flex-col items-end space-y-2">
                     <Badge variant={car.is_vintage ? 'warning' : car.is_new ? 'success' : 'default'}>
-                        {car.is_vintage ? '🏛️ Clásico' : car.is_new ? '✨ Nuevo' : `${getCarAge(car.year)} año${getCarAge(car.year) !== 1 ? 's' : ''}`}
+                        {car.is_vintage ? '🎖️ Clásico' : car.is_new ? '✨ Nuevo' : `${getCarAge(car.year)} año${getCarAge(car.year) !== 1 ? 's' : ''}`}
                     </Badge>
                 </div>
             </div>

@@ -292,7 +292,7 @@ const CarFilters = ({ filters, onFiltersChange, onClear, cars = [] }) => {
                   size="sm"
                   className="w-full justify-start text-xs text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-slate-100 hover:bg-white/20 dark:hover:bg-white/10"
                 >
-                  🏛️ Autos vintage (+25 años)
+                  🎖️ Autos vintage (+25 años)
                 </Button>
               </div>
             </div>
