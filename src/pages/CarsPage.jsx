@@ -287,7 +287,7 @@ const CarsPage = () => {
                                         filters={filters}
                                         onFiltersChange={setFilters}
                                         onClear={clearFilters}
-                                        cars={cars}
+
                                     />
                                 </GlassCard>
                             </div>

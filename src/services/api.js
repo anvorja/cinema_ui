@@ -65,6 +65,13 @@ export const carService = {
         params: { minYear, maxYear }
     }),
 
+    // NUEVOS ENDPOINTS PARA OPCIONES DE FILTROS
+    getFilterOptions: () => api.get('/v1/cars/filter-options'),
+    getBrandOptions: () => api.get('/v1/cars/filter-options/brands'),
+    getModelOptions: () => api.get('/v1/cars/filter-options/models'),
+    getColorOptions: () => api.get('/v1/cars/filter-options/colors'),
+    getYearOptions: () => api.get('/v1/cars/filter-options/years'),
+
     // NUEVO: Método paginado principal
     searchPaginated: async (params = {}) => {
         const queryParams = new URLSearchParams();
