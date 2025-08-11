@@ -427,3 +427,366 @@ const CarsPage = () => {
 };
 
 export default CarsPage;
+
+
+
+
+// // v2
+// // src/pages/CarsPage.jsx
+// import { useState, useEffect } from 'react';
+// import { PlusIcon } from '@heroicons/react/24/outline';
+// import { useToast } from '../hooks/useToast';
+// import { usePaginatedCars } from '../hooks/usePaginatedCars';
+// import { carService } from '../services/api';
+// import Button from '../components/ui/Button';
+// import Input from '../components/ui/Input';
+// import LoadingSpinner from '../components/ui/LoadingSpinner';
+// import CarCard from '../components/cars/CarCard';
+// import CarForm from '../components/cars/CarForm';
+// import CarFilters from '../components/cars/CarFilters';
+// import CarStats from '../components/cars/CarStats';
+// import PaginationControls from '../components/ui/PaginationControls';
+// import Modal from '../components/ui/Modal';
+// import ImagePreviewModal from '../components/ui/ImagePreviewModal'; // Nuevo import
+// import { Search, Filter, BarChart3, Sparkles } from 'lucide-react';
+//
+// const GlassCard = ({ children, className = "", hover = true, ...props }) => {
+//     return (
+//         <div
+//             className={`
+//         backdrop-blur-xl bg-white/10 dark:bg-white/5
+//         border border-white/20 dark:border-white/10
+//         rounded-2xl shadow-2xl
+//         ${hover ? 'hover:shadow-3xl hover:bg-white/15 dark:hover:bg-white/10 transition-all duration-500 group cursor-pointer hover:scale-[1.02]' : ''}
+//         ${className}
+//       `}
+//             {...props}
+//         >
+//             {children}
+//         </div>
+//     );
+// };
+//
+// const CarsPage = () => {
+//     // Estados existentes
+//     const [showAddModal, setShowAddModal] = useState(false);
+//     const [showEditModal, setShowEditModal] = useState(false);
+//     const [editingCar, setEditingCar] = useState(null);
+//     const [searchTerm, setSearchTerm] = useState('');
+//     const [currentFilters, setCurrentFilters] = useState({});
+//     const [showFilters, setShowFilters] = useState(false);
+//     const [showStats, setShowStats] = useState(false);
+//
+//     // NUEVOS ESTADOS para el modal de vista previa de imagen
+//     const [showImagePreview, setShowImagePreview] = useState(false);
+//     const [previewImageUrl, setPreviewImageUrl] = useState('');
+//     const [previewCarInfo, setPreviewCarInfo] = useState(null);
+//
+//     const { showToast } = useToast();
+//
+//     const {
+//         cars,
+//         loading,
+//         error,
+//         totalPages,
+//         currentPage,
+//         totalCars,
+//         hasNextPage,
+//         hasPreviousPage,
+//         goToPage,
+//         goToNextPage,
+//         goToPreviousPage,
+//         refreshCars,
+//         searchCars,
+//         filterCars
+//     } = usePaginatedCars();
+//
+//     // Función para manejar el clic en imagen
+//     const handleImagePreview = (imageUrl, carInfo) => {
+//         setPreviewImageUrl(imageUrl);
+//         setPreviewCarInfo(carInfo);
+//         setShowImagePreview(true);
+//     };
+//
+//     // Función para cerrar el modal de vista previa
+//     const handleCloseImagePreview = () => {
+//         setShowImagePreview(false);
+//         setPreviewImageUrl('');
+//         setPreviewCarInfo(null);
+//     };
+//
+//     // Resto de funciones existentes...
+//     const handleSearch = (term) => {
+//         setSearchTerm(term);
+//         if (term.trim()) {
+//             searchCars(term);
+//         } else {
+//             refreshCars();
+//         }
+//     };
+//
+//     const handleFilterChange = (filters) => {
+//         setCurrentFilters(filters);
+//         filterCars(filters);
+//     };
+//
+//     const handleEdit = (car) => {
+//         setEditingCar(car);
+//         setShowEditModal(true);
+//     };
+//
+//     const handleDelete = async (carId) => {
+//         if (!confirm('¿Estás seguro de que quieres eliminar este auto?')) {
+//             return;
+//         }
+//
+//         try {
+//             await carService.deleteCar(carId);
+//             showToast('Auto eliminado exitosamente', 'success');
+//             refreshCars();
+//         } catch (error) {
+//             console.error('Error eliminando auto:', error);
+//             showToast('Error al eliminar el auto', 'error');
+//         }
+//     };
+//
+//     const handleFormSubmit = async (formData) => {
+//         try {
+//             if (editingCar) {
+//                 await carService.updateCar(editingCar.car_id, formData);
+//                 showToast('Auto actualizado exitosamente', 'success');
+//                 setShowEditModal(false);
+//                 setEditingCar(null);
+//             } else {
+//                 await carService.createCar(formData);
+//                 showToast('Auto creado exitosamente', 'success');
+//                 setShowAddModal(false);
+//             }
+//             refreshCars();
+//         } catch (error) {
+//             console.error('Error guardando auto:', error);
+//             showToast(error.response?.data?.message || 'Error al guardar el auto', 'error');
+//         }
+//     };
+//
+//     // Efecto para manejar tecla Escape en el modal de imagen
+//     useEffect(() => {
+//         const handleEscapeKey = (event) => {
+//             if (event.key === 'Escape' && showImagePreview) {
+//                 handleCloseImagePreview();
+//             }
+//         };
+//
+//         if (showImagePreview) {
+//             document.addEventListener('keydown', handleEscapeKey);
+//             document.body.style.overflow = 'hidden'; // Prevenir scroll
+//         }
+//
+//         return () => {
+//             document.removeEventListener('keydown', handleEscapeKey);
+//             document.body.style.overflow = 'unset';
+//         };
+//     }, [showImagePreview]);
+//
+//     if (error) {
+//         return (
+//             <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center">
+//                 <GlassCard className="p-8 text-center max-w-md mx-4">
+//                     <div className="text-red-400 text-lg font-semibold mb-4">
+//                         Error al cargar los datos
+//                     </div>
+//                     <p className="text-slate-300 mb-6">{error}</p>
+//                     <Button onClick={refreshCars}>
+//                         Reintentar
+//                     </Button>
+//                 </GlassCard>
+//             </div>
+//         );
+//     }
+//
+//     return (
+//         <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 p-4 sm:p-6">
+//             <div className="max-w-7xl mx-auto">
+//                 {/* Header con título y botón agregar */}
+//                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-8">
+//                     <div className="mb-4 sm:mb-0">
+//                         <h1 className="text-4xl sm:text-5xl font-bold bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent mb-2">
+//                             Mis Autos
+//                         </h1>
+//                         <p className="text-slate-300 text-lg">
+//                             Gestiona tu colección de vehículos
+//                         </p>
+//                     </div>
+//
+//                     <div className="flex flex-col sm:flex-row gap-3">
+//                         <Button
+//                             onClick={() => setShowStats(!showStats)}
+//                             variant="secondary"
+//                             className="glassmorphism"
+//                         >
+//                             <BarChart3 className="h-5 w-5 mr-2" />
+//                             {showStats ? 'Ocultar' : 'Ver'} Estadísticas
+//                         </Button>
+//
+//                         <Button
+//                             onClick={() => setShowAddModal(true)}
+//                             className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 shadow-2xl hover:shadow-purple-500/25"
+//                         >
+//                             <PlusIcon className="h-5 w-5 mr-2" />
+//                             Agregar Auto
+//                         </Button>
+//                     </div>
+//                 </div>
+//
+//                 {/* Estadísticas */}
+//                 {showStats && (
+//                     <div className="mb-8">
+//                         <CarStats cars={cars} />
+//                     </div>
+//                 )}
+//
+//                 {/* Barra de búsqueda y filtros */}
+//                 <div className="mb-8 space-y-4">
+//                     <div className="flex flex-col sm:flex-row gap-4">
+//                         <div className="flex-1 relative">
+//                             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-slate-400 h-5 w-5" />
+//                             <Input
+//                                 type="text"
+//                                 placeholder="Buscar por marca, modelo o placa..."
+//                                 value={searchTerm}
+//                                 onChange={(e) => handleSearch(e.target.value)}
+//                                 className="pl-10 glassmorphism"
+//                             />
+//                         </div>
+//
+//                         <Button
+//                             onClick={() => setShowFilters(!showFilters)}
+//                             variant="secondary"
+//                             className="glassmorphism whitespace-nowrap"
+//                         >
+//                             <Filter className="h-5 w-5 mr-2" />
+//                             {showFilters ? 'Ocultar' : 'Mostrar'} Filtros
+//                         </Button>
+//                     </div>
+//
+//                     {showFilters && (
+//                         <CarFilters
+//                             cars={cars}
+//                             onFilterChange={handleFilterChange}
+//                             currentFilters={currentFilters}
+//                         />
+//                     )}
+//                 </div>
+//
+//                 {/* Lista de autos o estado de carga */}
+//                 {loading ? (
+//                     <div className="flex justify-center items-center py-12">
+//                         <LoadingSpinner size="lg" />
+//                     </div>
+//                 ) : cars.length === 0 ? (
+//                     <GlassCard className="p-12 text-center">
+//                         <div className="text-slate-400 mb-4">
+//                             <Sparkles className="h-16 w-16 mx-auto mb-4 opacity-50" />
+//                         </div>
+//                         <h3 className="text-2xl font-semibold text-white mb-2">
+//                             {searchTerm || Object.keys(currentFilters).length > 0
+//                                 ? 'No se encontraron autos'
+//                                 : 'No tienes autos registrados'
+//                             }
+//                         </h3>
+//                         <p className="text-slate-300 mb-6">
+//                             {searchTerm || Object.keys(currentFilters).length > 0
+//                                 ? 'Intenta ajustar los filtros de búsqueda'
+//                                 : 'Comienza agregando tu primer vehículo a la colección'
+//                             }
+//                         </p>
+//                         {!searchTerm && Object.keys(currentFilters).length === 0 && (
+//                             <Button
+//                                 onClick={() => setShowAddModal(true)}
+//                                 className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+//                             >
+//                                 <PlusIcon className="h-5 w-5 mr-2" />
+//                                 Agregar Primer Auto
+//                             </Button>
+//                         )}
+//                     </GlassCard>
+//                 ) : (
+//                     <>
+//                         {/* Grid de autos */}
+//                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+//                             {cars.map((car) => (
+//                                 <CarCard
+//                                     key={car.car_id}
+//                                     car={car}
+//                                     onEdit={handleEdit}
+//                                     onDelete={handleDelete}
+//                                     onImagePreview={handleImagePreview} // Nueva prop
+//                                 />
+//                             ))}
+//                         </div>
+//
+//                         {/* Controles de paginación */}
+//                         {totalPages > 1 && (
+//                             <div className="flex justify-center">
+//                                 <PaginationControls
+//                                     currentPage={currentPage}
+//                                     totalPages={totalPages}
+//                                     hasNextPage={hasNextPage}
+//                                     hasPreviousPage={hasPreviousPage}
+//                                     onPageChange={goToPage}
+//                                     onNextPage={goToNextPage}
+//                                     onPreviousPage={goToPreviousPage}
+//                                     totalItems={totalCars}
+//                                 />
+//                             </div>
+//                         )}
+//                     </>
+//                 )}
+//
+//                 {/* Modales existentes */}
+//                 <Modal
+//                     isOpen={showAddModal}
+//                     onClose={() => setShowAddModal(false)}
+//                     title="Agregar Nuevo Auto"
+//                     size="lg"
+//                 >
+//                     <CarForm
+//                         allCars={cars}
+//                         onSubmit={handleFormSubmit}
+//                         onCancel={() => setShowAddModal(false)}
+//                     />
+//                 </Modal>
+//
+//                 <Modal
+//                     isOpen={showEditModal}
+//                     onClose={() => {
+//                         setShowEditModal(false);
+//                         setEditingCar(null);
+//                     }}
+//                     title="Editar Auto"
+//                     size="lg"
+//                 >
+//                     <CarForm
+//                         initialData={editingCar}
+//                         allCars={cars}
+//                         onSubmit={handleFormSubmit}
+//                         onCancel={() => {
+//                             setShowEditModal(false);
+//                             setEditingCar(null);
+//                         }}
+//                     />
+//                 </Modal>
+//
+//                 {/* NUEVO: Modal de vista previa de imagen */}
+//                 <ImagePreviewModal
+//                     isOpen={showImagePreview}
+//                     onClose={handleCloseImagePreview}
+//                     imageUrl={previewImageUrl}
+//                     carInfo={previewCarInfo}
+//                 />
+//             </div>
+//         </div>
+//     );
+// };
+//
+// export default CarsPage;
