@@ -364,7 +364,6 @@ const ImagePreviewModal = ({ isOpen, onClose, imageUrl, carInfo }) => {
     const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
 
     // Estados para touch events
-    const [lastTouchDistance, setLastTouchDistance] = useState(0);
     const [initialTouchDistance, setInitialTouchDistance] = useState(0);
     const [touchStartZoom, setTouchStartZoom] = useState(1);
 
@@ -428,7 +427,6 @@ const ImagePreviewModal = ({ isOpen, onClose, imageUrl, carInfo }) => {
             // Dos dedos: preparar para pellizcar
             const distance = getTouchDistance(e.touches[0], e.touches[1]);
             setInitialTouchDistance(distance);
-            setLastTouchDistance(distance);
             setTouchStartZoom(zoom);
             setIsDragging(false);
         }
@@ -460,7 +458,6 @@ const ImagePreviewModal = ({ isOpen, onClose, imageUrl, carInfo }) => {
     const handleTouchEnd = (e) => {
         e.preventDefault();
         setIsDragging(false);
-        setLastTouchDistance(0);
         setInitialTouchDistance(0);
     };
 
