@@ -99,9 +99,12 @@ const CarsPage = () => {
                 }
             } catch (error) {
                 console.error('Error cargando estadísticas:', error);
+                // Aquí se podría agregar más lógica de manejo de errores en el futuro
+                // Por ejemplo: mostrar un toast, ocultar la sección de stats, etc.
             }
         };
-        loadStats();
+
+        void loadStats(); // Indica intencionalmente que ignoramos la promesa retornada
     }, []);
 
     const clearFilters = () => {
@@ -295,7 +298,7 @@ const CarsPage = () => {
                                                             goToPage(page);
                                                         }
                                                     }}
-                                                    compact={true} // Prop para versión compacta
+                                                    compact={true}
                                                 />
                                             </div>
                                         )}

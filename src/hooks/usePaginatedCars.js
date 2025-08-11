@@ -4,14 +4,13 @@ import { carService } from '../services/api';
 import { getPaginationSettings, savePaginationSettings } from '../utils/storage';
 
 export const usePaginatedCars = () => {
-    // Obtener configuración guardada
     const savedSettings = getPaginationSettings();
 
     const [data, setData] = useState({
         cars: [],
         pageInfo: {
             page: 0,
-            size: savedSettings.size, // Usar configuración guardada
+            size: savedSettings.size,
             totalPages: 0,
             totalElements: 0,
             hasNext: false,
@@ -21,10 +20,10 @@ export const usePaginatedCars = () => {
         }
     });
 
-    const [loading, setLoading] = useState(false);
+    const [loading, setLoading] = useState(true);
     const [searchParams, setSearchParams] = useState({
         page: 0,
-        size: savedSettings.size, // Usar configuración guardada
+        size: savedSettings.size,
         sortBy: savedSettings.sortBy || 'createdAt',
         sortDirection: savedSettings.sortDirection || 'desc',
         searchTerm: '',
@@ -36,10 +35,12 @@ export const usePaginatedCars = () => {
         maxYear: '',
     });
 
-    const fetchCars = useCallback(async (params = searchParams) => {
-        setLoading(true);
+    const fetchCars = useCallback(async (params = searchParams, isInitialLoad = false) => {
+        if (!isInitialLoad) {
+            setLoading(true);
+        }
+
         try {
-            // Limpiar parámetros vacíos
             const cleanParams = Object.fromEntries(
                 Object.entries(params).filter(([, value]) =>
                     value !== null && value !== undefined && value !== ''
@@ -65,16 +66,14 @@ export const usePaginatedCars = () => {
     useEffect(() => {
         const loadCars = async () => {
             try {
-                await fetchCars();
+                await fetchCars(searchParams, true);
             } catch (error) {
                 console.error('Error loading cars in useEffect:', error);
-                // Aquí podrías agregar más lógica de manejo de errores en el futuro
-                // Por ejemplo: mostrar un toast, reintentar, etc.
             }
         };
 
-        void loadCars(); // Indica intencionalmente que ignoramos la promesa retornada
-    }, [fetchCars]);
+        void loadCars();
+    }, [fetchCars, searchParams]);
 
     const updateSearchParams = useCallback((newParams) => {
         setSearchParams(prev => ({
