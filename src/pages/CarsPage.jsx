@@ -54,7 +54,6 @@ const CarsPage = () => {
         refresh
     } = usePaginatedCars();
 
-    // 🎯 NUEVO: Obtener todos los carros para filtros en cascada
     const [allUserCars, setAllUserCars] = useState([]);
 
     // Estados locales para búsqueda
@@ -69,6 +68,9 @@ const CarsPage = () => {
         minYear: '',
         maxYear: ''
     });
+
+    const [isTransitioning, setIsTransitioning] = useState(false);
+    const [hasEverLoadedCars, setHasEverLoadedCars] = useState(false);
 
     // Estados de modales
     const [showAddModal, setShowAddModal] = useState(false);
@@ -97,19 +99,23 @@ const CarsPage = () => {
         setPreviewCarInfo(null);
     };
 
-    // Debounce para búsqueda
     useEffect(() => {
+        setIsTransitioning(true); // Marcar inicio de transición
+
         const timer = setTimeout(() => {
             updateSearchParams({
                 searchTerm,
                 ...filters
             });
+            setIsTransitioning(false);
         }, 500);
 
-        return () => clearTimeout(timer);
+        return () => {
+            clearTimeout(timer);
+            setIsTransitioning(false); // Limpiar al desmontar
+        };
     }, [searchTerm, filters, updateSearchParams]);
 
-    // 🎯 NUEVO: Cargar todos los carros del usuario para filtros
     useEffect(() => {
         const loadAllCars = async () => {
             try {
@@ -127,6 +133,12 @@ const CarsPage = () => {
         void loadAllCars();
     }, []);
 
+    useEffect(() => {
+        if (pageInfo.totalElements > 0 || allUserCars.length > 0) {
+            setHasEverLoadedCars(true);
+        }
+    }, [pageInfo.totalElements, allUserCars.length]);
+
     // Cargar estadísticas
     useEffect(() => {
         const loadStats = async () => {
@@ -142,7 +154,7 @@ const CarsPage = () => {
             }
         };
 
-        void loadStats(); // Indica intencionalmente que ignoramos la promesa retornada
+        void loadStats();
     }, []);
 
     // Para manejar tecla Escape
@@ -165,6 +177,7 @@ const CarsPage = () => {
     }, [showImagePreview]);
 
     const clearFilters = () => {
+        setIsTransitioning(true);
         setFilters({
             brand: '',
             model: '',
@@ -174,6 +187,33 @@ const CarsPage = () => {
             maxYear: ''
         });
         setSearchTerm('');
+    };
+
+    const getUIState = () => {
+        // Si está cargando, mostrar loading
+        if (loading) {
+            return 'loading';
+        }
+
+        // Si está en transición, mantener estado actual (evitar parpadeo)
+        if (isTransitioning) {
+            return cars.length > 0 ? 'with-cars' : 'no-results';
+        }
+
+        // Si no hay autos en la página actual
+        if (cars.length === 0) {
+            // Verificar si es realmente que no hay autos registrados vs no hay resultados
+            const hasActiveSearchOrFilters = searchTerm || Object.values(filters).some(filter => filter !== '');
+
+            // Si nunca se han cargado autos Y no hay búsqueda/filtros activos
+            if (!hasEverLoadedCars && !hasActiveSearchOrFilters && pageInfo.totalElements === 0) {
+                return 'no-cars-registered';
+            } else {
+                return 'no-results';
+            }
+        }
+
+        return 'with-cars';
     };
 
     const handleEdit = (car) => {
@@ -188,7 +228,6 @@ const CarsPage = () => {
                 showToast('Auto eliminado exitosamente', 'success');
                 await refresh();
 
-                // 🎯 REFRESCAR lista completa para filtros
                 const response = await carService.getAll({ size: 1000 });
                 if (response.data && response.data.data) {
                     setAllUserCars(response.data.data);
@@ -215,7 +254,6 @@ const CarsPage = () => {
             setEditingCar(null);
             await refresh();
 
-            // 🎯 REFRESCAR lista completa para filtros
             const response = await carService.getAll({ size: 1000 });
             if (response.data && response.data.data) {
                 setAllUserCars(response.data.data);
@@ -229,6 +267,8 @@ const CarsPage = () => {
         }
     };
 
+    const uiState = getUIState();
+
     return (
         <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-900 dark:via-purple-900/20 dark:to-slate-900 relative overflow-hidden">
             {/* Efectos de fondo animados */}
@@ -239,7 +279,7 @@ const CarsPage = () => {
             </div>
 
             <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                {loading ? (
+                {uiState === 'loading' ? (
                     <div className="flex flex-col items-center justify-center min-h-[60vh]">
                         <LoadingSpinner size="lg" />
                         <p className="text-slate-600 dark:text-slate-300 mt-4 text-center">
@@ -312,7 +352,6 @@ const CarsPage = () => {
                             </GlassCard>
                         </div>
 
-                        {/* 🎯 FILTROS - Con carros para filtros en cascada */}
                         {pageInfo.totalElements > 0 && (
                             <div className="mb-8">
                                 <GlassCard className="p-6">
@@ -376,9 +415,8 @@ const CarsPage = () => {
                             </div>
                         )}
 
-                        {/* 🎯 ESTADOS DE CONTENIDO - Interfaces corregidas */}
-                        {cars.length === 0 && pageInfo.totalElements === 0 && !searchTerm && Object.values(filters).every(filter => !filter) ? (
-                            // ✅ CASO 1: No hay autos registrados Y no hay búsqueda ni filtros activos - 🚗 (carrito rojo)
+                        {uiState === 'no-cars-registered' ? (
+                            // ✅ CASO 1: No hay autos registrados - 🚗 (carrito)
                             <GlassCard className="p-16 text-center" hover={false}>
                                 <div>
                                     <div className="text-8xl mb-6">🚗</div>
@@ -401,8 +439,8 @@ const CarsPage = () => {
                                     </ShimmerEffect>
                                 </div>
                             </GlassCard>
-                        ) : cars.length === 0 ? (
-                            // ✅ CASO 2: No hay resultados pero hay búsqueda/filtros O hay autos registrados - 🔍 (lupa)
+                        ) : uiState === 'no-results' ? (
+                            // ✅ CASO 2: No hay resultados de búsqueda/filtros - 🔍 (lupa)
                             <GlassCard className="p-16 text-center" hover={false}>
                                 <div>
                                     <div className="text-8xl mb-6">🔍</div>
@@ -420,13 +458,15 @@ const CarsPage = () => {
                                         variant="secondary"
                                         size="lg"
                                         className="backdrop-blur-sm bg-white/20 dark:bg-white/10 border border-white/30 dark:border-white/20"
+                                        disabled={isTransitioning} // 🆕 Deshabilitar durante transición
                                     >
                                         <Filter className="w-5 h-5 mr-2" />
-                                        {searchTerm ? "Limpiar búsqueda y filtros" : "Limpiar Filtros"}
+                                        {isTransitioning ? "Limpiando..." : (searchTerm ? "Limpiar búsqueda y filtros" : "Limpiar Filtros")}
                                     </Button>
                                 </div>
                             </GlassCard>
                         ) : (
+                            // ✅ CASO 3: Hay autos para mostrar
                             <>
                                 {/* Grid de autos */}
                                 <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 sm:gap-6 mb-8">
