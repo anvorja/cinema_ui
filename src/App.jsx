@@ -17,7 +17,6 @@ import NotFoundPage from './pages/NotFoundPage';
 // Providers
 import { AuthProvider } from "./components/auth/AuthProvider.jsx";
 import { ThemeProvider } from "./components/providers/ThemeProvider.jsx";
-import CarsPagePaginated from "./pages/CarsPagePaginated.jsx";
 
 function App() {
     return (
@@ -38,12 +37,6 @@ function App() {
                                         <CarsPage />
                                     </ProtectedRoute>
                                 } />
-
-                                {/*<Route path="/cars-paginated" element={*/}
-                                {/*    <ProtectedRoute>*/}
-                                {/*        <CarsPagePaginated />*/}
-                                {/*    </ProtectedRoute>*/}
-                                {/*} />*/}
 
                                 <Route path="/profile" element={
                                     <ProtectedRoute>

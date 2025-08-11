@@ -1,13 +1,17 @@
 // src/hooks/usePaginatedCars.js
 import { useState, useEffect, useCallback } from 'react';
 import { carService } from '../services/api';
+import { getPaginationSettings, savePaginationSettings } from '../utils/storage';
 
 export const usePaginatedCars = () => {
+    // Obtener configuración guardada
+    const savedSettings = getPaginationSettings();
+
     const [data, setData] = useState({
         cars: [],
         pageInfo: {
             page: 0,
-            size: 20,
+            size: savedSettings.size, // Usar configuración guardada
             totalPages: 0,
             totalElements: 0,
             hasNext: false,
@@ -20,9 +24,9 @@ export const usePaginatedCars = () => {
     const [loading, setLoading] = useState(false);
     const [searchParams, setSearchParams] = useState({
         page: 0,
-        size: 20,
-        sortBy: 'createdAt',
-        sortDirection: 'desc',
+        size: savedSettings.size, // Usar configuración guardada
+        sortBy: savedSettings.sortBy || 'createdAt',
+        sortDirection: savedSettings.sortDirection || 'desc',
         searchTerm: '',
         brand: '',
         model: '',
@@ -59,7 +63,17 @@ export const usePaginatedCars = () => {
     }, [searchParams]);
 
     useEffect(() => {
-        fetchCars();
+        const loadCars = async () => {
+            try {
+                await fetchCars();
+            } catch (error) {
+                console.error('Error loading cars in useEffect:', error);
+                // Aquí podrías agregar más lógica de manejo de errores en el futuro
+                // Por ejemplo: mostrar un toast, reintentar, etc.
+            }
+        };
+
+        void loadCars(); // Indica intencionalmente que ignoramos la promesa retornada
     }, [fetchCars]);
 
     const updateSearchParams = useCallback((newParams) => {
@@ -75,10 +89,16 @@ export const usePaginatedCars = () => {
     }, []);
 
     const changePageSize = useCallback((size) => {
+        // Guardar configuración en localStorage
+        savePaginationSettings({ size });
+
         setSearchParams(prev => ({ ...prev, size, page: 0 }));
     }, []);
 
     const sort = useCallback((sortBy, sortDirection = 'asc') => {
+        // Guardar configuración de ordenamiento si se desea persistir
+        savePaginationSettings({ sortBy, sortDirection });
+
         setSearchParams(prev => ({
             ...prev,
             sortBy,

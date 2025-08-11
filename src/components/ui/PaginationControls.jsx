@@ -119,10 +119,10 @@ const PaginationControls = ({ pageInfo, onPageChange, className = "", compact = 
                                  focus:ring-2 focus:ring-blue-500 focus:border-transparent
                                  transition-colors duration-200"
                     >
-                        <option value="10">10</option>
+                        <option value="6">6</option>
+                        <option value="12">12</option>
                         <option value="20">20</option>
                         <option value="50">50</option>
-                        <option value="100">100</option>
                     </select>
                 </div>
             )}
