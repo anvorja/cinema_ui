@@ -12,18 +12,40 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({});
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setErrors({});
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setErrors({});
 
-    const result = await login(formData);
-    if (result.success) {
-      onClose();
-    } else {
-      setErrors({ general: result.error });
-    }
+  // DEBUG: Verificar qué se está enviando
+  console.log('📧 Login attempt with:', {
+    email: formData.email,
+    password: formData.password,
+    emailLength: formData.email.length,
+    passwordLength: formData.password.length,
+    emailTrimmed: formData.email.trim(),
+    hasWhitespace: formData.email !== formData.email.trim()
+  });
+
+  // Limpiar espacios en blanco
+  const cleanCredentials = {
+    email: formData.email.trim().toLowerCase(),
+    password: formData.password
   };
 
+  console.log('🧹 Cleaned credentials:', cleanCredentials);
+
+  const result = await login(cleanCredentials);
+
+  console.log('🔑 Login result:', result);
+
+  if (result.success) {
+    console.log('✅ Login successful, closing modal');
+    onClose();
+  } else {
+    console.log('❌ Login failed:', result.error);
+    setErrors({ general: result.error });
+  }
+};
   if (!isOpen) return null;
 
   return (

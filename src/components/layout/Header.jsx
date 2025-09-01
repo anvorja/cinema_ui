@@ -1,4 +1,4 @@
-// src/components/layout/Header.jsx - VERSIÓN ACTUALIZADA
+// src/components/layout/Header.jsx
 import { useState, useEffect } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import {
@@ -9,16 +9,16 @@ import {
 import { GlassCard, PremiumButton, GlassInput } from '../ui';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { Sidebar } from './Sidebar';
+import { LoginModal } from '../auth/LoginModal.jsx';        // 👈 IMPORTAR
+import { RegisterModal } from '../auth/RegisterModal.jsx';  // 👈 IMPORTAR
 import { useAuth } from '../../hooks/useAuth';
-import {LoginModal} from "../auth/LoginModal.jsx";
-import {RegisterModal} from "../auth/RegisterModal.jsx";
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [showUserProfile, setShowUserProfile] = useState(false);
-    // 👇 Estados para los modales de autenticación
+    // 👇 ESTADOS PARA LOS MODALES
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
 
@@ -40,28 +40,63 @@ const Header = () => {
         setIsSidebarOpen(false);
     }, [location]);
 
+    // Close dropdown when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (showUserProfile) {
+                const dropdown = event.target.closest('.user-profile-dropdown');
+                const button = event.target.closest('.user-profile-button');
+
+                if (!dropdown && !button) {
+                    setShowUserProfile(false);
+                }
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside);
+        };
+    }, [showUserProfile]);
+
     const navigationItems = [
         { name: 'Cartelera', href: '/cartelera', isActive: location.pathname === '/cartelera' },
         { name: 'Pronto', href: '/pronto', isActive: location.pathname === '/pronto' },
         { name: 'Comidas', href: '/comidas', isActive: location.pathname === '/comidas' }
     ];
 
-    // 👇 Funciones para manejar modales
+    const handleUserClick = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        console.log('User button clicked, current state:', showUserProfile);
+        setShowUserProfile(!showUserProfile);
+    };
+
+    const handleCloseDropdown = () => {
+        console.log('Closing dropdown');
+        setShowUserProfile(false);
+    };
+
+    // 👇 FUNCIONES PARA MANEJAR LOS MODALES
     const handleLoginClick = () => {
+        console.log('Opening login modal');
         setShowLoginModal(true);
     };
 
     const handleSwitchToRegister = () => {
+        console.log('Switching to register modal');
         setShowLoginModal(false);
         setShowRegisterModal(true);
     };
 
     const handleSwitchToLogin = () => {
+        console.log('Switching to login modal');
         setShowRegisterModal(false);
         setShowLoginModal(true);
     };
 
     const closeAllModals = () => {
+        console.log('Closing all modals');
         setShowLoginModal(false);
         setShowRegisterModal(false);
     };
@@ -80,7 +115,7 @@ const Header = () => {
                     <div className="flex items-center justify-between px-6 py-3">
                         {/* Logo and Hamburger */}
                         <div className="flex items-center gap-4">
-                            {/* Hamburger Menu - 👇 CORREGIDO: Removido lg:hidden */}
+                            {/* Hamburger Menu */}
                             <button
                                 onClick={() => {
                                     console.log('Sidebar button clicked!');
@@ -145,8 +180,8 @@ const Header = () => {
                             {isAuthenticated ? (
                                 <div className="relative">
                                     <button
-                                        onClick={() => setShowUserProfile(!showUserProfile)}
-                                        className="flex items-center gap-2 p-2 rounded-xl glass-hover transition-all duration-200 hover:scale-105"
+                                        onClick={handleUserClick}
+                                        className="user-profile-button flex items-center gap-2 p-2 rounded-xl glass-hover transition-all duration-200 hover:scale-105"
                                     >
                                         {user?.avatar ? (
                                             <img
@@ -160,11 +195,14 @@ const Header = () => {
                                         <span className="hidden sm:block text-white font-medium">{user?.name}</span>
                                     </button>
 
+                                    {/* Dropdown con clase específica para el click outside */}
                                     {showUserProfile && (
-                                        <UserProfileDropdown
-                                            onClose={() => setShowUserProfile(false)}
-                                            user={user}
-                                        />
+                                        <div className="user-profile-dropdown">
+                                            <UserProfileDropdown
+                                                onClose={handleCloseDropdown}
+                                                user={user}
+                                            />
+                                        </div>
                                     )}
                                 </div>
                             ) : (
@@ -172,7 +210,7 @@ const Header = () => {
                                     variant="secondary"
                                     size="sm"
                                     className="hidden sm:flex"
-                                    onClick={handleLoginClick} // 👈 CORREGIDO: Ahora abre el modal
+                                    onClick={handleLoginClick} // 👈 FUNCIÓN REAL PARA ABRIR MODAL
                                 >
                                     Iniciar Sesión
                                 </PremiumButton>

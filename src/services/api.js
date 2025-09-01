@@ -17,8 +17,12 @@ const api = axios.create({
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('cinema_token') || Cookies.get('token');
+        console.log('🔑 Interceptor: Token found:', token ? 'YES' : 'NO');
+        console.log('🌐 Interceptor: Request URL:', config.url);
+
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
+            console.log('🔑 Interceptor: Added Authorization header');
         }
         return config;
     },
@@ -43,9 +47,8 @@ api.interceptors.response.use(
     }
 );
 
-// 🔐 SERVICIOS DE AUTENTICACIÓN
 export const authService = {
-    // Registro de usuario
+    // Registro de usuario (mantener como está)
     register: (userData) => api.post('/auth/register', {
         email: userData.email,
         phone: userData.phone,
@@ -54,14 +57,42 @@ export const authService = {
         password: userData.password
     }),
 
-    // Login
-    login: (credentials) => api.post('/auth/login', {
-        email: credentials.email,
-        password: credentials.password
-    }),
+    // Login - CORREGIDO para coincidir exactamente con el backend
+    login: (credentials) => {
+        console.log('🌐 Sending login request:', credentials);
+
+        // Asegurar que se envíe exactamente como espera el backend
+        const payload = {
+            email: credentials.email,
+            password: credentials.password
+        };
+
+        console.log('🌐 Login payload:', payload);
+        console.log('🌐 Request URL:', `${API_BASE_URL}/auth/login`);
+
+        return api.post('/auth/login', payload);
+    },
 
     // Logout
-    logout: () => api.post('/auth/logout'),
+    logout: () => {
+        console.log('🌐 API: Calling logout endpoint');
+        console.log('🌐 API: Request URL:', `${API_BASE_URL}/auth/logout`);
+
+        return api.post('/auth/logout')
+            .then(response => {
+                console.log('🌐 API: Logout response:', response);
+                return response;
+            })
+            .catch(error => {
+                console.error('🌐 API: Logout error:', {
+                    status: error.response?.status,
+                    statusText: error.response?.statusText,
+                    data: error.response?.data
+                });
+                // No lanzar el error para que el logout local siempre funcione
+                return { data: { message: 'Logout completed locally' } };
+            });
+    },
 
     // Validar token
     validateToken: () => api.get('/auth/verify-token'),
@@ -69,6 +100,10 @@ export const authService = {
     // Obtener usuario actual
     getCurrentUser: () => api.get('/auth/me')
 };
+
+// TAMBIÉN VERIFICA QUE LA URL BASE SEA CORRECTA
+console.log('🌐 API_BASE_URL:', API_BASE_URL);
+
 
 // 🎬 SERVICIOS DE PELÍCULAS
 export const movieService = {
