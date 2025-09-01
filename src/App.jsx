@@ -14,6 +14,7 @@ import {ThemeProvider} from "./components/providers/ThemeProvider.jsx";
 import {AuthProvider} from "./components/providers/AuthProvider.jsx";
 import {BookingProvider} from "./components/providers/BookingProvider.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
+import ProfilePage from "./pages/ProfilePage.jsx";
 
 
 function App() {
@@ -32,8 +33,10 @@ function App() {
                                 <Route path="booking/:movieId/:theaterId/:showtimeId" element={<BookingPage />} />
                                 <Route path="payment" element={<PaymentPage />} />
                                 <Route path="payment-success" element={<PaymentSuccessPage />} />
+                                <Route path="/profile" element={<ProfilePage />} />
                                 <Route path="*" element={<NotFoundPage />} />
 
+                                { /*TODO:*/ }
                                 {/* Future routes for admin dashboard */}
                                 {/* <Route path="admin/*" element={<AdminRoutes />} /> */}
                             </Route>

@@ -1,9 +1,10 @@
-//src/services/api.js
-// TODO: Conectar con el backend de fastAPI en http://localhost:8000/api/v1
+// src/services/api.js
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-const API_BASE_URL = import.meta.env.VITE_API_URL ||'http://localhost:8080/api';
+// Cambiar la URL base para conectar con FastAPI
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
+
 // Crear instancia de axios
 const api = axios.create({
     baseURL: API_BASE_URL,
@@ -15,7 +16,7 @@ const api = axios.create({
 // Interceptor para agregar token automáticamente
 api.interceptors.request.use(
     (config) => {
-        const token = Cookies.get('token');
+        const token = localStorage.getItem('cinema_token') || Cookies.get('token');
         if (token) {
             config.headers.Authorization = `Bearer ${token}`;
         }
@@ -32,6 +33,8 @@ api.interceptors.response.use(
     (error) => {
         if (error.response?.status === 401) {
             // Token expirado o inválido
+            localStorage.removeItem('cinema_token');
+            localStorage.removeItem('cinema_user');
             Cookies.remove('token');
             Cookies.remove('userInfo');
             window.location.href = '/login';
@@ -40,139 +43,143 @@ api.interceptors.response.use(
     }
 );
 
-// Servicios de autenticación
+// 🔐 SERVICIOS DE AUTENTICACIÓN
 export const authService = {
-    register: (userData) => api.post('/v1/auth/register', userData),
-    login: (credentials) => api.post('/v1/auth/login', credentials),
-    logout: () => api.post('/v1/auth/logout'),
-    validateToken: () => api.post('/v1/auth/validate'),
-};
-
-// Servicios de autos
-export const carService = {
-    // CRUD básico
-    getAll: (params = {}) => api.get('/v1/cars', { params }),
-    getById: (id) => api.get(`/v1/cars/${id}`),
-    create: (carData) => api.post('/v1/cars', carData),
-    update: (id, carData) => api.put(`/v1/cars/${id}`, carData),
-    delete: (id) => api.delete(`/v1/cars/${id}`),
-
-    // Búsquedas y filtros
-    search: (searchTerm) => api.get('/v1/cars/search', { params: { q: searchTerm } }),
-    filterByBrand: (brand) => api.get('/v1/cars/filter/brand', { params: { brand } }),
-    filterByModel: (model) => api.get('/v1/cars/filter/model', { params: { model } }),
-    filterByYear: (year) => api.get('/v1/cars/filter/year', { params: { year } }),
-    filterByColor: (color) => api.get('/v1/cars/filter/color', { params: { color } }),
-    filterByYearRange: (minYear, maxYear) => api.get('/v1/cars/filter/year-range', {
-        params: { minYear, maxYear }
+    // Registro de usuario
+    register: (userData) => api.post('/auth/register', {
+        email: userData.email,
+        phone: userData.phone,
+        first_name: userData.firstName || userData.first_name,
+        last_name: userData.lastName || userData.last_name,
+        password: userData.password
     }),
 
-    // NUEVOS ENDPOINTS PARA OPCIONES DE FILTROS
-    getFilterOptions: () => api.get('/v1/cars/filter-options'),
-    getBrandOptions: () => api.get('/v1/cars/filter-options/brands'),
-    getModelOptions: () => api.get('/v1/cars/filter-options/models'),
-    getColorOptions: () => api.get('/v1/cars/filter-options/colors'),
-    getYearOptions: () => api.get('/v1/cars/filter-options/years'),
+    // Login
+    login: (credentials) => api.post('/auth/login', {
+        email: credentials.email,
+        password: credentials.password
+    }),
 
-    // NUEVO: Método paginado principal
-    searchPaginated: async (params = {}) => {
-        const queryParams = new URLSearchParams();
+    // Logout
+    logout: () => api.post('/auth/logout'),
 
-        // Parámetros de paginación
-        queryParams.append('page', String(params.page || 0));
-        queryParams.append('size', String(params.size || 20));
+    // Validar token
+    validateToken: () => api.get('/auth/verify-token'),
 
-        if (params.sortBy) {
-            queryParams.append('sortBy', params.sortBy);
-            queryParams.append('sortDirection', params.sortDirection || 'asc');
-        }
-
-        // Parámetros de búsqueda
-        if (params.searchTerm?.trim()) {
-            queryParams.append('searchTerm', params.searchTerm.trim());
-        }
-
-        if (params.brand?.trim()) {
-            queryParams.append('brand', params.brand.trim());
-        }
-
-        if (params.model?.trim()) {
-            queryParams.append('model', params.model.trim());
-        }
-
-        if (params.year) {
-            queryParams.append('year', String(params.year));
-        }
-
-        if (params.color?.trim()) {
-            queryParams.append('color', params.color.trim());
-        }
-
-        if (params.minYear) {
-            queryParams.append('minYear', String(params.minYear));
-        }
-
-        if (params.maxYear) {
-            queryParams.append('maxYear', String(params.maxYear));
-        }
-
-        const response = await api.get(`/v1/cars/search/paginated?${queryParams.toString()}`);
-        return response.data;
-    },
-
-    // Métodos específicos para casos comunes
-    getByPage: async (page = 0, size = 20, sortBy = 'createdAt', sortDirection = 'desc') => {
-        return carService.searchPaginated({ page, size, sortBy, sortDirection });
-    },
-
-    searchByTerm: async (searchTerm, page = 0, size = 20) => {
-        return carService.searchPaginated({ searchTerm, page, size });
-    },
-
-    filterBy: async (filters, page = 0, size = 20) => {
-        return carService.searchPaginated({ ...filters, page, size });
-    },
-
-    // Categorías especiales
-    getVintage: () => api.get('/v1/cars/vintage'),
-    getNew: () => api.get('/v1/cars/new'),
-
-    // Estadísticas
-    getStats: () => api.get('/v1/cars/stats'),
-
-    // Verificaciones
-    checkPlateAvailability: (plateNumber) =>
-        api.get('/v1/cars/plate-available', { params: { plateNumber } }),
-
-    // Búsqueda avanzada
-    advancedSearch: (searchData) => api.post('/v1/cars/search', searchData),
+    // Obtener usuario actual
+    getCurrentUser: () => api.get('/auth/me')
 };
 
-// Servicios de usuario
+// 🎬 SERVICIOS DE PELÍCULAS
+export const movieService = {
+    // Obtener todas las películas (público)
+    getAll: (params = {}) => api.get('/movies', { params }),
+
+    // Obtener película por ID
+    getById: (id) => api.get(`/movies/${id}`),
+
+    // Buscar películas
+    search: (query) => api.get('/movies/search', { params: { q: query } }),
+
+    // Obtener películas en cartelera
+    getNowPlaying: () => api.get('/movies/now-playing'),
+
+    // Obtener próximos estrenos
+    getUpcoming: () => api.get('/movies/upcoming')
+};
+
+// 🎫 SERVICIOS DE COMPRAS (Requiere autenticación)
+export const purchaseService = {
+    // Crear nueva compra
+    create: (purchaseData) => api.post('/purchases', {
+        movie_id: purchaseData.movieId,
+        showtime_id: purchaseData.showtimeId,
+        seat_numbers: purchaseData.seatNumbers,
+        total_amount: purchaseData.totalAmount
+    }),
+
+    // Obtener historial de compras del usuario
+    getHistory: () => api.get('/purchases'),
+
+    // Obtener detalle de una compra
+    getById: (id) => api.get(`/purchases/${id}`)
+};
+
+// 👤 SERVICIOS DE USUARIO (Requiere autenticación)
 export const userService = {
-    getProfile: () => api.get('/v1/users/profile'),
+    // Obtener perfil del usuario
+    getProfile: () => api.get('/auth/me'),
 
-    updateProfile: (userData) => {
-        const requestData = {
-            firstName: userData.firstName,
-            lastName: userData.lastName,
-            email: userData.email
-        };
-        return api.put('/v1/users/profile', requestData);
+    // Actualizar perfil
+    updateProfile: (profileData) => api.put('/users/profile', {
+        first_name: profileData.firstName,
+        last_name: profileData.lastName,
+        phone: profileData.phone
+    }),
+
+    // Cambiar contraseña
+    changePassword: (passwordData) => api.put('/users/change-password', {
+        current_password: passwordData.currentPassword,
+        new_password: passwordData.newPassword
+    }),
+
+    // Eliminar cuenta (esto debe implementarse en el backend)
+    deleteAccount: () => api.delete('/users/account')
+};
+
+// 🏢 SERVICIOS DE ADMINISTRACIÓN (Solo admin)
+export const adminService = {
+    // Gestión de películas
+    movies: {
+        getAll: () => api.get('/admin/movies'),
+        create: (movieData) => api.post('/admin/movies', movieData),
+        update: (id, movieData) => api.put(`/admin/movies/${id}`, movieData),
+        delete: (id) => api.delete(`/admin/movies/${id}`),
+        toggle: (id) => api.patch(`/admin/movies/${id}/toggle`)
     },
 
-    changePassword: (passwordData) => {
-        const requestData = {
-            currentPassword: passwordData.currentPassword,
-            newPassword: passwordData.newPassword,
-            confirmPassword: passwordData.newPassword // Debe ser igual a newPassword
-        };
-        return api.post('/v1/users/change-password', requestData);
+    // Gestión de usuarios
+    users: {
+        getAll: () => api.get('/admin/users'),
+        getById: (id) => api.get(`/admin/users/${id}`),
+        toggle: (id) => api.patch(`/admin/users/${id}/toggle`)
     },
-    deleteAccount: () => api.delete('/v1/users/profile'),
-    getStats: () => api.get('/v1/users/stats'),
-    checkEmailAvailability: (email) =>
-        api.get('/v1/users/email-available', { params: { email } }),
+
+    // Reportes y compras
+    reports: {
+        getSales: () => api.get('/admin/reports/sales'),
+        getPurchases: () => api.get('/admin/purchases'),
+        getPurchasesByMovie: (movieId) => api.get(`/admin/purchases/movie/${movieId}`),
+        getPurchasesByUser: (userId) => api.get(`/admin/purchases/user/${userId}`)
+    }
+};
+
+// Función helper para manejar errores de la API
+export const handleApiError = (error) => {
+    if (error.response) {
+        // El servidor respondió con un código de error
+        const { status, data } = error.response;
+        switch (status) {
+            case 400:
+                return data.detail || 'Datos inválidos';
+            case 401:
+                return 'No autorizado. Por favor inicia sesión';
+            case 403:
+                return 'No tienes permisos para realizar esta acción';
+            case 404:
+                return 'Recurso no encontrado';
+            case 500:
+                return 'Error interno del servidor';
+            default:
+                return data.detail || 'Error inesperado';
+        }
+    } else if (error.request) {
+        // No se recibió respuesta del servidor
+        return 'No se pudo conectar con el servidor';
+    } else {
+        // Error en la configuración de la petición
+        return error.message || 'Error inesperado';
+    }
 };
 
 export default api;

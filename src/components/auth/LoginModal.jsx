@@ -1,5 +1,119 @@
 // src/components/auth/LoginModal.jsx
-// TODO: crear e implementar
-export default function LoginModal() {
-  return <div>LoginModal (pendiente de implementar)</div>;
-}
+import { useState } from 'react';
+import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { useAuth } from '../../hooks/useAuth';
+
+const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
+  const { login, loading } = useAuth();
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+  const [showPassword, setShowPassword] = useState(false);
+  const [errors, setErrors] = useState({});
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setErrors({});
+
+    const result = await login(formData);
+    if (result.success) {
+      onClose();
+    } else {
+      setErrors({ general: result.error });
+    }
+  };
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full">
+        {/* Header */}
+        <div className="flex items-center justify-between p-6 border-b border-white/20">
+          <h2 className="text-2xl font-bold text-white">Iniciar Sesión</h2>
+          <button
+            onClick={onClose}
+            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
+          >
+            <X className="w-6 h-6 text-white" />
+          </button>
+        </div>
+
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+          {errors.general && (
+            <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
+              {errors.general}
+            </div>
+          )}
+
+          {/* Email */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-white/60">
+              <Mail className="w-4 h-4" />
+              Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
+              placeholder="tu@email.com"
+              required
+            />
+          </div>
+
+          {/* Password */}
+          <div className="space-y-2">
+            <label className="flex items-center gap-2 text-sm font-medium text-white/60">
+              <Lock className="w-4 h-4" />
+              Contraseña
+            </label>
+            <div className="relative">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none pr-12"
+                placeholder="Tu contraseña"
+                required
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white"
+              >
+                {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+              </button>
+            </div>
+          </div>
+
+          {/* Submit Button */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 rounded-lg text-white font-medium transition-colors"
+          >
+            {loading ? 'Iniciando...' : 'Iniciar Sesión'}
+          </button>
+
+          {/* Switch to Register */}
+          <div className="text-center pt-4 border-t border-white/20">
+            <p className="text-white/60">
+              ¿No tienes cuenta?{' '}
+              <button
+                type="button"
+                onClick={onSwitchToRegister}
+                className="text-blue-400 hover:text-blue-300 font-medium"
+              >
+                Regístrate aquí
+              </button>
+            </p>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export {LoginModal};

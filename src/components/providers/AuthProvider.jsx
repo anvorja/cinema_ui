@@ -1,6 +1,7 @@
 // src/providers/AuthProvider.jsx
 import { useState, useEffect } from 'react';
 import { AuthContext } from '../contexts/AuthContext.js';
+import {authService, handleApiError, userService} from "../../services/api.js";
 
 export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
@@ -9,20 +10,32 @@ export const AuthProvider = ({ children }) => {
 
   // Verificar autenticación al cargar la app
   useEffect(() => {
-    const checkAuth = () => {
+    const checkAuth = async () => {
       try {
         const storedUser = localStorage.getItem('cinema_user');
         const storedToken = localStorage.getItem('cinema_token');
 
         if (storedUser && storedToken) {
-          const userData = JSON.parse(storedUser);
-          setUser(userData);
-          setIsAuthenticated(true);
+          // Validar token con el backend
+          try {
+            const response = await authService.validateToken();
+            if (response.data.valid) {
+              const userData = JSON.parse(storedUser);
+              setUser(userData);
+              setIsAuthenticated(true);
+            } else {
+              // Token inválido, limpiar
+              localStorage.removeItem('cinema_user');
+              localStorage.removeItem('cinema_token');
+            }
+          } catch {
+            // Token inválido o expirado
+            localStorage.removeItem('cinema_user');
+            localStorage.removeItem('cinema_token');
+          }
         }
       } catch (error) {
-        console.error('Error parsing stored user data:', error);
-        localStorage.removeItem('cinema_user');
-        localStorage.removeItem('cinema_token');
+        console.error('Error checking auth:', error);
       } finally {
         setLoading(false);
       }
@@ -31,98 +44,46 @@ export const AuthProvider = ({ children }) => {
     checkAuth();
   }, []);
 
-  // Función de login
-  const login = async (credentials) => {
-    try {
-      setLoading(true);
-
-      // Simular llamada a la API (reemplazar con tu backend real)
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      // Validación básica simulada
-      if (!credentials.email || !credentials.password) {
-        throw new Error('Email y contraseña son requeridos');
-      }
-
-      // Mock user data (esto vendrá de tu backend)
-      const mockUser = {
-        id: 1,
-        name: 'Andrés',
-        email: credentials.email,
-        avatar: null,
-        phone: '+57 300 123 4567',
-        points: 20, // visitas para ser Cliente Platino
-        memberType: 'regular', // regular, platino, premium
-        preferences: {
-          notifications: true,
-          promotions: true
-        }
-      };
-
-      const mockToken = 'mock_jwt_token_' + Date.now();
-
-      // Actualizar estado
-      setUser(mockUser);
-      setIsAuthenticated(true);
-
-      // Guardar en localStorage
-      localStorage.setItem('cinema_user', JSON.stringify(mockUser));
-      localStorage.setItem('cinema_token', mockToken);
-
-      return { success: true, user: mockUser };
-
-    } catch (error) {
-      console.error('Login error:', error);
-      return {
-        success: false,
-        error: error.message || 'Error al iniciar sesión'
-      };
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Función de registro
+  // ✅ FUNCIÓN DE REGISTRO CONECTADA AL BACKEND
   const register = async (userData) => {
     try {
       setLoading(true);
 
-      // Simular llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 1500));
-
-      // Validaciones básicas
-      if (!userData.email || !userData.password || !userData.name) {
-        throw new Error('Todos los campos son requeridos');
-      }
-
-      if (userData.password.length < 6) {
-        throw new Error('La contraseña debe tener al menos 6 caracteres');
-      }
-
-      // Crear nuevo usuario
-      const newUser = {
-        id: Date.now(),
-        name: userData.name,
+      const response = await authService.register({
         email: userData.email,
-        avatar: null,
-        phone: userData.phone || null,
-        points: 0,
-        memberType: 'regular',
-        preferences: {
-          notifications: true,
-          promotions: false
-        }
+        phone: userData.phone,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        password: userData.password
+      });
+
+      const { data: userInfo } = response;
+
+      // Después del registro, hacer login automático
+      const loginResponse = await authService.login({
+        email: userData.email,
+        password: userData.password
+      });
+
+      const { access_token } = loginResponse.data;
+
+      // Crear objeto de usuario completo
+      const newUser = {
+        id: userInfo.id,
+        name: userInfo.full_name,
+        email: userInfo.email,
+        phone: userInfo.phone,
+        firstName: userInfo.first_name,
+        lastName: userInfo.last_name,
+        role: userInfo.role,
+        createdAt: new Date().toISOString()
       };
 
-      const mockToken = 'mock_jwt_token_' + Date.now();
-
-      // Actualizar estado
+      // Guardar estado y localStorage
       setUser(newUser);
       setIsAuthenticated(true);
-
-      // Guardar en localStorage
       localStorage.setItem('cinema_user', JSON.stringify(newUser));
-      localStorage.setItem('cinema_token', mockToken);
+      localStorage.setItem('cinema_token', access_token);
 
       return { success: true, user: newUser };
 
@@ -130,30 +91,92 @@ export const AuthProvider = ({ children }) => {
       console.error('Register error:', error);
       return {
         success: false,
-        error: error.message || 'Error al registrarse'
+        error: handleApiError(error)
       };
     } finally {
       setLoading(false);
     }
   };
 
-  // Función de logout
-  const logout = () => {
-    setUser(null);
-    setIsAuthenticated(false);
-    localStorage.removeItem('cinema_user');
-    localStorage.removeItem('cinema_token');
+  // ✅ FUNCIÓN DE LOGIN CONECTADA AL BACKEND
+  const login = async (credentials) => {
+    try {
+      setLoading(true);
+
+      const response = await authService.login(credentials);
+      const { access_token } = response.data;
+
+      // Obtener información completa del usuario
+      const userResponse = await authService.getCurrentUser();
+      const userInfo = userResponse.data;
+
+      const newUser = {
+        id: userInfo.id,
+        name: userInfo.full_name,
+        email: userInfo.email,
+        phone: userInfo.phone,
+        firstName: userInfo.first_name,
+        lastName: userInfo.last_name,
+        role: userInfo.role,
+        avatar: null // Implementar si tienes avatars
+      };
+
+      // Actualizar estado
+      setUser(newUser);
+      setIsAuthenticated(true);
+
+      // Guardar en localStorage
+      localStorage.setItem('cinema_user', JSON.stringify(newUser));
+      localStorage.setItem('cinema_token', access_token);
+
+      return { success: true, user: newUser };
+
+    } catch (error) {
+      console.error('Login error:', error);
+      return {
+        success: false,
+        error: handleApiError(error)
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
-  // Función para actualizar perfil
+  // ✅ FUNCIÓN DE LOGOUT
+  const logout = async () => {
+    try {
+      // Intentar hacer logout en el backend
+      await authService.logout();
+    } catch (error) {
+      console.error('Logout error:', error);
+    } finally {
+      // Siempre limpiar el estado local
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('cinema_user');
+      localStorage.removeItem('cinema_token');
+    }
+  };
+
+  // ✅ FUNCIÓN PARA ACTUALIZAR PERFIL
   const updateProfile = async (profileData) => {
     try {
       setLoading(true);
 
-      // Simular llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // TODO: revisar porque se declara pero no se usa
+      // const response = await userService.updateProfile({
+      //   firstName: profileData.firstName,
+      //   lastName: profileData.lastName,
+      //   phone: profileData.phone
+      // });
 
-      const updatedUser = { ...user, ...profileData };
+      const updatedUser = {
+        ...user,
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phone: profileData.phone,
+        name: `${profileData.firstName} ${profileData.lastName}`
+      };
 
       setUser(updatedUser);
       localStorage.setItem('cinema_user', JSON.stringify(updatedUser));
@@ -162,84 +185,68 @@ export const AuthProvider = ({ children }) => {
     } catch (error) {
       return {
         success: false,
-        error: error.message || 'Error al actualizar perfil'
+        error: handleApiError(error)
       };
     } finally {
       setLoading(false);
     }
   };
 
-  // Función para cambiar contraseña
+  // ✅ FUNCIÓN PARA CAMBIAR CONTRASEÑA
   const changePassword = async (currentPassword, newPassword) => {
     try {
       setLoading(true);
 
-      // Simular llamada a la API
-      await new Promise(resolve => setTimeout(resolve, 1000));
+      await userService.changePassword({
+        currentPassword,
+        newPassword
+      });
 
-      // Validaciones
-      if (!currentPassword || !newPassword) {
-        throw new Error('Contraseña actual y nueva contraseña son requeridas');
-      }
-
-      if (newPassword.length < 6) {
-        throw new Error('La nueva contraseña debe tener al menos 6 caracteres');
-      }
-
-      // Simular validación de contraseña actual
-      // En la implementación real, el backend validaría esto
-      return { success: true, message: 'Contraseña actualizada correctamente' };
-
+      return { success: true };
     } catch (error) {
       return {
         success: false,
-        error: error.message || 'Error al cambiar contraseña'
+        error: handleApiError(error)
       };
     } finally {
       setLoading(false);
     }
   };
 
-  // Función para verificar si el usuario tiene permisos de admin
-  const isAdmin = () => {
-    return user && (user.role === 'admin' || user.memberType === 'admin');
-  };
+  // ✅ FUNCIÓN PARA ELIMINAR CUENTA
+  const deleteAccount = async () => {
+    try {
+      setLoading(true);
 
-  // Función para verificar si el usuario es premium
-  const isPremium = () => {
-    return user && (user.memberType === 'platino' || user.memberType === 'premium');
-  };
+      await userService.deleteAccount();
 
-  // Función para agregar puntos al usuario
-  const addPoints = (points) => {
-    if (!user) return;
+      // Limpiar estado después de eliminación exitosa
+      setUser(null);
+      setIsAuthenticated(false);
+      localStorage.removeItem('cinema_user');
+      localStorage.removeItem('cinema_token');
 
-    const updatedUser = {
-      ...user,
-      points: user.points + points
-    };
-
-    setUser(updatedUser);
-    localStorage.setItem('cinema_user', JSON.stringify(updatedUser));
+      return { success: true };
+    } catch (error) {
+      return {
+        success: false,
+        error: handleApiError(error)
+      };
+    } finally {
+      setLoading(false);
+    }
   };
 
   const value = {
-    // Estados
     user,
     isAuthenticated,
     loading,
-
-    // Funciones principales
     login,
     register,
     logout,
     updateProfile,
     changePassword,
-
-    // Utilidades
-    isAdmin,
-    isPremium,
-    addPoints
+    deleteAccount
   };
 
   return (
