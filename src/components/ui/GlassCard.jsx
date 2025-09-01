@@ -1,73 +1,39 @@
 // src/components/ui/GlassCard.jsx
 import { cn } from '../../utils';
+import { forwardRef } from 'react';
 
-const GlassCard = ({
-  children,
-  className = "",
-  hover = true,
+const GlassCard = forwardRef(({
+  className,
   variant = 'default',
-  glow = false,
-  intensity = 'normal',
+  intensity = 'medium',
+  children,
   ...props
-}) => {
-  const getVariantStyles = () => {
-    switch (variant) {
-      case 'light':
-        return cn(
-          'bg-white/40 dark:bg-white/10',
-          'border-white/60 dark:border-white/20'
-        );
-      case 'dark':
-        return cn(
-          'bg-black/20 dark:bg-white/5',
-          'border-black/30 dark:border-white/10'
-        );
-      case 'colored':
-        return cn(
-          'bg-gradient-to-br from-blue-500/10 to-purple-500/10',
-          'border-blue-500/20 dark:border-blue-400/20'
-        );
-      default:
-        return cn(
-          'bg-white/20 dark:bg-white/5',
-          'border-white/30 dark:border-white/10'
-        );
-    }
+}, ref) => {
+  const variants = {
+    default: 'bg-white/10 border-white/20',
+    dark: 'bg-black/20 border-white/10',
+    primary: 'bg-blue-500/10 border-blue-400/20',
+    premium: 'bg-gradient-to-br from-white/15 to-white/5 border-white/25',
   };
 
-  const getIntensityStyles = () => {
-    switch (intensity) {
-      case 'light':
-        return 'backdrop-blur-sm';
-      case 'strong':
-        return 'backdrop-blur-2xl';
-      default:
-        return 'backdrop-blur-xl';
-    }
-  };
-
-  const getGlowStyles = () => {
-    if (!glow) return '';
-    return cn(
-      'shadow-2xl shadow-blue-500/20',
-      'ring-1 ring-white/20',
-      'hover:shadow-blue-500/30 hover:ring-white/30'
-    );
+  const intensities = {
+    light: 'backdrop-blur-sm',
+    medium: 'backdrop-blur-md',
+    strong: 'backdrop-blur-lg',
+    ultra: 'backdrop-blur-xl',
   };
 
   return (
     <div
+      ref={ref}
       className={cn(
-        getIntensityStyles(),
-        getVariantStyles(),
-        'border rounded-2xl shadow-2xl',
-        glow && getGlowStyles(),
-        hover && cn(
-          'hover:bg-white/30 dark:hover:bg-white/10',
-          'hover:border-white/50 dark:hover:border-white/20',
-          'hover:shadow-3xl hover:-translate-y-1'
-        ),
+        'relative overflow-hidden rounded-xl border',
+        'shadow-lg shadow-black/10',
         'transition-all duration-300 ease-out',
+        variants[variant],
+        intensities[intensity],
+        'hover:shadow-xl hover:shadow-black/20',
+        'hover:border-white/30 hover:bg-white/15',
         className
       )}
       {...props}
@@ -75,6 +41,8 @@ const GlassCard = ({
       {children}
     </div>
   );
-};
+});
 
-export default GlassCard;
+GlassCard.displayName = 'GlassCard';
+
+export default GlassCard;   // 👈 solución
