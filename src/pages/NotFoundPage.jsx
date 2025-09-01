@@ -1,184 +1,208 @@
 // src/pages/NotFoundPage.jsx
-import { Link } from 'react-router-dom';
-import { useAuth } from '../hooks/useAuth';
-import Button from '../components/ui/Button';
-import { Home, ArrowLeft, Car } from 'lucide-react';
-
-const GlassCard = ({ children, className = "", hover = true, ...props }) => {
-  return (
-      <div
-          className={`
-        backdrop-blur-xl bg-white/10 dark:bg-white/5
-        border border-white/20 dark:border-white/10
-        rounded-2xl shadow-2xl
-        ${hover ? 'hover:bg-white/15 dark:hover:bg-white/10 hover:border-white/30 dark:hover:border-white/20 hover:shadow-3xl hover:-translate-y-1' : ''}
-        transition-all duration-300 ease-out
-        ${className}
-      `}
-          {...props}
-      >
-        {children}
-      </div>
-  );
-};
-
-// Componente para efectos de brillo animado
-const ShimmerEffect = ({ children, className = "" }) => {
-  return (
-      <div className={`relative overflow-hidden ${className}`}>
-        <div className="absolute inset-0 -skew-x-12 bg-gradient-to-r from-transparent via-white/20 to-transparent opacity-0 animate-shimmer" />
-        {children}
-      </div>
-  );
-};
+import { useNavigate, Link } from 'react-router-dom';
+import {
+  HomeIcon,
+  FilmIcon,
+  ArrowLeftIcon,
+  MagnifyingGlassIcon,
+  ExclamationTriangleIcon
+} from '@heroicons/react/24/outline';
+import {FloatingParticles, GlassCard, PremiumButton} from '../components/ui';
+import { useState, useEffect } from 'react';
 
 const NotFoundPage = () => {
-  const { isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+  const [countdown, setCountdown] = useState(10);
+  const [isCountdownActive, setIsCountdownActive] = useState(true);
+
+  // Countdown para redirección automática
+  useEffect(() => {
+    if (isCountdownActive && countdown > 0) {
+      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
+      return () => clearTimeout(timer);
+    } else if (countdown === 0) {
+      navigate('/');
+    }
+  }, [countdown, navigate, isCountdownActive]);
+
+  const stopCountdown = () => {
+    setIsCountdownActive(false);
+  };
+
+  const suggestedPages = [
+    {
+      name: 'Inicio',
+      path: '/',
+      description: 'Volver a la página principal',
+      icon: HomeIcon,
+      color: 'bg-blue-500'
+    },
+    {
+      name: 'Cartelera',
+      path: '/cartelera',
+      description: 'Ver películas en exhibición',
+      icon: FilmIcon,
+      color: 'bg-purple-500'
+    },
+    {
+      name: 'Próximos Estrenos',
+      path: '/pronto',
+      description: 'Descubre los próximos estrenos',
+      icon: FilmIcon,
+      color: 'bg-orange-500'
+    },
+    {
+      name: 'Comidas',
+      path: '/comidas',
+      description: 'Explora nuestro menú de comidas',
+      icon: MagnifyingGlassIcon,
+      color: 'bg-green-500'
+    }
+  ];
 
   return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/20 dark:from-slate-900 dark:via-purple-900/20 dark:to-slate-900 relative overflow-hidden flex items-center justify-center">
-        {/* Efectos de fondo animados */}
-        <div className="fixed inset-0 overflow-hidden pointer-events-none">
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-3xl animate-pulse" />
-          <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-3xl animate-pulse delay-1000" />
-          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-cyan-500/3 dark:bg-cyan-500/5 rounded-full blur-3xl animate-pulse delay-2000" />
-        </div>
+    <div className="min-h-screen pt-24 flex items-center justify-center">
+      <FloatingParticles count={40} className="opacity-30" />
 
-        <div className="relative z-10 max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <GlassCard className="p-12" hover={false}>
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto text-center">
 
-            {/* Error Code con efecto glassmórfico */}
-            <div className="relative mb-8">
-              <ShimmerEffect>
-                <div className="text-8xl sm:text-9xl font-black bg-gradient-to-r from-slate-800 via-blue-600 to-purple-600 dark:from-white dark:via-blue-200 dark:to-purple-200 bg-clip-text text-transparent leading-none">
-                  404
-                </div>
-              </ShimmerEffect>
-
-              {/* Efecto de brillo detrás del número */}
-              <div className="absolute inset-0 bg-gradient-to-r from-blue-500/20 to-purple-500/20 blur-3xl opacity-50 -z-10" />
-            </div>
-
-            {/* Emoji animado */}
-            <div className="text-6xl mb-6 animate-bounce">
-              🚗💨
-            </div>
-
-            {/* Título */}
-            <h1 className="text-3xl sm:text-4xl font-bold text-slate-800 dark:text-slate-100 mb-4">
-              ¡Ups! Página no encontrada
-            </h1>
-
-            {/* Descripción */}
-            <p className="text-lg text-slate-600 dark:text-slate-300 mb-8 leading-relaxed max-w-md mx-auto">
-              Parece que la página que buscas se fue de paseo. No te preocupes,
-              te ayudamos a encontrar el camino de vuelta.
-            </p>
-
-            {/* Botones de acción */}
-            <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
-
-              {/* Botón principal - Ir al inicio */}
-              <ShimmerEffect>
-                <Link to="/">
-                  <Button
-                      variant="primary"
-                      size="lg"
-                      className="shadow-lg hover:shadow-xl bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white dark:from-blue-500 dark:to-purple-500 dark:hover:from-blue-600 dark:hover:to-purple-600">
-                    <Home className="w-5 h-5 mr-2" />
-                    Ir al Inicio
-                  </Button>
-                </Link>
-              </ShimmerEffect>
-
-              {/* Botón secundario - Condicional según autenticación */}
-              {isAuthenticated ? (
-                  <Link to="/cars">
-                    <Button
-                        variant="outline"
-                        size="lg"
-                        className="backdrop-blur-sm bg-white/10 dark:bg-white/5 border border-white/30 dark:border-white/20 text-slate-700 dark:text-slate-200 hover:bg-white/20 dark:hover:bg-white/10"
-                    >
-                      <Car className="w-5 h-5 mr-2" />
-                      Mis Autos
-                    </Button>
-                  </Link>
-              ) : (
-                  <Link to="/login">
-                    <Button
-                        variant="ghost"
-                        size="lg"
-                        className="text-slate-600 dark:text-slate-300 hover:text-slate-800 dark:hover:text-slate-100"
-                    >
-                      <ArrowLeft className="w-5 h-5 mr-2" />
-                      Volver
-                    </Button>
-                  </Link>
-              )}
-            </div>
-
-            {/* Enlaces útiles */}
-            <div className="mt-12 pt-8 border-t border-white/10 dark:border-white/5">
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-4">
-                ¿Necesitas ayuda? Aquí tienes algunos enlaces útiles:
-              </p>
-
-              <div className="flex flex-wrap justify-center gap-4 text-sm">
-                <Link
-                    to="/"
-                    className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
-                >
-                  Página Principal
-                </Link>
-
-                {isAuthenticated && (
-                    <>
-                      <span className="text-slate-400">•</span>
-                      <Link
-                          to="/cars"
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
-                      >
-                        Mi Colección
-                      </Link>
-                      <span className="text-slate-400">•</span>
-                      <Link
-                          to="/profile"
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
-                      >
-                        Mi Perfil
-                      </Link>
-                    </>
-                )}
-
-                {!isAuthenticated && (
-                    <>
-                      <span className="text-slate-400">•</span>
-                      <Link
-                          to="/login"
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
-                      >
-                        Iniciar Sesión
-                      </Link>
-                      <span className="text-slate-400">•</span>
-                      <Link
-                          to="/register"
-                          className="text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300 transition-colors underline-offset-4 hover:underline"
-                      >
-                        Registrarse
-                      </Link>
-                    </>
-                )}
+          {/* Error Icon and Message */}
+          <div className="mb-8">
+            <div className="w-32 h-32 mx-auto mb-6 relative">
+              {/* Animated 404 with glow effect */}
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full blur-3xl opacity-30 animate-pulse" />
+              <div className="relative w-full h-full bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-4xl">404</span>
               </div>
             </div>
 
+            <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">
+              Página No Encontrada
+            </h1>
+
+            <p className="text-white/80 text-lg sm:text-xl max-w-2xl mx-auto leading-relaxed">
+              Lo sentimos, la página que estás buscando no existe o ha sido movida.
+              Te ayudamos a encontrar lo que necesitas.
+            </p>
+          </div>
+
+          {/* Auto-redirect notice */}
+          {isCountdownActive && (
+            <GlassCard variant="premium" className="p-6 mb-8 max-w-md mx-auto">
+              <div className="flex items-center gap-3 mb-3">
+                <ExclamationTriangleIcon className="w-6 h-6 text-orange-400" />
+                <h3 className="text-white font-semibold">Redirección Automática</h3>
+              </div>
+              <p className="text-white/80 text-sm mb-3">
+                Serás redirigido al inicio en {countdown} segundos
+              </p>
+              <button
+                onClick={stopCountdown}
+                className="text-blue-400 hover:text-blue-300 text-sm font-medium transition-colors"
+              >
+                Cancelar redirección
+              </button>
+            </GlassCard>
+          )}
+
+          {/* Quick Actions */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {suggestedPages.map((page) => (
+              <Link
+                key={page.name}
+                to={page.path}
+                className="group"
+                onClick={stopCountdown}
+              >
+                <GlassCard variant="premium" className="p-6 premium-card h-full">
+                  <div className="flex flex-col items-center text-center">
+                    <div className={`w-12 h-12 ${page.color} rounded-full flex items-center justify-center mb-4 group-hover:scale-110 transition-transform duration-300`}>
+                      <page.icon className="w-6 h-6 text-white" />
+                    </div>
+                    <h3 className="text-white font-semibold mb-2">{page.name}</h3>
+                    <p className="text-white/70 text-sm">{page.description}</p>
+                  </div>
+                </GlassCard>
+              </Link>
+            ))}
+          </div>
+
+          {/* Main Actions */}
+          <div className="flex flex-col sm:flex-row gap-4 justify-center mb-8">
+            <PremiumButton
+              size="lg"
+              variant="premium"
+              onClick={() => {
+                stopCountdown();
+                navigate('/');
+              }}
+            >
+              <HomeIcon className="w-5 h-5 mr-2" />
+              Ir al Inicio
+            </PremiumButton>
+
+            <PremiumButton
+              size="lg"
+              variant="secondary"
+              onClick={() => {
+                stopCountdown();
+                navigate(-1);
+              }}
+            >
+              <ArrowLeftIcon className="w-5 h-5 mr-2" />
+              Página Anterior
+            </PremiumButton>
+          </div>
+
+          {/* Search Section */}
+          <GlassCard variant="default" className="p-8 max-w-2xl mx-auto">
+            <h2 className="text-xl font-bold text-white mb-4">
+              ¿Buscas algo específico?
+            </h2>
+
+            <div className="space-y-4">
+              <div className="relative">
+                <input
+                  type="text"
+                  placeholder="Buscar películas, comidas, teatros..."
+                  className="w-full px-4 py-3 pl-12 rounded-lg bg-white/10 border border-white/20 text-white placeholder-white/60 focus:bg-white/15 focus:border-white/40 focus:outline-none transition-all"
+                  onKeyPress={(e) => {
+                    if (e.key === 'Enter') {
+                      // Aquí implementarías la búsqueda real
+                      navigate('/cartelera');
+                    }
+                  }}
+                />
+                <MagnifyingGlassIcon className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-white/60" />
+              </div>
+
+              <p className="text-white/60 text-sm">
+                O navega usando los enlaces de arriba para encontrar lo que necesitas
+              </p>
+            </div>
           </GlassCard>
 
-          {/* Elementos decorativos flotantes */}
-          <div className="absolute top-1/4 left-1/4 w-4 h-4 bg-blue-400/30 rounded-full animate-ping" />
-          <div className="absolute top-3/4 right-1/4 w-2 h-2 bg-purple-400/40 rounded-full animate-pulse delay-1000" />
-          <div className="absolute bottom-1/4 left-1/3 w-3 h-3 bg-cyan-400/20 rounded-full animate-bounce delay-500" />
+          {/* Help Section */}
+          <div className="mt-12">
+            <GlassCard variant="default" className="p-6 max-w-xl mx-auto">
+              <h3 className="text-white font-semibold mb-3">¿Necesitas Ayuda?</h3>
+              <p className="text-white/70 text-sm mb-4">
+                Si continúas teniendo problemas, no dudes en contactarnos
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
+                  📞 Llamar Soporte
+                </button>
+                <button className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm hover:bg-white/20 transition-colors">
+                  📧 Enviar Email
+                </button>
+              </div>
+            </GlassCard>
+          </div>
         </div>
       </div>
+    </div>
   );
 };
 

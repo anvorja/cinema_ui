@@ -1,66 +1,31 @@
 // src/components/layout/Layout.jsx
-import { useLocation } from 'react-router-dom';
-import { useTheme } from '../../hooks/useTheme';
-import Header from './Header';
-import ParticleBackground from '../ui/ParticleBackground';
-import { cn } from '../../utils';
-import {Footer} from "./Footer.jsx";
+import { Outlet } from 'react-router-dom';
+import { Header } from './Header';
+import {FloatingParticles} from "../ui/index.js";
+import Footer from "./Footer.jsx";
 
-const Layout = ({ children }) => {
-  const location = useLocation();
-  const { theme } = useTheme();
-
-  // Páginas que no necesitan el header (como login y register)
-  const hideHeaderRoutes = ['/login', '/register'];
-  const shouldHideHeader = hideHeaderRoutes.includes(location.pathname);
-
-  // Páginas que no deben mostrar el footer (solo login)
-  const hideFooterRoutes = ['/login'];
-  const shouldHideFooter = hideFooterRoutes.includes(location.pathname);
-
-  // Páginas de autenticación tienen layout diferente
-  const isAuthPage = ['/login', '/register'].includes(location.pathname);
-
-  if (isAuthPage) {
-    return (
-      <div className={cn(
-        'min-h-screen transition-colors duration-500',
-        theme === 'dark'
-          ? 'bg-gradient-to-br from-slate-950 via-blue-950/50 to-purple-950/50 text-white'
-          : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 text-gray-900'
-      )}>
-        <ParticleBackground />
-        <div className="relative z-10 flex flex-col min-h-screen">
-          <div className="flex-grow">
-            {children}
-          </div>
-          {/* Solo mostrar footer en register, no en login */}
-          {!shouldHideFooter && <Footer />}
-        </div>
-      </div>
-    );
-  }
-
+const Layout = () => {
   return (
-    <div className={cn(
-      'min-h-screen transition-colors duration-500',
-      theme === 'dark'
-        ? 'bg-gradient-to-br from-slate-950 via-blue-950/50 to-purple-950/50 text-white'
-        : 'bg-gradient-to-br from-slate-50 via-blue-50/30 to-purple-50/30 text-gray-900'
-    )}>
-      <ParticleBackground />
+    <div className="min-h-screen">
+      {/* Cinema Background with animated effects */}
+      <div className="cinema-background fixed inset-0 -z-20" />
 
-      <div className="relative z-10 flex flex-col min-h-screen">
-        {!shouldHideHeader && <Header />}
-        <main className={cn(
-          'flex-grow transition-all duration-300',
-          !shouldHideHeader && 'pt-0'
-        )}>
-          {children}
-        </main>
-        {/* Footer siempre visible en páginas normales */}
-        <Footer />
-      </div>
+      {/* Global floating particles */}
+      <FloatingParticles
+        count={50}
+        className="fixed inset-0 -z-10 opacity-20 pointer-events-none"
+      />
+
+      {/* Header - Fixed position */}
+      <Header />
+
+      {/* Main content area */}
+      <main className="relative">
+        <Outlet />
+      </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 };

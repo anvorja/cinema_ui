@@ -1,57 +1,45 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import { ToastProvider } from './components/ui/Toast';
+import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import './styles/globals.css';
+import CarteleraPage from "./pages/CarteleraPage.jsx";
+import HomePage from "./pages/HomePage.jsx";
+import MovieDetailPage from "./pages/MovieDetailPage.jsx";
+import ProntoPage from "./pages/ProntoPage.jsx";
+import BookingPage from "./pages/BookingPage.jsx";
+import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
+import PaymentPage from "./pages/PaymentPage.jsx";
+import ComidasPage from "./pages/ComidasPage.jsx";
+import Layout from "./components/layout/Layout.jsx";
+import {ThemeProvider} from "./components/providers/ThemeProvider.jsx";
+import {AuthProvider} from "./components/providers/AuthProvider.jsx";
+import {BookingProvider} from "./components/providers/BookingProvider.jsx";
+import NotFoundPage from "./pages/NotFoundPage.jsx";
 
-// Layout Components
-import ProtectedRoute from './components/auth/ProtectedRoute';
-import Layout from './components/layout/Layout';
-
-// Pages
-import HomePage from './pages/HomePage';
-import LoginPage from './pages/LoginPage';
-import RegisterPage from './pages/RegisterPage';
-import CarsPage from './pages/CarsPage';
-import ProfilePage from './pages/ProfilePage';
-import NotFoundPage from './pages/NotFoundPage';
-
-// Providers
-import { AuthProvider } from "./components/auth/AuthProvider.jsx";
-import { ThemeProvider } from "./components/providers/ThemeProvider.jsx";
 
 function App() {
     return (
         <ThemeProvider>
             <AuthProvider>
-                <ToastProvider>
+                <BookingProvider>
                     <Router>
-                        <Layout>
-                            <Routes>
-                                {/* Rutas públicas */}
-                                <Route path="/" element={<HomePage />} />
-                                <Route path="/login" element={<LoginPage />} />
-                                <Route path="/register" element={<RegisterPage />} />
+                        <Routes>
+                            <Route path="/" element={<Layout />}>
+                                <Route index element={<HomePage />} />
+                                <Route path="cartelera" element={<CarteleraPage />} />
+                                <Route path="pronto" element={<ProntoPage />} />
+                                <Route path="comidas" element={<ComidasPage />} />
+                                <Route path="movie/:id" element={<MovieDetailPage />} />
+                                <Route path="booking/:movieId/:theaterId/:showtimeId" element={<BookingPage />} />
+                                <Route path="payment" element={<PaymentPage />} />
+                                <Route path="payment-success" element={<PaymentSuccessPage />} />
+                                <Route path="*" element={<NotFoundPage />} />
 
-                                {/* Rutas protegidas */}
-                                <Route path="/cars" element={
-                                    <ProtectedRoute>
-                                        <CarsPage />
-                                    </ProtectedRoute>
-                                } />
-
-                                <Route path="/profile" element={
-                                    <ProtectedRoute>
-                                        <ProfilePage />
-                                    </ProtectedRoute>
-                                } />
-
-                                {/* Ruta 404 */}
-                                <Route path="/404" element={<NotFoundPage />} />
-                                <Route path="*" element={<Navigate to="/404" replace />} />
-
-                            </Routes>
-                        </Layout>
+                                {/* Future routes for admin dashboard */}
+                                {/* <Route path="admin/*" element={<AdminRoutes />} /> */}
+                            </Route>
+                        </Routes>
                     </Router>
-                </ToastProvider>
+                </BookingProvider>
             </AuthProvider>
         </ThemeProvider>
     );

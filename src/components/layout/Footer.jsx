@@ -1,89 +1,94 @@
 // src/components/layout/Footer.jsx
-import { Github, Twitter, Linkedin, Heart, Instagram } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { GlassCard } from '../ui';
 
-export const Footer = () => {
-  const currentYear = new Date().getFullYear();
-
-  const socialLinks = [
+const Footer = () => {
+  const footerLinks = [
     {
-      name: 'GitHub',
-      url: 'https://github.com',
-      icon: Github,
-      hoverColor: 'hover:text-gray-900 dark:hover:text-white'
-    },
-    {
-      name: 'Twitter/X',
-      url: 'https://x.com',
-      icon: Twitter,
-      hoverColor: 'hover:text-black dark:hover:text-white'
-    },
-    {
-      name: 'LinkedIn',
-      url: 'https://linkedin.com',
-      icon: Linkedin,
-      hoverColor: 'hover:text-blue-600 dark:hover:text-blue-400'
-    },
-    {
-      name: 'Instagram',
-      url: 'https://instagram.com',
-      icon: Instagram,
-      hoverColor: 'hover:text-pink-500 dark:hover:text-pink-400'
+      category: 'Enlaces',
+      links: [
+        { name: 'Información Legal', href: '/legal' },
+        { name: 'Acerca de Cineco', href: '/about' },
+        { name: 'Contáctanos PQRS', href: '/contact' },
+        { name: 'Preguntas Frecuentes', href: '/faq' }
+      ]
     }
   ];
 
+  const socialLinks = [
+    { name: 'Facebook', href: '#', icon: '📘' },
+    { name: 'Twitter', href: '#', icon: '🐦' },
+    { name: 'Instagram', href: '#', icon: '📷' }
+  ];
+
   return (
-    <footer className="relative mt-auto">
-      {/* Efecto glassmórfico sutil */}
-      <div className="backdrop-blur-md bg-gradient-to-r from-white/5 via-white/10 to-white/5 dark:from-black/5 dark:via-black/10 dark:to-black/5 border-t border-white/10 dark:border-white/5">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+    <footer className="relative mt-16">
+      <div className="bg-gradient-to-t from-black/80 via-black/60 to-transparent py-12">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <GlassCard variant="dark" className="p-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
 
-          {/* Layout principal: Logo centrado + iconos */}
-          <div className="flex flex-col items-center space-y-6">
+              {/* Logo and Company Info */}
+              <div className="space-y-4">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
+                    <span className="text-white font-bold text-xl">CC</span>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-bold text-lg">CINE COLOMBIA</h3>
+                  </div>
+                </div>
+                <p className="text-white/70 text-sm leading-relaxed">
+                  La mejor experiencia cinematográfica en Colombia.
+                  Disfruta de los últimos estrenos en la mejor calidad de imagen y sonido.
+                </p>
+              </div>
 
-            {/* Logo y marca */}
-            <div className="flex items-center space-x-2 group">
-              <span className="text-2xl group-hover:scale-110 transition-transform duration-300">🚗</span>
-              <span className="text-lg font-semibold bg-gradient-to-r from-blue-600 to-purple-600 dark:from-blue-400 dark:to-purple-400 bg-clip-text text-transparent">
-                TuCarro
-              </span>
+              {/* Links */}
+              <div className="space-y-4">
+                <h4 className="text-white font-semibold">Enlaces Útiles</h4>
+                <div className="space-y-2">
+                  {footerLinks[0].links.map((link) => (
+                    <Link
+                      key={link.name}
+                      to={link.href}
+                      className="block text-white/70 hover:text-white text-sm transition-colors duration-200"
+                    >
+                      {link.name}
+                    </Link>
+                  ))}
+                </div>
+              </div>
+
+              {/* Social Media */}
+              <div className="space-y-4">
+                <h4 className="text-white font-semibold">Síguenos en redes sociales</h4>
+                <div className="flex gap-4">
+                  {socialLinks.map((social) => (
+                    <a
+                      key={social.name}
+                      href={social.href}
+                      className="w-10 h-10 glass rounded-lg flex items-center justify-center hover:glass-hover transition-all duration-200"
+                      aria-label={social.name}
+                    >
+                      <span className="text-lg">{social.icon}</span>
+                    </a>
+                  ))}
+                </div>
+              </div>
             </div>
 
-            {/* Iconos sociales con links reales */}
-            <div className="flex items-center space-x-4">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-                return (
-                  <a
-                    key={social.name}
-                    href={social.url}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className={`p-2 rounded-full hover:bg-white/10 dark:hover:bg-white/5 transition-all duration-300 text-slate-500 dark:text-slate-400 ${social.hoverColor} group`}
-                    aria-label={`Visitar ${social.name}`}
-                    title={`Síguenos en ${social.name}`}
-                  >
-                    <Icon className="w-7 h-7 transform group-hover:scale-110 group-hover:-translate-y-0.5 transition-all duration-300" />
-                  </a>
-                );
-              })}
-            </div>
-
-            {/* Copyright con corazón */}
-            <div className="text-center border-t border-white/10 dark:border-white/5 pt-6 w-full max-w-md">
-              <p className="text-xs text-slate-500 dark:text-slate-400 flex items-center justify-center space-x-1">
-                <span>© {currentYear} TuCarro Premium</span>
-                <span>•</span>
-                <span>Hecho con</span>
-                <Heart className="w-3 h-3 text-red-500 animate-pulse" />
-                <span>para los amantes de los autos</span>
+            {/* Copyright */}
+            <div className="border-t border-white/10 mt-8 pt-6 text-center">
+              <p className="text-white/60 text-sm">
+                © 2025 Cine Colombia. Todos los derechos reservados.
               </p>
             </div>
-          </div>
+          </GlassCard>
         </div>
       </div>
-
-      {/* Línea de brillo sutil */}
-      <div className="h-px bg-gradient-to-r from-transparent via-blue-500/20 dark:via-blue-400/20 to-transparent opacity-50" />
     </footer>
   );
 };
+
+export default Footer;

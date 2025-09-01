@@ -1,3 +1,5 @@
+//src/services/api.js
+// TODO: Conectar con el backend de fastAPI en http://localhost:8000/api/v1
 import axios from 'axios';
 import Cookies from 'js-cookie';
 

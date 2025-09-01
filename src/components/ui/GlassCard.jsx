@@ -1,6 +1,6 @@
 // src/components/ui/GlassCard.jsx
-import { cn } from '../../utils';
 import { forwardRef } from 'react';
+import {cn} from "../../utils/index.js"
 
 const GlassCard = forwardRef(({
   className,
@@ -27,11 +27,14 @@ const GlassCard = forwardRef(({
     <div
       ref={ref}
       className={cn(
+        // Base glassmorphic styles
         'relative overflow-hidden rounded-xl border',
         'shadow-lg shadow-black/10',
         'transition-all duration-300 ease-out',
+        // Variant styles
         variants[variant],
         intensities[intensity],
+        // Hover effects
         'hover:shadow-xl hover:shadow-black/20',
         'hover:border-white/30 hover:bg-white/15',
         className
@@ -45,4 +48,4 @@ const GlassCard = forwardRef(({
 
 GlassCard.displayName = 'GlassCard';
 
-export default GlassCard;   // 👈 solución
+export {GlassCard};
