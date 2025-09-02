@@ -213,7 +213,21 @@ export const theaterService = {
 // 🎫 SERVICIOS DE COMPRAS
 export const purchaseService = {
   create: async (purchaseData) => {
-    const response = await api.post('/purchases', purchaseData);
+    // Asegurar que el payload tenga el formato exacto que espera el backend
+    const payload = {
+      movie_id: purchaseData.movie_id,
+      quantity: purchaseData.quantity,
+      payment_info: {
+        card_number: purchaseData.payment_info.card_number,
+        card_holder: purchaseData.payment_info.card_holder,
+        expiry_month: purchaseData.payment_info.expiry_month,
+        expiry_year: purchaseData.payment_info.expiry_year,
+        cvv: purchaseData.payment_info.cvv
+      }
+    };
+
+    console.log('📦 purchaseService.create payload:', payload);
+    const response = await api.post('/purchases', payload);
     return response.data;
   },
 

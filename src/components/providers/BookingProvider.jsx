@@ -1,8 +1,11 @@
 // src/providers/BookingProvider.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { BookingContext } from '../contexts/BookingContext.js';
+import useAuth from "../../hooks/useAuth.js";
+import bookingService from "../../services/bookingService.js";
 
 export const BookingProvider = ({ children }) => {
+  const { user } = useAuth();
   const [bookingData, setBookingData] = useState({
     movie: null,
     theater: null,
@@ -31,7 +34,6 @@ export const BookingProvider = ({ children }) => {
     }
   }, []);
 
-  // Función para inicializar una nueva reserva
   const startBooking = useCallback((movie, theater, showtime, selectedDate) => {
     setBookingData({
       movie,
@@ -47,7 +49,6 @@ export const BookingProvider = ({ children }) => {
     setIsBookingActive(true);
   }, []);
 
-  // Función para actualizar datos de reserva - SOLO para datos críticos
   const updateBookingData = useCallback((updates) => {
     setBookingData(prevData => ({
       ...prevData,
@@ -55,7 +56,6 @@ export const BookingProvider = ({ children }) => {
     }));
   }, []);
 
-  // Función para avanzar al siguiente paso
   const nextStep = useCallback(() => {
     setBookingData(prevData => ({
       ...prevData,
@@ -63,7 +63,6 @@ export const BookingProvider = ({ children }) => {
     }));
   }, []);
 
-  // Función para retroceder un paso
   const prevStep = useCallback(() => {
     setBookingData(prevData => ({
       ...prevData,
@@ -71,33 +70,25 @@ export const BookingProvider = ({ children }) => {
     }));
   }, []);
 
-  // Función para calcular el total
   const calculateTotal = useCallback((ticketCount, ticketPrice = 18000, serviceFee = 800) => {
     const subtotal = ticketCount * ticketPrice;
     const totalServiceFees = ticketCount * serviceFee;
     return subtotal + totalServiceFees;
   }, []);
 
-  // Función para completar reserva
-  const completeBooking = useCallback((transactionId) => {
-    const completedBooking = {
-      ...bookingData,
-      transactionId,
-      bookingDate: new Date(),
-      status: 'confirmed',
-      seats: generateSeatNumbers(bookingData.ticketCount)
-    };
+  const generateSeatNumbers = useCallback((count) => {
+    const rows = ['J', 'K', 'L', 'M', 'N'];
+    const seats = [];
+    const startSeat = Math.floor(Math.random() * 15) + 1;
 
-    const newHistory = [completedBooking, ...bookingHistory];
-    setBookingHistory(newHistory);
+    for (let i = 0; i < count; i++) {
+      const row = rows[Math.floor(Math.random() * rows.length)];
+      seats.push(`${row}${startSeat + i}`);
+    }
 
-    localStorage.setItem('cinema_booking_history', JSON.stringify(newHistory));
-    clearBooking();
+    return seats.join(', ');
+  }, []);
 
-    return completedBooking;
-  }, [bookingData, bookingHistory]);
-
-  // Función para limpiar reserva actual
   const clearBooking = useCallback(() => {
     setBookingData({
       movie: null,
@@ -113,26 +104,112 @@ export const BookingProvider = ({ children }) => {
     setIsBookingActive(false);
   }, []);
 
-  // Función para obtener reservas por estado
+  // 🔥 FUNCIÓN CRÍTICA CORREGIDA - USA /purchases
+  const completeBooking = useCallback(async (transactionId) => {
+    try {
+      console.log('📝 Iniciando proceso de reserva...');
+      console.log('📊 Datos de booking:', bookingData);
+
+      // Paso 1: Crear la compra usando el endpoint correcto /purchases
+      const purchasePayload = {
+        movie: bookingData.movie,
+        theater: bookingData.theater,
+        showtime: bookingData.showtime,
+        selectedDate: bookingData.selectedDate,
+        ticketCount: bookingData.ticketCount,
+        totalAmount: bookingData.totalAmount,
+        paymentMethod: bookingData.paymentMethod,
+        // Datos del usuario
+        userEmail: user?.email,
+        userPhone: user?.phone,
+        userName: user ? `${user.first_name} ${user.last_name}` : null
+      };
+
+      console.log('🚀 Enviando a /purchases:', purchasePayload);
+
+      const bookingResponse = await bookingService.createBooking(purchasePayload);
+
+      if (!bookingResponse.success) {
+        console.error('❌ Error en createBooking:', bookingResponse.message);
+        throw new Error(bookingResponse.message);
+      }
+
+      console.log('✅ Compra creada:', bookingResponse.data);
+      const purchaseId = bookingResponse.data.id;
+
+      // Paso 2: Confirmar el pago usando /purchases/{id}/confirm-payment
+      const paymentConfirmation = {
+        transactionId: transactionId || `TXN-${Date.now()}`,
+        paymentMethod: bookingData.paymentMethod,
+        amount: bookingData.totalAmount,
+        details: {
+          processingDate: new Date().toISOString()
+        }
+      };
+
+      console.log('💳 Confirmando pago:', paymentConfirmation);
+
+      const paymentResponse = await bookingService.confirmPayment(purchaseId, paymentConfirmation);
+
+      if (!paymentResponse.success) {
+        console.error('❌ Error en confirmPayment:', paymentResponse.message);
+        throw new Error(paymentResponse.message);
+      }
+
+      console.log('✅ Pago confirmado:', paymentResponse.data);
+
+      // Paso 3: Construir objeto de reserva completa
+      const completedBooking = {
+        id: purchaseId,
+        ...bookingData,
+        transactionId: paymentConfirmation.transactionId,
+        bookingDate: new Date(),
+        status: 'confirmed',
+        seats: paymentResponse.data?.assigned_seats || generateSeatNumbers(bookingData.ticketCount),
+        bookingNumber: paymentResponse.data?.booking_number || `BK-${purchaseId}`,
+        qrCode: paymentResponse.data?.qr_code || `QR-${purchaseId}-${Date.now()}`
+      };
+
+      // Paso 4: Actualizar historial local
+      const newHistory = [completedBooking, ...bookingHistory];
+      setBookingHistory(newHistory);
+      localStorage.setItem('cinema_booking_history', JSON.stringify(newHistory));
+
+      // Paso 5: Limpiar datos de reserva actual
+      clearBooking();
+
+      console.log('🎉 Reserva completada exitosamente:', completedBooking);
+      return completedBooking;
+
+    } catch (error) {
+      console.error('💥 Error completando reserva:', error);
+
+      // Fallback: Guardar localmente si el backend falla
+      const fallbackBooking = {
+        ...bookingData,
+        transactionId: transactionId || `FALLBACK-${Date.now()}`,
+        bookingDate: new Date(),
+        status: 'pending_sync',
+        seats: generateSeatNumbers(bookingData.ticketCount),
+        error: error.message,
+        bookingNumber: `BK-OFFLINE-${Date.now()}`
+      };
+
+      const newHistory = [fallbackBooking, ...bookingHistory];
+      setBookingHistory(newHistory);
+      localStorage.setItem('cinema_booking_history', JSON.stringify(newHistory));
+
+      clearBooking();
+
+      // Re-lanzar el error para que el componente lo maneje
+      throw error;
+    }
+  }, [bookingData, bookingHistory, clearBooking, generateSeatNumbers, user]);
+
   const getBookingsByStatus = useCallback((status) => {
     return bookingHistory.filter(booking => booking.status === status);
   }, [bookingHistory]);
 
-  // Función para generar números de asientos simulados
-  const generateSeatNumbers = useCallback((count) => {
-    const rows = ['J', 'K', 'L', 'M', 'N'];
-    const seats = [];
-    const startSeat = Math.floor(Math.random() * 15) + 1;
-
-    for (let i = 0; i < count; i++) {
-      const row = rows[Math.floor(Math.random() * rows.length)];
-      seats.push(`${row}${startSeat + i}`);
-    }
-
-    return seats.join(', ');
-  }, []);
-
-  // Función para cancelar una reserva
   const cancelBooking = useCallback((transactionId) => {
     const updatedHistory = bookingHistory.map(booking =>
       booking.transactionId === transactionId
@@ -152,7 +229,7 @@ export const BookingProvider = ({ children }) => {
 
     // Funciones principales
     startBooking,
-    updateBookingData, // Renombrada para evitar confusión
+    updateBookingData,
     completeBooking,
     clearBooking,
 

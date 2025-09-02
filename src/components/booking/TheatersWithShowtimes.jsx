@@ -74,7 +74,7 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie }) => {
                       <MapPinIcon className="w-8 h-8 text-blue-400 mt-1 flex-shrink-0" />
                       <div>
                         <h3 className="text-white font-semibold text-xl mb-1">
-                          {theater.name}
+                          {theater.name || theaterShowtimes.theaterName || `Teatro ${theater.id}`}
                         </h3>
                         <p className="text-white/70 text-sm mb-2">
                           {theater.location}

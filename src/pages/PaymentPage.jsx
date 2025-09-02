@@ -108,14 +108,14 @@ const PaymentPage = () => {
     setLoading(true);
 
     try {
-      // Simular proceso de pago
-      await new Promise(resolve => setTimeout(resolve, 2000));
-
       // Generar ID de transacción
       const txnId = generateTransactionId();
       setTransactionId(txnId);
 
-      // Completar booking en el contexto
+      // Simular proceso de pago (aquí integrarías con el gateway real)
+      await new Promise(resolve => setTimeout(resolve, 2000));
+
+      // Completar booking usando la integración real con backend
       const completedBooking = await completeBooking(txnId);
 
       // Mostrar confirmación
@@ -126,14 +126,27 @@ const PaymentPage = () => {
         navigate('/payment-success', {
           state: {
             booking: completedBooking,
-            transactionId: txnId
+            transactionId: txnId,
+            success: true
           }
         });
       }, 3000);
 
     } catch (error) {
       console.error('Error processing payment:', error);
-      alert('Error al procesar el pago. Intenta nuevamente.');
+
+      // Manejar diferentes tipos de errores
+      let errorMessage = 'Error al procesar el pago. ';
+
+      if (error.message.includes('no disponible')) {
+        errorMessage += 'Las entradas ya no están disponibles.';
+      } else if (error.message.includes('connection')) {
+        errorMessage += 'Problema de conexión. Tu pago se guardó localmente.';
+      } else {
+        errorMessage += 'Intenta nuevamente.';
+      }
+
+      alert(errorMessage);
     } finally {
       setLoading(false);
     }
