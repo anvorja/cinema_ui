@@ -20,8 +20,6 @@ import ErrorMessage from '../components/ui/ErrorMessage';
 const MovieDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-
-  // Estados para modales y UI (solo los que se usan)
   const [showTrailer, setShowTrailer] = useState(false);
 
   // Hooks para datos
@@ -36,7 +34,6 @@ const MovieDetailPage = () => {
   console.log('🎬 MovieDetailPage cargada - ID:', id);
   console.log('🎭 Datos de película:', movie);
 
-  // Loading state
   if (loading) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -47,7 +44,6 @@ const MovieDetailPage = () => {
     );
   }
 
-  // Error state
   if (error) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -60,7 +56,6 @@ const MovieDetailPage = () => {
     );
   }
 
-  // Not found state
   if (!movie) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
@@ -78,7 +73,6 @@ const MovieDetailPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <FloatingParticles count={30} className="opacity-20" />
 
-      {/* Hero Section with Movie Images - USANDO DATOS TRANSFORMADOS */}
       <section className="relative h-screen overflow-hidden">
         {/* Background usando la mejor imagen disponible */}
         <div className="absolute inset-0">
