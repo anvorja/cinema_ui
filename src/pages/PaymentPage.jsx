@@ -58,7 +58,7 @@ const PaymentPage = () => {
     }
 
     // Actualizar contexto con método de pago
-    updateBookingData({
+    updateBooking({
       paymentMethod: selectedPaymentMethod,
       step: 3
     });
