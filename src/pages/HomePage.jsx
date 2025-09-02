@@ -1,152 +1,53 @@
 // src/pages/HomePage.jsx
-import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { MovieCarousel } from '../components/cinema/MovieCarousel';
 import { MovieGrid } from '../components/cinema/MovieGrid';
-import {FloatingParticles, PremiumButton} from '../components/ui';
-import {mockMovies} from "../mocks/movies.js";
+import { FloatingParticles, PremiumButton } from '../components/ui';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import ErrorMessage from '../components/ui/ErrorMessage';
+import EmptyState from '../components/ui/EmptyState';
+import { FilmIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { useTransformedHomeData, useHomeStats } from '../hooks/useTransformedMovies';
 
 const HomePage = () => {
-  const [carteleraMovies, setCarteleraMovies] = useState([]);
-  const [prontoMovies, setProntoMovies] = useState([]);
+  const homeData = useTransformedHomeData();
+  const stats = useHomeStats(homeData);
 
-  useEffect(() => {
-    // Simular datos hasta que tengamos backend
-    const mockCarteleraMovies = [
-      {
-        id: 1,
-        title: 'Un Poeta',
-        originalTitle: 'Un Poeta',
-        genre: 'Comedia',
-        duration: '129 Min',
-        ageRating: 'Recomendada para Mayores de 12 años',
-        posterImage: '/api/placeholder/300/450',
-        status: 'ESTRENO'
-      },
-      {
-        id: 2,
-        title: 'The Conjuring: Last Rites',
-        originalTitle: 'El Conjuro 4: Últimos Ritos',
-        genre: 'Suspenso, Terror, Misterio',
-        duration: '135 Min',
-        ageRating: 'Exclusiva para Mayores de 15 años',
-        posterImage: '/api/placeholder/300/450',
-        status: 'PREVENTA'
-      },
-      {
-        id: 3,
-        title: 'Demon Slayer Kimetsu no Yaiba',
-        originalTitle: 'Demon Slayer: Kimetsu no Yaiba - Castillo Infinito',
-        genre: 'Acción, Animación, Aventura, Fantasía, Suspenso',
-        duration: '150 Min',
-        ageRating: 'Exclusiva para Mayores de 15 años',
-        posterImage: '/api/placeholder/300/450',
-        status: 'PREVENTA'
-      },
-      {
-        id: 4,
-        title: 'The Roses',
-        originalTitle: 'Los Roses',
-        genre: 'Comedia, Drama',
-        duration: '108 Min',
-        ageRating: 'Exclusiva para Mayores de 15 años',
-        posterImage: '/api/placeholder/300/450',
-        status: 'ESTRENO'
-      },
-      {
-        id: 5,
-        title: 'Freakier Friday',
-        originalTitle: 'Otro Viernes de Locos',
-        genre: 'Comedia, Familia, Fantasía',
-        duration: '111 Min',
-        ageRating: 'Recomendada para Mayores de 7 años',
-        posterImage: '/api/placeholder/300/450',
-        status: null
-      },
-      {
-        id: 6,
-        title: 'Sketch',
-        originalTitle: 'Sketch Dibujos Animados',
-        genre: 'Aventura, Comedia, Fantasía',
-        duration: '135 Min',
-        ageRating: 'Exclusiva para Mayores de 15 años',
-        posterImage: '/api/placeholder/300/450',
-        status: null
-      },
-      {
-        id: 7,
-        title: 'Captain Sampling',
-        originalTitle: 'Captain Sampling',
-        genre: 'Aventura, Ciencia Ficción',
-        duration: '145 Min',
-        ageRating: 'Exclusiva para Mayores de 12 años',
-        posterImage: '/api/placeholder/300/450',
-        status: null
-      },
-      {
-        id: 8,
-        title: 'Weapons',
-        originalTitle: 'La Rosa de la Desaparición',
-        genre: 'Misterio, Terror',
-        duration: '120 Min',
-        ageRating: 'Exclusiva para Mayores de 15 años',
-        posterImage: '/api/placeholder/300/450',
-        status: null
-      }
-    ];
-
-    const mockProntoMovies = [
-      {
-        id: 9,
-        title: 'Argonauts: Rescue',
-        originalTitle: 'Argonauts Rescue',
-        genre: 'Aventura',
-        duration: '134 Min',
-        ageRating: 'Recomendada para Mayores de 7 años',
-        posterImage: '/api/placeholder/300/450',
-        releaseDate: 'Concierto - 2025 May'
-      },
-      {
-        id: 10,
-        title: 'Putin',
-        originalTitle: 'Putin',
-        genre: 'Biografía',
-        duration: '165 Min',
-        ageRating: 'Exclusiva para Mayores de 18 años',
-        posterImage: '/api/placeholder/300/450',
-        releaseDate: 'Concierto - 2025 May'
-      },
-      {
-        id: 11,
-        title: 'BTS 2016 Live The Most Beautiful Moment in Life On Stage: Epilogue Remastered',
-        originalTitle: 'BTS 2016 Live The Most Beautiful Moment in Life On Stage: Epilogue Remastered',
-        genre: 'Concierto',
-        duration: '105 Min',
-        ageRating: 'Concierto',
-        posterImage: '/api/placeholder/300/450',
-        releaseDate: 'Concierto - 2025 May'
-      },
-      {
-        id: 12,
-        title: 'BTS 2017 Live Trilogy EPISODE III THE WINGS TOUR THE FINAL Remastered',
-        originalTitle: 'BTS 2017 Live Trilogy EPISODE III THE WINGS TOUR THE FINAL Remastered',
-        genre: 'Concierto',
-        duration: '105 Min',
-        ageRating: 'Concierto',
-        posterImage: '/api/placeholder/300/450',
-        releaseDate: 'Concierto - 2025 May'
-      }
-    ];
-
-    setCarteleraMovies(mockCarteleraMovies);
-    setProntoMovies(mockProntoMovies);
-  }, []);
+  // Si hay error crítico y no hay contenido
+  if (homeData.error && homeData.isEmpty) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <ErrorMessage
+            title="Error al cargar el contenido"
+            message="No pudimos cargar las películas. Por favor, intenta de nuevo."
+            onRetry={homeData.refresh}
+            showRetry={true}
+          />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen">
       {/* Hero Carousel */}
       <section className="relative">
-        <MovieCarousel movies={mockMovies} />
+        {homeData.featured.length > 0 ? (
+          <MovieCarousel movies={homeData.featured} />
+        ) : (
+          <div className="h-[60vh] bg-gradient-to-b from-purple-900/20 to-black/40 flex items-center justify-center">
+            {homeData.loading ? (
+              <LoadingSpinner size="large" />
+            ) : (
+              <EmptyState
+                icon={FilmIcon}
+                title="Próximamente"
+                message="Estamos preparando contenido increíble para ti"
+              />
+            )}
+          </div>
+        )}
       </section>
 
       {/* En Cartelera Section */}
@@ -155,16 +56,61 @@ const HomePage = () => {
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white">EN CARTELERA</h2>
+            <div className="flex items-center gap-3">
+              <FilmIcon className="w-8 h-8 text-blue-400" />
+              <h2 className="text-3xl lg:text-4xl font-bold text-white">EN CARTELERA</h2>
+              {stats?.hasContent && (
+                <span className="bg-blue-600/20 text-blue-400 px-3 py-1 rounded-full text-sm">
+                  {homeData.cartelera.movies.length} películas
+                </span>
+              )}
+            </div>
             <PremiumButton variant="ghost" asChild>
               <Link to="/cartelera">Ver Todo</Link>
             </PremiumButton>
           </div>
 
-          <MovieGrid
-            movies={carteleraMovies.slice(0, 8)}
-            className="grid-cols-2 md:grid-cols-4"
-          />
+          {/* Contenido de cartelera */}
+          {homeData.cartelera.loading && homeData.cartelera.movies.length === 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-[2/3] bg-white/10 rounded-lg mb-3"></div>
+                  <div className="h-4 bg-white/10 rounded mb-2"></div>
+                  <div className="h-3 bg-white/10 rounded w-2/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : homeData.cartelera.movies.length > 0 ? (
+            <MovieGrid
+              movies={homeData.cartelera.movies}
+              className="grid-cols-2 md:grid-cols-4"
+            />
+          ) : (
+            <EmptyState
+              icon={FilmIcon}
+              title="Sin películas en cartelera"
+              message="No hay películas disponibles en este momento"
+              action={
+                homeData.cartelera.hasError ? (
+                  <PremiumButton onClick={homeData.cartelera.refresh} className="mt-4">
+                    Reintentar
+                  </PremiumButton>
+                ) : null
+              }
+            />
+          )}
+
+          {/* Mostrar error si hay, pero con películas cargadas */}
+          {homeData.cartelera.hasError && homeData.cartelera.movies.length > 0 && (
+            <div className="mt-4">
+              <ErrorMessage
+                message="Hubo un problema al cargar algunas películas"
+                variant="warning"
+                showRetry={false}
+              />
+            </div>
+          )}
         </div>
       </section>
 
@@ -172,18 +118,77 @@ const HomePage = () => {
       <section className="py-16 relative">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white">PRONTO</h2>
+            <div className="flex items-center gap-3">
+              <CalendarDaysIcon className="w-8 h-8 text-orange-400" />
+              <h2 className="text-3xl lg:text-4xl font-bold text-white">PRONTO</h2>
+              {stats?.hasContent && (
+                <span className="bg-orange-600/20 text-orange-400 px-3 py-1 rounded-full text-sm">
+                  {homeData.pronto.length} próximos
+                </span>
+              )}
+            </div>
             <PremiumButton variant="ghost" asChild>
               <Link to="/pronto">Ver Todo</Link>
             </PremiumButton>
           </div>
 
-          <MovieGrid
-            movies={prontoMovies}
-            className="grid-cols-2 md:grid-cols-4"
-          />
+          {/* Contenido de próximos estrenos */}
+          {(homeData.comingSoon.loading || homeData.presales.loading) && homeData.pronto.length === 0 ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+              {[...Array(8)].map((_, i) => (
+                <div key={i} className="animate-pulse">
+                  <div className="aspect-[2/3] bg-white/10 rounded-lg mb-3"></div>
+                  <div className="h-4 bg-white/10 rounded mb-2"></div>
+                  <div className="h-3 bg-white/10 rounded w-2/3"></div>
+                </div>
+              ))}
+            </div>
+          ) : homeData.pronto.length > 0 ? (
+            <MovieGrid
+              movies={homeData.pronto}
+              className="grid-cols-2 md:grid-cols-4"
+            />
+          ) : (
+            <EmptyState
+              icon={CalendarDaysIcon}
+              title="Sin próximos estrenos"
+              message="No hay estrenos programados en este momento"
+              action={
+                (homeData.comingSoon.hasError || homeData.presales.hasError) ? (
+                  <PremiumButton onClick={homeData.refresh} className="mt-4">
+                    Reintentar
+                  </PremiumButton>
+                ) : null
+              }
+            />
+          )}
+
+          {/* Mostrar error si hay, pero con películas cargadas */}
+          {(homeData.comingSoon.hasError || homeData.presales.hasError) && homeData.pronto.length > 0 && (
+            <div className="mt-4">
+              <ErrorMessage
+                message="Hubo un problema al cargar algunos próximos estrenos"
+                variant="warning"
+                showRetry={false}
+              />
+            </div>
+          )}
         </div>
       </section>
+
+      {/* Estadísticas rápidas (solo en desarrollo o para admin) */}
+      {import.meta.env.NODE_ENV === 'development' && stats && (
+        <div className="fixed bottom-4 right-4 bg-black/80 text-white p-3 rounded-lg text-xs max-w-xs">
+          <h4 className="font-bold mb-2">📊 Estadísticas</h4>
+          <div className="space-y-1">
+            <p>🎬 Total películas: {stats.totalMovies}</p>
+            <p>✅ Disponibles: {stats.availableMovies}</p>
+            <p>❌ Agotadas: {stats.soldOutMovies}</p>
+            <p>🎫 Ocupación: {stats.occupancyRate.toFixed(1)}%</p>
+            <p>🎭 Géneros: {stats.genres.length}</p>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

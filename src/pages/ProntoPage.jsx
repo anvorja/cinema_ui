@@ -213,7 +213,6 @@ const ProntoPage = () => {
         )}
       </div>
 
-      <Footer />
     </div>
   );
 };
