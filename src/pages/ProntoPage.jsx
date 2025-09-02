@@ -1,9 +1,10 @@
-// src/pages/ProntoPage.jsx - CONECTADO AL BACKEND CON FLUJO DE COMPRA
+// src/pages/ProntoPage.jsx - CON BOTÓN "VER DETALLES" RESTAURADO
 import { useState, useEffect } from 'react';
 import { MovieGrid } from '../components/cinema/MovieGrid';
 import { FloatingParticles, GlassCard, PremiumButton } from "../components/ui/index.js";
 import Footer from '../components/layout/Footer';
 import { useComingSoonMovies, usePresaleMovies } from '../hooks/useMovies.js';
+import { transformMovieData } from '../utils/movieUtils.js';
 import { ExclamationTriangleIcon, FilmIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
 const ProntoPage = () => {
@@ -23,15 +24,21 @@ const ProntoPage = () => {
   } = usePresaleMovies();
 
   // Estados locales para UI
-  const [activeTab, setActiveTab] = useState('coming-soon'); // 'coming-soon' | 'presales'
+  const [activeTab, setActiveTab] = useState('all');
   const [allMovies, setAllMovies] = useState([]);
 
-  // Combinar y procesar películas
+  // Combinar y procesar películas CON TRANSFORMACIÓN
   useEffect(() => {
-    const combinedMovies = [
-      ...comingSoonMovies.map(movie => ({ ...movie, category: 'coming-soon' })),
-      ...presaleMovies.map(movie => ({ ...movie, category: 'presale' }))
-    ];
+    // TRANSFORMAR LAS PELÍCULAS usando la función del utils
+    const transformedComingSoon = comingSoonMovies.map(movie =>
+      transformMovieData({ ...movie, category: 'coming-soon' })
+    ).filter(Boolean);
+
+    const transformedPresales = presaleMovies.map(movie =>
+      transformMovieData({ ...movie, category: 'presale' })
+    ).filter(Boolean);
+
+    const combinedMovies = [...transformedComingSoon, ...transformedPresales];
 
     // Ordenar por fecha de estreno
     const sortedMovies = combinedMovies.sort((a, b) =>
@@ -54,6 +61,10 @@ const ProntoPage = () => {
   const filteredMovies = getFilteredMovies();
   const isLoading = loadingComingSoon || loadingPresales;
   const hasError = errorComingSoon || errorPresales;
+
+  // Contadores para cada categoría
+  const comingSoonCount = allMovies.filter(movie => movie.category === 'coming-soon').length;
+  const presalesCount = allMovies.filter(movie => movie.category === 'presale').length;
 
   // Manejar errores
   if (hasError && !isLoading && allMovies.length === 0) {
@@ -119,7 +130,7 @@ const ProntoPage = () => {
 
           <GlassCard className="p-4 text-center">
             <CalendarDaysIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{presaleMovies.length}</div>
+            <div className="text-2xl font-bold text-white">{presalesCount}</div>
             <div className="text-white/60 text-sm">En Preventa</div>
           </GlassCard>
 
@@ -127,12 +138,12 @@ const ProntoPage = () => {
             <div className="w-8 h-8 bg-purple-400 rounded-full mx-auto mb-2 flex items-center justify-center">
               <span className="text-white font-bold text-sm">🎫</span>
             </div>
-            <div className="text-2xl font-bold text-white">{comingSoonMovies.length}</div>
+            <div className="text-2xl font-bold text-white">{comingSoonCount}</div>
             <div className="text-white/60 text-sm">Próximamente</div>
           </GlassCard>
         </div>
 
-        {/* 🔄 Tabs de categorías */}
+        {/* 📄 Tabs de categorías */}
         <div className="mb-8">
           <div className="flex flex-wrap gap-2">
             <button
@@ -154,7 +165,7 @@ const ProntoPage = () => {
                   : 'bg-white/10 text-white/70 hover:bg-white/20'
               }`}
             >
-              Próximamente ({comingSoonMovies.length})
+              Próximamente ({comingSoonCount})
             </button>
 
             <button
@@ -165,19 +176,18 @@ const ProntoPage = () => {
                   : 'bg-white/10 text-white/70 hover:bg-white/20'
               }`}
             >
-              En Preventa ({presaleMovies.length})
+              En Preventa ({presalesCount})
             </button>
           </div>
         </div>
 
-        {/* 🎬 Grid de películas */}
+        {/* 🎬 Grid de películas - CON BOTÓN "VER DETALLES" */}
         {filteredMovies.length > 0 ? (
           <MovieGrid
             movies={filteredMovies}
-            showReleaseDate={true}
-            enablePurchase={true}
-            purchaseButtonText="PREVENTA"
-            showPreventaLabel={activeTab === 'presales' || activeTab === 'all'}
+            className="grid-cols-2 md:grid-cols-4"
+            showStats={true}
+            showDetailsButton={true} // ⭐ CLAVE: Esto hace que aparezca el botón
           />
         ) : (
           <div className="text-center py-16">
@@ -189,7 +199,9 @@ const ProntoPage = () => {
               <p className="text-white/60 mb-4">
                 {activeTab === 'presales'
                   ? 'No hay películas en preventa disponibles'
-                  : 'No hay próximos estrenos programados'
+                  : activeTab === 'coming-soon'
+                  ? 'No hay próximos estrenos programados'
+                  : 'No hay estrenos disponibles'
                 }
               </p>
               <PremiumButton
@@ -203,6 +215,7 @@ const ProntoPage = () => {
           </div>
         )}
 
+        {/* Loading indicator cuando hay actualización */}
         {isLoading && allMovies.length > 0 && (
           <div className="fixed bottom-4 right-4 z-50">
             <GlassCard className="p-4 flex items-center gap-3">
@@ -212,7 +225,6 @@ const ProntoPage = () => {
           </div>
         )}
       </div>
-
     </div>
   );
 };

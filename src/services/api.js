@@ -1,7 +1,7 @@
 // src/services/api.js
 import axios from 'axios';
 
-// Configuración base
+// ConfiguraciÃ³n base
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 // Crear instancia de axios
@@ -13,7 +13,7 @@ const api = axios.create({
   timeout: 30000,
 });
 
-// Interceptor para añadir token
+// Interceptor para aÃ±adir token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('cinema_token');
@@ -21,11 +21,11 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.url}`);
+    console.log(`ðŸŒ API Request: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
-    console.error('🚨 Request interceptor error:', error);
+    console.error('ðŸš¨ Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -33,11 +33,11 @@ api.interceptors.request.use(
 // Interceptor para respuestas y errores
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`);
+    console.log(`âœ… API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`);
     return response;
   },
   (error) => {
-    console.error('🚨 API Error:', {
+    console.error('ðŸš¨ API Error:', {
       url: error.config?.url,
       method: error.config?.method,
       status: error.response?.status,
@@ -46,7 +46,7 @@ api.interceptors.response.use(
 
     // Manejar token expirado
     if (error.response?.status === 401) {
-      console.log('🔒 Token expired, clearing local storage');
+      console.log('ðŸ”’ Token expired, clearing local storage');
       localStorage.removeItem('cinema_token');
       localStorage.removeItem('cinema_user');
       window.location.href = '/login';
@@ -56,35 +56,35 @@ api.interceptors.response.use(
   }
 );
 
-// ⚠️ FUNCIÓN DE MANEJO DE ERRORES - EXPORTADA CORRECTAMENTE
+// âš ï¸ FUNCIÃ“N DE MANEJO DE ERRORES - EXPORTADA CORRECTAMENTE
 export const getErrorMessage = (error) => {
   if (error.response) {
     const { status, data } = error.response;
 
     switch (status) {
       case 400:
-        return data.detail || data.message || 'Datos inválidos';
+        return data.detail || data.message || 'Datos invÃ¡lidos';
       case 401:
-        return 'Por favor inicia sesión';
+        return 'Por favor inicia sesiÃ³n';
       case 403:
-        return 'No tienes permisos para realizar esta acción';
+        return 'No tienes permisos para realizar esta acciÃ³n';
       case 404:
         return 'Recurso no encontrado';
       case 422:
-        return data.detail || data.message || 'Error de validación';
+        return data.detail || data.message || 'Error de validaciÃ³n';
       case 500:
         return 'Error interno del servidor';
       default:
         return data.detail || data.message || `Error ${status}`;
     }
   } else if (error.request) {
-    return 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+    return 'No se pudo conectar con el servidor. Verifica tu conexiÃ³n a internet.';
   } else {
     return error.message || 'Error inesperado';
   }
 };
 
-// 🔐 SERVICIOS DE AUTENTICACIÓN
+// ðŸ” SERVICIOS DE AUTENTICACIÃ“N
 export const authService = {
   register: async (userData) => {
     const response = await api.post('/auth/register', {
@@ -127,35 +127,35 @@ export const authService = {
   }
 };
 
-// 🎬 SERVICIOS DE PELÍCULAS
+// ðŸŽ¬ SERVICIOS DE PELÃCULAS
 export const movieService = {
-  // Obtener todas las películas con paginación
+  // Obtener todas las pelÃ­culas con paginaciÃ³n
   getAll: async (params = {}) => {
     const response = await api.get('/movies', { params });
     return response.data;
   },
 
-  // Obtener películas con paginación específica
+  // Obtener pelÃ­culas con paginaciÃ³n especÃ­fica
   getPaginated: async (skip = 0, limit = 20, filters = {}) => {
     const params = { skip, limit, ...filters };
     const response = await api.get('/movies', { params });
     return response.data;
   },
 
-  // Buscar películas
+  // Buscar pelÃ­culas
   search: async (query, filters = {}) => {
     const params = { q: query, ...filters };
     const response = await api.get('/movies/search', { params });
     return response.data;
   },
 
-  // Obtener película por ID
+  // Obtener pelÃ­cula por ID
   getById: async (id) => {
     const response = await api.get(`/movies/${id}`);
     return response.data;
   },
 
-  // Obtener próximos estrenos
+  // Obtener prÃ³ximos estrenos
   getComingSoon: async () => {
     const response = await api.get('/movies/coming-soon');
     return response.data;
@@ -167,13 +167,13 @@ export const movieService = {
     return response.data;
   },
 
-  // Obtener horarios de una película
+  // Obtener horarios de una pelÃ­cula
   getShowtimes: async (movieId, params = {}) => {
     const response = await api.get(`/movies/${movieId}/showtimes`, { params });
     return response.data;
   },
 
-  // Obtener teatros de una película
+  // Obtener teatros de una pelÃ­cula
   getTheaters: async (movieId) => {
     const response = await api.get(`/movies/${movieId}/theaters`);
     return response.data;
@@ -186,7 +186,7 @@ export const movieService = {
   }
 };
 
-// 🏢 SERVICIOS DE TEATROS
+// ðŸ¢ SERVICIOS DE TEATROS
 export const theaterService = {
   getAll: async () => {
     const response = await api.get('/theaters');
@@ -210,7 +210,7 @@ export const theaterService = {
   }
 };
 
-// 🎫 SERVICIOS DE COMPRAS
+// ðŸŽ« SERVICIOS DE COMPRAS
 export const purchaseService = {
   create: async (purchaseData) => {
     // Asegurar que el payload tenga el formato exacto que espera el backend
@@ -226,7 +226,7 @@ export const purchaseService = {
       }
     };
 
-    console.log('📦 purchaseService.create payload:', payload);
+    console.log('ðŸ“¦ purchaseService.create payload:', payload);
     const response = await api.post('/purchases', payload);
     return response.data;
   },
@@ -242,7 +242,7 @@ export const purchaseService = {
   }
 };
 
-// 📅 SERVICIOS DE CALENDARIO
+// ðŸ“… SERVICIOS DE CALENDARIO
 export const calendarService = {
   getWeekCalendar: async (startDate) => {
     const params = startDate ? { start_date: startDate } : {};
@@ -261,9 +261,9 @@ export const calendarService = {
   }
 };
 
-// 👑 SERVICIOS DE ADMINISTRACIÓN
+// ðŸ‘‘ SERVICIOS DE ADMINISTRACIÃ“N
 export const adminService = {
-  // Películas
+  // PelÃ­culas
   movies: {
     create: async (movieData) => {
       const response = await api.post('/admin/movies', movieData);
@@ -346,12 +346,12 @@ export const adminService = {
   }
 };
 
-// Función helper adicional para debugging
+// FunciÃ³n helper adicional para debugging
 export const logApiCall = (method, url, data = null) => {
-  console.log(`📡 API Call: ${method.toUpperCase()} ${url}`, data ? { data } : '');
+  console.log(`ðŸ“¡ API Call: ${method.toUpperCase()} ${url}`, data ? { data } : '');
 };
 
-// Función helper para verificar conectividad
+// FunciÃ³n helper para verificar conectividad
 export const checkApiHealth = async () => {
   try {
     const response = await api.get('/health');
@@ -361,8 +361,8 @@ export const checkApiHealth = async () => {
   }
 };
 
-// Log de configuración
-console.log('🌐 API Configuration:', {
+// Log de configuraciÃ³n
+console.log('ðŸŒ API Configuration:', {
   baseURL: API_BASE_URL,
   timeout: api.defaults.timeout,
   hasToken: !!localStorage.getItem('cinema_token')
@@ -370,37 +370,37 @@ console.log('🌐 API Configuration:', {
 
 
 // ===============================
-// 🔍 FUNCIONES PARA EL SIDEBAR
+// ðŸ” FUNCIONES PARA EL SIDEBAR
 // ===============================
 
-// Función específica para búsqueda en el sidebar (compatibilidad con el componente)
+// FunciÃ³n especÃ­fica para bÃºsqueda en el sidebar (compatibilidad con el componente)
 export const searchMovies = async (query = '', options = {}) => {
   try {
     // Usar el servicio existente
       return await movieService.search(query, options);
   } catch (error) {
-    console.error('Error en búsqueda de películas para sidebar:', error);
+    console.error('Error en bÃºsqueda de pelÃ­culas para sidebar:', error);
     throw error;
   }
 };
 
-// Función para obtener películas (compatibilidad con useMovies hook)
+// FunciÃ³n para obtener pelÃ­culas (compatibilidad con useMovies hook)
 export const getMovies = async (options = {}) => {
   try {
     // Usar el servicio existente
       return await movieService.getAll(options);
   } catch (error) {
-    console.error('Error al obtener películas:', error);
+    console.error('Error al obtener pelÃ­culas:', error);
     throw error;
   }
 };
 
-// Función para obtener detalles de película (compatibilidad)
+// FunciÃ³n para obtener detalles de pelÃ­cula (compatibilidad)
 export const getMovieDetails = async (movieId) => {
   try {
       return await movieService.getById(movieId);
   } catch (error) {
-    console.error('Error al obtener detalles de película:', error);
+    console.error('Error al obtener detalles de pelÃ­cula:', error);
     throw error;
   }
 };

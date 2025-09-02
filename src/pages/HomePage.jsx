@@ -85,6 +85,7 @@ const HomePage = () => {
             <MovieGrid
               movies={homeData.cartelera.movies}
               className="grid-cols-2 md:grid-cols-4"
+              showDetailsButton={false} // ⭐ Sin botón en Home
             />
           ) : (
             <EmptyState
@@ -147,6 +148,7 @@ const HomePage = () => {
             <MovieGrid
               movies={homeData.pronto}
               className="grid-cols-2 md:grid-cols-4"
+              showDetailsButton={false} // ⭐ Sin botón en Home
             />
           ) : (
             <EmptyState

@@ -1,10 +1,10 @@
 // src/components/cinema/MovieGrid.jsx
 import { Link } from 'react-router-dom';
 import { ClockIcon, CurrencyDollarIcon, TicketIcon } from '@heroicons/react/24/outline';
-import { GlassCard } from '../ui';
+import { GlassCard, PremiumButton } from '../ui';
 import { transformMovieData } from '../../utils/movieUtils';
 
-const MovieGrid = ({ movies = [], className = '', showStats = false }) => {
+const MovieGrid = ({ movies = [], className = '', showStats = false, showDetailsButton = true }) => {
   // Transformar datos del backend
   const transformedMovies = movies.map(transformMovieData).filter(Boolean);
 
@@ -26,57 +26,77 @@ const MovieGrid = ({ movies = [], className = '', showStats = false }) => {
           key={movie.id}
           movie={movie}
           showStats={showStats}
+          showDetailsButton={showDetailsButton}
         />
       ))}
     </div>
   );
 };
 
-const MovieCard = ({ movie, showStats = false }) => {
+const MovieCard = ({ movie, showStats = false, showDetailsButton = true }) => {
   const statusBadge = movie.statusBadge;
 
   return (
     <GlassCard className="group overflow-hidden hover:scale-105 transition-all duration-300">
-      <Link to={`/pelicula/${movie.id}`} className="block">
-        <div className="aspect-[2/3] relative">
+      {/* Solo envolver con Link si NO hay botón de detalles */}
+      {!showDetailsButton ? (
+        <Link to={`/pelicula/${movie.id}`} className="block">
+          <MovieCardContent movie={movie} statusBadge={statusBadge} showStats={showStats} />
+        </Link>
+      ) : (
+        <MovieCardContent
+          movie={movie}
+          statusBadge={statusBadge}
+          showStats={showStats}
+          showDetailsButton={showDetailsButton}
+        />
+      )}
+    </GlassCard>
+  );
+};
 
-          {/* Badge de estado */}
-          {statusBadge && (
-            <div className="absolute top-3 left-3 z-10">
-              <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusBadge.className}`}>
-                {statusBadge.text}
-              </span>
-            </div>
-          )}
-
-          {/* Indicador de disponibilidad */}
-          <div className="absolute top-3 right-3 z-10">
-            {movie.isSoldOut ? (
-              <span className="px-2 py-1 bg-red-600 text-white text-xs rounded-full font-bold">
-                AGOTADO
-              </span>
-            ) : movie.soldOutPercentage > 80 ? (
-              <span className="px-2 py-1 bg-orange-600 text-white text-xs rounded-full font-bold">
-                POCAS
-              </span>
-            ) : null}
+const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton }) => {
+  return (
+    <>
+      <div className="aspect-[2/3] relative">
+        {/* Badge de estado */}
+        {statusBadge && (
+          <div className="absolute top-3 left-3 z-10">
+            <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusBadge.className}`}>
+              {statusBadge.text}
+            </span>
           </div>
+        )}
 
-          {/* Imagen usando poster_url del backend */}
-          <img
-            src={movie.poster_url || movie.images?.poster || '/placeholder-movie.jpg'}
-            alt={movie.title}
-            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-            onError={(e) => {
-              // Fallback en caso de error de carga
-              e.target.src = movie.backdrop_url || movie.images?.backdrop || '/placeholder-movie.jpg';
-            }}
-          />
+        {/* Indicador de disponibilidad */}
+        <div className="absolute top-3 right-3 z-10">
+          {movie.isSoldOut ? (
+            <span className="px-2 py-1 bg-red-600 text-white text-xs rounded-full font-bold">
+              AGOTADO
+            </span>
+          ) : movie.soldOutPercentage > 80 ? (
+            <span className="px-2 py-1 bg-orange-600 text-white text-xs rounded-full font-bold">
+              POCAS
+            </span>
+          ) : null}
+        </div>
 
-          {/* Overlay gradiente */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+        {/* Imagen usando poster_url del backend */}
+        <img
+          src={movie.poster_url || movie.images?.poster || '/placeholder-movie.jpg'}
+          alt={movie.title}
+          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+          onError={(e) => {
+            // Fallback en caso de error de carga
+            e.target.src = movie.backdrop_url || movie.images?.backdrop || '/placeholder-movie.jpg';
+          }}
+        />
 
-          {/* Información que aparece en hover */}
+        {/* Overlay gradiente */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+        {/* Información que aparece en hover SOLO si NO hay botón de detalles */}
+        {!showDetailsButton && (
           <div className="absolute bottom-0 left-0 right-0 p-4 transform translate-y-full group-hover:translate-y-0 transition-transform duration-300">
             <h3 className="text-white font-bold text-sm mb-1 line-clamp-2">
               {movie.title}
@@ -131,8 +151,8 @@ const MovieCard = ({ movie, showStats = false }) => {
               )}
             </div>
           </div>
-        </div>
-      </Link>
+        )}
+      </div>
 
       {/* Información siempre visible */}
       <div className="p-4">
@@ -143,8 +163,56 @@ const MovieCard = ({ movie, showStats = false }) => {
           {movie.genre || 'Sin género'} • {movie.duration_formatted}
         </p>
 
-        {/* Barra de disponibilidad */}
-        {movie.max_capacity > 0 && (
+        {/* Información adicional cuando hay botón de detalles */}
+        {showDetailsButton && (
+          <>
+            <div className="flex items-center justify-between text-xs text-white/60 mt-2">
+              <span className="flex items-center">
+                <ClockIcon className="w-3 h-3 mr-1" />
+                {movie.duration_formatted}
+              </span>
+              <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                {movie.ageRating}
+              </span>
+            </div>
+
+            {/* Precio */}
+            {movie.price && (
+              <div className="flex items-center justify-between mt-2">
+                <span className="text-green-400 font-bold text-sm">
+                  {movie.price_formatted}
+                </span>
+              </div>
+            )}
+
+            {/* Tickets disponibles */}
+            {movie.available_tickets !== undefined && (
+              <div className="flex items-center text-xs text-white/60 mt-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full mr-1"></div>
+                {movie.available_tickets} disponibles
+              </div>
+            )}
+
+            {/* Fecha de lanzamiento */}
+            {movie.release_date && (
+              <p className="text-white/60 text-xs mt-2">
+                Estreno: {movie.release_date_short}
+              </p>
+            )}
+
+            {/* BOTÓN "VER DETALLES" - EL QUE FALTABA */}
+            <div className="mt-3">
+              <Link to={`/movie/${movie.id}`}>
+                <PremiumButton size="sm" className="w-full">
+                  Ver detalles
+                </PremiumButton>
+              </Link>
+            </div>
+          </>
+        )}
+
+        {/* Barra de disponibilidad SOLO si NO hay botón de detalles */}
+        {!showDetailsButton && movie.max_capacity > 0 && (
           <div className="mt-2">
             <div className="flex justify-between text-xs text-white/60 mb-1">
               <span>Disponibilidad</span>
@@ -165,7 +233,7 @@ const MovieCard = ({ movie, showStats = false }) => {
           </div>
         )}
       </div>
-    </GlassCard>
+    </>
   );
 };
 
