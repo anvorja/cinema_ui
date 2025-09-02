@@ -15,8 +15,8 @@ import useAuth from "../hooks/useAuth.js";
 const PaymentPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const { isAuthenticated, user } = useAuth();
-  const { bookingData, updateBooking, completeBooking } = useBooking();
+  const { isAuthenticated } = useAuth();
+  const { updateBooking, completeBooking } = useBooking();
 
   // Obtener datos del state o contexto
   const paymentData = location.state || {};
@@ -93,7 +93,7 @@ const PaymentPage = () => {
   };
 
   const generateTransactionId = () => {
-    return 'TXN' + Date.now() + Math.random().toString(36).substr(2, 9).toUpperCase();
+    return 'TXN' + Date.now() + Math.random().toString(36).substring(2, 9).toUpperCase();
   };
 
   const handlePayment = async () => {

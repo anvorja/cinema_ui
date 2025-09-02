@@ -1,5 +1,5 @@
 // src/pages/BookingPage.jsx
-import { useState, useEffect } from 'react';
+import {useState, useEffect, useMemo} from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   MinusIcon,
@@ -26,19 +26,21 @@ const BookingPage = () => {
     isBookingActive
   } = useBooking();
 
-  const { showtimes, getShowtimeById } = useMovieShowtimes(movieId);
+  const { getShowtimeById } = useMovieShowtimes(movieId);
 
   // Obtener datos de location.state o del contexto
   const initialData = location.state || {};
   const { movie, theater, showtime, selectedDate } = initialData;
 
   // Si no hay datos en state, construir desde parámetros
-  const currentShowtime = showtime || getShowtimeById(theaterId, showtimeId) || {
-    id: parseInt(showtimeId),
-    time: '19:30',
-    format: '2D Doblada',
-    price: 18000
-  };
+  const currentShowtime = useMemo(() => {
+    return showtime || getShowtimeById(theaterId, showtimeId) || {
+      id: parseInt(showtimeId),
+      time: '19:30',
+      format: '2D Doblada',
+      price: 18000
+    };
+  }, [showtime, getShowtimeById, theaterId, showtimeId]);
 
   // Estados locales
   const [ticketCount, setTicketCount] = useState(bookingData.ticketCount || 1);
