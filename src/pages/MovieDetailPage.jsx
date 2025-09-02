@@ -1,151 +1,69 @@
 // src/pages/MovieDetailPage.jsx
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import {FloatingParticles, GlassCard, PremiumButton} from '../components/ui';
-import { TheaterSelector } from '../components/cinema/TheaterSelector';
+import {
+  ClockIcon,
+  CurrencyDollarIcon,
+  UserIcon,
+  MapPinIcon,
+  TagIcon,
+  TicketIcon,
+  PlayIcon
+} from '@heroicons/react/24/outline';
+
+import { GlassCard, PremiumButton, FloatingParticles } from '../components/ui';
+import { useMovie, useMovieAvailability, useMovieTheaters } from '../hooks/useMovies';
+import { useMovieTransform } from '../hooks/useMoviesTransform';
+import LoadingSpinner from '../components/ui/LoadingSpinner';
+import ErrorMessage from '../components/ui/ErrorMessage';
 
 const MovieDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [movie, setMovie] = useState(null);
-  const [theaters, setTheaters] = useState([]);
-  const [selectedDate, setSelectedDate] = useState(null);
-  const [selectedTheater, setSelectedTheater] = useState(null);
-  const [selectedShowtime, setSelectedShowtime] = useState(null);
-  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const loadMovieData = async () => {
-      setLoading(true);
-      await new Promise(resolve => setTimeout(resolve, 1000));
+  // Estados para modales y UI (solo los que se usan)
+  const [showTrailer, setShowTrailer] = useState(false);
 
-      // Mock movie data
-      const mockMovie = {
-        id: parseInt(id),
-        title: 'The Conjuring: Last Rites',
-        originalTitle: 'El Conjuro 4: Últimos Ritos',
-        description: 'Cuando los investigadores paranormales Ed y Lorraine Warren se ven envueltos en otro aterrador caso relacionado con misteriosas criaturas, se ven obligados a resolverlo todo por última vez.',
-        genre: 'Suspenso, Terror, Misterio',
-        duration: '135 Min',
-        releaseDate: '04-Sept-2025',
-        ageRating: 'Exclusiva para Mayores de 15 años',
-        director: 'Michael Chaves',
-        actors: 'Vera Farmiga, Patrick Wilson, Madison Lawlor',
-        language: 'Inglés',
-        country: 'United States of America',
-        posterImage: '/api/placeholder/400/600',
-        backdropImage: '/api/placeholder/1920/1080',
-        detailImage1: '/api/placeholder/600/400',
-        detailImage2: '/api/placeholder/600/400'
-      };
+  // Hooks para datos
+  const { movie: rawMovie, loading, error, refetch } = useMovie(id);
+  const { availability } = useMovieAvailability(id);
+  const { theaters } = useMovieTheaters(id);
 
-      // Mock theaters data
-      const mockTheaters = [
-        {
-          id: 1,
-          name: 'Chipichape',
-          location: 'Cali, Valle del Cauca',
-          showtimes: [
-            { id: 1, time: '12:30 PM', format: '2D - Doblado', available: true },
-            { id: 2, time: '3:20 PM', format: '2D - Doblado', available: true },
-            { id: 3, time: '6:10 PM', format: '2D - Doblado', available: false }
-          ]
-        },
-        {
-          id: 2,
-          name: 'Cosmocentro',
-          location: 'Cali, Valle del Cauca',
-          showtimes: [
-            { id: 4, time: '2:15 PM', format: '2D - Subtitulado', available: true },
-            { id: 5, time: '5:30 PM', format: '2D - Subtitulado', available: true }
-          ]
-        },
-        {
-          id: 3,
-          name: 'Palmetto',
-          location: 'Cali, Valle del Cauca',
-          showtimes: [
-            { id: 6, time: '1:45 PM', format: '2D - Doblado', available: true },
-            { id: 7, time: '4:20 PM', format: '2D - Doblado', available: true },
-            { id: 8, time: '7:00 PM', format: '2D - Doblado', available: true }
-          ]
-        },
-        {
-          id: 4,
-          name: 'Río Cauca',
-          location: 'Cali, Valle del Cauca',
-          showtimes: [
-            { id: 9, time: '3:00 PM', format: '2D - Subtitulado', available: true },
-            { id: 10, time: '6:45 PM', format: '2D - Subtitulado', available: false }
-          ]
-        },
-        {
-          id: 5,
-          name: 'Unicali',
-          location: 'Cali, Valle del Cauca',
-          showtimes: [
-            { id: 11, time: '1:30 PM', format: '2D - Doblado', available: true },
-            { id: 12, time: '4:15 PM', format: '2D - Doblado', available: true },
-            { id: 13, time: '7:30 PM', format: '2D - Doblado', available: true }
-          ]
-        }
-      ];
+  // Transformar datos de la película usando el hook
+  const movie = useMovieTransform(rawMovie);
 
-      // Generate dates for the next week
-      const dates = [];
-      for (let i = 0; i < 7; i++) {
-        const date = new Date();
-        date.setDate(date.getDate() + i);
-        dates.push({
-          id: i + 1,
-          date: date,
-          dayName: date.toLocaleDateString('es-ES', { weekday: 'short' }).toUpperCase(),
-          dayNumber: date.getDate(),
-          monthName: date.toLocaleDateString('es-ES', { month: 'short' }).toUpperCase()
-        });
-      }
+  // DEBUG: Console log para verificar que funciona
+  console.log('🎬 MovieDetailPage cargada - ID:', id);
+  console.log('🎭 Datos de película:', movie);
 
-      setMovie(mockMovie);
-      setTheaters(mockTheaters);
-      setSelectedDate(dates[0]);
-      setLoading(false);
-    };
-
-    loadMovieData();
-  }, [id]);
-
-  const handleShowtimeSelect = (theater, showtime) => {
-    setSelectedTheater(theater);
-    setSelectedShowtime(showtime);
-  };
-
-  const handleContinue = () => {
-    if (selectedTheater && selectedShowtime) {
-      navigate(`/booking/${movie.id}/${selectedTheater.id}/${selectedShowtime.id}`, {
-        state: {
-          movie,
-          theater: selectedTheater,
-          showtime: selectedShowtime,
-          selectedDate
-        }
-      });
-    }
-  };
-
+  // Loading state
   if (loading) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
-          <p className="text-white text-xl">Cargando información de la película...</p>
+          <LoadingSpinner size="lg" />
         </div>
       </div>
     );
   }
 
+  // Error state
+  if (error) {
+    return (
+      <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+        <ErrorMessage
+          message={error}
+          onRetry={refetch}
+          title="Error al cargar la película"
+        />
+      </div>
+    );
+  }
+
+  // Not found state
   if (!movie) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
         <div className="text-center">
           <p className="text-white text-xl mb-4">Película no encontrada</p>
           <PremiumButton onClick={() => navigate('/cartelera')}>
@@ -157,15 +75,15 @@ const MovieDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen">
+    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <FloatingParticles count={30} className="opacity-20" />
 
-      {/* Hero Section with Movie Images */}
+      {/* Hero Section with Movie Images - USANDO DATOS TRANSFORMADOS */}
       <section className="relative h-screen overflow-hidden">
-        {/* Background */}
+        {/* Background usando la mejor imagen disponible */}
         <div className="absolute inset-0">
           <img
-            src={movie.backdropImage}
+            src={movie.images.backdrop}
             alt={movie.title}
             className="w-full h-full object-cover scale-105"
             style={{ filter: 'blur(2px)' }}
@@ -179,11 +97,11 @@ const MovieDetailPage = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
 
-              {/* Poster Image */}
+              {/* Poster Image usando imagen transformada */}
               <div className="flex justify-center lg:justify-start">
                 <GlassCard variant="premium" className="p-3 premium-card">
                   <img
-                    src={movie.posterImage}
+                    src={movie.images.poster}
                     alt={movie.title}
                     className="w-80 rounded-lg shadow-2xl"
                   />
@@ -193,99 +111,251 @@ const MovieDetailPage = () => {
               {/* Movie Info */}
               <div className="lg:col-span-2 space-y-6 text-center lg:text-left">
                 <div>
-                  <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4">
+                  {/* Badge de estado usando statusBadge transformado */}
+                  <div className="flex flex-wrap gap-2 justify-center lg:justify-start mb-4">
+                    {movie.statusBadge && (
+                      <span className={`px-3 py-1 rounded-full text-sm font-medium ${movie.statusBadge.className}`}>
+                        {movie.statusBadge.text}
+                      </span>
+                    )}
+                  </div>
+
+                  <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white mb-4">
                     {movie.title}
                   </h1>
-                  <h2 className="text-xl text-white/80 mb-6">
-                    {movie.originalTitle}
-                  </h2>
 
-                  <div className="flex flex-wrap justify-center lg:justify-start gap-4 mb-6">
-                    <span className="bg-blue-600 text-white px-4 py-2 rounded-lg font-medium">
-                      {movie.ageRating}
-                    </span>
-                    <span className="glass px-4 py-2 rounded-lg text-white">
-                      {movie.duration}
-                    </span>
-                    <span className="bg-red-600 text-white px-4 py-2 rounded-lg font-medium">
-                      Preventa
-                    </span>
+                  <p className="text-xl text-white/80 mb-6 max-w-3xl">
+                    {movie.description}
+                  </p>
+                </div>
+
+                {/* Movie Details Grid usando datos pre-formateados */}
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
+                  <GlassCard className="p-4 text-center">
+                    <ClockIcon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
+                    <p className="text-white/70 text-sm">Duración</p>
+                    <p className="text-white font-semibold">{movie.duration_formatted}</p>
+                  </GlassCard>
+
+                  <GlassCard className="p-4 text-center">
+                    <TagIcon className="w-8 h-8 text-purple-400 mx-auto mb-2" />
+                    <p className="text-white/70 text-sm">Género</p>
+                    <p className="text-white font-semibold">{movie.genre}</p>
+                  </GlassCard>
+
+                  <GlassCard className="p-4 text-center">
+                    <UserIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
+                    <p className="text-white/70 text-sm">Clasificación</p>
+                    <p className="text-white font-semibold">{movie.ageRating}</p>
+                  </GlassCard>
+
+                  <GlassCard className="p-4 text-center">
+                    <CurrencyDollarIcon className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
+                    <p className="text-white/70 text-sm">Precio</p>
+                    <p className="text-white font-semibold">{movie.price_formatted}</p>
+                  </GlassCard>
+                </div>
+
+                {/* Additional Info */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <h3 className="text-white font-semibold mb-2">Director</h3>
+                    <p className="text-white/80">{movie.director}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold mb-2">País</h3>
+                    <p className="text-white/80">{movie.country}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold mb-2">Fecha de estreno</h3>
+                    <p className="text-white/80">{movie.release_date_formatted}</p>
+                  </div>
+                  <div>
+                    <h3 className="text-white font-semibold mb-2">Disponibilidad</h3>
+                    <div className="flex items-center gap-2">
+                      <div className={`w-2 h-2 rounded-full ${movie.isAvailable ? 'bg-green-400' : 'bg-red-400'}`}></div>
+                      <p className={movie.isAvailable ? 'text-green-400' : 'text-red-400'}>
+                        {movie.isAvailable ?
+                          `${movie.available_tickets} entradas disponibles` :
+                          'Agotado'
+                        }
+                      </p>
+                    </div>
                   </div>
                 </div>
 
-                <p className="text-white/90 text-lg leading-relaxed max-w-3xl">
-                  {movie.description}
-                </p>
+                {/* Action Buttons */}
+                <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
+                  <PremiumButton
+                    size="lg"
+                    className="flex items-center gap-2"
+                    disabled={!movie.isAvailable}
+                    onClick={() => navigate('/booking', { state: { movieId: movie.id } })}
+                  >
+                    <TicketIcon className="w-5 h-5" />
+                    {movie.isAvailable ? 'Comprar Entradas' : 'Agotado'}
+                  </PremiumButton>
+
+                  {/* Botón de trailer */}
+                  <button
+                    className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors duration-200 flex items-center gap-2 justify-center"
+                    onClick={() => setShowTrailer(true)}
+                  >
+                    <PlayIcon className="w-5 h-5" />
+                    Ver Tráiler
+                  </button>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Movie Details and Theater Selection */}
-      <section className="py-16">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-12">
+      {/* Modal de Tráiler */}
+      {showTrailer && (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <div className="relative max-w-4xl w-full">
+            <button
+              onClick={() => setShowTrailer(false)}
+              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+            >
+              <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
 
-            {/* Movie Information */}
-            <div className="lg:col-span-1">
-              <GlassCard variant="premium" className="p-6">
-                <h3 className="text-xl font-bold text-white mb-6">Información de la Película</h3>
-
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="text-sm font-semibold text-white/70 mb-1">Título Original</h4>
-                    <p className="text-white">{movie.originalTitle}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-semibold text-white/70 mb-1">País de Origen</h4>
-                    <p className="text-white">{movie.country}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-semibold text-white/70 mb-1">Director</h4>
-                    <p className="text-white">{movie.director}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-semibold text-white/70 mb-1">Actores</h4>
-                    <p className="text-white">{movie.actors}</p>
-                  </div>
-
-                  <div>
-                    <h4 className="text-sm font-semibold text-white/70 mb-1">Idioma</h4>
-                    <p className="text-white">{movie.language}</p>
-                  </div>
+            <div className="bg-black rounded-lg overflow-hidden">
+              <div className="aspect-video bg-gray-800 flex items-center justify-center">
+                <div className="text-center text-white">
+                  <PlayIcon className="w-16 h-16 mx-auto mb-4" />
+                  <p>Tráiler de {movie.title}</p>
+                  <p className="text-sm text-gray-400 mt-2">
+                    Aquí se reproduciría el tráiler de la película
+                  </p>
                 </div>
-              </GlassCard>
-            </div>
-
-            {/* Theater and Showtime Selection */}
-            <div className="lg:col-span-2">
-              <TheaterSelector
-                theaters={theaters}
-                selectedDate={selectedDate}
-                onShowtimeSelect={handleShowtimeSelect}
-                selectedTheater={selectedTheater}
-                selectedShowtime={selectedShowtime}
-              />
-
-              {/* Continue Button */}
-              {selectedTheater && selectedShowtime && (
-                <div className="mt-8 text-center">
-                  <PremiumButton
-                    size="lg"
-                    variant="premium"
-                    onClick={handleContinue}
-                    className="px-12"
-                  >
-                    Continuar con la Compra
-                  </PremiumButton>
-                </div>
-              )}
+              </div>
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Detailed Images Section usando imágenes transformadas */}
+      {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
+        <section className="py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">
+              Imágenes de la Película
+            </h2>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+              <div className="space-y-4">
+                <img
+                  src={movie.images.detail1}
+                  alt={`${movie.title} - Detalle 1`}
+                  className="w-full rounded-lg shadow-2xl"
+                />
+              </div>
+
+              <div className="space-y-4">
+                <img
+                  src={movie.images.detail2}
+                  alt={`${movie.title} - Detalle 2`}
+                  className="w-full rounded-lg shadow-2xl"
+                />
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Theaters Section */}
+      {theaters && theaters.length > 0 && (
+        <section className="py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">
+              Teatros Disponibles
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {theaters.map((theater) => (
+                <GlassCard key={theater.id} className="p-6">
+                  <div className="flex items-start gap-4">
+                    <MapPinIcon className="w-8 h-8 text-blue-400 mt-1" />
+                    <div>
+                      <h3 className="text-white font-semibold text-lg mb-2">
+                        {theater.name}
+                      </h3>
+                      <p className="text-white/70 text-sm mb-3">
+                        {theater.location}
+                      </p>
+                      <div className="flex items-center justify-between">
+                        <span className="text-green-400 text-sm">
+                          Capacidad: {theater.capacity}
+                        </span>
+                        <PremiumButton size="sm">
+                          Ver Horarios
+                        </PremiumButton>
+                      </div>
+                    </div>
+                  </div>
+                </GlassCard>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Availability Info */}
+      {availability && (
+        <section className="py-16">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+            <h2 className="text-3xl font-bold text-white mb-8 text-center">
+              Información de Disponibilidad
+            </h2>
+            <div className="max-w-2xl mx-auto">
+              <GlassCard className="p-8">
+                <div className="grid grid-cols-2 gap-6 text-center">
+                  <div>
+                    <p className="text-3xl font-bold text-green-400 mb-2">
+                      {availability.total_available || movie.available_tickets || 0}
+                    </p>
+                    <p className="text-white/70">Entradas Disponibles</p>
+                  </div>
+                  <div>
+                    <p className="text-3xl font-bold text-blue-400 mb-2">
+                      {availability.total_capacity || movie.max_capacity || 0}
+                    </p>
+                    <p className="text-white/70">Capacidad Total</p>
+                  </div>
+                </div>
+
+                {availability.occupancy_rate !== undefined && (
+                  <div className="mt-6">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-white/70">Ocupación</span>
+                      <span className="text-white">{Math.round(availability.occupancy_rate)}%</span>
+                    </div>
+                    <div className="w-full bg-white/10 rounded-full h-2">
+                      <div
+                        className="bg-gradient-to-r from-green-400 to-blue-400 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${availability.occupancy_rate}%` }}
+                      ></div>
+                    </div>
+                  </div>
+                )}
+              </GlassCard>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* Back to Cartelera Button */}
+      <section className="py-8">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <button
+            onClick={() => navigate('/cartelera')}
+            className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors duration-200"
+          >
+            ← Volver a Cartelera
+          </button>
         </div>
       </section>
     </div>

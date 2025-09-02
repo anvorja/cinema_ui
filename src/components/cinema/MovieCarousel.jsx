@@ -71,7 +71,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
             }`}
           >
             <img
-              src={movie.backdropImage || movie.posterImage}
+              src={movie.backdrop_url || movie.poster_url}
               alt={movie.title}
               className="w-full h-full object-cover scale-110"
               style={{ filter: 'blur(2px)' }}
@@ -95,7 +95,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
               <ShimmerEffect className="w-64 sm:w-80">
                 <GlassCard variant="premium" className="p-2 premium-card">
                   <img
-                    src={currentMovie.posterImage}
+                    src={currentMovie.poster_url}
                     alt={currentMovie.title}
                     className="w-full rounded-lg shadow-2xl"
                   />
@@ -174,7 +174,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
               <ShimmerEffect className="w-96">
                 <GlassCard variant="premium" className="p-3 premium-card">
                   <img
-                    src={currentMovie.posterImage}
+                    src={currentMovie.poster_url}
                     alt={currentMovie.title}
                     className="w-full rounded-lg shadow-2xl"
                   />
@@ -243,7 +243,7 @@ const MovieSlide = ({ movie, isActive }) => {
       <GlassCard variant="premium" className="overflow-hidden premium-card">
         <div className="aspect-[2/3] relative">
           <img
-            src={movie.posterImage}
+            src={movie.poster_url}
             alt={movie.title}
             className="w-full h-full object-cover"
           />

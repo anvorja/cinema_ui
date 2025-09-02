@@ -109,23 +109,11 @@ const Cartelera = () => {
     }).format(price);
   };
 
-    // Formatear rating para mostrar
-  const formatRating = (rating) => {
-    const ratingMap = {
-      'G': 'Todos los públicos',
-      'PG': 'Mayores de 7 años',
-      'PG-13': 'Mayores de 13 años',
-      'R': 'Mayores de 17 años',
-      'NC-17': 'Mayores de 18 años'
-    };
-    return ratingMap[rating] || rating;
-  };
-
   // Componente para tarjeta de película
   const MovieCard = ({ movie }) => {
     return (
       <GlassCard className="group hover:scale-105 transition-all duration-300 cursor-pointer">
-        <Link to={`/pelicula/${movie.id}`} className="block">
+        <Link to={`/movie/${movie.id}`} className="block">
           {/* Imagen de la película */}
           <div className="relative aspect-[2/3] overflow-hidden rounded-lg mb-4">
             <img
@@ -149,12 +137,6 @@ const Cartelera = () => {
                   PRÓXIMAMENTE
                 </span>
               )}
-                {/*es opcional ponerle etiqueta cartelera en la pag de cartelera*/}
-              {/*  {movie.status === 'in_theaters' && (*/}
-              {/*  <span className="px-2 py-1 text-xs font-semibold bg-green-500 text-white rounded-full">*/}
-              {/*    EN CARTELERA*/}
-              {/*  </span>*/}
-              {/*)}*/}
             </div>
 
             {/* Overlay con información adicional */}

@@ -15,6 +15,7 @@ import {BookingProvider} from "./components/providers/BookingProvider.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
 import AuthProvider from "./components/providers/AuthProvider.jsx";
+import ScrollToTop from "./components/layout/ScrollToTop.jsx";
 
 
 function App() {
@@ -23,6 +24,7 @@ function App() {
             <AuthProvider>
                 <BookingProvider>
                     <Router>
+                         <ScrollToTop />
                         <Routes>
                             <Route path="/" element={<Layout />}>
                                 <Route index element={<HomePage />} />
