@@ -32,10 +32,10 @@ const Footer = () => {
               <div className="space-y-4">
                 <div className="flex items-center gap-3">
                   <div className="w-12 h-12 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center">
-                    <span className="text-white font-bold text-xl">CC</span>
+                    <span className="text-white font-bold text-xl">C+</span>
                   </div>
                   <div>
-                    <h3 className="text-white font-bold text-lg">CINE COLOMBIA</h3>
+                    <h3 className="text-white font-bold text-lg">CINEMAPLUS</h3>
                   </div>
                 </div>
                 <p className="text-white/70 text-sm leading-relaxed">
@@ -81,7 +81,7 @@ const Footer = () => {
             {/* Copyright */}
             <div className="border-t border-white/10 mt-8 pt-6 text-center">
               <p className="text-white/60 text-sm">
-                © 2025 Cine Colombia. Todos los derechos reservados.
+                © 2025 Cinemaplus. Todos los derechos reservados.
               </p>
             </div>
           </GlassCard>

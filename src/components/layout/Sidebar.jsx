@@ -1,7 +1,7 @@
 // src/components/layout/Sidebar.jsx
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
-import { XMarkIcon, HomeIcon, FilmIcon, ClockIcon, UserIcon } from '@heroicons/react/24/outline';
+import { Link, useLocation } from 'react-router-dom';
+import { ChevronLeft, Home, Film, Clock, User, CreditCard, LogOut, Utensils, Truck } from 'lucide-react';
 import { PremiumButton } from '../ui';
 import { useAuth } from '../../hooks/useAuth';
 import UserProfile from "../auth/UserProfile.jsx";
@@ -9,24 +9,64 @@ import UserProfile from "../auth/UserProfile.jsx";
 const Sidebar = ({ isOpen, onClose }) => {
     const { isAuthenticated, logout } = useAuth();
     const [showUserProfile, setShowUserProfile] = useState(false);
+    const location = useLocation();
 
     const menuSections = [
         {
             title: 'CINE',
             items: [
-                { name: 'Inicio', href: '/', icon: HomeIcon },
-                { name: 'Cartelera', href: '/cartelera', icon: FilmIcon },
-                { name: 'Pronto', href: '/pronto', icon: ClockIcon }
+                {
+                    name: 'Inicio',
+                    href: '/',
+                    icon: Home,
+                    color: 'text-blue-400'
+                },
+                {
+                    name: 'Cartelera',
+                    href: '/cartelera',
+                    icon: Film,
+                    color: 'text-purple-400'
+                },
+                {
+                    name: 'Pronto',
+                    href: '/pronto',
+                    icon: Clock,
+                    color: 'text-green-400'
+                }
             ]
         },
         {
             title: 'COMIDAS',
             items: [
-                { name: 'Menú', href: '/comidas', icon: null },
-                { name: 'Domicilios', href: '/domicilios', icon: null }
+                {
+                    name: 'Menú',
+                    href: '/comidas',
+                    icon: Utensils,
+                    color: 'text-orange-400'
+                },
+                {
+                    name: 'Domicilios',
+                    href: '/domicilios',
+                    icon: Truck,
+                    color: 'text-gray-400'
+                }
             ]
         }
     ];
+
+    // Función para verificar si un item está activo
+    const isItemActive = (href) => {
+        if (href === '/') {
+            return location.pathname === '/';
+        }
+        return location.pathname === href;
+    };
+
+    // Función para renderizar íconos dinámicamente
+    const renderIcon = (IconComponent, colorClass) => {
+        if (!IconComponent) return null;
+        return <IconComponent className={`w-5 h-5 ${colorClass} group-hover:scale-110 transition-transform`} />;
+    };
 
     if (isAuthenticated) {
         menuSections.push({
@@ -35,8 +75,9 @@ const Sidebar = ({ isOpen, onClose }) => {
                 {
                     name: 'Mi Perfil',
                     action: () => setShowUserProfile(true),
-                    icon: UserIcon,
-                    type: 'action'
+                    icon: User,
+                    type: 'action',
+                    color: 'text-cyan-400'
                 }
             ]
         });
@@ -45,26 +86,14 @@ const Sidebar = ({ isOpen, onClose }) => {
     const handleLogout = async () => {
         try {
             console.log('🚪 Sidebar: Iniciando logout...');
-
-            // Cerrar sidebar primero
             onClose();
-
-            // Ejecutar logout
             await logout();
-
             console.log('✅ Sidebar: Logout completado');
-
         } catch (error) {
             console.error('❌ Sidebar: Error en logout:', error);
-
-            // Cerrar sidebar aunque haya error
             onClose();
-
-            // Limpieza de emergencia
             localStorage.removeItem('cinema_token');
             localStorage.removeItem('cinema_user');
-
-            // Redirigir después de un breve delay
             setTimeout(() => {
                 window.location.href = '/login';
             }, 1000);
@@ -75,37 +104,51 @@ const Sidebar = ({ isOpen, onClose }) => {
         if (item.type === 'action') {
             item.action();
         } else {
-            onClose(); // Solo cerrar sidebar para links normales
+            onClose();
         }
     };
 
     return (
         <>
-            <div className={`fixed top-0 left-0 h-full w-80 bg-black/90 backdrop-blur-xl z-50 transform transition-transform duration-300 ${
+            {/* Backdrop */}
+            <div
+                className={`fixed inset-0 bg-black/60 backdrop-blur-sm z-40 transition-opacity duration-300 ${
+                    isOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'
+                }`}
+                onClick={onClose}
+            />
+
+            {/* Sidebar */}
+            <div className={`fixed top-0 left-0 h-full w-80 bg-slate-950/95 backdrop-blur-xl z-50 transform transition-all duration-300 ease-in-out border-r border-white/10 ${
                 isOpen ? 'translate-x-0' : '-translate-x-full'
             }`}>
                 <div className="flex flex-col h-full">
-                    {/* Header */}
+
+                    {/* Header mejorado */}
                     <div className="flex items-center justify-between p-6 border-b border-white/10">
                         <div className="flex items-center gap-3">
-                            <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-blue-700 rounded-lg flex items-center justify-center">
-                                <span className="text-white font-bold text-sm">CC</span>
+                            <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+                                <span className="text-white font-bold text-sm">C+</span>
                             </div>
-                            <span className="text-white font-bold">CINE COLOMBIA</span>
+                            <div>
+                                <span className="text-white font-bold text-lg">CINEMAPLUS</span>
+                            </div>
                         </div>
+
+                        {/* Botón colapsar moderno */}
                         <button
                             onClick={onClose}
-                            className="p-2 rounded-lg glass-hover transition-all duration-200"
+                            className="group flex items-center justify-center w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 transition-all duration-200"
                         >
-                            <XMarkIcon className="w-6 h-6 text-white" />
+                            <ChevronLeft className="w-5 h-5 text-white/70 group-hover:text-white transition-colors" />
                         </button>
                     </div>
 
-                    {/* Navigation*/}
-                    <div className="flex-1 overflow-y-auto p-6">
-                        {menuSections.map((section, sectionIndex) => (
-                            <div key={section.title} className={sectionIndex > 0 ? 'mt-8' : ''}>
-                                <h3 className="text-sm font-semibold text-white/60 mb-4 px-3">
+                    {/* Navigation mejorada */}
+                    <div className="flex-1 overflow-y-auto p-6 space-y-8">
+                        {menuSections.map((section) => (
+                            <div key={section.title}>
+                                <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-4 px-3">
                                     {section.title}
                                 </h3>
                                 <div className="space-y-2">
@@ -114,20 +157,37 @@ const Sidebar = ({ isOpen, onClose }) => {
                                             <button
                                                 key={item.name}
                                                 onClick={() => handleItemClick(item)}
-                                                className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200"
+                                                className="group w-full flex items-center gap-4 px-4 py-3 rounded-xl text-left transition-all duration-200 hover:bg-white/10 border border-transparent hover:border-white/10"
                                             >
-                                                {item.icon && <item.icon className="w-5 h-5" />}
-                                                <span className="font-medium">{item.name}</span>
+                                                {renderIcon(item.icon, item.color)}
+                                                <span className="text-white/80 group-hover:text-white font-medium">
+                                                    {item.name}
+                                                </span>
                                             </button>
                                         ) : (
                                             <Link
                                                 key={item.name}
                                                 to={item.href}
                                                 onClick={() => handleItemClick(item)}
-                                                className="flex items-center gap-3 px-3 py-3 rounded-xl text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200"
+                                                className={`group w-full flex items-center gap-4 px-4 py-3 rounded-xl transition-all duration-200 border ${
+                                                    isItemActive(item.href) 
+                                                        ? 'bg-gradient-to-r from-blue-500/20 to-purple-500/20 border-blue-500/30 shadow-lg shadow-blue-500/10' 
+                                                        : 'border-transparent hover:bg-white/10 hover:border-white/10'
+                                                }`}
                                             >
-                                                {item.icon && <item.icon className="w-5 h-5" />}
-                                                <span className="font-medium">{item.name}</span>
+                                                {renderIcon(item.icon, item.color)}
+                                                <span className={`font-medium transition-colors ${
+                                                    isItemActive(item.href) 
+                                                        ? 'text-white' 
+                                                        : 'text-white/80 group-hover:text-white'
+                                                }`}>
+                                                    {item.name}
+                                                </span>
+
+                                                {/* Indicador de elemento activo */}
+                                                {isItemActive(item.href) && (
+                                                    <div className="ml-auto w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                                                )}
                                             </Link>
                                         )
                                     ))}
@@ -135,34 +195,46 @@ const Sidebar = ({ isOpen, onClose }) => {
                             </div>
                         ))}
 
-                        {/* Special Actions*/}
-                        <div className="mt-8">
-                            <h3 className="text-sm font-semibold text-white/60 mb-4 px-3">OTROS</h3>
-                            <div className="space-y-2">
-                                <button className="w-full flex items-center gap-3 px-3 py-3 rounded-xl text-yellow-400 hover:text-yellow-300 hover:bg-yellow-400/10 transition-all duration-200">
-                                    <span className="text-xl">💳</span>
-                                    <span className="font-medium">RECARGAR TARJETA CINECO</span>
+                        {/* Sección OTROS más moderna */}
+                        <div>
+                            <h3 className="text-xs font-semibold text-white/50 uppercase tracking-wider mb-4 px-3">
+                                OTROS
+                            </h3>
+                            <div className="space-y-3">
+                                <button className="w-full group">
+                                    <div className="flex items-center gap-3 px-4 py-4 rounded-xl bg-gradient-to-r from-yellow-500/20 to-orange-500/20 border border-yellow-500/30 hover:from-yellow-500/30 hover:to-orange-500/30 hover:border-yellow-400/50 transition-all duration-200 shadow-lg shadow-yellow-500/10">
+                                        <CreditCard className="w-5 h-5 text-yellow-400 group-hover:scale-110 transition-transform" />
+                                        <span className="text-yellow-100 font-semibold text-sm">
+                                            RECARGAR TARJETA CINEMA+
+                                        </span>
+                                    </div>
                                 </button>
                             </div>
                         </div>
                     </div>
 
-                    {/* Footer*/}
-                    <div className="p-6 border-t border-white/10">
+                    <div className="p-6 border-t border-white/10 bg-gradient-to-t from-slate-950 to-transparent">
                         {isAuthenticated ? (
-                            <PremiumButton
-                                variant="ghost"
-                                className="w-full"
+                            <button
                                 onClick={handleLogout}
+                                className="group w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 text-red-100 hover:text-white"
                             >
-                                Cerrar Sesión
-                            </PremiumButton>
+                                <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+                                <span className="font-medium">Cerrar Sesión</span>
+                            </button>
                         ) : (
                             <div className="space-y-3">
-                                <PremiumButton variant="default" className="w-full">
+                                <PremiumButton
+                                    variant="default"
+                                    className="w-full h-12 font-semibold"
+                                    shimmer
+                                >
                                     Iniciar Sesión
                                 </PremiumButton>
-                                <PremiumButton variant="ghost" className="w-full">
+                                <PremiumButton
+                                    variant="ghost"
+                                    className="w-full h-11 text-sm"
+                                >
                                     ¿No estás registrado? Regístrate aquí
                                 </PremiumButton>
                             </div>
@@ -171,7 +243,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </div>
             </div>
 
-            {/* Modal de perfil*/}
+            {/* Modal de perfil */}
             {showUserProfile && (
                 <UserProfile
                     onClose={() => setShowUserProfile(false)}

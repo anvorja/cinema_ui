@@ -130,10 +130,10 @@ const Header = () => {
                                 className="flex items-center gap-2 transition-all duration-200 hover:scale-105"
                             >
                                 <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg">
-                                    <span className="text-white font-bold text-xl">CC</span>
+                                    <span className="text-white font-bold text-xl">C+</span>
                                 </div>
                                 <div className="hidden sm:block">
-                                    <h1 className="text-xl font-bold text-white">CINE COLOMBIA</h1>
+                                    <h1 className="text-xl font-bold text-white">CINEMAPLUS</h1>
                                 </div>
                             </Link>
                         </div>
