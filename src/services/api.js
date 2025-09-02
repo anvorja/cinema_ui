@@ -1,4 +1,4 @@
-// src/services/api.js - SERVICIOS API CON EXPORTACIONES CORREGIDAS
+// src/services/api.js
 import axios from 'axios';
 
 // Configuración base
@@ -367,6 +367,43 @@ console.log('🌐 API Configuration:', {
   timeout: api.defaults.timeout,
   hasToken: !!localStorage.getItem('cinema_token')
 });
+
+
+// ===============================
+// 🔍 FUNCIONES PARA EL SIDEBAR
+// ===============================
+
+// Función específica para búsqueda en el sidebar (compatibilidad con el componente)
+export const searchMovies = async (query = '', options = {}) => {
+  try {
+    // Usar el servicio existente
+      return await movieService.search(query, options);
+  } catch (error) {
+    console.error('Error en búsqueda de películas para sidebar:', error);
+    throw error;
+  }
+};
+
+// Función para obtener películas (compatibilidad con useMovies hook)
+export const getMovies = async (options = {}) => {
+  try {
+    // Usar el servicio existente
+      return await movieService.getAll(options);
+  } catch (error) {
+    console.error('Error al obtener películas:', error);
+    throw error;
+  }
+};
+
+// Función para obtener detalles de película (compatibilidad)
+export const getMovieDetails = async (movieId) => {
+  try {
+      return await movieService.getById(movieId);
+  } catch (error) {
+    console.error('Error al obtener detalles de película:', error);
+    throw error;
+  }
+};
 
 // Exportar instancia por defecto
 export default api;

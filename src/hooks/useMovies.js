@@ -1,6 +1,6 @@
-// src/hooks/useMovies.js - SOLO LÓGICA, NO JSX
+// src/hooks/useMovies.js
 import { useState, useEffect, useCallback } from 'react';
-import { movieService, getErrorMessage } from '../services/api';
+import { movieService, getErrorMessage, searchMovies, getMovies } from '../services/api';
 
 // Hook principal para gestionar películas con paginación
 export const useMovies = (options = {}) => {
@@ -34,7 +34,9 @@ export const useMovies = (options = {}) => {
         ...otherParams
       } = params;
 
-      const response = await movieService.getPaginated(skip, limit, {
+      const response = await getMovies({
+        skip,
+        limit,
         ...filters,
         ...otherParams
       });
@@ -81,15 +83,17 @@ export const useMovies = (options = {}) => {
     fetchMovies({ skip: 0, replace: true });
   }, [fetchMovies]);
 
-  // Buscar películas
+  // Buscar películas (ACTUALIZADA para usar searchMovies del sidebar)
   const search = useCallback(async (query, searchFilters = {}) => {
     setLoading(true);
     setError(null);
 
     try {
-      const response = await movieService.search(query, {
+      // Usar searchMovies (función del sidebar) en lugar de movieService.search
+      const response = await searchMovies(query, {
         ...filters,
-        ...searchFilters
+        ...searchFilters,
+        limit: initialLimit // Agregar limit para la búsqueda
       });
 
       const moviesData = Array.isArray(response) ? response : response.data || response;
@@ -390,3 +394,5 @@ export const useMovieTheaters = (movieId) => {
     hasError: !!error
   };
 };
+
+export default useMovies;
