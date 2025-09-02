@@ -17,6 +17,7 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import AuthProvider from "./components/providers/AuthProvider.jsx";
 import ScrollToTop from "./components/layout/ScrollToTop.jsx";
 
+import AdminApp from "./components/admin/App.jsx";
 
 function App() {
     return (
@@ -26,6 +27,8 @@ function App() {
                     <Router>
                         <ScrollToTop />
                         <Routes>
+                            <Route path="/admin/*" element={<AdminApp />} />
+
                             <Route path="/" element={<Layout />}>
                                 <Route index element={<HomePage />} />
                                 <Route path="cartelera" element={<CarteleraPage />} />
