@@ -221,142 +221,139 @@ const Cartelera = () => {
           <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-4">
             Cartelera
           </h1>
-          <p className="text-xl text-gray-300 max-w-2xl mx-auto">
-            Descubre las mejores películas en cartelera. Encuentra tu próxima experiencia cinematográfica.
-          </p>
         </div>
 
-        {/* Barra de búsqueda y filtros */}
-        <div className="mb-8">
-          <GlassCard className="p-6">
-            {/* Búsqueda */}
-            <form onSubmit={handleSearch} className="mb-4">
-              <div className="flex gap-4">
-                <div className="flex-1">
-                  <GlassInput
-                    type="text"
-                    placeholder="Buscar películas por título, director, género..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full"
-                  />
-                </div>
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
-                >
-                  <MagnifyingGlassIcon className="w-5 h-5" />
-                  <span>Buscar</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowFilters(!showFilters)}
-                  className="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"
-                >
-                  <FunnelIcon className="w-5 h-5" />
-                  <span>Filtros</span>
-                </button>
-              </div>
-            </form>
+        {/*/!* Barra de búsqueda y filtros *!/*/}
+        {/*<div className="mb-8">*/}
+        {/*  <GlassCard className="p-6">*/}
+        {/*    /!* Búsqueda *!/*/}
+        {/*    <form onSubmit={handleSearch} className="mb-4">*/}
+        {/*      <div className="flex gap-4">*/}
+        {/*        <div className="flex-1">*/}
+        {/*          <GlassInput*/}
+        {/*            type="text"*/}
+        {/*            placeholder="Buscar películas por título, director, género..."*/}
+        {/*            value={searchQuery}*/}
+        {/*            onChange={(e) => setSearchQuery(e.target.value)}*/}
+        {/*            className="w-full"*/}
+        {/*          />*/}
+        {/*        </div>*/}
+        {/*        <button*/}
+        {/*          type="submit"*/}
+        {/*          disabled={loading}*/}
+        {/*          className="px-6 py-3 bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"*/}
+        {/*        >*/}
+        {/*          <MagnifyingGlassIcon className="w-5 h-5" />*/}
+        {/*          <span>Buscar</span>*/}
+        {/*        </button>*/}
+        {/*        <button*/}
+        {/*          type="button"*/}
+        {/*          onClick={() => setShowFilters(!showFilters)}*/}
+        {/*          className="px-4 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-lg font-medium transition-colors flex items-center space-x-2"*/}
+        {/*        >*/}
+        {/*          <FunnelIcon className="w-5 h-5" />*/}
+        {/*          <span>Filtros</span>*/}
+        {/*        </button>*/}
+        {/*      </div>*/}
+        {/*    </form>*/}
 
-            {/* Panel de filtros */}
-            {showFilters && (
-              <div className="border-t border-white/20 pt-4">
-                <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">
-                  {/* Filtro por género */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Género
-                    </label>
-                    <select
-                      value={filters.genre}
-                      onChange={(e) => handleFilterChange('genre', e.target.value)}
-                      className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Todos los géneros</option>
-                      {genres.map((genre) => (
-                        <option key={genre} value={genre} className="bg-gray-800">
-                          {genre}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
+        {/*    /!* Panel de filtros *!/*/}
+        {/*    {showFilters && (*/}
+        {/*      <div className="border-t border-white/20 pt-4">*/}
+        {/*        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-4">*/}
+        {/*          /!* Filtro por género *!/*/}
+        {/*          <div>*/}
+        {/*            <label className="block text-sm font-medium text-gray-300 mb-2">*/}
+        {/*              Género*/}
+        {/*            </label>*/}
+        {/*            <select*/}
+        {/*              value={filters.genre}*/}
+        {/*              onChange={(e) => handleFilterChange('genre', e.target.value)}*/}
+        {/*              className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"*/}
+        {/*            >*/}
+        {/*              <option value="">Todos los géneros</option>*/}
+        {/*              {genres.map((genre) => (*/}
+        {/*                <option key={genre} value={genre} className="bg-gray-800">*/}
+        {/*                  {genre}*/}
+        {/*                </option>*/}
+        {/*              ))}*/}
+        {/*            </select>*/}
+        {/*          </div>*/}
 
-                  {/* Filtro por clasificación */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Clasificación
-                    </label>
-                    <select
-                      value={filters.rating}
-                      onChange={(e) => handleFilterChange('rating', e.target.value)}
-                      className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Todas las edades</option>
-                      <option value="G" className="bg-gray-800">General (G)</option>
-                      <option value="PG" className="bg-gray-800">Para toda la familia (PG)</option>
-                      <option value="PG-13" className="bg-gray-800">Mayores de 13 (PG-13)</option>
-                      <option value="R" className="bg-gray-800">Restringido (R)</option>
-                    </select>
-                  </div>
+        {/*          /!* Filtro por clasificación *!/*/}
+        {/*          <div>*/}
+        {/*            <label className="block text-sm font-medium text-gray-300 mb-2">*/}
+        {/*              Clasificación*/}
+        {/*            </label>*/}
+        {/*            <select*/}
+        {/*              value={filters.rating}*/}
+        {/*              onChange={(e) => handleFilterChange('rating', e.target.value)}*/}
+        {/*              className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"*/}
+        {/*            >*/}
+        {/*              <option value="">Todas las edades</option>*/}
+        {/*              <option value="G" className="bg-gray-800">General (G)</option>*/}
+        {/*              <option value="PG" className="bg-gray-800">Para toda la familia (PG)</option>*/}
+        {/*              <option value="PG-13" className="bg-gray-800">Mayores de 13 (PG-13)</option>*/}
+        {/*              <option value="R" className="bg-gray-800">Restringido (R)</option>*/}
+        {/*            </select>*/}
+        {/*          </div>*/}
 
-                  {/* Filtro por rango de precio */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Precio
-                    </label>
-                    <select
-                      value={filters.priceRange}
-                      onChange={(e) => handleFilterChange('priceRange', e.target.value)}
-                      className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Todos los precios</option>
-                      <option value="0-15000" className="bg-gray-800">Hasta $15,000</option>
-                      <option value="15000-25000" className="bg-gray-800">$15,000 - $25,000</option>
-                      <option value="25000-35000" className="bg-gray-800">$25,000 - $35,000</option>
-                      <option value="35000+" className="bg-gray-800">Más de $35,000</option>
-                    </select>
-                  </div>
+        {/*          /!* Filtro por rango de precio *!/*/}
+        {/*          <div>*/}
+        {/*            <label className="block text-sm font-medium text-gray-300 mb-2">*/}
+        {/*              Precio*/}
+        {/*            </label>*/}
+        {/*            <select*/}
+        {/*              value={filters.priceRange}*/}
+        {/*              onChange={(e) => handleFilterChange('priceRange', e.target.value)}*/}
+        {/*              className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"*/}
+        {/*            >*/}
+        {/*              <option value="">Todos los precios</option>*/}
+        {/*              <option value="0-15000" className="bg-gray-800">Hasta $15,000</option>*/}
+        {/*              <option value="15000-25000" className="bg-gray-800">$15,000 - $25,000</option>*/}
+        {/*              <option value="25000-35000" className="bg-gray-800">$25,000 - $35,000</option>*/}
+        {/*              <option value="35000+" className="bg-gray-800">Más de $35,000</option>*/}
+        {/*            </select>*/}
+        {/*          </div>*/}
 
-                  {/* Filtro por formato */}
-                  <div>
-                    <label className="block text-sm font-medium text-gray-300 mb-2">
-                      Formato
-                    </label>
-                    <select
-                      value={filters.format}
-                      onChange={(e) => handleFilterChange('format', e.target.value)}
-                      className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
-                    >
-                      <option value="">Todos los formatos</option>
-                      <option value="2D" className="bg-gray-800">2D</option>
-                      <option value="3D" className="bg-gray-800">3D</option>
-                      <option value="IMAX" className="bg-gray-800">IMAX</option>
-                      <option value="4DX" className="bg-gray-800">4DX</option>
-                    </select>
-                  </div>
-                </div>
+        {/*          /!* Filtro por formato *!/*/}
+        {/*          <div>*/}
+        {/*            <label className="block text-sm font-medium text-gray-300 mb-2">*/}
+        {/*              Formato*/}
+        {/*            </label>*/}
+        {/*            <select*/}
+        {/*              value={filters.format}*/}
+        {/*              onChange={(e) => handleFilterChange('format', e.target.value)}*/}
+        {/*              className="w-full bg-black/20 border border-white/20 rounded-lg px-3 py-2 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"*/}
+        {/*            >*/}
+        {/*              <option value="">Todos los formatos</option>*/}
+        {/*              <option value="2D" className="bg-gray-800">2D</option>*/}
+        {/*              <option value="3D" className="bg-gray-800">3D</option>*/}
+        {/*              <option value="IMAX" className="bg-gray-800">IMAX</option>*/}
+        {/*              <option value="4DX" className="bg-gray-800">4DX</option>*/}
+        {/*            </select>*/}
+        {/*          </div>*/}
+        {/*        </div>*/}
 
-                {/* Botones de acción */}
-                <div className="flex space-x-4">
-                  <button
-                    onClick={clearFilters}
-                    className="px-4 py-2 text-gray-400 hover:text-white transition-colors"
-                  >
-                    Limpiar filtros
-                  </button>
-                  <button
-                    onClick={() => setShowFilters(false)}
-                    className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"
-                  >
-                    Cerrar
-                  </button>
-                </div>
-              </div>
-            )}
-          </GlassCard>
-        </div>
+        {/*        /!* Botones de acción *!/*/}
+        {/*        <div className="flex space-x-4">*/}
+        {/*          <button*/}
+        {/*            onClick={clearFilters}*/}
+        {/*            className="px-4 py-2 text-gray-400 hover:text-white transition-colors"*/}
+        {/*          >*/}
+        {/*            Limpiar filtros*/}
+        {/*          </button>*/}
+        {/*          <button*/}
+        {/*            onClick={() => setShowFilters(false)}*/}
+        {/*            className="px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors"*/}
+        {/*          >*/}
+        {/*            Cerrar*/}
+        {/*          </button>*/}
+        {/*        </div>*/}
+        {/*      </div>*/}
+        {/*    )}*/}
+        {/*  </GlassCard>*/}
+        {/*</div>*/}
 
         {/* Indicadores de estado */}
         {searchQuery && (
