@@ -130,7 +130,7 @@ const PaymentPage = () => {
             success: true
           }
         });
-      }, 3000);
+      }, 8000);
 
     } catch (error) {
       console.error('Error processing payment:', error);
