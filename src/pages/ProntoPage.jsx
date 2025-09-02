@@ -1,11 +1,13 @@
-// src/pages/ProntoPage.jsx
+// src/pages/ProntoPage.jsx - CONECTADO AL BACKEND CON FLUJO DE COMPRA
 import { useState, useEffect } from 'react';
 import { MovieGrid } from '../components/cinema/MovieGrid';
 import { FloatingParticles, GlassCard, PremiumButton } from "../components/ui/index.js";
+import Footer from '../components/layout/Footer';
 import { useComingSoonMovies, usePresaleMovies } from '../hooks/useMovies.js';
 import { ExclamationTriangleIcon, FilmIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
 
 const ProntoPage = () => {
+  // 🎬 CONECTAR AL BACKEND - Usar hooks reales
   const {
     movies: comingSoonMovies,
     loading: loadingComingSoon,
@@ -21,7 +23,7 @@ const ProntoPage = () => {
   } = usePresaleMovies();
 
   // Estados locales para UI
-  const [activeTab, setActiveTab] = useState('coming-soon');
+  const [activeTab, setActiveTab] = useState('coming-soon'); // 'coming-soon' | 'presales'
   const [allMovies, setAllMovies] = useState([]);
 
   // Combinar y procesar películas
@@ -173,7 +175,6 @@ const ProntoPage = () => {
           <MovieGrid
             movies={filteredMovies}
             showReleaseDate={true}
-            // 🎫 HABILITAR FLUJO DE COMPRA - igual que en CARTELERA
             enablePurchase={true}
             purchaseButtonText="PREVENTA"
             showPreventaLabel={activeTab === 'presales' || activeTab === 'all'}
@@ -202,7 +203,6 @@ const ProntoPage = () => {
           </div>
         )}
 
-        {/* 🔄 Loading overlay si se están refrescando datos */}
         {isLoading && allMovies.length > 0 && (
           <div className="fixed bottom-4 right-4 z-50">
             <GlassCard className="p-4 flex items-center gap-3">
@@ -212,6 +212,8 @@ const ProntoPage = () => {
           </div>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 };
