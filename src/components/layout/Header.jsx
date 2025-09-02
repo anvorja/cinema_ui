@@ -675,7 +675,32 @@ const Header = () => {
         setIsSidebarOpen(false);
     }, [location]);
 
-    // Close dropdown when clicking outside
+    // // Close dropdown when clicking outside
+    // useEffect(() => {
+    //     const handleClickOutside = (event) => {
+    //         if (showUserProfile) {
+    //             const dropdown = event.target.closest('.user-profile-dropdown');
+    //             const button = event.target.closest('.user-profile-button');
+    //
+    //             if (!dropdown && !button) {
+    //                 setShowUserProfile(false);
+    //             }
+    //         }
+    //
+    //         // Cerrar resultados de búsqueda
+    //         if (showSearchResults) {
+    //             const searchContainer = event.target.closest('.search-container');
+    //             if (!searchContainer) {
+    //                 setShowSearchResults(false);
+    //             }
+    //         }
+    //     };
+    //
+    //     document.addEventListener('mousedown', handleClickOutside);
+    //     return () => {
+    //         document.removeEventListener('mousedown', handleClickOutside);
+    //     };
+    // }, [showUserProfile, showSearchResults]);
     useEffect(() => {
         const handleClickOutside = (event) => {
             if (showUserProfile) {
@@ -687,10 +712,13 @@ const Header = () => {
                 }
             }
 
-            // Cerrar resultados de búsqueda
+            // CORREGIR: Cerrar resultados de búsqueda
             if (showSearchResults) {
+                // Buscar tanto el contenedor original como los resultados del portal
                 const searchContainer = event.target.closest('.search-container');
-                if (!searchContainer) {
+                const searchResults = event.target.closest('.search-results-portal');
+
+                if (!searchContainer && !searchResults) {
                     setShowSearchResults(false);
                 }
             }
@@ -932,7 +960,7 @@ const Header = () => {
             {/* Resultados de búsqueda usando createPortal */}
             {showSearchResults && createPortal(
                 <div
-                    className="fixed w-80"
+                    className="fixed w-80 search-results-portal"
                     style={{
                         top: '80px',
                         right: '120px',
@@ -941,7 +969,7 @@ const Header = () => {
                 >
                     <GlassCard variant="premium" className="p-0 overflow-hidden shadow-2xl max-h-96 overflow-y-auto">
                         {searchResults.length > 0 ? (
-                            <>
+                            <div className="divide-y divide-white/10">
                                 {searchResults.map((movie) => (
                                     <button
                                         key={movie.id}
@@ -952,36 +980,38 @@ const Header = () => {
                                             <img
                                                 src={movie.poster_url}
                                                 alt={movie.title}
-                                                className="w-12 h-16 object-cover rounded-lg"
+                                                className="w-12 h-16 object-cover rounded-md border border-white/20"
                                             />
                                         ) : (
-                                            <div className="w-12 h-16 bg-white/10 rounded-lg flex items-center justify-center">
-                                                <MagnifyingGlassIcon className="w-6 h-6 text-white/60" />
+                                            <div className="w-12 h-16 bg-white/10 rounded-md flex items-center justify-center">
+                                                <span className="text-white/40 text-xs">No img</span>
                                             </div>
                                         )}
                                         <div className="flex-1 min-w-0">
-                                            <p className="text-white font-medium truncate">
+                                            <h3 className="text-white font-medium text-sm truncate">
                                                 {movie.title}
-                                            </p>
-                                            <p className="text-white/60 text-sm truncate">
+                                            </h3>
+                                            <p className="text-white/60 text-xs truncate">
                                                 {movie.genre} • {movie.duration}min
+                                            </p>
+                                            <p className="text-white/40 text-xs">
+                                                {movie.status === 'current' ? 'En cartelera' : 'Próximamente'}
                                             </p>
                                         </div>
                                     </button>
                                 ))}
 
-                                <div className="p-2 border-t border-white/10">
-                                    <button
-                                        onClick={handleViewAllResults}
-                                        className="w-full p-3 text-center text-blue-400 hover:text-blue-300 hover:bg-white/5 transition-colors rounded-lg"
-                                    >
-                                        Ver todos los resultados
-                                    </button>
-                                </div>
-                            </>
+                                {/* Botón para ver todos los resultados */}
+                                <button
+                                    onClick={handleViewAllResults}
+                                    className="w-full p-3 text-center text-white/80 hover:text-white hover:bg-white/5 transition-colors text-sm font-medium"
+                                >
+                                    Ver todos los resultados
+                                </button>
+                            </div>
                         ) : (
                             <div className="p-4 text-center text-white/60">
-                                No se encontraron resultados para "{searchQuery}"
+                                <p className="text-sm">No se encontraron resultados</p>
                             </div>
                         )}
                     </GlassCard>
