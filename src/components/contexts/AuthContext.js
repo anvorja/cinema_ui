@@ -1,4 +1,4 @@
-// src/contexts/AuthContext.js
+// src/components/contexts/AuthContext.js
 import { createContext } from 'react';
 
 /**
@@ -7,17 +7,19 @@ import { createContext } from 'react';
  * Proporciona el contexto que será usado por el hook useAuth
  * y poblado por el AuthProvider
  */
-export const AuthContext = createContext({
+const AuthContext = createContext({
   // Estado de autenticación
   user: null,
   isAuthenticated: false,
   loading: false,
 
   // Funciones principales
-  login: async () => {},
-  logout: async () => {},
-  register: async () => {},
-  updateProfile: async () => {},
+  login: async () => ({ success: false, error: 'Not implemented' }),
+  logout: async () => ({ success: false, error: 'Not implemented' }),
+  register: async () => ({ success: false, error: 'Not implemented' }),
+  updateProfile: async () => ({ success: false, error: 'Not implemented' }),
+  changePassword: async () => ({ success: false, error: 'Not implemented' }),
+  deleteAccount: async () => ({ success: false, error: 'Not implemented' }),
 
   // Funciones de utilidad
   checkAuth: async () => {},
@@ -31,4 +33,8 @@ export const AuthContext = createContext({
   userRole: 'customer'
 });
 
+// Solo exportamos la exportación nombrada
+export { AuthContext };
+
+// También exportamos como default para compatibilidad
 export default AuthContext;

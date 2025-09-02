@@ -11,10 +11,10 @@ import PaymentPage from "./pages/PaymentPage.jsx";
 import ComidasPage from "./pages/ComidasPage.jsx";
 import Layout from "./components/layout/Layout.jsx";
 import {ThemeProvider} from "./components/providers/ThemeProvider.jsx";
-import {AuthProvider} from "./components/providers/AuthProvider.jsx";
 import {BookingProvider} from "./components/providers/BookingProvider.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import AuthProvider from "./components/providers/AuthProvider.jsx";
 
 
 function App() {

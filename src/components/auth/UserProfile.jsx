@@ -1,4 +1,4 @@
-// src/components/profile/UserProfile.jsx
+// src/components/auth/UserProfile.jsx
 import { useState, useEffect } from 'react';
 import { useAuth } from '../../hooks/useAuth';
 import {
@@ -13,66 +13,119 @@ import {
   Key,
   Mail,
   Phone,
-  Clock
+  Clock,
+  Eye,
+  EyeOff
 } from 'lucide-react';
 
 const UserProfile = ({ onClose }) => {
-  const { user, updateProfile, changePassword, deleteAccount, logout, loading } = useAuth();
+  const {
+    user,
+    updateProfile,
+    changePassword,
+    deleteAccount,
+  } = useAuth();
+
   const [isEditing, setIsEditing] = useState(false);
   const [showPasswordChange, setShowPasswordChange] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
+  const [showPasswords, setShowPasswords] = useState({
+    current: false,
+    new: false,
+    confirm: false
+  });
+
   const [formData, setFormData] = useState({
     firstName: '',
     lastName: '',
     phone: ''
   });
+
   const [passwordData, setPasswordData] = useState({
     currentPassword: '',
     newPassword: '',
     confirmPassword: ''
   });
+
   const [errors, setErrors] = useState({});
   const [success, setSuccess] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Cargar datos del usuario
   useEffect(() => {
     if (user) {
       setFormData({
-        firstName: user.firstName || '',
-        lastName: user.lastName || '',
+        firstName: user.firstName || user.first_name || '',
+        lastName: user.lastName || user.last_name || '',
         phone: user.phone || ''
       });
     }
   }, [user]);
 
+  // Limpiar mensajes después de 5 segundos
+  useEffect(() => {
+    if (success || Object.keys(errors).length > 0) {
+      const timer = setTimeout(() => {
+        setSuccess('');
+        setErrors({});
+      }, 5000);
+      return () => clearTimeout(timer);
+    }
+  }, [success, errors]);
+
+  // Manejar actualización de perfil
   const handleProfileUpdate = async (e) => {
     e.preventDefault();
     setErrors({});
     setSuccess('');
+    setIsSubmitting(true);
+
+    // Validaciones básicas
+    if (!formData.firstName.trim() || !formData.lastName.trim()) {
+      setErrors({ general: 'El nombre y apellido son obligatorios' });
+      setIsSubmitting(false);
+      return;
+    }
 
     try {
       const result = await updateProfile(formData);
       if (result.success) {
-        setSuccess('Perfil actualizado correctamente');
+        setSuccess(result.message || 'Perfil actualizado correctamente');
         setIsEditing(false);
       } else {
         setErrors({ general: result.error });
       }
-    } catch {
+    } catch (error) {
+      console.error('Error actualizando perfil:', error);
       setErrors({ general: 'Error al actualizar el perfil' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  // Manejar cambio de contraseña
   const handlePasswordChange = async (e) => {
     e.preventDefault();
     setErrors({});
+    setSuccess('');
+    setIsSubmitting(true);
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setErrors({ confirmPassword: 'Las contraseñas no coinciden' });
+    // Validaciones
+    if (!passwordData.currentPassword) {
+      setErrors({ currentPassword: 'La contraseña actual es obligatoria' });
+      setIsSubmitting(false);
       return;
     }
 
     if (passwordData.newPassword.length < 6) {
       setErrors({ newPassword: 'La contraseña debe tener al menos 6 caracteres' });
+      setIsSubmitting(false);
+      return;
+    }
+
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      setErrors({ confirmPassword: 'Las contraseñas no coinciden' });
+      setIsSubmitting(false);
       return;
     }
 
@@ -83,32 +136,65 @@ const UserProfile = ({ onClose }) => {
       );
 
       if (result.success) {
-        setSuccess('Contraseña cambiada correctamente');
+        setSuccess(result.message || 'Contraseña cambiada correctamente');
         setShowPasswordChange(false);
         setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
       } else {
         setErrors({ password: result.error });
       }
-    } catch {
+    } catch (error) {
+      console.error('Error cambiando contraseña:', error);
       setErrors({ password: 'Error al cambiar la contraseña' });
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
+  // Manejar eliminación de cuenta
   const handleDeleteAccount = async () => {
+    setErrors({});
+    setIsSubmitting(true);
+
     try {
       const result = await deleteAccount();
       if (result.success) {
-        // Redirigir o cerrar después de eliminar
-        onClose && onClose();
-        await logout();
+        // La cuenta se eliminó exitosamente
+        if (onClose) onClose();
+        // El AuthProvider ya manejó el logout automático
       } else {
         setErrors({ delete: result.error });
       }
-    } catch {
+    } catch (error) {
+      console.error('Error eliminando cuenta:', error);
       setErrors({ delete: 'Error al eliminar la cuenta' });
+    } finally {
+      setIsSubmitting(false);
+      setShowDeleteConfirm(false);
     }
   };
 
+  // Cancelar edición
+  const handleCancelEdit = () => {
+    setIsEditing(false);
+    setErrors({});
+    setSuccess('');
+    // Restaurar datos originales
+    setFormData({
+      firstName: user.firstName || user.first_name || '',
+      lastName: user.lastName || user.last_name || '',
+      phone: user.phone || ''
+    });
+  };
+
+  // Cancelar cambio de contraseña
+  const handleCancelPasswordChange = () => {
+    setShowPasswordChange(false);
+    setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
+    setErrors({});
+    setSuccess('');
+  };
+
+  // Formatear fecha
   const formatDate = (dateString) => {
     if (!dateString) return 'No disponible';
     return new Date(dateString).toLocaleDateString('es-CO', {
@@ -116,6 +202,14 @@ const UserProfile = ({ onClose }) => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  // Toggle password visibility
+  const togglePasswordVisibility = (field) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
   };
 
   if (!user) return null;
@@ -176,7 +270,7 @@ const UserProfile = ({ onClose }) => {
                 Rol
               </label>
               <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
-                <span className="text-white capitalize">{user.role || 'Usuario'}</span>
+                <span className="text-white capitalize">{user.role || 'Customer'}</span>
               </div>
             </div>
 
@@ -187,7 +281,7 @@ const UserProfile = ({ onClose }) => {
                 Miembro desde
               </label>
               <div className="p-3 bg-white/5 border border-white/10 rounded-lg">
-                <span className="text-white">{formatDate(user.createdAt)}</span>
+                <span className="text-white">{formatDate(user.created_at || user.createdAt)}</span>
               </div>
             </div>
 
@@ -220,9 +314,12 @@ const UserProfile = ({ onClose }) => {
 
             <form onSubmit={handleProfileUpdate} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
                 {/* Nombre */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/60">Nombre</label>
+                  <label className="text-sm font-medium text-white/60">
+                    Nombre *
+                  </label>
                   <input
                     type="text"
                     value={formData.firstName}
@@ -230,14 +327,19 @@ const UserProfile = ({ onClose }) => {
                     disabled={!isEditing}
                     className={`w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 ${
                       isEditing ? 'focus:border-blue-500/50 focus:outline-none' : 'cursor-not-allowed opacity-60'
-                    }`}
+                    } ${errors.firstName ? 'border-red-500/50' : ''}`}
                     placeholder="Tu nombre"
                   />
+                  {errors.firstName && (
+                    <p className="text-red-400 text-sm">{errors.firstName}</p>
+                  )}
                 </div>
 
                 {/* Apellido */}
                 <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/60">Apellido</label>
+                  <label className="text-sm font-medium text-white/60">
+                    Apellido *
+                  </label>
                   <input
                     type="text"
                     value={formData.lastName}
@@ -245,9 +347,12 @@ const UserProfile = ({ onClose }) => {
                     disabled={!isEditing}
                     className={`w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 ${
                       isEditing ? 'focus:border-blue-500/50 focus:outline-none' : 'cursor-not-allowed opacity-60'
-                    }`}
+                    } ${errors.lastName ? 'border-red-500/50' : ''}`}
                     placeholder="Tu apellido"
                   />
+                  {errors.lastName && (
+                    <p className="text-red-400 text-sm">{errors.lastName}</p>
+                  )}
                 </div>
 
                 {/* Teléfono */}
@@ -263,33 +368,29 @@ const UserProfile = ({ onClose }) => {
                     disabled={!isEditing}
                     className={`w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 ${
                       isEditing ? 'focus:border-blue-500/50 focus:outline-none' : 'cursor-not-allowed opacity-60'
-                    }`}
-                    placeholder="+57 300 123 4567"
+                    } ${errors.phone ? 'border-red-500/50' : ''}`}
+                    placeholder="Tu número de teléfono"
                   />
+                  {errors.phone && (
+                    <p className="text-red-400 text-sm">{errors.phone}</p>
+                  )}
                 </div>
               </div>
 
+              {/* Botones de edición */}
               {isEditing && (
                 <div className="flex gap-3 pt-4">
                   <button
                     type="submit"
-                    disabled={loading}
+                    disabled={isSubmitting}
                     className="flex items-center gap-2 px-6 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 rounded-lg text-green-300 transition-colors disabled:opacity-50"
                   >
                     <Save className="w-4 h-4" />
-                    {loading ? 'Guardando...' : 'Guardar'}
+                    {isSubmitting ? 'Guardando...' : 'Guardar'}
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setIsEditing(false);
-                      setFormData({
-                        firstName: user.firstName || '',
-                        lastName: user.lastName || '',
-                        phone: user.phone || ''
-                      });
-                      setErrors({});
-                    }}
+                    onClick={handleCancelEdit}
                     className="flex items-center gap-2 px-6 py-2 bg-gray-600/20 hover:bg-gray-600/30 border border-gray-600/30 rounded-lg text-gray-300 transition-colors"
                   >
                     <X className="w-4 h-4" />
@@ -300,153 +401,198 @@ const UserProfile = ({ onClose }) => {
             </form>
           </div>
 
-          {/* Cambio de contraseña */}
+          {/* Sección de seguridad */}
           <div className="border-t border-white/20 pt-6">
-            <div className="flex items-center justify-between mb-4">
-              <h3 className="text-lg font-semibold text-white flex items-center gap-2">
-                <Key className="w-5 h-5" />
-                Seguridad
-              </h3>
-              {!showPasswordChange && (
-                <button
-                  onClick={() => setShowPasswordChange(true)}
-                  className="px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-600/30 rounded-lg text-yellow-300 transition-colors"
-                >
-                  Cambiar Contraseña
-                </button>
-              )}
-            </div>
+            <h3 className="text-lg font-semibold text-white mb-4">Seguridad</h3>
 
-            {showPasswordChange && (
-              <form onSubmit={handlePasswordChange} className="space-y-4">
-                {errors.password && (
-                  <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
-                    {errors.password}
-                  </div>
-                )}
+            {!showPasswordChange ? (
+              <button
+                onClick={() => setShowPasswordChange(true)}
+                className="flex items-center gap-2 px-4 py-2 bg-yellow-600/20 hover:bg-yellow-600/30 border border-yellow-600/30 rounded-lg text-yellow-300 transition-colors"
+              >
+                <Key className="w-4 h-4" />
+                Cambiar Contraseña
+              </button>
+            ) : (
+              <div className="space-y-4">
+                <form onSubmit={handlePasswordChange} className="space-y-4">
 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-white/60">Contraseña Actual</label>
-                  <input
-                    type="password"
-                    value={passwordData.currentPassword}
-                    onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
-                    className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-                    placeholder="Tu contraseña actual"
-                    required
-                  />
-                </div>
+                  {errors.password && (
+                    <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
+                      {errors.password}
+                    </div>
+                  )}
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Contraseña actual */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/60">Nueva Contraseña</label>
-                    <input
-                      type="password"
-                      value={passwordData.newPassword}
-                      onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
-                      className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-                      placeholder="Nueva contraseña"
-                      required
-                      minLength={6}
-                    />
+                    <label className="text-sm font-medium text-white/60">
+                      Contraseña Actual *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.current ? 'text' : 'password'}
+                        value={passwordData.currentPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, currentPassword: e.target.value }))}
+                        className={`w-full p-3 pr-12 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none ${
+                          errors.currentPassword ? 'border-red-500/50' : ''
+                        }`}
+                        placeholder="Tu contraseña actual"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility('current')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+                      >
+                        {showPasswords.current ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
+                    {errors.currentPassword && (
+                      <p className="text-red-400 text-sm">{errors.currentPassword}</p>
+                    )}
+                  </div>
+
+                  {/* Nueva contraseña */}
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium text-white/60">
+                      Nueva Contraseña *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.new ? 'text' : 'password'}
+                        value={passwordData.newPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, newPassword: e.target.value }))}
+                        className={`w-full p-3 pr-12 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none ${
+                          errors.newPassword ? 'border-red-500/50' : ''
+                        }`}
+                        placeholder="Tu nueva contraseña"
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility('new')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+                      >
+                        {showPasswords.new ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                     {errors.newPassword && (
-                      <p className="text-red-300 text-sm">{errors.newPassword}</p>
+                      <p className="text-red-400 text-sm">{errors.newPassword}</p>
                     )}
                   </div>
 
+                  {/* Confirmar nueva contraseña */}
                   <div className="space-y-2">
-                    <label className="text-sm font-medium text-white/60">Confirmar Contraseña</label>
-                    <input
-                      type="password"
-                      value={passwordData.confirmPassword}
-                      onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                      className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-                      placeholder="Confirmar nueva contraseña"
-                      required
-                    />
+                    <label className="text-sm font-medium text-white/60">
+                      Confirmar Nueva Contraseña *
+                    </label>
+                    <div className="relative">
+                      <input
+                        type={showPasswords.confirm ? 'text' : 'password'}
+                        value={passwordData.confirmPassword}
+                        onChange={(e) => setPasswordData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+                        className={`w-full p-3 pr-12 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none ${
+                          errors.confirmPassword ? 'border-red-500/50' : ''
+                        }`}
+                        placeholder="Confirma tu nueva contraseña"
+                        minLength={6}
+                      />
+                      <button
+                        type="button"
+                        onClick={() => togglePasswordVisibility('confirm')}
+                        className="absolute right-3 top-1/2 -translate-y-1/2 text-white/60 hover:text-white"
+                      >
+                        {showPasswords.confirm ? (
+                          <EyeOff className="w-5 h-5" />
+                        ) : (
+                          <Eye className="w-5 h-5" />
+                        )}
+                      </button>
+                    </div>
                     {errors.confirmPassword && (
-                      <p className="text-red-300 text-sm">{errors.confirmPassword}</p>
+                      <p className="text-red-400 text-sm">{errors.confirmPassword}</p>
                     )}
                   </div>
-                </div>
 
-                <div className="flex gap-3 pt-2">
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    className="flex items-center gap-2 px-6 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 rounded-lg text-green-300 transition-colors disabled:opacity-50"
-                  >
-                    <Save className="w-4 h-4" />
-                    {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowPasswordChange(false);
-                      setPasswordData({ currentPassword: '', newPassword: '', confirmPassword: '' });
-                      setErrors({});
-                    }}
-                    className="flex items-center gap-2 px-6 py-2 bg-gray-600/20 hover:bg-gray-600/30 border border-gray-600/30 rounded-lg text-gray-300 transition-colors"
-                  >
-                    <X className="w-4 h-4" />
-                    Cancelar
-                  </button>
-                </div>
-              </form>
+                  {/* Botones de contraseña */}
+                  <div className="flex gap-3 pt-4">
+                    <button
+                      type="submit"
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 px-6 py-2 bg-green-600/20 hover:bg-green-600/30 border border-green-600/30 rounded-lg text-green-300 transition-colors disabled:opacity-50"
+                    >
+                      <Key className="w-4 h-4" />
+                      {isSubmitting ? 'Cambiando...' : 'Cambiar Contraseña'}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleCancelPasswordChange}
+                      className="flex items-center gap-2 px-6 py-2 bg-gray-600/20 hover:bg-gray-600/30 border border-gray-600/30 rounded-lg text-gray-300 transition-colors"
+                    >
+                      <X className="w-4 h-4" />
+                      Cancelar
+                    </button>
+                  </div>
+                </form>
+              </div>
             )}
           </div>
 
-          {/* Zona de peligro - Eliminar cuenta */}
-          <div className="border-t border-red-500/30 pt-6">
-            <div className="flex items-center gap-3 mb-4">
-              <AlertTriangle className="w-6 h-6 text-red-400" />
-              <h3 className="text-lg font-semibold text-red-400">Zona de Peligro</h3>
+          {/* Zona de peligro */}
+          <div className="border-t border-white/20 pt-6">
+            <div className="flex items-center gap-2 text-red-400 mb-4">
+              <AlertTriangle className="w-5 h-5" />
+              <h3 className="text-lg font-semibold">Zona de Peligro</h3>
             </div>
 
-            <p className="text-white/60 mb-4">
-              Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor asegúrate de que realmente quieres hacer esto.
+            <p className="text-white/60 text-sm mb-4">
+              Una vez que elimines tu cuenta, no hay vuelta atrás. Por favor asegúrate de que
+              realmente quieres hacer esto.
             </p>
+
+            {errors.delete && (
+              <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 mb-4">
+                {errors.delete}
+              </div>
+            )}
 
             {!showDeleteConfirm ? (
               <button
                 onClick={() => setShowDeleteConfirm(true)}
-                className="flex items-center gap-2 px-6 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/30 rounded-lg text-red-300 transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-red-600/20 hover:bg-red-600/30 border border-red-600/30 rounded-lg text-red-400 transition-colors"
               >
                 <Trash2 className="w-4 h-4" />
                 Eliminar Cuenta
               </button>
             ) : (
               <div className="space-y-4">
-                {errors.delete && (
-                  <div className="p-3 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300 text-sm">
-                    {errors.delete}
-                  </div>
-                )}
-
-                <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-lg">
-                  <p className="text-red-300 font-medium mb-3">
-                    ¿Estás absolutamente seguro?
+                <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg">
+                  <h4 className="text-red-300 font-semibold mb-2">¿Estás seguro?</h4>
+                  <p className="text-red-300/80 text-sm mb-4">
+                    Esta acción eliminará permanentemente tu cuenta y todos los datos asociados.
+                    Esta acción no se puede deshacer.
                   </p>
-                  <p className="text-white/60 text-sm mb-4">
-                    Esta acción no se puede deshacer. Esto eliminará permanentemente tu cuenta y todos los datos asociados.
-                  </p>
-
                   <div className="flex gap-3">
                     <button
                       onClick={handleDeleteAccount}
-                      disabled={loading}
-                      className="flex items-center gap-2 px-6 py-2 bg-red-600 hover:bg-red-700 rounded-lg text-white transition-colors disabled:opacity-50"
+                      disabled={isSubmitting}
+                      className="flex items-center gap-2 px-4 py-2 bg-red-600 hover:bg-red-700 text-white rounded-lg transition-colors disabled:opacity-50"
                     >
                       <Trash2 className="w-4 h-4" />
-                      {loading ? 'Eliminando...' : 'Sí, eliminar mi cuenta'}
+                      {isSubmitting ? 'Eliminando...' : 'Sí, Eliminar Cuenta'}
                     </button>
                     <button
-                      onClick={() => {
-                        setShowDeleteConfirm(false);
-                        setErrors({});
-                      }}
-                      className="px-6 py-2 bg-gray-600/20 hover:bg-gray-600/30 border border-gray-600/30 rounded-lg text-gray-300 transition-colors"
+                      onClick={() => setShowDeleteConfirm(false)}
+                      className="flex items-center gap-2 px-4 py-2 bg-gray-600/20 hover:bg-gray-600/30 border border-gray-600/30 rounded-lg text-gray-300 transition-colors"
                     >
+                      <X className="w-4 h-4" />
                       Cancelar
                     </button>
                   </div>
