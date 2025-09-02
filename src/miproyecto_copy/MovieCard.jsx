@@ -127,7 +127,7 @@ const MovieCard = ({ movie, showReleaseDate = false }) => {
 
               {/* Botón de acción */}
               <div className="mt-3">
-                <Link to={`/movie/${movie.id}`}>
+                <Link to={`/pelicula/${movie.id}`}>
                   <PremiumButton size="sm" className="w-full">
                     Ver detalles
                   </PremiumButton>

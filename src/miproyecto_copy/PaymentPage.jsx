@@ -457,7 +457,7 @@ const PaymentPage = () => {
 
                 {!isAuthenticated && (
                   <p className="text-yellow-400 text-xs mt-3 text-center">
-                    Inicia sesión primero para completar el pago
+                    Serás redirigido al login para completar el pago
                   </p>
                 )}
 
