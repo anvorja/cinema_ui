@@ -2,10 +2,8 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
 
-// Cambiar la URL base para conectar con FastAPI
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000/api/v1';
 
-// Crear instancia de axios
 const api = axios.create({
     baseURL: API_BASE_URL,
     headers: {
@@ -13,7 +11,6 @@ const api = axios.create({
     },
 });
 
-// Interceptor para agregar token automáticamente
 api.interceptors.request.use(
     (config) => {
         const token = localStorage.getItem('cinema_token') || Cookies.get('token');
@@ -31,7 +28,6 @@ api.interceptors.request.use(
     }
 );
 
-// Interceptor para manejar respuestas y errores
 api.interceptors.response.use(
     (response) => response,
     (error) => {
@@ -48,7 +44,7 @@ api.interceptors.response.use(
 );
 
 export const authService = {
-    // Registro de usuario (mantener como está)
+
     register: (userData) => api.post('/auth/register', {
         email: userData.email,
         phone: userData.phone,
@@ -57,11 +53,9 @@ export const authService = {
         password: userData.password
     }),
 
-    // Login - CORREGIDO para coincidir exactamente con el backend
     login: (credentials) => {
         console.log('🌐 Sending login request:', credentials);
 
-        // Asegurar que se envíe exactamente como espera el backend
         const payload = {
             email: credentials.email,
             password: credentials.password
@@ -73,7 +67,6 @@ export const authService = {
         return api.post('/auth/login', payload);
     },
 
-    // Logout
     logout: () => {
         console.log('🌐 API: Calling logout endpoint');
         console.log('🌐 API: Request URL:', `${API_BASE_URL}/auth/logout`);
