@@ -1,5 +1,5 @@
 // src/providers/BookingProvider.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BookingContext } from '../contexts/BookingContext.js';
 
 export const BookingProvider = ({ children }) => {
@@ -12,7 +12,7 @@ export const BookingProvider = ({ children }) => {
     selectedSeats: [],
     paymentMethod: null,
     totalAmount: 0,
-    step: 1 // Para tracking del paso actual
+    step: 1
   });
 
   const [bookingHistory, setBookingHistory] = useState([]);
@@ -32,7 +32,7 @@ export const BookingProvider = ({ children }) => {
   }, []);
 
   // Función para inicializar una nueva reserva
-  const startBooking = (movie, theater, showtime, selectedDate) => {
+  const startBooking = useCallback((movie, theater, showtime, selectedDate) => {
     setBookingData({
       movie,
       theater,
@@ -45,41 +45,41 @@ export const BookingProvider = ({ children }) => {
       step: 1
     });
     setIsBookingActive(true);
-  };
+  }, []);
 
-  // Función para actualizar datos de reserva
-  const updateBooking = (updates) => {
+  // Función para actualizar datos de reserva - SOLO para datos críticos
+  const updateBookingData = useCallback((updates) => {
     setBookingData(prevData => ({
       ...prevData,
       ...updates
     }));
-  };
+  }, []);
 
   // Función para avanzar al siguiente paso
-  const nextStep = () => {
+  const nextStep = useCallback(() => {
     setBookingData(prevData => ({
       ...prevData,
       step: prevData.step + 1
     }));
-  };
+  }, []);
 
   // Función para retroceder un paso
-  const prevStep = () => {
+  const prevStep = useCallback(() => {
     setBookingData(prevData => ({
       ...prevData,
       step: Math.max(1, prevData.step - 1)
     }));
-  };
+  }, []);
 
   // Función para calcular el total
-  const calculateTotal = (ticketCount, ticketPrice = 8000, serviceFee = 800) => {
+  const calculateTotal = useCallback((ticketCount, ticketPrice = 18000, serviceFee = 800) => {
     const subtotal = ticketCount * ticketPrice;
     const totalServiceFees = ticketCount * serviceFee;
     return subtotal + totalServiceFees;
-  };
+  }, []);
 
   // Función para completar reserva
-  const completeBooking = (transactionId) => {
+  const completeBooking = useCallback((transactionId) => {
     const completedBooking = {
       ...bookingData,
       transactionId,
@@ -91,17 +91,14 @@ export const BookingProvider = ({ children }) => {
     const newHistory = [completedBooking, ...bookingHistory];
     setBookingHistory(newHistory);
 
-    // Guardar historial en localStorage
     localStorage.setItem('cinema_booking_history', JSON.stringify(newHistory));
-
-    // Limpiar datos de reserva actual
     clearBooking();
 
     return completedBooking;
-  };
+  }, [bookingData, bookingHistory]);
 
   // Función para limpiar reserva actual
-  const clearBooking = () => {
+  const clearBooking = useCallback(() => {
     setBookingData({
       movie: null,
       theater: null,
@@ -114,15 +111,15 @@ export const BookingProvider = ({ children }) => {
       step: 1
     });
     setIsBookingActive(false);
-  };
+  }, []);
 
   // Función para obtener reservas por estado
-  const getBookingsByStatus = (status) => {
+  const getBookingsByStatus = useCallback((status) => {
     return bookingHistory.filter(booking => booking.status === status);
-  };
+  }, [bookingHistory]);
 
   // Función para generar números de asientos simulados
-  const generateSeatNumbers = (count) => {
+  const generateSeatNumbers = useCallback((count) => {
     const rows = ['J', 'K', 'L', 'M', 'N'];
     const seats = [];
     const startSeat = Math.floor(Math.random() * 15) + 1;
@@ -133,10 +130,10 @@ export const BookingProvider = ({ children }) => {
     }
 
     return seats.join(', ');
-  };
+  }, []);
 
   // Función para cancelar una reserva
-  const cancelBooking = (transactionId) => {
+  const cancelBooking = useCallback((transactionId) => {
     const updatedHistory = bookingHistory.map(booking =>
       booking.transactionId === transactionId
         ? { ...booking, status: 'cancelled', cancelledDate: new Date() }
@@ -145,7 +142,7 @@ export const BookingProvider = ({ children }) => {
 
     setBookingHistory(updatedHistory);
     localStorage.setItem('cinema_booking_history', JSON.stringify(updatedHistory));
-  };
+  }, [bookingHistory]);
 
   const value = {
     // Estados
@@ -155,7 +152,7 @@ export const BookingProvider = ({ children }) => {
 
     // Funciones principales
     startBooking,
-    updateBooking,
+    updateBookingData, // Renombrada para evitar confusión
     completeBooking,
     clearBooking,
 

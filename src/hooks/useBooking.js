@@ -7,5 +7,14 @@ export const useBooking = () => {
   if (!context) {
     throw new Error('useBooking must be used within a BookingProvider');
   }
-  return context;
+
+  // Alias para mantener compatibilidad
+  const { updateBookingData, ...rest } = context;
+
+  return {
+    ...rest,
+    updateBookingData,
+    // Mantener el alias antiguo por compatibilidad
+    updateBooking: updateBookingData
+  };
 };

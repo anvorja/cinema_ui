@@ -58,7 +58,7 @@ const PaymentPage = () => {
     }
 
     // Actualizar contexto con método de pago
-    updateBooking({
+    updateBookingData({
       paymentMethod: selectedPaymentMethod,
       step: 3
     });
@@ -93,7 +93,7 @@ const PaymentPage = () => {
   };
 
   const generateTransactionId = () => {
-    return 'TXN' + Date.now() + Math.random().toString(36).substring(2, 9).toUpperCase();
+    return 'TXN' + Date.now() + Math.random().toString(36).substring(2, 11).toUpperCase();
   };
 
   const handlePayment = async () => {
