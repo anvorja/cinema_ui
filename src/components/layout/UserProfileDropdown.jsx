@@ -9,8 +9,8 @@ import {
     Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../ui';
-import { useAuth } from '../../hooks/useAuth';
 import UserProfile from "../auth/UserProfile.jsx";
+import useAuth from "../../hooks/useAuth.js";
 
 // Icono moderno de logout personalizado
 const LogoutIcon = ({ className }) => (

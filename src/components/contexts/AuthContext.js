@@ -1,40 +1,38 @@
-// src/components/contexts/AuthContext.js
+// src/contexts/AuthContext.js - SOLO DEFINICIÓN DEL CONTEXTO, NO JSX
 import { createContext } from 'react';
 
-/**
- * Contexto de autenticación para la aplicación Cinema
- *
- * Proporciona el contexto que será usado por el hook useAuth
- * y poblado por el AuthProvider
- */
+// Estados posibles de autenticación
+export const AUTH_STATES = {
+  LOADING: 'loading',
+  AUTHENTICATED: 'authenticated',
+  UNAUTHENTICATED: 'unauthenticated',
+  ERROR: 'error'
+};
+
+// Definición del contexto con valores por defecto
 const AuthContext = createContext({
-  // Estado de autenticación
+  // Estado
   user: null,
-  isAuthenticated: false,
+  token: null,
+  error: null,
   loading: false,
+  status: AUTH_STATES.LOADING,
 
-  // Funciones principales
-  login: async () => ({ success: false, error: 'Not implemented' }),
-  logout: async () => ({ success: false, error: 'Not implemented' }),
-  register: async () => ({ success: false, error: 'Not implemented' }),
-  updateProfile: async () => ({ success: false, error: 'Not implemented' }),
-  changePassword: async () => ({ success: false, error: 'Not implemented' }),
-  deleteAccount: async () => ({ success: false, error: 'Not implemented' }),
+  // Estados computados
+  isAuthenticated: false,
+  isLoading: false,
+  hasError: false,
+  isAdmin: false,
 
-  // Funciones de utilidad
-  checkAuth: async () => {},
-  refreshAuth: async () => {},
-  emergencyLogout: () => {},
+  // Acciones
+  login: async () => {},
+  register: async () => {},
+  logout: async () => {},
+  refreshUser: async () => {},
+  clearError: () => {},
 
-  // Estados derivados
-  isLoggedIn: false,
-  userName: '',
-  userEmail: '',
-  userRole: 'customer'
+  // Estados de autenticación
+  AUTH_STATES
 });
 
-// Solo exportamos la exportación nombrada
-export { AuthContext };
-
-// También exportamos como default para compatibilidad
 export default AuthContext;

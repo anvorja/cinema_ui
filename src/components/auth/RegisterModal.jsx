@@ -1,7 +1,7 @@
 // src/components/auth/RegisterModal.jsx
 import { useState } from 'react';
 import { X, Mail, Lock, Eye, EyeOff, User, Phone } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
+import useAuth from "../../hooks/useAuth.js";
 
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const { register, loading } = useAuth();

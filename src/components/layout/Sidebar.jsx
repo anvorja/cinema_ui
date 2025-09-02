@@ -3,8 +3,8 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { ChevronLeft, Home, Film, Clock, User, CreditCard, LogOut, Utensils, Truck } from 'lucide-react';
 import { PremiumButton } from '../ui';
-import { useAuth } from '../../hooks/useAuth';
 import UserProfile from "../auth/UserProfile.jsx";
+import useAuth from "../../hooks/useAuth.js";
 
 const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }) => {
     const { isAuthenticated, logout } = useAuth();

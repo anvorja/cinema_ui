@@ -11,7 +11,7 @@ import { UserProfileDropdown } from './UserProfileDropdown';
 import { Sidebar } from './Sidebar';
 import { LoginModal } from '../auth/LoginModal.jsx';
 import { RegisterModal } from '../auth/RegisterModal.jsx';
-import { useAuth } from '../../hooks/useAuth';
+import  useAuth from '../../hooks/useAuth';
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);

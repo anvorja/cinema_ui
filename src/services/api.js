@@ -1,7 +1,7 @@
-// src/services/api.js
+// src/services/api.js - SERVICIOS API CON EXPORTACIONES CORREGIDAS
 import axios from 'axios';
 
-// Configuración base de la API
+// Configuración base
 const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000/api/v1';
 
 // Crear instancia de axios
@@ -10,10 +10,10 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 30000, // 30 segundos
+  timeout: 30000,
 });
 
-// Interceptor para añadir token a las requests
+// Interceptor para añadir token
 api.interceptors.request.use(
   (config) => {
     const token = localStorage.getItem('cinema_token');
@@ -21,12 +21,7 @@ api.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
-    // Log para debugging
-    console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.url}`, {
-      headers: config.headers,
-      data: config.data
-    });
-
+    console.log(`🌐 API Request: ${config.method?.toUpperCase()} ${config.url}`);
     return config;
   },
   (error) => {
@@ -35,321 +30,329 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para manejar respuestas y errores
+// Interceptor para respuestas y errores
 api.interceptors.response.use(
   (response) => {
-    console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`, {
-      status: response.status,
-      data: response.data
-    });
+    console.log(`✅ API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`);
     return response;
   },
   (error) => {
-    console.error('❌ API Error:', {
+    console.error('🚨 API Error:', {
       url: error.config?.url,
       method: error.config?.method,
       status: error.response?.status,
-      message: error.response?.data?.detail || error.message
+      data: error.response?.data
     });
 
-    // Si el token expiró, limpiar autenticación
+    // Manejar token expirado
     if (error.response?.status === 401) {
-      console.log('🔓 Token expired, cleaning authentication');
+      console.log('🔒 Token expired, clearing local storage');
       localStorage.removeItem('cinema_token');
       localStorage.removeItem('cinema_user');
-
-      // Opcional: redirigir a login
-      if (window.location.pathname !== '/login' && window.location.pathname !== '/') {
-        window.location.href = '/';
-      }
+      window.location.href = '/login';
     }
 
     return Promise.reject(error);
   }
 );
 
-// 🔐 SERVICIOS DE AUTENTICACIÓN
-export const authService = {
-  // Login
-  login: (credentials) => {
-    console.log('🔐 AuthService: Attempting login for:', credentials.email);
-    return api.post('/auth/login', {
-      email: credentials.email,
-      password: credentials.password
-    });
-  },
+// ⚠️ FUNCIÓN DE MANEJO DE ERRORES - EXPORTADA CORRECTAMENTE
+export const getErrorMessage = (error) => {
+  if (error.response) {
+    const { status, data } = error.response;
 
-  // Registro
-  register: (userData) => {
-    console.log('📝 AuthService: Attempting registration for:', userData.email);
-    return api.post('/auth/register', {
-      email: userData.email,
-      password: userData.password,
-      first_name: userData.firstName,
-      last_name: userData.lastName,
-      phone: userData.phone || null
-    });
-  },
-
-  // Logout
-  logout: () => {
-    console.log('🚪 AuthService: Attempting logout');
-    return api.post('/auth/logout')
-      .catch(error => {
-        console.warn('⚠️ Logout error (continuing with local cleanup):', {
-          status: error.response?.status,
-          message: error.response?.data?.detail
-        });
-        // No lanzar el error para que el logout local siempre funcione
-        return { data: { message: 'Logout completed locally' } };
-      });
-  },
-
-  // Validar token
-  validateToken: () => {
-    console.log('🔍 AuthService: Validating token');
-    return api.get('/auth/verify-token');
-  },
-
-  // Obtener usuario actual
-  getCurrentUser: () => {
-    console.log('👤 AuthService: Getting current user');
-    return api.get('/auth/me');
+    switch (status) {
+      case 400:
+        return data.detail || data.message || 'Datos inválidos';
+      case 401:
+        return 'Por favor inicia sesión';
+      case 403:
+        return 'No tienes permisos para realizar esta acción';
+      case 404:
+        return 'Recurso no encontrado';
+      case 422:
+        return data.detail || data.message || 'Error de validación';
+      case 500:
+        return 'Error interno del servidor';
+      default:
+        return data.detail || data.message || `Error ${status}`;
+    }
+  } else if (error.request) {
+    return 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+  } else {
+    return error.message || 'Error inesperado';
   }
 };
 
-// 👤 SERVICIOS DE USUARIO (Requiere autenticación)
-export const userService = {
-  // Obtener perfil del usuario
-  getProfile: () => {
-    console.log('👤 UserService: Getting user profile');
-    return api.get('/auth/me');
-  },
-
-  // Actualizar perfil
-  updateProfile: (profileData) => {
-    console.log('👤 UserService: Updating profile');
-    return api.put('/users/profile', {
-      first_name: profileData.firstName,
-      last_name: profileData.lastName,
-      phone: profileData.phone
+// 🔐 SERVICIOS DE AUTENTICACIÓN
+export const authService = {
+  register: async (userData) => {
+    const response = await api.post('/auth/register', {
+      email: userData.email,
+      phone: userData.phone,
+      first_name: userData.firstName || userData.first_name,
+      last_name: userData.lastName || userData.last_name,
+      password: userData.password
     });
+    return response.data;
   },
 
-  // Cambiar contraseña
-  changePassword: (passwordData) => {
-    console.log('🔐 UserService: Changing password');
-    return api.put('/users/change-password', {
-      current_password: passwordData.currentPassword,
-      new_password: passwordData.newPassword
+  login: async (credentials) => {
+    const response = await api.post('/auth/login', {
+      email: credentials.email,
+      password: credentials.password
     });
+    return response.data;
   },
 
-  // Eliminar cuenta
-  deleteAccount: () => {
-    console.log('🗑️ UserService: Deleting account');
-    return api.delete('/users/account');
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch {
+      console.warn('Logout API call failed, but continuing with local cleanup');
+    } finally {
+      localStorage.removeItem('cinema_token');
+      localStorage.removeItem('cinema_user');
+    }
+  },
+
+  getCurrentUser: async () => {
+    const response = await api.get('/auth/me');
+    return response.data;
+  },
+
+  verifyToken: async () => {
+    const response = await api.get('/auth/verify-token');
+    return response.data;
   }
 };
 
 // 🎬 SERVICIOS DE PELÍCULAS
 export const movieService = {
-  // Obtener todas las películas (público)
-  getAll: (params = {}) => {
-    console.log('🎬 MovieService: Getting all movies');
-    return api.get('/movies', { params });
+  // Obtener todas las películas con paginación
+  getAll: async (params = {}) => {
+    const response = await api.get('/movies', { params });
+    return response.data;
   },
 
-  // Obtener película por ID
-  getById: (id) => {
-    console.log('🎬 MovieService: Getting movie by ID:', id);
-    return api.get(`/movies/${id}`);
+  // Obtener películas con paginación específica
+  getPaginated: async (skip = 0, limit = 20, filters = {}) => {
+    const params = { skip, limit, ...filters };
+    const response = await api.get('/movies', { params });
+    return response.data;
   },
 
   // Buscar películas
-  search: (query) => {
-    console.log('🔍 MovieService: Searching movies:', query);
-    return api.get('/movies/search', { params: { q: query } });
+  search: async (query, filters = {}) => {
+    const params = { q: query, ...filters };
+    const response = await api.get('/movies/search', { params });
+    return response.data;
   },
 
-  // Obtener películas en cartelera
-  getNowPlaying: () => {
-    console.log('🎬 MovieService: Getting now playing movies');
-    return api.get('/movies/now-playing');
+  // Obtener película por ID
+  getById: async (id) => {
+    const response = await api.get(`/movies/${id}`);
+    return response.data;
   },
 
   // Obtener próximos estrenos
-  getUpcoming: () => {
-    console.log('🎬 MovieService: Getting upcoming movies');
-    return api.get('/movies/upcoming');
+  getComingSoon: async () => {
+    const response = await api.get('/movies/coming-soon');
+    return response.data;
+  },
+
+  // Obtener preventas
+  getPresales: async () => {
+    const response = await api.get('/movies/presales');
+    return response.data;
+  },
+
+  // Obtener horarios de una película
+  getShowtimes: async (movieId, params = {}) => {
+    const response = await api.get(`/movies/${movieId}/showtimes`, { params });
+    return response.data;
+  },
+
+  // Obtener teatros de una película
+  getTheaters: async (movieId) => {
+    const response = await api.get(`/movies/${movieId}/theaters`);
+    return response.data;
+  },
+
+  // Obtener disponibilidad completa
+  getAvailability: async (movieId) => {
+    const response = await api.get(`/movies/${movieId}/availability`);
+    return response.data;
   }
 };
 
-// 🎫 SERVICIOS DE COMPRAS (Requiere autenticación)
+// 🏢 SERVICIOS DE TEATROS
+export const theaterService = {
+  getAll: async () => {
+    const response = await api.get('/theaters');
+    return response.data;
+  },
+
+  getById: async (id) => {
+    const response = await api.get(`/theaters/${id}`);
+    return response.data;
+  },
+
+  getMovies: async (theaterId) => {
+    const response = await api.get(`/theaters/${theaterId}/movies`);
+    return response.data;
+  },
+
+  getSchedule: async (theaterId, date) => {
+    const params = date ? { date } : {};
+    const response = await api.get(`/theaters/${theaterId}/schedule`, { params });
+    return response.data;
+  }
+};
+
+// 🎫 SERVICIOS DE COMPRAS
 export const purchaseService = {
-  // Crear nueva compra
-  create: (purchaseData) => {
-    console.log('🎫 PurchaseService: Creating purchase');
-    return api.post('/purchases', {
-      movie_id: purchaseData.movieId,
-      showtime_id: purchaseData.showtimeId,
-      seat_numbers: purchaseData.seatNumbers,
-      total_amount: purchaseData.totalAmount
-    });
+  create: async (purchaseData) => {
+    const response = await api.post('/purchases', purchaseData);
+    return response.data;
   },
 
-  // Obtener historial de compras del usuario
-  getHistory: () => {
-    console.log('🎫 PurchaseService: Getting purchase history');
-    return api.get('/purchases');
+  getMyPurchases: async () => {
+    const response = await api.get('/purchases');
+    return response.data;
   },
 
-  // Obtener detalle de una compra
-  getById: (id) => {
-    console.log('🎫 PurchaseService: Getting purchase by ID:', id);
-    return api.get(`/purchases/${id}`);
+  getById: async (id) => {
+    const response = await api.get(`/purchases/${id}`);
+    return response.data;
   }
 };
 
-// 🛠 SERVICIOS DE ADMINISTRACIÓN (Solo admin)
+// 📅 SERVICIOS DE CALENDARIO
+export const calendarService = {
+  getWeekCalendar: async (startDate) => {
+    const params = startDate ? { start_date: startDate } : {};
+    const response = await api.get('/calendar/week', { params });
+    return response.data;
+  },
+
+  getTheaterSchedule: async (theaterName) => {
+    const response = await api.get(`/calendar/theater/${theaterName}`);
+    return response.data;
+  },
+
+  getMovieSchedule: async (movieId) => {
+    const response = await api.get(`/calendar/movie/${movieId}/schedule`);
+    return response.data;
+  }
+};
+
+// 👑 SERVICIOS DE ADMINISTRACIÓN
 export const adminService = {
-  // Gestión de películas
+  // Películas
   movies: {
-    getAll: () => {
-      console.log('🛠 AdminService: Getting all movies (admin)');
-      return api.get('/admin/movies');
+    create: async (movieData) => {
+      const response = await api.post('/admin/movies', movieData);
+      return response.data;
     },
 
-    create: (movieData) => {
-      console.log('🛠 AdminService: Creating movie');
-      return api.post('/admin/movies', movieData);
+    getAll: async (params = {}) => {
+      const response = await api.get('/admin/movies', { params });
+      return response.data;
     },
 
-    update: (id, movieData) => {
-      console.log('🛠 AdminService: Updating movie:', id);
-      return api.put(`/admin/movies/${id}`, movieData);
+    getById: async (id) => {
+      const response = await api.get(`/admin/movies/${id}`);
+      return response.data;
     },
 
-    delete: (id) => {
-      console.log('🛠 AdminService: Deleting movie:', id);
-      return api.delete(`/admin/movies/${id}`);
+    update: async (id, movieData) => {
+      const response = await api.put(`/admin/movies/${id}`, movieData);
+      return response.data;
     },
 
-    toggle: (id) => {
-      console.log('🛠 AdminService: Toggling movie status:', id);
-      return api.patch(`/admin/movies/${id}/toggle`);
+    toggle: async (id) => {
+      const response = await api.patch(`/admin/movies/${id}/toggle`);
+      return response.data;
     }
   },
 
-  // Gestión de usuarios
+  // Teatros
+  theaters: {
+    create: async (theaterData) => {
+      const response = await api.post('/admin/theaters', theaterData);
+      return response.data;
+    },
+
+    getAll: async () => {
+      const response = await api.get('/admin/theaters');
+      return response.data;
+    }
+  },
+
+  // Usuarios
   users: {
-    getAll: () => {
-      console.log('🛠 AdminService: Getting all users');
-      return api.get('/admin/users');
+    getAll: async () => {
+      const response = await api.get('/admin/users');
+      return response.data;
     },
 
-    getById: (id) => {
-      console.log('🛠 AdminService: Getting user by ID:', id);
-      return api.get(`/admin/users/${id}`);
+    getById: async (id) => {
+      const response = await api.get(`/admin/users/${id}`);
+      return response.data;
     },
 
-    toggle: (id) => {
-      console.log('🛠 AdminService: Toggling user status:', id);
-      return api.patch(`/admin/users/${id}/toggle`);
+    toggle: async (id) => {
+      const response = await api.patch(`/admin/users/${id}/toggle`);
+      return response.data;
     }
   },
 
-  // Reportes y compras
-  reports: {
-    getSales: () => {
-      console.log('🛠 AdminService: Getting sales reports');
-      return api.get('/admin/reports/sales');
+  // Compras
+  purchases: {
+    getAll: async () => {
+      const response = await api.get('/admin/purchases');
+      return response.data;
     },
 
-    getPurchases: () => {
-      console.log('🛠 AdminService: Getting purchases');
-      return api.get('/admin/purchases');
+    getByMovie: async (movieId) => {
+      const response = await api.get(`/admin/purchases/movie/${movieId}`);
+      return response.data;
     },
 
-    getPurchasesByMovie: (movieId) => {
-      console.log('🛠 AdminService: Getting purchases by movie:', movieId);
-      return api.get(`/admin/purchases/movie/${movieId}`);
+    getByUser: async (userId) => {
+      const response = await api.get(`/admin/purchases/user/${userId}`);
+      return response.data;
     },
 
-    getPurchasesByUser: (userId) => {
-      console.log('🛠 AdminService: Getting purchases by user:', userId);
-      return api.get(`/admin/purchases/user/${userId}`);
+    getSalesReport: async () => {
+      const response = await api.get('/admin/reports/sales');
+      return response.data;
     }
   }
 };
 
-// Función helper para manejar errores de la API
-export const handleApiError = (error) => {
-  console.error('🚨 Handling API error:', error);
+// Función helper adicional para debugging
+export const logApiCall = (method, url, data = null) => {
+  console.log(`📡 API Call: ${method.toUpperCase()} ${url}`, data ? { data } : '');
+};
 
-  if (error.response) {
-    // El servidor respondió con un código de error
-    const { status, data } = error.response;
-
-    // Mensajes de error más específicos
-    switch (status) {
-      case 400:
-        // Error de validación o datos inválidos
-        if (data.detail && typeof data.detail === 'object') {
-          // Si el detail es un array de errores de validación
-          if (Array.isArray(data.detail)) {
-            return data.detail.map(err => err.msg).join(', ');
-          }
-          // Si el detail es un objeto con campos específicos
-          return Object.values(data.detail).join(', ');
-        }
-        return data.detail || data.message || 'Datos inválidos';
-
-      case 401:
-        return 'No autorizado. Por favor inicia sesión nuevamente';
-
-      case 403:
-        return 'No tienes permisos para realizar esta acción';
-
-      case 404:
-        return 'Recurso no encontrado';
-
-      case 422:
-        // Error de validación de Pydantic/FastAPI
-        if (data.detail && Array.isArray(data.detail)) {
-          return data.detail.map(err => `${err.loc?.join('.')}: ${err.msg}`).join(', ');
-        }
-        return data.detail || 'Error de validación';
-
-      case 429:
-        return 'Demasiadas peticiones. Por favor intenta más tarde';
-
-      case 500:
-        return 'Error interno del servidor. Por favor intenta más tarde';
-
-      case 503:
-        return 'Servicio no disponible. Por favor intenta más tarde';
-
-      default:
-        return data.detail || data.message || `Error ${status}`;
-    }
-  } else if (error.request) {
-    // No se recibió respuesta del servidor
-    console.error('🚨 Network error - no response received');
-    return 'No se pudo conectar con el servidor. Verifica tu conexión a internet';
-  } else {
-    // Error en la configuración de la petición
-    console.error('🚨 Request setup error:', error.message);
-    return error.message || 'Error inesperado al procesar la petición';
+// Función helper para verificar conectividad
+export const checkApiHealth = async () => {
+  try {
+    const response = await api.get('/health');
+    return { status: 'ok', data: response.data };
+  } catch (error) {
+    return { status: 'error', message: getErrorMessage(error) };
   }
 };
 
-// Log de configuración al cargar el módulo
+// Log de configuración
 console.log('🌐 API Configuration:', {
   baseURL: API_BASE_URL,
   timeout: api.defaults.timeout,
   hasToken: !!localStorage.getItem('cinema_token')
 });
 
-// Exportar instancia principal
+// Exportar instancia por defecto
 export default api;

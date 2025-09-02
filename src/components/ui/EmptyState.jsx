@@ -1,18 +1,46 @@
 // src/components/ui/EmptyState.jsx
+import React from 'react';
+import {
+  ExclamationCircleIcon,
+  FilmIcon,
+  MagnifyingGlassIcon,
+  CalendarIcon
+} from '@heroicons/react/24/outline';
 
 const EmptyState = ({
-  icon,
-  title,
-  description,
-  action,
-  className
+  icon = 'default',
+  title = 'No hay elementos',
+  description = 'No se encontraron elementos para mostrar',
+  action = null,
+  className = ''
 }) => {
+  // Iconos predefinidos
+  const icons = {
+    default: ExclamationCircleIcon,
+    movies: FilmIcon,
+    search: MagnifyingGlassIcon,
+    calendar: CalendarIcon
+  };
+
+  const IconComponent = icons[icon] || icons.default;
+
   return (
     <div className={`text-center py-12 ${className}`}>
-      <div className="text-6xl mb-4">{icon}</div>
-      <h3 className="text-lg font-medium text-gray-900 mb-2">{title}</h3>
-      <p className="text-gray-500 mb-6 max-w-sm mx-auto">{description}</p>
-      {action && action}
+      <IconComponent className="mx-auto h-16 w-16 text-gray-500 mb-4" />
+
+      <h3 className="text-xl font-medium text-gray-300 mb-2">
+        {title}
+      </h3>
+
+      <p className="text-gray-500 mb-6 max-w-sm mx-auto">
+        {description}
+      </p>
+
+      {action && (
+        <div>
+          {action}
+        </div>
+      )}
     </div>
   );
 };

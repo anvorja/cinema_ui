@@ -1,9 +1,9 @@
 // src/components/auth/LoginModal.jsx
 import { useState } from 'react';
 import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useAuth } from '../../hooks/useAuth';
 import { useToast } from '../../hooks/useToast';
 import ToastContainer from '../ui/ToastContainer';
+import useAuth from "../../hooks/useAuth.js";
 
 const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const { login, loading } = useAuth();

@@ -1,6 +1,5 @@
 // src/components/auth/UserProfile.jsx
 import { useState, useEffect } from 'react';
-import { useAuth } from '../../hooks/useAuth';
 import {
   User,
   Calendar,
@@ -17,6 +16,7 @@ import {
   Eye,
   EyeOff
 } from 'lucide-react';
+import useAuth from "../../hooks/useAuth.js";
 
 const UserProfile = ({ onClose }) => {
   const {
