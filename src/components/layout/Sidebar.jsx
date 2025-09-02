@@ -6,7 +6,7 @@ import { PremiumButton } from '../ui';
 import { useAuth } from '../../hooks/useAuth';
 import UserProfile from "../auth/UserProfile.jsx";
 
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }) => {
     const { isAuthenticated, logout } = useAuth();
     const [showUserProfile, setShowUserProfile] = useState(false);
     const location = useLocation();
@@ -214,31 +214,33 @@ const Sidebar = ({ isOpen, onClose }) => {
                     </div>
 
                     <div className="p-6 border-t border-white/10 bg-gradient-to-t from-slate-950 to-transparent">
-                        {isAuthenticated ? (
-                            <button
-                                onClick={handleLogout}
-                                className="group w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 text-red-100 hover:text-white"
-                            >
-                                <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
-                                <span className="font-medium">Cerrar Sesión</span>
-                            </button>
-                        ) : (
-                            <div className="space-y-3">
-                                <PremiumButton
-                                    variant="default"
-                                    className="w-full h-12 font-semibold"
-                                    shimmer
-                                >
-                                    Iniciar Sesión
-                                </PremiumButton>
-                                <PremiumButton
-                                    variant="ghost"
-                                    className="w-full h-11 text-sm"
-                                >
-                                    ¿No estás registrado? Regístrate aquí
-                                </PremiumButton>
-                            </div>
-                        )}
+{isAuthenticated ? (
+    <button
+        onClick={handleLogout}
+        className="group w-full flex items-center justify-center gap-3 px-4 py-3 rounded-xl bg-red-500/20 hover:bg-red-500/30 border border-red-500/30 hover:border-red-400/50 transition-all duration-200 text-red-100 hover:text-white"
+    >
+        <LogOut className="w-5 h-5 group-hover:scale-110 transition-transform" />
+        <span className="font-medium">Cerrar Sesión</span>
+    </button>
+) : (
+    <div className="space-y-3">
+        <PremiumButton
+            variant="default"
+            className="w-full h-12 font-semibold"
+            shimmer
+            onClick={onLoginClick}  // ← AGREGAR ESTE onClick
+        >
+            Iniciar Sesión
+        </PremiumButton>
+        <PremiumButton
+            variant="ghost"
+            className="w-full h-11 text-sm"
+            onClick={onRegisterClick}  // ← AGREGAR ESTE onClick
+        >
+            ¿No estás registrado? Regístrate aquí
+        </PremiumButton>
+    </div>
+)}
                     </div>
                 </div>
             </div>

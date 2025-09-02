@@ -218,12 +218,13 @@ const Header = () => {
             </header>
 
             {/* Sidebar */}
-            <Sidebar
-                isOpen={isSidebarOpen}
-                onClose={() => setIsSidebarOpen(false)}
-                navigationItems={navigationItems}
-            />
-
+<Sidebar
+    isOpen={isSidebarOpen}
+    onClose={() => setIsSidebarOpen(false)}
+    navigationItems={navigationItems}
+    onLoginClick={handleLoginClick}      // ← AGREGAR ESTA PROP
+    onRegisterClick={handleSwitchToRegister}  // ← AGREGAR ESTA PROP
+/>
             {/* Backdrop for mobile sidebar */}
             {isSidebarOpen && (
                 <div
