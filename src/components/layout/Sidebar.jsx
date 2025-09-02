@@ -8,7 +8,7 @@ import UserProfile from "../auth/UserProfile.jsx";
 
 const Sidebar = ({ isOpen, onClose }) => {
     const { isAuthenticated, logout } = useAuth();
-    const [showUserProfile, setShowUserProfile] = useState(false); // 👈 Estado para mostrar perfil
+    const [showUserProfile, setShowUserProfile] = useState(false);
 
     const menuSections = [
         {
@@ -28,7 +28,6 @@ const Sidebar = ({ isOpen, onClose }) => {
         }
     ];
 
-    // 👇 Sección de perfil (solo si está autenticado)
     if (isAuthenticated) {
         menuSections.push({
             title: 'MI CUENTA',
@@ -42,6 +41,35 @@ const Sidebar = ({ isOpen, onClose }) => {
             ]
         });
     }
+
+    const handleLogout = async () => {
+        try {
+            console.log('🚪 Sidebar: Iniciando logout...');
+
+            // Cerrar sidebar primero
+            onClose();
+
+            // Ejecutar logout
+            await logout();
+
+            console.log('✅ Sidebar: Logout completado');
+
+        } catch (error) {
+            console.error('❌ Sidebar: Error en logout:', error);
+
+            // Cerrar sidebar aunque haya error
+            onClose();
+
+            // Limpieza de emergencia
+            localStorage.removeItem('cinema_token');
+            localStorage.removeItem('cinema_user');
+
+            // Redirigir después de un breve delay
+            setTimeout(() => {
+                window.location.href = '/login';
+            }, 1000);
+        }
+    };
 
     const handleItemClick = (item) => {
         if (item.type === 'action') {
@@ -73,7 +101,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                         </button>
                     </div>
 
-                    {/* Navigation */}
+                    {/* Navigation*/}
                     <div className="flex-1 overflow-y-auto p-6">
                         {menuSections.map((section, sectionIndex) => (
                             <div key={section.title} className={sectionIndex > 0 ? 'mt-8' : ''}>
@@ -107,7 +135,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                             </div>
                         ))}
 
-                        {/* Special Actions */}
+                        {/* Special Actions*/}
                         <div className="mt-8">
                             <h3 className="text-sm font-semibold text-white/60 mb-4 px-3">OTROS</h3>
                             <div className="space-y-2">
@@ -119,16 +147,13 @@ const Sidebar = ({ isOpen, onClose }) => {
                         </div>
                     </div>
 
-                    {/* Footer */}
+                    {/* Footer*/}
                     <div className="p-6 border-t border-white/10">
                         {isAuthenticated ? (
                             <PremiumButton
                                 variant="ghost"
                                 className="w-full"
-                                onClick={() => {
-                                    console.log('🚪 Sidebar: Logout clicked');
-                                    logout();
-                                }}
+                                onClick={handleLogout}
                             >
                                 Cerrar Sesión
                             </PremiumButton>
@@ -146,7 +171,7 @@ const Sidebar = ({ isOpen, onClose }) => {
                 </div>
             </div>
 
-            {/* 👇 MODAL DE PERFIL */}
+            {/* Modal de perfil*/}
             {showUserProfile && (
                 <UserProfile
                     onClose={() => setShowUserProfile(false)}

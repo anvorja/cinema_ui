@@ -9,8 +9,8 @@ import {
 import { GlassCard, PremiumButton, GlassInput } from '../ui';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { Sidebar } from './Sidebar';
-import { LoginModal } from '../auth/LoginModal.jsx';        // 👈 IMPORTAR
-import { RegisterModal } from '../auth/RegisterModal.jsx';  // 👈 IMPORTAR
+import { LoginModal } from '../auth/LoginModal.jsx';
+import { RegisterModal } from '../auth/RegisterModal.jsx';
 import { useAuth } from '../../hooks/useAuth';
 
 const Header = () => {
@@ -18,7 +18,6 @@ const Header = () => {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [showUserProfile, setShowUserProfile] = useState(false);
-    // 👇 ESTADOS PARA LOS MODALES
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
 
@@ -77,7 +76,6 @@ const Header = () => {
         setShowUserProfile(false);
     };
 
-    // 👇 FUNCIONES PARA MANEJAR LOS MODALES
     const handleLoginClick = () => {
         console.log('Opening login modal');
         setShowLoginModal(true);
@@ -148,8 +146,8 @@ const Header = () => {
                                     to={item.href}
                                     className={`px-6 py-2.5 rounded-xl font-medium transition-all duration-200 ${
                                         item.isActive
-                                            ? 'bg-blue-600 text-white shadow-lg shadow-blue-600/30'
-                                            : 'text-white/80 hover:text-white hover:bg-white/10'
+                                            ? 'bg-white/20 text-white shadow-lg scale-105'
+                                            : 'text-white/80 hover:text-white hover:bg-white/10 hover:scale-105'
                                     }`}
                                 >
                                     {item.name}
@@ -157,26 +155,25 @@ const Header = () => {
                             ))}
                         </nav>
 
-                        {/* Search and User Actions */}
-                        <div className="flex items-center gap-3">
-                            {/* Search Bar - Hidden on mobile */}
-                            <div className="hidden md:block relative">
+                        {/* Search and User Section */}
+                        <div className="flex items-center gap-4">
+                            {/* Search - CORREGIDO sin rightIcon */}
+                            <div className="hidden md:flex items-center relative">
                                 <GlassInput
-                                    type="text"
-                                    placeholder="Buscar películas..."
                                     value={searchQuery}
                                     onChange={(e) => setSearchQuery(e.target.value)}
-                                    className="w-64 pl-10 pr-4"
+                                    placeholder="Buscar..."
+                                    className="w-48 lg:w-64 pl-10"
                                 />
-                                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60" />
+                                <MagnifyingGlassIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
                             </div>
 
-                            {/* Search Icon for Mobile */}
+                            {/* Search Button Mobile */}
                             <button className="md:hidden p-2 rounded-lg glass-hover transition-all duration-200 hover:scale-105">
-                                <MagnifyingGlassIcon className="w-6 h-6 text-white" />
+                                <MagnifyingGlassIcon className="w-5 h-5 text-white" />
                             </button>
 
-                            {/* User Profile */}
+                            {/* User Profile or Login Button */}
                             {isAuthenticated ? (
                                 <div className="relative">
                                     <button
@@ -210,7 +207,7 @@ const Header = () => {
                                     variant="secondary"
                                     size="sm"
                                     className="hidden sm:flex"
-                                    onClick={handleLoginClick} // 👈 FUNCIÓN REAL PARA ABRIR MODAL
+                                    onClick={handleLoginClick}
                                 >
                                     Iniciar Sesión
                                 </PremiumButton>
@@ -235,7 +232,7 @@ const Header = () => {
                 />
             )}
 
-            {/* 👇 MODALES DE AUTENTICACIÓN */}
+            {/* Modales de autenticación */}
             <LoginModal
                 isOpen={showLoginModal}
                 onClose={closeAllModals}

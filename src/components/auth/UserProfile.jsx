@@ -100,7 +100,7 @@ const UserProfile = ({ onClose }) => {
       if (result.success) {
         // Redirigir o cerrar después de eliminar
         onClose && onClose();
-        logout();
+        await logout();
       } else {
         setErrors({ delete: result.error });
       }

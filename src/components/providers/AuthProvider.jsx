@@ -1,289 +1,390 @@
 // src/providers/AuthProvider.jsx
-import { useState, useEffect } from 'react';
-import { AuthContext } from '../contexts/AuthContext.js';
-import {authService, handleApiError, userService} from "../../services/api.js";
-import Cookies from "js-cookie";
+import React, { useState, useEffect, useCallback } from 'react';
+import { AuthContext } from '../contexts/AuthContext';
+import Cookies from 'js-cookie';
+import {authService} from "../../services/api.js";
+
+// Función auxiliar para manejar errores de API
+const handleApiError = (error) => {
+  if (error.response) {
+    return error.response.data?.message || error.response.data?.detail || 'Error en el servidor';
+  }
+  if (error.request) {
+    return 'No se pudo conectar con el servidor';
+  }
+  return error.message || 'Error inesperado';
+};
 
 export const AuthProvider = ({ children }) => {
-    const [user, setUser] = useState(null);
-    const [isAuthenticated, setIsAuthenticated] = useState(false);
-    const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState(null);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [loading, setLoading] = useState(true);
 
-    // Verificar autenticación al cargar la app
-    useEffect(() => {
-        const checkAuth = async () => {
-            try {
-                const storedUser = localStorage.getItem('cinema_user');
-                const storedToken = localStorage.getItem('cinema_token');
+  // Función para verificar autenticación al cargar
+  const checkAuth = useCallback(async () => {
+    try {
+      console.log('🔍 Verificando estado de autenticación...');
 
-                if (storedUser && storedToken) {
-                    // Validar token con el backend
-                    try {
-                        const response = await authService.validateToken();
-                        if (response.data.valid) {
-                            const userData = JSON.parse(storedUser);
-                            setUser(userData);
-                            setIsAuthenticated(true);
-                        } else {
-                            // Token inválido, limpiar
-                            localStorage.removeItem('cinema_user');
-                            localStorage.removeItem('cinema_token');
-                        }
-                    } catch {
-                        // Token inválido o expirado
-                        localStorage.removeItem('cinema_user');
-                        localStorage.removeItem('cinema_token');
-                    }
-                }
-            } catch (error) {
-                console.error('Error checking auth:', error);
-            } finally {
-                setLoading(false);
-            }
+      const token = localStorage.getItem('cinema_token') || Cookies.get('token');
+
+      if (!token) {
+        console.log('❌ No hay token disponible');
+        setIsAuthenticated(false);
+        setUser(null);
+        return;
+      }
+
+      // Verificar si el token sigue siendo válido
+      try {
+        const userResponse = await authService.getCurrentUser();
+        const userInfo = userResponse.data;
+
+        const userData = {
+          id: userInfo.id,
+          name: userInfo.full_name,
+          email: userInfo.email,
+          phone: userInfo.phone,
+          firstName: userInfo.first_name,
+          lastName: userInfo.last_name,
+          role: userInfo.role,
+          avatar: null
         };
 
-        checkAuth();
-    }, []);
+        setUser(userData);
+        setIsAuthenticated(true);
+        localStorage.setItem('cinema_user', JSON.stringify(userData));
 
-    // ✅ FUNCIÓN DE REGISTRO CONECTADA AL BACKEND
-    const register = async (userData) => {
-        try {
-            setLoading(true);
+        console.log('✅ Usuario autenticado correctamente:', userData.email);
 
-            const response = await authService.register({
-                email: userData.email,
-                phone: userData.phone,
-                firstName: userData.firstName,
-                lastName: userData.lastName,
-                password: userData.password
-            });
+      } catch {
+        console.warn('⚠️ Token inválido o expirado, limpiando sesión...');
 
-            const { data: userInfo } = response;
+        // Limpiar datos inválidos
+        localStorage.removeItem('cinema_token');
+        localStorage.removeItem('cinema_user');
+        Cookies.remove('token');
+        Cookies.remove('userInfo');
 
-            // Después del registro, hacer login automático
-            const loginResponse = await authService.login({
-                email: userData.email,
-                password: userData.password
-            });
+        setIsAuthenticated(false);
+        setUser(null);
+      }
 
-            const { access_token } = loginResponse.data;
+    } catch (error) {
+      console.error('❌ Error verificando autenticación:', error);
+      setIsAuthenticated(false);
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-            // Crear objeto de usuario completo
-            const newUser = {
-                id: userInfo.id,
-                name: userInfo.full_name,
-                email: userInfo.email,
-                phone: userInfo.phone,
-                firstName: userInfo.first_name,
-                lastName: userInfo.last_name,
-                role: userInfo.role,
-                createdAt: new Date().toISOString()
-            };
+  // Verificar autenticación al cargar el componente
+  useEffect(() => {
+    checkAuth();
+  }, [checkAuth]);
 
-            // Guardar estado y localStorage
-            setUser(newUser);
-            setIsAuthenticated(true);
-            localStorage.setItem('cinema_user', JSON.stringify(newUser));
-            localStorage.setItem('cinema_token', access_token);
+  // Función de login mejorada - CON AUTO LOGIN DESPUÉS DE REGISTRO
+  const login = async (credentials, isAutoLoginAfterRegister = false) => {
+    try {
+      setLoading(true);
+      console.log('🔐 Iniciando login...', isAutoLoginAfterRegister ? '(auto después de registro)' : '');
 
-            return { success: true, user: newUser };
+      const response = await authService.login(credentials);
+      const { access_token } = response.data;
 
-        } catch (error) {
-            console.error('Register error:', error);
-            return {
-                success: false,
-                error: handleApiError(error)
-            };
-        } finally {
-            setLoading(false);
+      // Guardar token primero
+      localStorage.setItem('cinema_token', access_token);
+
+      // Pequeña pausa para asegurar que el token esté disponible
+      await new Promise(resolve => setTimeout(resolve, 100));
+
+      // Obtener información del usuario
+      const userResponse = await authService.getCurrentUser();
+      const userInfo = userResponse.data;
+
+      const newUser = {
+        id: userInfo.id,
+        name: userInfo.full_name,
+        email: userInfo.email,
+        phone: userInfo.phone,
+        firstName: userInfo.first_name,
+        lastName: userInfo.last_name,
+        role: userInfo.role,
+        avatar: null
+      };
+
+      setUser(newUser);
+      setIsAuthenticated(true);
+      localStorage.setItem('cinema_user', JSON.stringify(newUser));
+
+      console.log('✅ Login exitoso:', newUser.email);
+
+      return { success: true, user: newUser };
+
+    } catch (error) {
+      console.error('❌ Error en login:', error);
+      return {
+        success: false,
+        error: handleApiError(error)
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Función de logout mejorada y robusta
+  const logout = useCallback(async () => {
+    console.log('🚪 Iniciando proceso de logout...');
+
+    try {
+      setLoading(true);
+
+      // 1. Intentar logout en el backend (con timeout)
+      try {
+        console.log('🌐 Llamando endpoint de logout del backend...');
+
+        const logoutPromise = authService.logout();
+        const timeoutPromise = new Promise((_, reject) =>
+          setTimeout(() => reject(new Error('Timeout')), 10000)
+        );
+
+        await Promise.race([logoutPromise, timeoutPromise]);
+        console.log('✅ Logout del backend exitoso');
+
+      } catch (backendError) {
+        console.warn('⚠️ Error en logout del backend (continuando con limpieza local):', backendError);
+        // No fallar el logout si el backend falla
+      }
+
+      // 2. Limpieza local SIEMPRE
+      console.log('🧹 Limpiando estado local...');
+
+      // Limpiar React state
+      setUser(null);
+      setIsAuthenticated(false);
+
+      // Limpiar localStorage
+      try {
+        localStorage.removeItem('cinema_user');
+        localStorage.removeItem('cinema_token');
+        console.log('✅ localStorage limpiado');
+      } catch (localStorageError) {
+        console.warn('⚠️ Error limpiando localStorage:', localStorageError);
+      }
+
+      // Limpiar cookies
+      try {
+        Cookies.remove('token');
+        Cookies.remove('userInfo');
+
+        // Limpiar cookies del dominio actual también
+        const cookies = document.cookie.split(";");
+        cookies.forEach(cookie => {
+          const eqPos = cookie.indexOf("=");
+          const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+          if (name.includes('token') || name.includes('cinema') || name.includes('auth')) {
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+            document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+          }
+        });
+
+        console.log('✅ Cookies limpiadas');
+      } catch (cookiesError) {
+        console.warn('⚠️ Error limpiando cookies:', cookiesError);
+      }
+
+      // 3. Limpiar sessionStorage también
+      try {
+        sessionStorage.removeItem('cinema_user');
+        sessionStorage.removeItem('cinema_token');
+        console.log('✅ sessionStorage limpiado');
+      } catch (sessionStorageError) {
+        console.warn('⚠️ Error limpiando sessionStorage:', sessionStorageError);
+      }
+
+      // 4. Limpiar cache del navegador si está disponible
+      try {
+        if ('caches' in window) {
+          const cacheNames = await caches.keys();
+          const cinemaCaches = cacheNames.filter(name =>
+            name.includes('cinema') || name.includes('auth')
+          );
+          await Promise.all(cinemaCaches.map(name => caches.delete(name)));
+          console.log('✅ Cache del navegador limpiado');
         }
-    };
+      } catch (cacheError) {
+        console.warn('⚠️ Error limpiando cache:', cacheError);
+      }
 
-    const login = async (credentials) => {
-        try {
-            setLoading(true);
+      console.log('✅ Logout completado exitosamente');
 
-            const response = await authService.login(credentials);
-            const { access_token } = response.data;
+    } catch (error) {
+      console.error('❌ Error durante logout:', error);
 
-            // 🔥 GUARDAR EL TOKEN PRIMERO
-            localStorage.setItem('cinema_token', access_token);
+      // Limpieza de emergencia - SIEMPRE debe funcionar
+      try {
+        setUser(null);
+        setIsAuthenticated(false);
+        localStorage.removeItem('cinema_user');
+        localStorage.removeItem('cinema_token');
+        Cookies.remove('token');
+        Cookies.remove('userInfo');
+        console.log('🚨 Limpieza de emergencia completada');
+      } catch (emergencyError) {
+        console.error('💥 Error crítico en limpieza de emergencia:', emergencyError);
+        // Como último recurso, recargar la página
+        setTimeout(() => {
+          window.location.reload();
+        }, 1000);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
-            // Pequeña pausa para asegurar que el token esté disponible
-            await new Promise(resolve => setTimeout(resolve, 100));
+  // Función para logout de emergencia
+  const emergencyLogout = useCallback(() => {
+    console.log('🚨 Ejecutando logout de emergencia...');
 
-            // Obtener información del usuario (ahora con token disponible)
-            const userResponse = await authService.getCurrentUser();
-            const userInfo = userResponse.data;
+    try {
+      // Limpieza inmediata sin llamadas al backend
+      setUser(null);
+      setIsAuthenticated(false);
 
-            const newUser = {
-                id: userInfo.id,
-                name: userInfo.full_name,
-                email: userInfo.email,
-                phone: userInfo.phone,
-                firstName: userInfo.first_name,
-                lastName: userInfo.last_name,
-                role: userInfo.role,
-                avatar: null
-            };
+      // Limpiar todo el storage
+      localStorage.clear();
+      sessionStorage.clear();
 
-            setUser(newUser);
-            setIsAuthenticated(true);
-            localStorage.setItem('cinema_user', JSON.stringify(newUser));
+      // Limpiar todas las cookies
+      document.cookie.split(";").forEach(cookie => {
+        const eqPos = cookie.indexOf("=");
+        const name = eqPos > -1 ? cookie.substr(0, eqPos).trim() : cookie.trim();
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/`;
+        document.cookie = `${name}=;expires=Thu, 01 Jan 1970 00:00:00 GMT;path=/;domain=${window.location.hostname}`;
+      });
 
-            return { success: true, user: newUser };
+      // Recargar página para garantizar estado limpio
+      setTimeout(() => {
+        window.location.href = '/login';
+      }, 500);
 
-        } catch (error) {
-            console.error('Login error:', error);
-            return {
-                success: false,
-                error: handleApiError(error)
-            };
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch (error) {
+      console.error('💥 Error crítico en logout de emergencia:', error);
+      // Último recurso
+      window.location.reload();
+    }
+  }, []);
 
-    const logout = async () => {
-        console.log('🚪 Starting logout process...');
+  // Función para registro CON AUTO LOGIN
+  const register = async (userData) => {
+    try {
+      setLoading(true);
+      console.log('📝 Iniciando registro...');
 
-        try {
-            setLoading(true);
+      // 1. Registrar usuario
+      await authService.register(userData);
+      console.log('✅ Registro exitoso');
 
-            // Intentar hacer logout en el backend
-            console.log('🌐 Calling backend logout...');
-            await authService.logout();
-            console.log('✅ Backend logout successful');
+      // 2. Auto login después del registro
+      console.log('🔄 Iniciando auto login después del registro...');
+      const loginResult = await login({
+        email: userData.email,
+        password: userData.password
+      }, true);
 
-        } catch (error) {
-            console.error('❌ Backend logout error:', error);
-            // No fallar el logout si el backend falla
-            // El usuario debe poder cerrar sesión siempre
-        }
+      if (loginResult.success) {
+        return {
+          success: true,
+          message: 'Usuario registrado e ingresado exitosamente.',
+          user: loginResult.user
+        };
+      } else {
+        return {
+          success: true,
+          message: 'Usuario registrado exitosamente. Por favor inicia sesión.',
+          requiresLogin: true
+        };
+      }
 
-        try {
-            console.log('🧹 Cleaning up local state...');
+    } catch (error) {
+      console.error('❌ Error en registro:', error);
+      return {
+        success: false,
+        error: handleApiError(error)
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
 
-            // Limpiar estado local SIEMPRE
-            setUser(null);
-            setIsAuthenticated(false);
+  // Función para actualizar perfil
+  const updateProfile = async (profileData) => {
+    try {
+      setLoading(true);
 
-            // Limpiar localStorage
-            localStorage.removeItem('cinema_user');
-            localStorage.removeItem('cinema_token');
+      // TODO: Implementar llamada al backend cuando esté disponible
+      // const response = await userService.updateProfile(profileData);
 
-            // Limpiar cookies también por si acaso
-            Cookies.remove('token');
-            Cookies.remove('userInfo');
+      const updatedUser = {
+        ...user,
+        firstName: profileData.firstName,
+        lastName: profileData.lastName,
+        phone: profileData.phone,
+        name: `${profileData.firstName} ${profileData.lastName}`
+      };
 
-            console.log('✅ Logout completed successfully');
+      setUser(updatedUser);
+      localStorage.setItem('cinema_user', JSON.stringify(updatedUser));
 
-            // Opcional: recargar la página para limpiar completamente el estado
-            setTimeout(() => {
-                window.location.reload();
-            }, 100);
+      return { success: true, user: updatedUser };
 
-        } catch (error) {
-            console.error('❌ Error during logout cleanup:', error);
-        } finally {
-            setLoading(false);
-        }
-    };
+    } catch (error) {
+      console.error('❌ Error actualizando perfil:', error);
+      return {
+        success: false,
+        error: handleApiError(error)
+      };
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    // ✅ FUNCIÓN PARA ACTUALIZAR PERFIL
-    const updateProfile = async (profileData) => {
-        try {
-            setLoading(true);
+  // Función para refrescar token
+  const refreshAuth = useCallback(async () => {
+    console.log('🔄 Refrescando autenticación...');
+    await checkAuth();
+  }, [checkAuth]);
 
-            // TODO: revisar porque se declara pero no se usa
-            // const response = await userService.updateProfile({
-            //   firstName: profileData.firstName,
-            //   lastName: profileData.lastName,
-            //   phone: profileData.phone
-            // });
+  // Valores del contexto
+  const value = {
+    // Estado
+    user,
+    isAuthenticated,
+    loading,
 
-            const updatedUser = {
-                ...user,
-                firstName: profileData.firstName,
-                lastName: profileData.lastName,
-                phone: profileData.phone,
-                name: `${profileData.firstName} ${profileData.lastName}`
-            };
+    // Funciones principales
+    login,
+    logout,
+    register,
+    updateProfile,
 
-            setUser(updatedUser);
-            localStorage.setItem('cinema_user', JSON.stringify(updatedUser));
+    // Funciones de utilidad
+    checkAuth,
+    refreshAuth,
+    emergencyLogout,
 
-            return { success: true, user: updatedUser };
-        } catch (error) {
-            return {
-                success: false,
-                error: handleApiError(error)
-            };
-        } finally {
-            setLoading(false);
-        }
-    };
+    // Estados derivados
+    isLoggedIn: isAuthenticated && user,
+    userName: user?.name || user?.firstName || 'Usuario',
+    userEmail: user?.email || '',
+    userRole: user?.role || 'customer'
+  };
 
-    // ✅ FUNCIÓN PARA CAMBIAR CONTRASEÑA
-    const changePassword = async (currentPassword, newPassword) => {
-        try {
-            setLoading(true);
-
-            await userService.changePassword({
-                currentPassword,
-                newPassword
-            });
-
-            return { success: true };
-        } catch (error) {
-            return {
-                success: false,
-                error: handleApiError(error)
-            };
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    // ✅ FUNCIÓN PARA ELIMINAR CUENTA
-    const deleteAccount = async () => {
-        try {
-            setLoading(true);
-
-            await userService.deleteAccount();
-
-            // Limpiar estado después de eliminación exitosa
-            setUser(null);
-            setIsAuthenticated(false);
-            localStorage.removeItem('cinema_user');
-            localStorage.removeItem('cinema_token');
-
-            return { success: true };
-        } catch (error) {
-            return {
-                success: false,
-                error: handleApiError(error)
-            };
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    const value = {
-        user,
-        isAuthenticated,
-        loading,
-        login,
-        register,
-        logout,
-        updateProfile,
-        changePassword,
-        deleteAccount
-    };
-
-    return (
-        <AuthContext.Provider value={value}>
-            {children}
-        </AuthContext.Provider>
-    );
+  return (
+    <AuthContext.Provider value={value}>
+      {children}
+    </AuthContext.Provider>
+  );
 };
+
+export default AuthProvider;

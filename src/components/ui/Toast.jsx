@@ -1,118 +1,73 @@
-// src/components/ui/Toast.jsx - Versión alternativa usando clases CSS
-import { useState, useCallback, useMemo } from 'react';
-import { Transition } from '@headlessui/react';
-import {
-  CheckCircleIcon,
-  ExclamationTriangleIcon,
-  XCircleIcon,
-  XMarkIcon,
-  InformationCircleIcon
-} from '@heroicons/react/24/outline';
-import { ToastContext } from '../../hooks/useToast';
+// src/components/ui/Toast.jsx
+import React, { useEffect, useState } from 'react';
+import { createPortal } from 'react-dom';
 
-export const ToastProvider = ({ children }) => {
-  const [toasts, setToasts] = useState([]);
+const Toast = ({ message, type = 'success', duration = 4000, onClose }) => {
+  const [isVisible, setIsVisible] = useState(true);
 
-  const removeToast = useCallback((id) => {
-    setToasts(prev => prev.filter(toast => toast.id !== id));
-  }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setIsVisible(false);
+      setTimeout(onClose, 300); // Esperar animación de salida
+    }, duration);
 
-  const addToast = useCallback((message, type = 'info', duration = 3000) => {
-    const id = Math.random().toString(36).substring(2);
-    const toast = { id, message, type, duration };
+    return () => clearTimeout(timer);
+  }, [duration, onClose]);
 
-    setToasts(prev => [...prev, toast]);
+  const typeStyles = {
+    success: 'bg-green-500/90 border-green-400/50 text-green-50',
+    error: 'bg-red-500/90 border-red-400/50 text-red-50',
+    info: 'bg-blue-500/90 border-blue-400/50 text-blue-50'
+  };
 
-    if (duration > 0) {
-      setTimeout(() => {
-        removeToast(id);
-      }, duration);
-    }
-
-    return id;
-  }, [removeToast]);
-
-  const toastMethods = useMemo(() => ({
-    success: (message, duration = 2000) => addToast(message, 'success', duration),
-    error: (message, duration = 4000) => addToast(message, 'error', duration),
-    warning: (message, duration = 3000) => addToast(message, 'warning', duration),
-    info: (message, duration = 3000) => addToast(message, 'info', duration),
-    showToast: (message, type = 'info', duration) => addToast(message, type, duration),
-  }), [addToast]);
-
-  return (
-    <ToastContext.Provider value={toastMethods}>
-      {children}
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
-    </ToastContext.Provider>
-  );
-};
-
-const ToastContainer = ({ toasts, onRemove }) => {
-  return (
-    <div className="toast-container">
-      {toasts.map((toast) => (
-        <ToastItem
-          key={toast.id}
-          toast={toast}
-          onRemove={() => onRemove(toast.id)}
-        />
-      ))}
-    </div>
-  );
-};
-
-const ToastItem = ({ toast, onRemove }) => {
   const icons = {
-    success: CheckCircleIcon,
-    error: XCircleIcon,
-    warning: ExclamationTriangleIcon,
-    info: InformationCircleIcon,
+    success: (
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+      </svg>
+    ),
+    error: (
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+      </svg>
+    ),
+    info: (
+      <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+      </svg>
+    )
   };
 
-  const styles = {
-    success: 'toast-success',
-    error: 'toast-error',
-    warning: 'toast-warning',
-    info: 'toast-info',
-  };
-
-  const Icon = icons[toast.type];
-
-  return (
-    <Transition
-      appear
-      show={true}
-      enter="toast-enter"
-      leave="toast-exit"
+  return createPortal(
+    <div
+      className={`fixed top-4 right-4 z-[10000] transform transition-all duration-300 ${
+        isVisible ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'
+      }`}
     >
-      <div className={styles[toast.type]}>
-        <div className="flex items-start p-4">
-          {/* Icono */}
-          <div className="flex-shrink-0">
-            <Icon className="h-5 w-5 toast-icon" />
-          </div>
-
-          {/* Mensaje */}
-          <div className="ml-3 w-0 flex-1">
-            <p className="toast-text">
-              {toast.message}
-            </p>
-          </div>
-
-          {/* Botón de cerrar */}
-          <div className="ml-4 flex-shrink-0 flex">
-            <button
-              type="button"
-              className="toast-close"
-              onClick={onRemove}
-            >
-              <span className="sr-only">Cerrar</span>
-              <XMarkIcon className="h-4 w-4" />
-            </button>
-          </div>
+      <div className={`
+        flex items-center gap-3 px-4 py-3 rounded-lg shadow-lg backdrop-blur-sm border
+        min-w-[300px] max-w-[500px]
+        ${typeStyles[type]}
+      `}>
+        <div className="flex-shrink-0">
+          {icons[type]}
         </div>
+        <p className="font-medium text-sm flex-1">{message}</p>
+        <button
+          onClick={() => {
+            setIsVisible(false);
+            setTimeout(onClose, 300);
+          }}
+          className="flex-shrink-0 opacity-70 hover:opacity-100 transition-opacity"
+        >
+          <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 20 20">
+            <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
+          </svg>
+        </button>
       </div>
-    </Transition>
+    </div>,
+    document.body
   );
 };
+
+export default Toast;
