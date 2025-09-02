@@ -1,7 +1,7 @@
 // src/providers/AuthProvider.jsx - COMPONENTE REACT CON JSX
 import React, { useReducer, useEffect } from 'react';
 import AuthContext, { AUTH_STATES } from '../contexts/AuthContext';
-import {authService} from "../../services/api.js";
+import {authService, getErrorMessage} from "../../services/api.js";
 
 // Acciones del reducer
 const AUTH_ACTIONS = {

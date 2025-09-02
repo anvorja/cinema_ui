@@ -86,7 +86,7 @@
 // src/components/cinema/MovieCard.jsx - ACTUALIZADO PARA API REAL
 import { Link } from 'react-router-dom';
 import { GlassCard, PremiumButton, ShimmerEffect } from '../ui';
-import { ClockIcon, CurrencyDollarIcon, StarIcon } from '@heroicons/react/24/outline';
+import { ClockIcon } from '@heroicons/react/24/outline';
 
 const MovieCard = ({ movie, showReleaseDate = false }) => {
   // Formatear duración

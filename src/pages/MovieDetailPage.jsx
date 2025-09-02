@@ -1,11 +1,10 @@
-// src/pages/MovieDetailPage.jsx
+// src/pages/MovieDetailPage.jsx - COMPLETO CON NAVEGACIÓN
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ClockIcon,
   CurrencyDollarIcon,
   UserIcon,
-  MapPinIcon,
   TagIcon,
   TicketIcon,
   PlayIcon
@@ -14,12 +13,15 @@ import {
 import { GlassCard, PremiumButton, FloatingParticles } from '../components/ui';
 import { useMovie, useMovieAvailability, useMovieTheaters } from '../hooks/useMovies';
 import { useMovieTransform } from '../hooks/useMoviesTransform';
+import { useBooking } from '../hooks/useBooking';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ErrorMessage from '../components/ui/ErrorMessage';
+import TheatersWithShowtimes from '../components/booking/TheatersWithShowtimes';
 
 const MovieDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { startBooking } = useBooking();
   const [showTrailer, setShowTrailer] = useState(false);
 
   // Hooks para datos
@@ -30,9 +32,34 @@ const MovieDetailPage = () => {
   // Transformar datos de la película usando el hook
   const movie = useMovieTransform(rawMovie);
 
-  // DEBUG: Console log para verificar que funciona
-  console.log('🎬 MovieDetailPage cargada - ID:', id);
-  console.log('🎭 Datos de película:', movie);
+  // Función para manejar compra rápida (sin seleccionar horario específico)
+  const handleQuickBuy = () => {
+    if (!movie.isAvailable || !theaters || theaters.length === 0) return;
+
+    const defaultTheater = theaters[0];
+    const defaultShowtime = {
+      id: 1,
+      time: '19:30',
+      format: '2D Doblada',
+      price: 18000,
+      available: true,
+      availableSeats: 50
+    };
+    const selectedDate = new Date().toISOString().split('T')[0];
+
+    // Inicializar booking
+    startBooking(movie, defaultTheater, defaultShowtime, selectedDate);
+
+    // Navegar usando tu ruta con parámetros dinámicos
+    navigate(`/booking/${id}/${defaultTheater.id}/${defaultShowtime.id}`, {
+      state: {
+        movie: movie,
+        theater: defaultTheater,
+        showtime: defaultShowtime,
+        selectedDate: selectedDate
+      }
+    });
+  };
 
   if (loading) {
     return (
@@ -47,11 +74,7 @@ const MovieDetailPage = () => {
   if (error) {
     return (
       <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <ErrorMessage
-          message={error}
-          onRetry={refetch}
-          title="Error al cargar la película"
-        />
+        <ErrorMessage message={error} onRetry={refetch} title="Error al cargar la película" />
       </div>
     );
   }
@@ -73,6 +96,7 @@ const MovieDetailPage = () => {
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <FloatingParticles count={30} className="opacity-20" />
 
+      {/* Hero Section */}
       <section className="relative h-screen overflow-hidden">
         {/* Background usando la mejor imagen disponible */}
         <div className="absolute inset-0">
@@ -91,7 +115,7 @@ const MovieDetailPage = () => {
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-center">
 
-              {/* Poster Image usando imagen transformada */}
+              {/* Poster Image */}
               <div className="flex justify-center lg:justify-start">
                 <GlassCard variant="premium" className="p-3 premium-card">
                   <img
@@ -105,7 +129,7 @@ const MovieDetailPage = () => {
               {/* Movie Info */}
               <div className="lg:col-span-2 space-y-6 text-center lg:text-left">
                 <div>
-                  {/* Badge de estado usando statusBadge transformado */}
+                  {/* Badge de estado */}
                   <div className="flex flex-wrap gap-2 justify-center lg:justify-start mb-4">
                     {movie.statusBadge && (
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${movie.statusBadge.className}`}>
@@ -184,7 +208,7 @@ const MovieDetailPage = () => {
                     size="lg"
                     className="flex items-center gap-2"
                     disabled={!movie.isAvailable}
-                    onClick={() => navigate('/booking', { state: { movieId: movie.id } })}
+                    onClick={handleQuickBuy}
                   >
                     <TicketIcon className="w-5 h-5" />
                     {movie.isAvailable ? 'Comprar Entradas' : 'Agotado'}
@@ -233,7 +257,7 @@ const MovieDetailPage = () => {
         </div>
       )}
 
-      {/* Detailed Images Section usando imágenes transformadas */}
+      {/* Detailed Images Section */}
       {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
         <section className="py-16">
           <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -261,40 +285,13 @@ const MovieDetailPage = () => {
         </section>
       )}
 
-      {/* Theaters Section */}
+      {/* Theaters Section con horarios - COMPONENTE SEPARADO */}
       {theaters && theaters.length > 0 && (
-        <section className="py-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-white mb-8 text-center">
-              Teatros Disponibles
-            </h2>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {theaters.map((theater) => (
-                <GlassCard key={theater.id} className="p-6">
-                  <div className="flex items-start gap-4">
-                    <MapPinIcon className="w-8 h-8 text-blue-400 mt-1" />
-                    <div>
-                      <h3 className="text-white font-semibold text-lg mb-2">
-                        {theater.name}
-                      </h3>
-                      <p className="text-white/70 text-sm mb-3">
-                        {theater.location}
-                      </p>
-                      <div className="flex items-center justify-between">
-                        <span className="text-green-400 text-sm">
-                          Capacidad: {theater.capacity}
-                        </span>
-                        <PremiumButton size="sm">
-                          Ver Horarios
-                        </PremiumButton>
-                      </div>
-                    </div>
-                  </div>
-                </GlassCard>
-              ))}
-            </div>
-          </div>
-        </section>
+        <TheatersWithShowtimes
+          theaters={theaters}
+          movieId={id}
+          movie={movie}
+        />
       )}
 
       {/* Availability Info */}

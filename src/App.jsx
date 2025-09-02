@@ -24,18 +24,20 @@ function App() {
             <AuthProvider>
                 <BookingProvider>
                     <Router>
-                         <ScrollToTop />
+                        <ScrollToTop />
                         <Routes>
                             <Route path="/" element={<Layout />}>
                                 <Route index element={<HomePage />} />
                                 <Route path="cartelera" element={<CarteleraPage />} />
                                 <Route path="pronto" element={<ProntoPage />} />
                                 <Route path="comidas" element={<ComidasPage />} />
+
                                 <Route path="movie/:id" element={<MovieDetailPage />} />
                                 <Route path="booking/:movieId/:theaterId/:showtimeId" element={<BookingPage />} />
                                 <Route path="payment" element={<PaymentPage />} />
                                 <Route path="payment-success" element={<PaymentSuccessPage />} />
                                 <Route path="/profile" element={<ProfilePage />} />
+
                                 <Route path="*" element={<NotFoundPage />} />
 
                                 { /*TODO:*/ }
