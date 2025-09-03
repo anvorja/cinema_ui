@@ -1,7 +1,8 @@
-// src/components/admin/AdminDashboard.jsx
+// src/components/admin/AdminDashboard.jsx con Toasts
 import React, { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useApi } from './hooks/useApi';
+import { useToast } from './hooks/useToast';
 
 // Componentes
 import DashboardHeader from './DashboardHeader';
@@ -10,10 +11,12 @@ import TabNavigation from './TabNavigation';
 import MoviesTab from './movies/MoviesTab';
 import UsersTab from './users/UsersTab';
 import PurchasesTab from './purchases/PurchasesTab';
+import {ToastProvider} from "./providers/ToasProvider.jsx";
 
-const AdminDashboard = () => {
+const AdminDashboardContent = () => {
   const { user, logout } = useAuth();
   const { adminApi } = useApi();
+  const { toast } = useToast();
 
   // Estados principales
   const [activeTab, setActiveTab] = useState('movies');
@@ -42,7 +45,9 @@ const AdminDashboard = () => {
       ]);
     } catch (error) {
       console.error('Error cargando datos:', error);
-      // Aquí podrías mostrar un toast de error
+      toast.error('Error cargando datos del dashboard', {
+        title: 'Error de carga'
+      });
     } finally {
       setLoading(false);
     }
@@ -93,9 +98,24 @@ const AdminDashboard = () => {
     try {
       await adminApi.createMovie(movieData);
       await loadMovies(); // Recargar la lista
+
+      // Toast de éxito
+      toast.success(`La película "${movieData.title}" se creó exitosamente`, {
+        title: 'Película creada',
+        duration: 5000
+      });
+
       return Promise.resolve();
     } catch (error) {
       console.error('Error creando película:', error);
+
+      // Toast de error con detalles
+      const errorMessage = error.response?.data?.detail || 'Error desconocido al crear la película';
+      toast.error(errorMessage, {
+        title: 'Error creando película',
+        duration: 7000
+      });
+
       throw error;
     }
   };
@@ -104,9 +124,23 @@ const AdminDashboard = () => {
     try {
       await adminApi.updateMovie(movieId, movieData);
       await loadMovies(); // Recargar la lista
+
+      // Toast de éxito
+      toast.success(`La película "${movieData.title}" se actualizó correctamente`, {
+        title: 'Película actualizada'
+      });
+
       return Promise.resolve();
     } catch (error) {
       console.error('Error actualizando película:', error);
+
+      // Toast de error
+      const errorMessage = error.response?.data?.detail || 'Error desconocido al actualizar la película';
+      toast.error(errorMessage, {
+        title: 'Error actualizando película',
+        duration: 7000
+      });
+
       throw error;
     }
   };
@@ -115,9 +149,22 @@ const AdminDashboard = () => {
     try {
       await adminApi.toggleMovie(movieId);
       await loadMovies(); // Recargar la lista
+
+      // Encontrar la película para mostrar su nombre en el toast
+      const movie = movies.find(m => m.id === movieId);
+      const movieName = movie ? movie.title : 'Película';
+      const action = movie?.is_active ? 'deshabilitada' : 'habilitada';
+
+      toast.success(`${movieName} fue ${action} exitosamente`, {
+        title: 'Estado actualizado'
+      });
+
     } catch (error) {
       console.error('Error cambiando estado de película:', error);
-      // Aquí podrías mostrar un toast de error
+
+      toast.error('Error al cambiar el estado de la película', {
+        title: 'Error de actualización'
+      });
     }
   };
 
@@ -126,9 +173,22 @@ const AdminDashboard = () => {
     try {
       await adminApi.toggleUser(userId);
       await loadUsers(); // Recargar la lista
+
+      // Encontrar el usuario para mostrar su nombre en el toast
+      const user = users.find(u => u.id === userId);
+      const userName = user ? `${user.first_name} ${user.last_name}` : 'Usuario';
+      const action = user?.is_active ? 'deshabilitado' : 'habilitado';
+
+      toast.success(`${userName} fue ${action} exitosamente`, {
+        title: 'Estado de usuario actualizado'
+      });
+
     } catch (error) {
       console.error('Error cambiando estado de usuario:', error);
-      // Aquí podrías mostrar un toast de error
+
+      toast.error('Error al cambiar el estado del usuario', {
+        title: 'Error de actualización'
+      });
     }
   };
 
@@ -142,8 +202,14 @@ const AdminDashboard = () => {
   const handleLogout = async () => {
     try {
       await logout();
+      toast.info('Sesión cerrada exitosamente', {
+        title: 'Logout exitoso'
+      });
     } catch (error) {
       console.error('Error durante logout:', error);
+      toast.error('Error cerrando sesión', {
+        title: 'Error de logout'
+      });
     }
   };
 
@@ -213,6 +279,14 @@ const AdminDashboard = () => {
         {renderActiveTab()}
       </div>
     </div>
+  );
+};
+
+const AdminDashboard = () => {
+  return (
+    <ToastProvider>
+      <AdminDashboardContent />
+    </ToastProvider>
   );
 };
 

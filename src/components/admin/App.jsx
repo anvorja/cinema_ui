@@ -2,11 +2,14 @@
 import React, { useState } from 'react';
 import { Loader } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
+import { useToast } from './hooks/useToast';
 import LoginForm from './LoginForm';
 import AdminDashboard from './AdminDashboard';
+import {ToastProvider} from "./providers/ToasProvider.jsx";
 
-const App = () => {
+const AppContent = () => {
   const { user, loading, login, isAdmin } = useAuth();
+  const { toast } = useToast();
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
 
@@ -19,10 +22,27 @@ const App = () => {
 
       if (!result.success) {
         setLoginError(result.error);
+
+        // Toast de error para login fallido
+        toast.error(result.error, {
+          title: 'Error de autenticación',
+          duration: 5000
+        });
+      } else {
+        // Toast de éxito para login exitoso
+        toast.success(`Bienvenido al panel de administración`, {
+          title: 'Login exitoso',
+          duration: 3000
+        });
       }
-      // Si es exitoso, el estado se actualiza automáticamente por el hook useAuth
     } catch {
-      setLoginError('Error inesperado durante el login');
+      const errorMsg = 'Error inesperado durante el login';
+      setLoginError(errorMsg);
+
+      toast.error(errorMsg, {
+        title: 'Error de conexión',
+        duration: 5000
+      });
     } finally {
       setLoginLoading(false);
     }
@@ -53,6 +73,14 @@ const App = () => {
 
   // Usuario autenticado y es admin, mostrar dashboard
   return <AdminDashboard />;
+};
+
+const App = () => {
+  return (
+    <ToastProvider>
+      <AppContent />
+    </ToastProvider>
+  );
 };
 
 export default App;

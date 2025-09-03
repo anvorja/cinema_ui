@@ -1,7 +1,7 @@
-// src/components/admin/movies/MovieModal.jsx
+// src/components/admin/movies/MovieModal.jsx - CAMPOS CORREGIDOS
 import React, { useState, useEffect } from 'react';
 import { X, Loader } from 'lucide-react';
-import ImageUpload from './ImageUpload';
+import MultipleImageUpload from './MultipleImageUpload';
 
 const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
   const [formData, setFormData] = useState({
@@ -12,10 +12,22 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
     rating: '',
     price: '',
     max_capacity: '',
-    image_url: '',
+    available_tickets: '',
     director: '',
-    country: ''
+    country: '',
+    release_date: '',
+    status: 'in_theaters',
+    is_presale: false,
+    theater_ids: [1, 2, 3, 4, 5], // IDs por defecto, puedes ajustar según tus teatros
+    // Estructura de 4 imágenes obligatorias con nombres correctos
+    images: {
+      poster: '',
+      detail1: '',
+      detail2: '',
+      backdrop: ''
+    }
   });
+
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
 
@@ -35,6 +47,12 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
     { value: 'NC-17', label: 'NC-17 - Solo adultos' }
   ];
 
+  const statusOptions = [
+    { value: 'in_theaters', label: 'En cartelera' },
+    { value: 'coming_soon', label: 'Próximamente' },
+    { value: 'ended', label: 'Terminada' }
+  ];
+
   useEffect(() => {
     if (movie) {
       setFormData({
@@ -45,9 +63,19 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
         rating: movie.rating || '',
         price: movie.price || '',
         max_capacity: movie.max_capacity || '',
-        image_url: movie.image_url || '',
+        available_tickets: movie.available_tickets || movie.max_capacity || '',
         director: movie.director || '',
-        country: movie.country || ''
+        country: movie.country || '',
+        release_date: movie.release_date || '',
+        status: movie.status || 'in_theaters',
+        is_presale: movie.is_presale || false,
+        theater_ids: movie.theater_ids || [1, 2, 3, 4, 5],
+        images: {
+          poster: movie.poster_url || '',
+          detail1: movie.detail_1_url || '',
+          detail2: movie.detail_2_url || '',
+          backdrop: movie.backdrop_url || ''
+        }
       });
     } else {
       setFormData({
@@ -58,9 +86,19 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
         rating: '',
         price: '',
         max_capacity: '',
-        image_url: '',
+        available_tickets: '',
         director: '',
-        country: ''
+        country: '',
+        release_date: new Date().toISOString().split('T')[0], // Fecha actual por defecto
+        status: 'in_theaters',
+        is_presale: false,
+        theater_ids: [1, 2, 3, 4, 5],
+        images: {
+          poster: '',
+          detail1: '',
+          detail2: '',
+          backdrop: ''
+        }
       });
     }
     setErrors({});
@@ -97,6 +135,18 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
       newErrors.max_capacity = 'La capacidad debe ser mayor a 0';
     }
 
+    if (!formData.release_date) {
+      newErrors.release_date = 'La fecha de estreno es requerida';
+    }
+
+    // Validar que todas las 4 imágenes estén presentes
+    const requiredImages = ['poster', 'detail1', 'detail2', 'backdrop'];
+    const missingImages = requiredImages.filter(imageType => !formData.images[imageType]);
+
+    if (missingImages.length > 0) {
+      newErrors.images = `Faltan las siguientes imágenes: ${missingImages.join(', ')}`;
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -109,30 +159,70 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
     }
 
     setLoading(true);
+
     try {
-      // Convertir strings numéricos a números
+      // Preparar datos exactamente como los espera el backend
       const processedData = {
-        ...formData,
+        title: formData.title.trim(),
+        description: formData.description.trim(),
+        genre: formData.genre,
         duration: parseInt(formData.duration),
+        rating: formData.rating,
         price: parseFloat(formData.price),
-        max_capacity: parseInt(formData.max_capacity)
+        max_capacity: parseInt(formData.max_capacity),
+        available_tickets: parseInt(formData.available_tickets || formData.max_capacity),
+        director: formData.director || '',
+        country: formData.country || '',
+        release_date: formData.release_date,
+        status: formData.status,
+        is_presale: formData.is_presale,
+        theater_ids: formData.theater_ids,
+
+        // Mapear las imágenes a los campos exactos que espera el backend
+        poster_url: formData.images.poster,
+        detail_1_url: formData.images.detail1,
+        detail_2_url: formData.images.detail2,
+        backdrop_url: formData.images.backdrop
       };
+
+      // DEBUG: Mostrar en consola lo que se va a enviar
+      console.log('Datos que se van a enviar al backend:', processedData);
+      console.log('Tipos de datos:', {
+        title: typeof processedData.title,
+        duration: typeof processedData.duration,
+        price: typeof processedData.price,
+        max_capacity: typeof processedData.max_capacity,
+        available_tickets: typeof processedData.available_tickets,
+        is_presale: typeof processedData.is_presale,
+        theater_ids: Array.isArray(processedData.theater_ids)
+      });
 
       await onSave(processedData);
     } catch (error) {
-      console.error('Error saving movie:', error);
-      // Aquí podrías mostrar un error toast o notification
+      console.error('Error completo:', error);
+      if (error.response) {
+        console.error('Response data:', error.response.data);
+        console.error('Response status:', error.response.status);
+      }
     } finally {
       setLoading(false);
     }
   };
 
   const handleChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value, type, checked } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: type === 'checkbox' ? checked : value
     }));
+
+    // Si cambia max_capacity, actualizar available_tickets automáticamente
+    if (name === 'max_capacity') {
+      setFormData(prev => ({
+        ...prev,
+        available_tickets: value
+      }));
+    }
 
     // Limpiar error del campo cuando el usuario empiece a escribir
     if (errors[name]) {
@@ -143,15 +233,26 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
     }
   };
 
-  const handleImageUpload = (url) => {
-    setFormData(prev => ({ ...prev, image_url: url }));
+  const handleImagesChange = (newImages) => {
+    setFormData(prev => ({
+      ...prev,
+      images: newImages
+    }));
+
+    // Limpiar error de imágenes si se agregan
+    if (errors.images) {
+      setErrors(prev => ({
+        ...prev,
+        images: ''
+      }));
+    }
   };
 
   if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
-      <div className="bg-gray-800 rounded-lg max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+      <div className="bg-gray-800 rounded-lg max-w-4xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-700">
           <h2 className="text-xl font-semibold text-white">
             {movie ? 'Editar Película' : 'Nueva Película'}
@@ -164,11 +265,15 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
-          <ImageUpload
-            onImageUpload={handleImageUpload}
-            currentImage={formData.image_url}
+        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+          {/* Componente de múltiples imágenes */}
+          <MultipleImageUpload
+            onImagesChange={handleImagesChange}
+            currentImages={formData.images}
           />
+          {errors.images && (
+            <p className="text-red-400 text-sm">{errors.images}</p>
+          )}
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
@@ -305,7 +410,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                 className={`w-full px-3 py-2 bg-gray-700 border rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                   errors.price ? 'border-red-500' : 'border-gray-600'
                 }`}
-                placeholder="15000"
+                placeholder="18000"
               />
               {errors.price && (
                 <p className="mt-1 text-sm text-red-400">{errors.price}</p>
@@ -331,6 +436,74 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               {errors.max_capacity && (
                 <p className="mt-1 text-sm text-red-400">{errors.max_capacity}</p>
               )}
+            </div>
+
+            <div>
+              <label htmlFor="release_date" className="block text-sm font-medium text-gray-300 mb-2">
+                Fecha de estreno *
+              </label>
+              <input
+                id="release_date"
+                name="release_date"
+                type="date"
+                value={formData.release_date}
+                onChange={handleChange}
+                className={`w-full px-3 py-2 bg-gray-700 border rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+                  errors.release_date ? 'border-red-500' : 'border-gray-600'
+                }`}
+              />
+              {errors.release_date && (
+                <p className="mt-1 text-sm text-red-400">{errors.release_date}</p>
+              )}
+            </div>
+
+            <div>
+              <label htmlFor="status" className="block text-sm font-medium text-gray-300 mb-2">
+                Estado
+              </label>
+              <select
+                id="status"
+                name="status"
+                value={formData.status}
+                onChange={handleChange}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {statusOptions.map(option => (
+                  <option key={option.value} value={option.value}>
+                    {option.label}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <div>
+              <label htmlFor="available_tickets" className="block text-sm font-medium text-gray-300 mb-2">
+                Tickets disponibles
+              </label>
+              <input
+                id="available_tickets"
+                name="available_tickets"
+                type="number"
+                min="0"
+                value={formData.available_tickets}
+                onChange={handleChange}
+                className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="100"
+              />
+            </div>
+
+            <div className="flex items-center">
+              <input
+                id="is_presale"
+                name="is_presale"
+                type="checkbox"
+                checked={formData.is_presale}
+                onChange={handleChange}
+                className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+              />
+              <label htmlFor="is_presale" className="ml-2 block text-sm text-gray-300">
+                Es preventa
+              </label>
             </div>
           </div>
 

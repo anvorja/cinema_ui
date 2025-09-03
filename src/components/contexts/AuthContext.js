@@ -1,4 +1,4 @@
-// src/contexts/AuthContext.js - SOLO DEFINICIÓN DEL CONTEXTO, NO JSX
+// src/contexts/AuthContext.js
 import { createContext } from 'react';
 
 // Estados posibles de autenticación
