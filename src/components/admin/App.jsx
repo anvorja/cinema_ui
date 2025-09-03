@@ -48,7 +48,6 @@ const AppContent = () => {
     }
   };
 
-  // Pantalla de carga inicial
   if (loading) {
     return (
       <div className="min-h-screen bg-gray-900 flex items-center justify-center">
@@ -60,7 +59,6 @@ const AppContent = () => {
     );
   }
 
-  // Si no hay usuario o no es admin, mostrar login
   if (!user || !isAdmin) {
     return (
       <LoginForm
@@ -71,7 +69,6 @@ const AppContent = () => {
     );
   }
 
-  // Usuario autenticado y es admin, mostrar dashboard
   return <AdminDashboard />;
 };
 

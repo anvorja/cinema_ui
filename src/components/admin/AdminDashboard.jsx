@@ -3,8 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { useAuth } from './hooks/useAuth';
 import { useApi } from './hooks/useApi';
 import { useToast } from './hooks/useToast';
-
-// Componentes
 import DashboardHeader from './DashboardHeader';
 import StatsCards from './StatsCards';
 import TabNavigation from './TabNavigation';
@@ -18,7 +16,6 @@ const AdminDashboardContent = () => {
   const { adminApi } = useApi();
   const { toast } = useToast();
 
-  // Estados principales
   const [activeTab, setActiveTab] = useState('movies');
   const [movies, setMovies] = useState([]);
   const [users, setUsers] = useState([]);
