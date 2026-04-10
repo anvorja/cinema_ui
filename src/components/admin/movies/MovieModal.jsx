@@ -1,6 +1,7 @@
 // src/components/admin/movies/MovieModal.jsx - CAMPOS CORREGIDOS
 import React, { useState, useEffect } from 'react';
-import { X, Loader } from 'lucide-react';
+import { X, Loader, AlertCircle } from 'lucide-react';
+import { getErrorMessage } from '../../../services/api';
 import MultipleImageUpload from './MultipleImageUpload';
 
 const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
@@ -30,6 +31,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
 
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState({});
+  const [apiError, setApiError] = useState('');
 
   // Opciones para los selects
   const genres = [
@@ -102,6 +104,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
       });
     }
     setErrors({});
+    setApiError('');
   }, [movie, isOpen]);
 
   const validateForm = () => {
@@ -113,6 +116,8 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
 
     if (!formData.description.trim()) {
       newErrors.description = 'La descripción es requerida';
+    } else if (formData.description.length > 1000) {
+      newErrors.description = `La descripción no puede superar 1000 caracteres (actualmente: ${formData.description.length})`;
     }
 
     if (!formData.genre) {
@@ -197,13 +202,11 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
         theater_ids: Array.isArray(processedData.theater_ids)
       });
 
+      setApiError('');
       await onSave(processedData);
     } catch (error) {
       console.error('Error completo:', error);
-      if (error.response) {
-        console.error('Response data:', error.response.data);
-        console.error('Response status:', error.response.status);
-      }
+      setApiError(getErrorMessage(error));
     } finally {
       setLoading(false);
     }
@@ -508,15 +511,21 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
           </div>
 
           <div>
-            <label htmlFor="description" className="block text-sm font-medium text-gray-300 mb-2">
-              Descripción *
-            </label>
+            <div className="flex items-center justify-between mb-2">
+              <label htmlFor="description" className="block text-sm font-medium text-gray-300">
+                Descripción *
+              </label>
+              <span className={`text-xs ${formData.description.length > 1000 ? 'text-red-400 font-medium' : formData.description.length > 900 ? 'text-yellow-400' : 'text-gray-400'}`}>
+                {formData.description.length}/1000
+              </span>
+            </div>
             <textarea
               id="description"
               name="description"
               rows={4}
               value={formData.description}
               onChange={handleChange}
+              maxLength={1000}
               className={`w-full px-3 py-2 bg-gray-700 border rounded-md text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                 errors.description ? 'border-red-500' : 'border-gray-600'
               }`}
@@ -526,6 +535,13 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               <p className="mt-1 text-sm text-red-400">{errors.description}</p>
             )}
           </div>
+
+          {apiError && (
+            <div className="flex items-start gap-2 p-3 bg-red-900/50 border border-red-500 rounded-md">
+              <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
+              <p className="text-red-200 text-sm">{apiError}</p>
+            </div>
+          )}
 
           <div className="flex justify-end space-x-4 pt-4 border-t border-gray-700">
             <button

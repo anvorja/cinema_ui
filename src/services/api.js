@@ -83,8 +83,18 @@ export const getErrorMessage = (error) => {
         return 'No tienes permisos para realizar esta acción';
       case 404:
         return 'No existe una cuenta con ese correo electrónico';
-      case 422:
+      case 422: {
+        // FastAPI devuelve detail como array de errores Pydantic
+        if (Array.isArray(data.detail)) {
+          return data.detail
+            .map(err => {
+              const field = err.loc?.slice(1).join('.') || '';
+              return field ? `${field}: ${err.msg}` : err.msg;
+            })
+            .join(' | ');
+        }
         return data.detail || data.message || 'Error de validación';
+      }
       case 500:
         return 'Error interno del servidor. Inténtalo más tarde.';
       default:
