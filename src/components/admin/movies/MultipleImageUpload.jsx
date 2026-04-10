@@ -1,5 +1,5 @@
 // src/components/admin/movies/MultipleImageUpload.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Edit2, Loader, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { useCloudinary } from '../hooks/useCloudinary';
 
@@ -15,6 +15,16 @@ const MultipleImageUpload = ({
     detail2: currentImages.detail2 || '',
     backdrop: currentImages.backdrop || ''
   });
+
+  // Sincronizar cuando el padre actualiza las imágenes (ej: al abrir modal de edición)
+  useEffect(() => {
+    setImages({
+      poster: currentImages.poster || '',
+      detail1: currentImages.detail1 || '',
+      detail2: currentImages.detail2 || '',
+      backdrop: currentImages.backdrop || ''
+    });
+  }, [currentImages.poster, currentImages.detail1, currentImages.detail2, currentImages.backdrop]);
 
   const [dragActive, setDragActive] = useState({
     poster: false,

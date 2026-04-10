@@ -2,7 +2,7 @@
 import { useState } from 'react';
 
 // Configura estos valores según tu configuración de Cloudinary
-const CLOUDINARY_UPLOAD_PRESET = 'cinema_movies';
+const CLOUDINARY_UPLOAD_PRESET = 'cinema';
 const CLOUDINARY_CLOUD_NAME = 'dv2xu8dwr';
 
 export const useCloudinary = () => {
