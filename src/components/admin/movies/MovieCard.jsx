@@ -21,9 +21,9 @@ const MovieCard = ({ movie, onEdit, onToggle }) => {
       <div className="flex items-start space-x-4">
         {/* Imagen de la película */}
         <div className="flex-shrink-0">
-          {movie.image_url ? (
+          {movie.poster_url ? (
             <img
-              src={movie.image_url}
+              src={movie.poster_url}
               alt={movie.title}
               className="h-24 w-24 md:h-32 md:w-32 object-cover rounded-lg"
             />
