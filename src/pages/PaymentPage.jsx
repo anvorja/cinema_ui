@@ -195,6 +195,7 @@ const PaymentPage = () => {
   }
 
   return (
+    <>
     <div className="min-h-screen pt-24 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
       <FloatingParticles count={25} className="opacity-20" />
 
@@ -478,6 +479,7 @@ const PaymentPage = () => {
         onClose={() => setShowLoginModal(false)}
         onSwitchToRegister={() => setShowLoginModal(false)}
       />
+    </>
   );
 };
 
