@@ -1,9 +1,8 @@
 // src/components/admin/hooks/useCloudinary.js
 import { useState } from 'react';
 
-// Configura estos valores según tu configuración de Cloudinary
-const CLOUDINARY_UPLOAD_PRESET = 'cinema';
-const CLOUDINARY_CLOUD_NAME = 'dv2xu8dwr';
+const CLOUDINARY_UPLOAD_PRESET = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET;
+const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
 export const useCloudinary = () => {
   const [uploading, setUploading] = useState(false);

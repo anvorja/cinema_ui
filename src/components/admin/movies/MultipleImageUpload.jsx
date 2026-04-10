@@ -215,6 +215,7 @@ const MultipleImageUpload = ({
 
                   {!uploading && (
                     <button
+                      type="button"
                       onClick={() => onButtonClick(imageType.key)}
                       className="text-blue-400 hover:text-blue-300 flex items-center justify-center mx-auto transition-colors text-sm"
                     >
