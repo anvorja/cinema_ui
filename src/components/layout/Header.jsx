@@ -405,6 +405,16 @@ const Header = () => {
         setShowLoginModal(true);
     };
 
+    // Abrir modal de login cuando el token expira o hay sesión requerida
+    useEffect(() => {
+        const handleSessionExpired = () => {
+            console.log('Session expired, opening login modal');
+            setShowLoginModal(true);
+        };
+        window.addEventListener('auth:session-expired', handleSessionExpired);
+        return () => window.removeEventListener('auth:session-expired', handleSessionExpired);
+    }, []);
+
     const handleSwitchToRegister = () => {
         console.log('Switching to register modal');
         setShowLoginModal(false);

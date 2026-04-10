@@ -18,7 +18,7 @@ import { useAuth } from './useAuth';
  */
 export const useLogout = (options = {}) => {
   const {
-    redirectTo = '/login',
+    redirectTo = '/',
     showNotification = true,
     onSuccess,
     onError,
@@ -192,7 +192,7 @@ export const useLogout = (options = {}) => {
 
       // Recargar página para garantizar estado limpio
       setTimeout(() => {
-        window.location.href = redirectTo || '/login';
+        window.location.href = redirectTo || '/';
       }, 500);
 
     } catch (error) {

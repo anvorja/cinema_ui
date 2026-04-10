@@ -95,7 +95,7 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }) => {
             localStorage.removeItem('cinema_token');
             localStorage.removeItem('cinema_user');
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/';
             }, 1000);
         }
     };

@@ -42,12 +42,12 @@ api.interceptors.response.use(
       data: error.response?.data
     });
 
-    // Manejar token expirado
-    if (error.response?.status === 401) {
+    // Manejar token expirado (solo en rutas que no sean de autenticación)
+    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/')) {
       console.log('Token expired, clearing local storage');
       localStorage.removeItem('cinema_token');
       localStorage.removeItem('cinema_user');
-      window.location.href = '/login';
+      window.dispatchEvent(new CustomEvent('auth:session-expired'));
     }
 
     return Promise.reject(error);
@@ -57,25 +57,41 @@ api.interceptors.response.use(
 export const getErrorMessage = (error) => {
   if (error.response) {
     const { status, data } = error.response;
+    const detail = (data?.detail || data?.message || '').toLowerCase();
 
     switch (status) {
       case 400:
         return data.detail || data.message || 'Datos inválidos';
-      case 401:
-        return 'Por favor inicia sesión';
+      case 401: {
+        // Distinguir entre contraseña incorrecta y usuario no encontrado
+        if (detail.includes('password') || detail.includes('contraseña') ||
+            detail.includes('incorrect') || detail.includes('wrong') ||
+            detail.includes('invalid credential')) {
+          return 'Contraseña incorrecta';
+        }
+        if (detail.includes('user not found') || detail.includes('usuario no encontrado') ||
+            detail.includes('no existe') || detail.includes('not exist') ||
+            detail.includes('not registered')) {
+          return 'No existe una cuenta con ese correo electrónico';
+        }
+        if (detail.includes('email') && (detail.includes('not') || detail.includes('no'))) {
+          return 'No existe una cuenta con ese correo electrónico';
+        }
+        return 'Email o contraseña incorrectos';
+      }
       case 403:
         return 'No tienes permisos para realizar esta acción';
       case 404:
-        return 'Recurso no encontrado';
+        return 'No existe una cuenta con ese correo electrónico';
       case 422:
         return data.detail || data.message || 'Error de validación';
       case 500:
-        return 'Error interno del servidor';
+        return 'Error interno del servidor. Inténtalo más tarde.';
       default:
         return data.detail || data.message || `Error ${status}`;
     }
   } else if (error.request) {
-    return 'No se pudo conectar con el servidor. Verifica tu conexión a internet.';
+    return 'Sin conexión con el servidor. Verifica tu internet e inténtalo de nuevo.';
   } else {
     return error.message || 'Error inesperado';
   }

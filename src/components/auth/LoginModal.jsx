@@ -65,22 +65,11 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     } else {
       console.log('❌ Login failed:', result.error);
 
-      // 🚨 TOAST DE ERROR
-      let errorMessage = result.error;
+      // El mensaje ya viene procesado desde getErrorMessage en api.js
+      const errorMessage = result.error;
 
-      // Personalizar mensajes de error
-      if (errorMessage.includes('401') || errorMessage.includes('Unauthorized')) {
-        errorMessage = 'Email o contraseña incorrectos';
-      } else if (errorMessage.includes('404') || errorMessage.includes('not found')) {
-        errorMessage = 'Usuario no encontrado. ¿Necesitas registrarte?';
-      } else if (errorMessage.includes('server') || errorMessage.includes('500')) {
-        errorMessage = 'Error del servidor. Inténtalo más tarde.';
-      } else if (errorMessage.includes('network') || errorMessage.includes('connect')) {
-        errorMessage = 'Error de conexión. Verifica tu internet.';
-      }
-
-      showToast(errorMessage, 'error', 5000); // 5 segundos para errores
-      setErrors({ general: result.error });
+      showToast(errorMessage, 'error', 5000);
+      setErrors({ general: errorMessage });
     }
   };
 

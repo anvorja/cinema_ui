@@ -100,7 +100,7 @@ const UserProfileDropdown = ({ onClose, user }) => {
 
             // Redirigir después de un breve delay
             setTimeout(() => {
-                window.location.href = '/login';
+                window.location.href = '/';
             }, 1000);
         } finally {
             setIsLoggingOut(false);
