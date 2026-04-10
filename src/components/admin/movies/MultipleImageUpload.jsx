@@ -33,6 +33,8 @@ const MultipleImageUpload = ({
     backdrop: false
   });
 
+  const [draggedSlot, setDraggedSlot] = useState(null);
+
   const fileInputRefs = {
     poster: useRef(null),
     detail1: useRef(null),
@@ -87,6 +89,21 @@ const MultipleImageUpload = ({
       ...prev,
       [imageType]: false
     }));
+
+    // Si se está arrastrando un slot existente al otro → intercambiar
+    if (draggedSlot && draggedSlot !== imageType) {
+      const updatedImages = {
+        ...images,
+        [imageType]: images[draggedSlot],
+        [draggedSlot]: images[imageType]
+      };
+      setImages(updatedImages);
+      onImagesChange(updatedImages);
+      setDraggedSlot(null);
+      return;
+    }
+
+    setDraggedSlot(null);
 
     const files = e.dataTransfer.files;
     if (files && files[0]) {
@@ -177,8 +194,10 @@ const MultipleImageUpload = ({
 
             <div
               className={`relative border-2 border-dashed rounded-lg p-4 transition-all duration-200 ${
-                dragActive[imageType.key] 
-                  ? 'border-blue-400 bg-blue-900/20' 
+                draggedSlot && draggedSlot !== imageType.key && dragActive[imageType.key]
+                  ? 'border-green-400 bg-green-900/20 scale-[1.02]'
+                  : dragActive[imageType.key]
+                  ? 'border-blue-400 bg-blue-900/20'
                   : 'border-gray-600 hover:border-gray-500'
               } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
               onDragEnter={(e) => handleDrag(e, imageType.key)}
@@ -200,8 +219,17 @@ const MultipleImageUpload = ({
                     <img
                       src={images[imageType.key]}
                       alt={`Preview ${imageType.label}`}
-                      className="mx-auto h-24 w-32 object-cover rounded-lg mb-2"
+                      draggable={!uploading}
+                      onDragStart={() => setDraggedSlot(imageType.key)}
+                      onDragEnd={() => setDraggedSlot(null)}
+                      className={`mx-auto h-24 w-32 object-cover rounded-lg mb-2 ${!uploading ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedSlot === imageType.key ? 'opacity-50 ring-2 ring-blue-400' : ''}`}
+                      title="Arrastra para intercambiar con otra imagen"
                     />
+                    {draggedSlot && draggedSlot !== imageType.key && dragActive[imageType.key] && (
+                      <div className="absolute inset-0 flex items-center justify-center bg-green-900/60 rounded-lg">
+                        <span className="text-green-300 text-xs font-medium">Intercambiar</span>
+                      </div>
+                    )}
                     {!uploading && (
                       <button
                         onClick={() => removeImage(imageType.key)}
