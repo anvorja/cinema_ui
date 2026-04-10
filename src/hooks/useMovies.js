@@ -28,8 +28,8 @@ export const useMovies = (options = {}) => {
 
     try {
       const {
-        skip = pagination.skip,
-        limit = pagination.limit,
+        skip = 0,
+        limit = initialLimit,
         replace = true,
         ...otherParams
       } = params;
@@ -63,7 +63,7 @@ export const useMovies = (options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [filters, pagination.skip, pagination.limit]);
+  }, [filters, initialLimit]);
 
   // Cargar más películas
   const loadMore = useCallback(() => {
