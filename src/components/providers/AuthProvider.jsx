@@ -1,5 +1,5 @@
 // src/providers/AuthProvider.jsx - COMPONENTE REACT CON JSX
-import React, { useReducer, useEffect } from 'react';
+import React, { useReducer, useEffect, useRef } from 'react';
 import AuthContext, { AUTH_STATES } from '../contexts/AuthContext';
 import {authService, getErrorMessage} from "../../services/api.js";
 
@@ -72,8 +72,16 @@ const authReducer = (state, action) => {
 const AuthProvider = ({ children }) => {
   const [state, dispatch] = useReducer(authReducer, initialState);
 
+  // Guard against React 18 Strict Mode double-invocation.
+  // Without this, the effect runs twice in development, firing verifyToken
+  // and getCurrentUser twice before the first call has resolved.
+  const initialized = useRef(false);
+
   // Función para verificar y restaurar sesión al cargar
   useEffect(() => {
+    if (initialized.current) return;
+    initialized.current = true;
+
     const initializeAuth = async () => {
       const token = localStorage.getItem('cinema_token');
 

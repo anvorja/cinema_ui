@@ -1,5 +1,5 @@
 // src/hooks/useMovies.js - SOLO LÓGICA, NO JSX
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { movieService, getErrorMessage } from '../services/api';
 
 // Hook principal para gestionar películas con paginación
@@ -21,6 +21,12 @@ export const useMovies = (options = {}) => {
     filters = {}
   } = options;
 
+  // Keep filters in a ref so fetchMovies has a stable reference.
+  // This prevents the useCallback → useEffect re-trigger loop that occurs
+  // when consumers pass a new object literal on every render (e.g. filters={}).
+  const filtersRef = useRef(filters);
+  filtersRef.current = filters;
+
   // Función para obtener películas
   const fetchMovies = useCallback(async (params = {}) => {
     setLoading(true);
@@ -35,7 +41,7 @@ export const useMovies = (options = {}) => {
       } = params;
 
       const response = await movieService.getPaginated(skip, limit, {
-        ...filters,
+        ...filtersRef.current,
         ...otherParams
       });
 
@@ -63,7 +69,7 @@ export const useMovies = (options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [filters, initialLimit]);
+  }, [initialLimit]); // stable — filtersRef.current used at call time
 
   // Cargar más películas
   const loadMore = useCallback(() => {
@@ -88,7 +94,7 @@ export const useMovies = (options = {}) => {
 
     try {
       const response = await movieService.search(query, {
-        ...filters,
+        ...filtersRef.current,
         ...searchFilters
       });
 
@@ -109,14 +115,15 @@ export const useMovies = (options = {}) => {
     } finally {
       setLoading(false);
     }
-  }, [filters, initialLimit]);
+  }, [initialLimit]); // stable — filtersRef.current used at call time
 
-  // Auto-fetch inicial
+  // Auto-fetch inicial — depends only on autoFetch, not on fetchMovies,
+  // because fetchMovies is now a stable reference.
   useEffect(() => {
     if (autoFetch) {
       fetchMovies({ skip: 0, replace: true });
     }
-  }, [autoFetch, fetchMovies]);
+  }, [autoFetch]); // eslint-disable-line react-hooks/exhaustive-deps
 
   return {
     // Estado

@@ -1,6 +1,7 @@
 // src/hooks/useTransformedMovies.js - Hook para obtener datos transformados del backend
 import { useMemo } from 'react';
 import { useMovies, useComingSoonMovies, usePresaleMovies } from './useMovies';
+import { useHomeQuery } from './useQueryMovies';
 import { transformMoviesData, getMoviesByCategory, sortMoviesByReleaseDate } from '../utils/movieUtils';
 
 /**
@@ -156,82 +157,83 @@ export const useTransformedFeatured = (options = {}) => {
 };
 
 /**
- * Hook para obtener películas de todas las categorías para la página Home
- * @returns {Object} - Datos organizados por categoría
+ * Hook para obtener películas de todas las categorías para la página Home.
+ * Usa un único endpoint agregado — una sola petición HTTP en lugar de tres.
+ * React Query deduplica automáticamente si varios componentes lo invocan.
  */
 export const useTransformedHomeData = () => {
-  // Obtener datos de todas las fuentes
-  const cartelera = useTransformedMovies({
-    category: 'cartelera',
-    initialLimit: 8
-  });
+  const { data, isLoading, error, refetch } = useHomeQuery();
 
-  const comingSoon = useTransformedComingSoon();
-  const presales = useTransformedPresales();
+  const cartelaraMovies = useMemo(
+    () => transformMoviesData(data?.cartelera ?? []),
+    [data?.cartelera]
+  );
 
-  // Combinar para sección "Pronto"
+  const comingSoonMovies = useMemo(() => {
+    const transformed = transformMoviesData(data?.coming_soon ?? []);
+    return sortMoviesByReleaseDate(transformed, 'asc');
+  }, [data?.coming_soon]);
+
+  const presalesMovies = useMemo(() => {
+    const transformed = transformMoviesData(data?.presales ?? []);
+    return sortMoviesByReleaseDate(transformed, 'asc');
+  }, [data?.presales]);
+
   const prontoMovies = useMemo(() => {
     const upcoming = [
-      ...comingSoon.movies.slice(0, 4),
-      ...presales.movies.slice(0, 4)
+      ...comingSoonMovies.slice(0, 4),
+      ...presalesMovies.slice(0, 4)
     ];
-
     return sortMoviesByReleaseDate(upcoming, 'asc').slice(0, 8);
-  }, [comingSoon.movies, presales.movies]);
+  }, [comingSoonMovies, presalesMovies]);
 
-  // Películas destacadas para carrusel
   const featuredMovies = useMemo(() => {
     const featured = [
-      ...cartelera.movies.slice(0, 3),
-      ...presales.movies.slice(0, 2)
+      ...cartelaraMovies.slice(0, 3),
+      ...presalesMovies.slice(0, 2)
     ];
-
     return featured.sort((a, b) => {
       const aHasBackdrop = !!a.backdrop_url;
       const bHasBackdrop = !!b.backdrop_url;
-
       if (aHasBackdrop && !bHasBackdrop) return -1;
       if (!aHasBackdrop && bHasBackdrop) return 1;
-
       return 0;
     });
-  }, [cartelera.movies, presales.movies]);
+  }, [cartelaraMovies, presalesMovies]);
 
-  // Estados globales
-  const isLoading = cartelera.loading || comingSoon.loading || presales.loading;
-  const hasError = cartelera.hasError || comingSoon.hasError || presales.hasError;
-  const isEmpty = cartelera.isEmpty && comingSoon.isEmpty && presales.isEmpty;
+  const hasError = !!error;
+  const isEmpty = cartelaraMovies.length === 0 && comingSoonMovies.length === 0 && presalesMovies.length === 0;
 
   return {
-    // Datos por categoría
     cartelera: {
-      ...cartelera,
-      movies: cartelera.movies.slice(0, 8)
+      movies: cartelaraMovies.slice(0, 8),
+      loading: isLoading,
+      hasError,
+      isEmpty: cartelaraMovies.length === 0 && !isLoading,
+      refetch,
     },
     comingSoon: {
-      ...comingSoon,
-      movies: comingSoon.movies.slice(0, 4)
+      movies: comingSoonMovies.slice(0, 4),
+      loading: isLoading,
+      hasError,
+      isEmpty: comingSoonMovies.length === 0 && !isLoading,
+      refetch,
     },
     presales: {
-      ...presales,
-      movies: presales.movies.slice(0, 4)
+      movies: presalesMovies.slice(0, 4),
+      loading: isLoading,
+      hasError,
+      isEmpty: presalesMovies.length === 0 && !isLoading,
+      refetch,
     },
 
-    // Datos combinados
     featured: featuredMovies,
     pronto: prontoMovies,
 
-    // Estados globales
     loading: isLoading,
     error: hasError,
     isEmpty,
-
-    // Funciones de recarga
-    refresh: () => {
-      cartelera.refresh();
-      comingSoon.refetch();
-      presales.refetch();
-    }
+    refresh: refetch,
   };
 };
 

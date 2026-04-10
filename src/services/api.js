@@ -162,6 +162,13 @@ export const movieService = {
     return response.data;
   },
 
+  getHomeData: async ({ cartelera_limit = 8, coming_soon_limit = 4, presales_limit = 4 } = {}) => {
+    const response = await api.get('/movies/home', {
+      params: { cartelera_limit, coming_soon_limit, presales_limit },
+    });
+    return response.data;
+  },
+
   getComingSoon: async () => {
     const response = await api.get('/movies/coming-soon');
     return response.data;
