@@ -11,6 +11,7 @@ import {
 import { FloatingParticles, GlassCard, PremiumButton } from '../components/ui';
 import { useBooking } from '../hooks/useBooking';
 import useAuth from "../hooks/useAuth.js";
+import { LoginModal } from '../components/auth/LoginModal';
 
 const PaymentPage = () => {
   const location = useLocation();
@@ -33,6 +34,7 @@ const PaymentPage = () => {
   const [loading, setLoading] = useState(false);
   const [showConfirmation, setShowConfirmation] = useState(false);
   const [transactionId, setTransactionId] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
 
   // Métodos de pago disponibles
   const paymentMethods = [
@@ -98,10 +100,7 @@ const PaymentPage = () => {
 
   const handlePayment = async () => {
     if (!isAuthenticated) {
-      // Redirigir al login si no está autenticado
-      navigate('/login', {
-        state: { returnTo: '/payment', returnData: location.state }
-      });
+      setShowLoginModal(true);
       return;
     }
 
@@ -473,6 +472,12 @@ const PaymentPage = () => {
         </div>
       </div>
     </div>
+
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToRegister={() => setShowLoginModal(false)}
+      />
   );
 };
 
