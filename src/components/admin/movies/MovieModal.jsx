@@ -176,8 +176,8 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
         price: parseFloat(formData.price),
         max_capacity: parseInt(formData.max_capacity),
         available_tickets: parseInt(formData.available_tickets || formData.max_capacity),
-        director: formData.director || '',
-        country: formData.country || '',
+        director: formData.director.trim() || null,
+        country: formData.country.trim() || null,
         release_date: formData.release_date,
         status: formData.status,
         is_presale: formData.is_presale,
@@ -273,6 +273,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
           <MultipleImageUpload
             onImagesChange={handleImagesChange}
             currentImages={formData.images}
+            movieTitle={formData.title}
           />
           {errors.images && (
             <p className="text-red-400 text-sm">{errors.images}</p>

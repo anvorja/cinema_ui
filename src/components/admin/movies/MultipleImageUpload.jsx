@@ -3,9 +3,26 @@ import React, { useState, useRef, useEffect } from 'react';
 import { Edit2, Loader, X, AlertCircle, Image as ImageIcon } from 'lucide-react';
 import { useCloudinary } from '../hooks/useCloudinary';
 
+const SLOT_SUFFIX = {
+  poster: 'img_poster',
+  detail1: 'img_detail1',
+  detail2: 'img_detail2',
+  backdrop: 'img_backdrop'
+};
+
+const buildPublicId = (title, slot) => {
+  if (!title || !title.trim()) return null;
+  const clean = title
+    .trim()
+    .replace(/[^\w\s]/g, '')   // quita caracteres especiales
+    .replace(/\s+/g, '_');     // espacios → guión bajo
+  return `${clean}_${SLOT_SUFFIX[slot]}`;
+};
+
 const MultipleImageUpload = ({
   onImagesChange,
   currentImages = {},
+  movieTitle = '',
   className = ''
 }) => {
   // currentImages debe tener la estructura: { poster: '', detail1: '', detail2: '', backdrop: '' }
@@ -121,27 +138,19 @@ const MultipleImageUpload = ({
   const handleFile = async (file, imageType) => {
     clearError();
 
-    // Crear preview local inmediatamente
+    // Preview local inmediato
     const localPreview = URL.createObjectURL(file);
-    const newImages = {
-      ...images,
-      [imageType]: localPreview
-    };
-
-    setImages(newImages);
+    setImages(prev => ({ ...prev, [imageType]: localPreview }));
 
     try {
-      const result = await uploadImage(file);
-      const updatedImages = {
-        ...images,
-        [imageType]: result.url
-      };
+      const publicId = buildPublicId(movieTitle, imageType);
+      const result = await uploadImage(file, { publicId });
 
+      const updatedImages = { ...images, [imageType]: result.url };
       setImages(updatedImages);
       onImagesChange(updatedImages);
 
     } catch (err) {
-      // En caso de error, restaurar la imagen anterior
       setImages(prev => ({
         ...prev,
         [imageType]: currentImages[imageType] || ''
