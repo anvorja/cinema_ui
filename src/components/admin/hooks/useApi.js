@@ -69,6 +69,19 @@ export const useApi = () => {
         method: 'PATCH'
       }),
 
+    // Theaters
+    getTheaters: (params = {}) => {
+      const queryString = new URLSearchParams({
+        include_inactive: true,
+        limit: 100,
+        ...params
+      }).toString();
+      return apiCall(`/admin/theaters?${queryString}`);
+    },
+
+    toggleTheater: (id) =>
+      apiCall(`/admin/theaters/${id}/toggle`, { method: 'PATCH' }),
+
     // Purchases
     getPurchases: (params = {}) => {
       const queryString = new URLSearchParams({

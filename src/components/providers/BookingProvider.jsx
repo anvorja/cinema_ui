@@ -159,13 +159,15 @@ export const BookingProvider = ({ children }) => {
       console.log('✅ Pago confirmado:', paymentResponse.data);
 
       // Paso 3: Construir objeto de reserva completa
+      // Usar seat_number reales del backend si están disponibles
+      const backendSeats = bookingResponse.data?.tickets?.map(t => t.seat_number);
       const completedBooking = {
         id: purchaseId,
         ...bookingData,
         transactionId: paymentConfirmation.transactionId,
         bookingDate: new Date(),
         status: 'confirmed',
-        seats: paymentResponse.data?.assigned_seats || generateSeatNumbers(bookingData.ticketCount),
+        seats: backendSeats?.length ? backendSeats : (paymentResponse.data?.assigned_seats || generateSeatNumbers(bookingData.ticketCount)),
         bookingNumber: paymentResponse.data?.booking_number || `BK-${purchaseId}`,
         qrCode: paymentResponse.data?.qr_code || `QR-${purchaseId}-${Date.now()}`
       };

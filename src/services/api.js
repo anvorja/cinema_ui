@@ -292,15 +292,21 @@ export const purchaseService = {
     return response.data;
   },
 
-  getMyPurchases: async () => {
-    const response = await api.get('/purchases');
+  // Historial enriquecido (movie info + tickets) desde user-service
+  getMyPurchases: async (params = {}) => {
+    const response = await api.get('/users/me/purchases', { params });
     return response.data;
   },
 
   getById: async (id) => {
     const response = await api.get(`/purchases/${id}`);
     return response.data;
-  }
+  },
+
+  cancel: async (id) => {
+    const response = await api.post(`/purchases/${id}/cancel`);
+    return response.data;
+  },
 };
 
 export const calendarService = {
@@ -356,10 +362,15 @@ export const adminService = {
       return response.data;
     },
 
-    getAll: async () => {
-      const response = await api.get('/admin/theaters');
+    getAll: async (params = {}) => {
+      const response = await api.get('/admin/theaters', { params });
       return response.data;
-    }
+    },
+
+    toggle: async (id) => {
+      const response = await api.patch(`/admin/theaters/${id}/toggle`);
+      return response.data;
+    },
   },
 
   // Usuarios

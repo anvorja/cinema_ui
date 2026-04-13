@@ -22,6 +22,9 @@ const PaymentSuccessPage = () => {
   const [isDownloading, setIsDownloading] = useState(false);
 
   // Extraer datos del estado de navegación
+  // PaymentPage navega con { booking: completedBooking, transactionId, success }
+  // completedBooking tiene { movie, theater, showtime, selectedDate, ticketCount, totalAmount, paymentMethod, seats }
+  const { booking, transactionId } = location.state || {};
   const {
     movie,
     theater,
@@ -30,8 +33,8 @@ const PaymentSuccessPage = () => {
     ticketCount,
     totalAmount,
     paymentMethod,
-    transactionId
-  } = location.state || {};
+    seats: realSeats,
+  } = booking || {};
 
   // Countdown para redirección automática
   useEffect(() => {
@@ -55,7 +58,7 @@ const PaymentSuccessPage = () => {
     return null;
   }
 
-  // Información adicional de las boletas (simulada)
+  // Información adicional de las boletas
   const ticketInfo = {
     reference: transactionId,
     date: new Date().toLocaleDateString('es-CO', {
@@ -68,24 +71,11 @@ const PaymentSuccessPage = () => {
       hour: '2-digit',
       minute: '2-digit'
     }),
-    seats: generateSeatNumbers(ticketCount),
+    // Usar asientos reales del backend si están disponibles
+    seats: Array.isArray(realSeats) ? realSeats.join(', ') : (realSeats || `${ticketCount || 1} x General`),
     qrCode: `QR-${transactionId}`,
     validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('es-CO')
   };
-
-  // Función para generar números de asientos simulados
-  function generateSeatNumbers(count) {
-    const rows = ['J', 'K', 'L', 'M'];
-    const seats = [];
-    const startSeat = Math.floor(Math.random() * 20) + 1;
-
-    for (let i = 0; i < count; i++) {
-      const row = rows[Math.floor(Math.random() * rows.length)];
-      seats.push(`${row}${startSeat + i}`);
-    }
-
-    return seats.join(', ');
-  }
 
   // Función para simular descarga de PDF
   const handleDownloadPDF = async () => {

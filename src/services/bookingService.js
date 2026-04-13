@@ -1,5 +1,5 @@
 // src/services/bookingService.js - VERSIÓN FINAL CORRECTA SEGÚN EL BACKEND
-import api, { movieService } from './api.js';
+import api, { movieService, purchaseService } from './api.js';
 
 class BookingService {
   // 🎬 Obtener horarios de una película
@@ -171,22 +171,17 @@ class BookingService {
     }
   }
 
-  // ❌ Cancelar una compra
-  async cancelBooking(purchaseId, reason = '') {
+  // ❌ Cancelar una compra — llama al endpoint real
+  async cancelBooking(purchaseId) {
     try {
-      console.log(`Simulando cancelación de compra ${purchaseId} por: ${reason}`);
-
-      return {
-        success: true,
-        data: { id: purchaseId, status: 'cancelled', reason },
-        message: 'Compra cancelada exitosamente'
-      };
+      const data = await purchaseService.cancel(purchaseId);
+      return { success: true, data, message: 'Compra cancelada exitosamente' };
     } catch (error) {
       console.error('Error cancelling purchase:', error);
       return {
         success: false,
         data: null,
-        message: 'Error al cancelar la compra'
+        message: error.response?.data?.detail || 'Error al cancelar la compra',
       };
     }
   }
