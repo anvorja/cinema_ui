@@ -58,7 +58,17 @@ class BookingService {
 
       let purchasePayload;
 
-      const showDate = bookingData.selectedDate || null;
+      // Normalizar selectedDate a string ISO "YYYY-MM-DD" (puede llegar como string o como Date)
+      let showDate = null;
+      const rawDate = bookingData.selectedDate;
+      if (rawDate) {
+        if (typeof rawDate === 'string') {
+          showDate = rawDate.split('T')[0]; // recortar timezone si viene como ISO completo
+        } else if (rawDate instanceof Date) {
+          showDate = rawDate.toISOString().split('T')[0];
+        }
+        // Si es un objeto {dayName, dayNumber, monthName} no se puede convertir de forma segura → null
+      }
       const showTime = bookingData.showtime?.time || null;
 
       if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
