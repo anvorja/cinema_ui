@@ -80,18 +80,24 @@ const PaymentPage = () => {
   ];
 
   useEffect(() => {
-    // Verificar que hay datos de pago
-    if (!movie || !theater || !showtime) {
+    if (!movie || !theater) {
       navigate('/cartelera');
       return;
     }
 
-    // Actualizar contexto con método de pago
+    // Sync context so completeBooking() has the right data regardless of how we arrived here
     updateBooking({
+      movie,
+      theater,
+      showtime: showtime || null,
+      selectedDate,
+      ticketCount: ticketCount || 1,
+      totalAmount: totalAmount || 0,
       paymentMethod: selectedPaymentMethod,
-      step: 3
+      step: 3,
     });
-  }, [movie, theater, showtime, selectedPaymentMethod, updateBooking, navigate]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [movie?.id, theater?.id, showtime?.id, selectedPaymentMethod]);
 
   const handleCardInputChange = (field, value) => {
     setCardData(prev => ({ ...prev, [field]: value }));
@@ -216,7 +222,7 @@ const PaymentPage = () => {
         navigate('/payment-success', {
           state: { booking: completedBooking, transactionId: txnId, success: true }
         });
-      }, 8000);
+      }, 2000);
 
     } catch (error) {
       console.error('Payment error:', error);

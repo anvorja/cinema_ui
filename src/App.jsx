@@ -5,7 +5,9 @@ import CarteleraPage from "./pages/CarteleraPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
 import MovieDetailPage from "./pages/MovieDetailPage.jsx";
 import ProntoPage from "./pages/ProntoPage.jsx";
-import BookingPage from "./pages/BookingPage.jsx";
+import SeatSelectionPage from "./pages/SeatSelectionPage.jsx";
+import TicketConfirmPage from "./pages/TicketConfirmPage.jsx";
+import FoodSelectionPage from "./pages/FoodSelectionPage.jsx";
 import PaymentSuccessPage from "./pages/PaymentSuccessPage.jsx";
 import PaymentPage from "./pages/PaymentPage.jsx";
 import ComidasPage from "./pages/ComidasPage.jsx";
@@ -39,7 +41,10 @@ function App() {
                                 <Route path="comidas" element={<ComidasPage />} />
 
                                 <Route path="movie/:id" element={<MovieDetailPage />} />
-                                <Route path="booking/:movieId/:theaterId/:showtimeId" element={<BookingPage />} />
+                                {/* Seat selection flow — specific paths before parameterized */}
+                                <Route path="booking/tickets" element={<TicketConfirmPage />} />
+                                <Route path="booking/food"    element={<FoodSelectionPage />} />
+                                <Route path="booking/:movieId/:theaterId/:showtimeId?" element={<SeatSelectionPage />} />
                                 <Route path="payment" element={<PaymentPage />} />
                                 <Route path="payment-success" element={<PaymentSuccessPage />} />
                                 <Route path="/profile" element={<ProfilePage />} />

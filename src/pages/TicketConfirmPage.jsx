@@ -1,0 +1,269 @@
+// src/pages/TicketConfirmPage.jsx
+// Step 2: User confirms how many tickets of each type to actually purchase
+// (can reduce from what was selected, but not exceed it)
+import { useState, useMemo } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
+import {
+  MapPinIcon, ComputerDesktopIcon, CalendarDaysIcon,
+  ClockIcon, TicketIcon, ArrowLeftIcon, MinusIcon, PlusIcon,
+} from '@heroicons/react/24/outline';
+
+const formatCOP = (n) => `$${Number(n).toLocaleString('es-CO')}`;
+const formatDate = (dateStr) => {
+  if (!dateStr) return '';
+  try {
+    return new Date(dateStr).toLocaleDateString('es-CO', { month: 'short', day: 'numeric' });
+  } catch { return dateStr; }
+};
+
+const GENERAL_PRICE     = 22_800;
+const PREFERENCIAL_PRICE = 28_500;
+const SERVICE_FEE_PER    = 0; // no service fee line in PDF for this screen
+
+const CounterRow = ({ label, subtitle, price, count, max, onDecrement, onIncrement }) => (
+  <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
+    <div>
+      <p className="font-medium text-gray-800">{label}</p>
+      <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+    </div>
+    <div className="flex items-center gap-4">
+      <span className="text-gray-700 font-medium w-24 text-right">{formatCOP(price)}</span>
+      <div className="flex items-center gap-2">
+        <button
+          onClick={onDecrement}
+          disabled={count <= 0}
+          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center
+                     text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <MinusIcon className="w-3.5 h-3.5" />
+        </button>
+        <span className="w-6 text-center font-semibold text-gray-800">{count}</span>
+        <button
+          onClick={onIncrement}
+          disabled={count >= max}
+          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center
+                     text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
+        >
+          <PlusIcon className="w-3.5 h-3.5" />
+        </button>
+      </div>
+      <span className="text-gray-700 font-medium w-24 text-right">
+        {formatCOP(price * count)}
+      </span>
+    </div>
+  </div>
+);
+
+const TicketConfirmPage = () => {
+  const navigate = useNavigate();
+  const { state } = useLocation();
+
+  const {
+    movie, theater, showtime, selectedDate,
+    selectedSeats = [],
+    generalCount  = 0,
+    prefCount     = 0,
+  } = state || {};
+
+  const [genQty,  setGenQty]  = useState(generalCount);
+  const [prefQty, setPrefQty] = useState(prefCount);
+
+  const totalSelected = genQty + prefQty;
+  const subtotal      = genQty * GENERAL_PRICE + prefQty * PREFERENCIAL_PRICE;
+  const total         = subtotal;
+
+  // badge: "Las boletas han sido elegidas X/Y"
+  const maxSelected = generalCount + prefCount;
+
+  const selectedSeatLabels = useMemo(
+    () => selectedSeats.filter(id => !id.includes('wc')).sort().join(', '),
+    [selectedSeats]
+  );
+
+  const poster      = movie?.images?.poster || movie?.posterImage || '';
+  const title       = movie?.title || '';
+  const format      = showtime?.format || '2D Doblada';
+  const time        = showtime?.time || '';
+  const theaterName = theater?.name || '';
+  const dateLabel   = formatDate(typeof selectedDate === 'string' ? selectedDate : selectedDate?.date);
+
+  if (!movie || !theater) {
+    navigate('/cartelera');
+    return null;
+  }
+
+  const handleContinue = () => {
+    if (totalSelected === 0) return;
+    navigate('/booking/food', {
+      state: {
+        movie, theater, showtime, selectedDate,
+        selectedSeats,
+        generalCount: genQty,
+        prefCount: prefQty,
+        ticketCount: totalSelected,
+        subtotal,
+        totalAmount: total,
+      }
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50 pt-20">
+      <div className="max-w-3xl mx-auto px-4 py-6">
+
+        {/* ── Info card ──────────────────────────────────────────────────────── */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
+          <div className="flex gap-4 items-start">
+            {poster && (
+              <img src={poster} alt={title}
+                className="w-16 h-24 object-cover rounded-lg shadow flex-shrink-0" />
+            )}
+            <div className="flex-1 min-w-0">
+              <div className="flex items-start gap-2 flex-wrap mb-2">
+                <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+                {movie.ageRating && (
+                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded">
+                    {movie.ageRating}
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-2 mb-3">
+                {format.split(' ').map((tag, i) => (
+                  <span key={i} className="text-[11px] font-bold bg-gray-800 text-white px-2 py-0.5 rounded">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+              <div className="grid grid-cols-2 sm:grid-cols-3 gap-x-6 gap-y-2 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <MapPinIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-gray-400 uppercase">Multiplex</div>
+                    <div className="font-medium text-gray-800 text-xs">{theaterName}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <ComputerDesktopIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-gray-400 uppercase">Sala</div>
+                    <div className="font-medium text-gray-800 text-xs">
+                      {theater.room_name || theater.sala || 'SALA 1'}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <CalendarDaysIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-gray-400 uppercase">Fecha y horario</div>
+                    <div className="font-medium text-gray-800 text-xs">{dateLabel} {time}</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <ClockIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div>
+                    <div className="text-[10px] text-gray-400 uppercase">Duración</div>
+                    <div className="font-medium text-gray-800 text-xs">
+                      {movie.duration_formatted || movie.duration || '–'}
+                    </div>
+                  </div>
+                </div>
+                {selectedSeatLabels && (
+                  <div className="flex items-center gap-1.5 col-span-2">
+                    <TicketIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                    <div>
+                      <div className="text-[10px] text-gray-400 uppercase">Sillas</div>
+                      <div className="font-medium text-gray-800 text-xs">{selectedSeatLabels}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Ticket type selection ──────────────────────────────────────────── */}
+        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-gray-900">Seleccione sus boletas</h1>
+            <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">
+              Las boletas han sido elegidas {totalSelected}/{maxSelected}
+            </span>
+          </div>
+
+          {/* Table header */}
+          <div className="flex items-center justify-between text-xs text-gray-400 uppercase tracking-wide mb-2 px-0">
+            <span className="flex-1">Concepto</span>
+            <span className="w-24 text-right">Precio</span>
+            <span className="w-32 text-center px-2">Cantidad</span>
+            <span className="w-24 text-right">Subtotal</span>
+          </div>
+
+          {generalCount > 0 && (
+            <CounterRow
+              label="Silla General"
+              subtitle="Pagando con PSE - Tarjeta de Débito / Crédito"
+              price={GENERAL_PRICE}
+              count={genQty}
+              max={generalCount}
+              onDecrement={() => setGenQty(q => Math.max(0, q - 1))}
+              onIncrement={() => setGenQty(q => Math.min(generalCount, q + 1))}
+            />
+          )}
+
+          {prefCount > 0 && (
+            <CounterRow
+              label="Silla Preferencial"
+              subtitle="Pagando con PSE - Tarjeta de Débito / Crédito"
+              price={PREFERENCIAL_PRICE}
+              count={prefQty}
+              max={prefCount}
+              onDecrement={() => setPrefQty(q => Math.max(0, q - 1))}
+              onIncrement={() => setPrefQty(q => Math.min(prefCount, q + 1))}
+            />
+          )}
+
+          {/* Totals */}
+          <div className="mt-4 pt-4 border-t border-gray-100 space-y-1">
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>Subtotal</span>
+              <span>{formatCOP(subtotal)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>Valor por servicio</span>
+              <span>$0</span>
+            </div>
+            <div className="flex justify-between text-base font-bold text-gray-900 pt-1">
+              <span>Total</span>
+              <span>{formatCOP(total)}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Navigation ─────────────────────────────────────────────────────── */}
+        <div className="flex justify-between">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex items-center gap-2 px-5 py-2.5 border border-gray-300 rounded-full
+                       text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm"
+          >
+            <ArrowLeftIcon className="w-4 h-4" />
+            Atrás
+          </button>
+
+          <button
+            onClick={handleContinue}
+            disabled={totalSelected === 0}
+            className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 text-white rounded-full
+                       hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
+                       transition-colors font-semibold text-sm"
+          >
+            Siguiente
+            <span className="text-blue-200">›</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default TicketConfirmPage;

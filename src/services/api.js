@@ -247,7 +247,13 @@ export const movieService = {
   getAvailability: async (movieId) => {
     const response = await api.get(`/movies/${movieId}/availability`);
     return response.data;
-  }
+  },
+
+  // Calificar una película (1-5 estrellas)
+  rate: async (movieId, score, review = null) => {
+    const response = await api.post(`/movies/${movieId}/rate`, { score, review });
+    return response.data;
+  },
 };
 
 export const theaterService = {

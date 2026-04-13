@@ -109,6 +109,10 @@ export const useApi = () => {
 
     // Reports
     getSalesReport: () => apiCall('/admin/reports/sales'),
+
+    // Ticket validation
+    validateTicket: (ticketCode) =>
+      apiCall(`/purchases/tickets/${ticketCode}/validate`, { method: 'POST' }),
   };
 
   return { apiCall, adminApi };

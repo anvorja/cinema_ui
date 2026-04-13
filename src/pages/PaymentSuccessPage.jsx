@@ -17,7 +17,6 @@ import {FloatingParticles, GlassCard, PremiumButton} from '../components/ui';
 const PaymentSuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [countdown, setCountdown] = useState(10);
   const [showQRCode, setShowQRCode] = useState(false);
   const [isDownloading, setIsDownloading] = useState(false);
 
@@ -35,16 +34,6 @@ const PaymentSuccessPage = () => {
     paymentMethod,
     seats: realSeats,
   } = booking || {};
-
-  // Countdown para redirección automática
-  useEffect(() => {
-    if (countdown > 0) {
-      const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
-      return () => clearTimeout(timer);
-    } else {
-      navigate('/');
-    }
-  }, [countdown, navigate]);
 
   // Redirigir si no hay datos de pago
   useEffect(() => {
@@ -111,11 +100,6 @@ const PaymentSuccessPage = () => {
       await navigator.clipboard.writeText(window.location.href);
       alert('Enlace copiado al portapapeles');
     }
-  };
-
-  // Función para detener countdown
-  const stopCountdown = () => {
-    setCountdown(0);
   };
 
   return (
@@ -331,13 +315,10 @@ const PaymentSuccessPage = () => {
                   variant="secondary"
                   size="lg"
                   className="w-full"
-                  onClick={() => {
-                    stopCountdown();
-                    navigate('/');
-                  }}
+                  onClick={() => navigate('/')}
                 >
                   <HomeIcon className="w-5 h-5 mr-2" />
-                  Volver al Inicio {countdown > 0 && `(${countdown}s)`}
+                  Volver al Inicio
                 </PremiumButton>
               </div>
 

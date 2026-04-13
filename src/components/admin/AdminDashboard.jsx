@@ -10,6 +10,7 @@ import MoviesTab from './movies/MoviesTab';
 import UsersTab from './users/UsersTab';
 import PurchasesTab from './purchases/PurchasesTab';
 import TheatersTab from './theaters/TheatersTab';
+import TicketsTab from './tickets/TicketsTab';
 import {ToastProvider} from "./providers/ToasProvider.jsx";
 
 const AdminDashboardContent = () => {
@@ -288,6 +289,9 @@ const AdminDashboardContent = () => {
             onSearchChange={setSearchTerm}
           />
         );
+
+      case 'tickets':
+        return <TicketsTab />;
 
       default:
         return null;
