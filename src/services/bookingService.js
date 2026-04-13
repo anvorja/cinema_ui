@@ -58,12 +58,17 @@ class BookingService {
 
       let purchasePayload;
 
+      const showDate = bookingData.selectedDate || null;
+      const showTime = bookingData.showtime?.time || null;
+
       if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
         // PSE payload
         const pse = bookingData.pseData;
         purchasePayload = {
           movie_id: bookingData.movie.id,
           quantity: bookingData.ticketCount || 1,
+          show_date: showDate,
+          show_time: showTime,
           pse_info: {
             bank_code: pse.bankCode,
             bank_name: pse.bankName,
@@ -81,6 +86,8 @@ class BookingService {
         purchasePayload = {
           movie_id: bookingData.movie.id,
           quantity: bookingData.ticketCount || 1,
+          show_date: showDate,
+          show_time: showTime,
           payment_info: {
             card_number: cardNumber,
             card_holder: card.name || bookingData.userName || "Cliente Cinema",

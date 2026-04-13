@@ -70,12 +70,12 @@ const TransactionsPage = () => {
     setError('');
     try {
       await purchaseService.cancel(id);
-      setTransactions(prev => prev.map(t => t.id === id ? { ...t, status: 'cancelled' } : t));
-      setSuccessMsg('Compra cancelada exitosamente');
-      setTimeout(() => setSuccessMsg(''), 4000);
+      setTransactions(prev => prev.map(t => t.id === id ? { ...t, status: 'refunded' } : t));
+      setSuccessMsg('Compra cancelada y reembolso procesado exitosamente');
+      setTimeout(() => setSuccessMsg(''), 5000);
     } catch (err) {
       setError(getErrorMessage(err));
-      setTimeout(() => setError(''), 5000);
+      setTimeout(() => setError(''), 6000);
     } finally {
       setCancellingId(null);
     }
@@ -88,7 +88,7 @@ const TransactionsPage = () => {
   const stats = {
     total: transactions.length,
     confirmed: transactions.filter(t => t.status === 'confirmed').length,
-    cancelled: transactions.filter(t => t.status === 'cancelled').length,
+    refunded: transactions.filter(t => t.status === 'refunded' || t.status === 'cancelled').length,
     totalSpent: transactions
       .filter(t => t.status === 'confirmed')
       .reduce((sum, t) => sum + t.total_amount, 0),
@@ -120,7 +120,7 @@ const TransactionsPage = () => {
           {[
             { label: 'Total', value: stats.total, color: 'text-white' },
             { label: 'Confirmadas', value: stats.confirmed, color: 'text-green-400' },
-            { label: 'Canceladas', value: stats.cancelled, color: 'text-red-400' },
+            { label: 'Reembolsadas', value: stats.refunded, color: 'text-yellow-400' },
             { label: 'Gastado', value: formatCurrency(stats.totalSpent), color: 'text-blue-400' },
           ].map(s => (
             <div key={s.label} className="bg-white/5 border border-white/10 rounded-xl p-4 text-center">
@@ -149,7 +149,7 @@ const TransactionsPage = () => {
             {[
               { value: 'all', label: 'Todas' },
               { value: 'confirmed', label: 'Confirmadas' },
-              { value: 'cancelled', label: 'Canceladas' },
+              { value: 'refunded', label: 'Reembolsadas' },
               { value: 'pending', label: 'Pendientes' },
             ].map(opt => (
               <button
@@ -233,13 +233,22 @@ const TransactionsPage = () => {
                           <PaymentBadge paymentInfo={tx.payment_info} />
                         </div>
                         <div>
-                          <p className="text-white/40 text-xs">Fecha</p>
+                          <p className="text-white/40 text-xs">Fecha de compra</p>
                           <p className="text-white/70 text-xs">{formatDate(tx.created_at)}</p>
                         </div>
                         <div>
                           <p className="text-white/40 text-xs">Monto</p>
                           <p className="text-blue-300 text-sm font-semibold">{formatCurrency(tx.total_amount)}</p>
                         </div>
+                        {tx.show_date && (
+                          <div className="col-span-2">
+                            <p className="text-white/40 text-xs">Función</p>
+                            <p className="text-white/70 text-xs">
+                              {new Date(tx.show_date + 'T00:00:00').toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+                              {tx.show_time && <span className="ml-1 text-blue-300 font-medium">· {tx.show_time}</span>}
+                            </p>
+                          </div>
+                        )}
                       </div>
 
                       {/* Tickets */}
