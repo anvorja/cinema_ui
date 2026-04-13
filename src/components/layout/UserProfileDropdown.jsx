@@ -9,7 +9,6 @@ import {
     Cog6ToothIcon
 } from '@heroicons/react/24/outline';
 import { GlassCard } from '../ui';
-import UserProfile from "../auth/UserProfile.jsx";
 import useAuth from "../../hooks/useAuth.js";
 
 // Icono moderno de logout personalizado
@@ -29,9 +28,8 @@ const LogoutIcon = ({ className }) => (
     </svg>
 );
 
-const UserProfileDropdown = ({ onClose, user }) => {
+const UserProfileDropdown = ({ onClose, onOpenProfile, user }) => {
     const { logout, loading } = useAuth();
-    const [showUserProfile, setShowUserProfile] = useState(false);
     const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
     const [isLoggingOut, setIsLoggingOut] = useState(false);
     const buttonRef = useRef(null);
@@ -50,7 +48,7 @@ const UserProfileDropdown = ({ onClose, user }) => {
     const menuItems = [
         {
             name: 'Mi Perfil',
-            action: () => setShowUserProfile(true),
+            action: () => { onOpenProfile?.(); onClose(); },
             icon: UserIcon,
             type: 'action'
         },
@@ -109,18 +107,18 @@ const UserProfileDropdown = ({ onClose, user }) => {
 
     const handleItemClick = (item) => {
         if (item.type === 'action') {
-            item.action();
+            item.action(); // action already calls onClose() internally
         }
-        onClose();
     };
 
     const DropdownContent = () => (
         <div
+            data-portal="user-dropdown"
             className="fixed w-64"
             style={{
                 top: `${dropdownPosition.top}px`,
                 right: `${dropdownPosition.right}px`,
-                zIndex: 99999 // 🔥 Z-INDEX MÁS ALTO
+                zIndex: 99999
             }}
         >
             <GlassCard variant="premium" className="p-0 overflow-hidden shadow-2xl">
@@ -220,19 +218,7 @@ const UserProfileDropdown = ({ onClose, user }) => {
         </div>
     );
 
-    return (
-        <>
-            {/* 🔥 PORTAL CON Z-INDEX ALTO */}
-            {createPortal(<DropdownContent />, document.body)}
-
-            {/* Modal de perfil */}
-            {showUserProfile && (
-                <UserProfile
-                    onClose={() => setShowUserProfile(false)}
-                />
-            )}
-        </>
-    );
+    return createPortal(<DropdownContent />, document.body);
 };
 
 export { UserProfileDropdown };

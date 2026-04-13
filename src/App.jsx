@@ -14,6 +14,9 @@ import {ThemeProvider} from "./components/providers/ThemeProvider.jsx";
 import {BookingProvider} from "./components/providers/BookingProvider.jsx";
 import NotFoundPage from "./pages/NotFoundPage.jsx";
 import ProfilePage from "./pages/ProfilePage.jsx";
+import TransactionsPage from "./pages/TransactionsPage.jsx";
+import CardsPage from "./pages/CardsPage.jsx";
+import SettingsPage from "./pages/SettingsPage.jsx";
 import AuthProvider from "./components/providers/AuthProvider.jsx";
 import ScrollToTop from "./components/layout/ScrollToTop.jsx";
 
@@ -41,6 +44,9 @@ function App() {
                                 <Route path="payment-success" element={<PaymentSuccessPage />} />
                                 <Route path="/profile" element={<ProfilePage />} />
                                 <Route path="/profile/purchases" element={<ProfilePage />} />
+                                <Route path="/profile/transactions" element={<TransactionsPage />} />
+                                <Route path="/profile/cards" element={<CardsPage />} />
+                                <Route path="/profile/settings" element={<SettingsPage />} />
 
                                 <Route path="*" element={<NotFoundPage />} />
 
