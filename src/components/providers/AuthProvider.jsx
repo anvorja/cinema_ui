@@ -1,7 +1,7 @@
 // src/providers/AuthProvider.jsx - COMPONENTE REACT CON JSX
 import React, { useReducer, useEffect, useRef } from 'react';
 import AuthContext, { AUTH_STATES } from '../contexts/AuthContext';
-import {authService, getErrorMessage} from "../../services/api.js";
+import { authService, userService, getErrorMessage } from "../../services/api.js";
 
 // Acciones del reducer
 const AUTH_ACTIONS = {
@@ -129,14 +129,17 @@ const AuthProvider = ({ children }) => {
 
       const response = await authService.login(credentials);
 
-      const { access_token, user } = response;
+      const { access_token, refresh_token, user } = response;
 
       if (!access_token || !user) {
         throw new Error('Respuesta de login inválida');
       }
 
-      // Guardar token y datos de usuario
+      // Guardar tokens y datos de usuario
       localStorage.setItem('cinema_token', access_token);
+      if (refresh_token) {
+        localStorage.setItem('cinema_refresh_token', refresh_token);
+      }
       localStorage.setItem('cinema_user', JSON.stringify(user));
 
       console.log('✅ AuthProvider: Login exitoso', { user: user.email });
@@ -214,6 +217,7 @@ const AuthProvider = ({ children }) => {
     } finally {
       // Siempre limpiar el estado local
       localStorage.removeItem('cinema_token');
+      localStorage.removeItem('cinema_refresh_token');
       localStorage.removeItem('cinema_user');
 
       dispatch({ type: AUTH_ACTIONS.LOGOUT });
@@ -244,6 +248,52 @@ const AuthProvider = ({ children }) => {
     }
   };
 
+  // Actualizar perfil (nombre, apellido, teléfono) en user-service → cinema_users
+  const updateProfile = async (formData) => {
+    try {
+      const updated = await userService.updateProfile(formData);
+      // Refrescar datos del usuario en el contexto
+      const currentUser = state.user;
+      const newUser = {
+        ...currentUser,
+        firstName: updated.first_name,
+        first_name: updated.first_name,
+        lastName: updated.last_name,
+        last_name: updated.last_name,
+        phone: updated.phone,
+      };
+      localStorage.setItem('cinema_user', JSON.stringify(newUser));
+      dispatch({
+        type: AUTH_ACTIONS.SET_USER,
+        payload: { user: newUser, token: state.token },
+      });
+      return { success: true, message: 'Perfil actualizado correctamente' };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) };
+    }
+  };
+
+  // Cambiar contraseña — va a auth-service (dueño de las credenciales)
+  const changePassword = async (currentPassword, newPassword) => {
+    try {
+      await userService.changePassword(currentPassword, newPassword);
+      return { success: true, message: 'Contraseña cambiada correctamente' };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) };
+    }
+  };
+
+  // Eliminar cuenta (soft-delete) + logout automático
+  const deleteAccount = async () => {
+    try {
+      await userService.deleteAccount();
+      await logout();
+      return { success: true };
+    } catch (error) {
+      return { success: false, error: getErrorMessage(error) };
+    }
+  };
+
   // Función para limpiar errores
   const clearError = () => {
     dispatch({ type: AUTH_ACTIONS.CLEAR_ERROR });
@@ -270,12 +320,17 @@ const AuthProvider = ({ children }) => {
     hasError,
     isAdmin,
 
-    // Acciones
+    // Acciones de autenticación
     login,
     register,
     logout,
     refreshUser,
     clearError,
+
+    // Acciones de perfil (user-service / auth-service)
+    updateProfile,
+    changePassword,
+    deleteAccount,
 
     // Estados de autenticación
     AUTH_STATES

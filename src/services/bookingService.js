@@ -56,19 +56,40 @@ class BookingService {
         throw new Error('Falta información de la película');
       }
 
-      // 🔧 PAYLOAD EXACTO SEGÚN EL BACKEND
-      const purchasePayload = {
-        // ✅ Solo los campos que espera el backend
-        movie_id: bookingData.movie.id,
-        quantity: bookingData.ticketCount || 1,
-        payment_info: {
-          card_number: "1234567812345678", // Mock data - en producción sería real
-          card_holder: bookingData.userName || "Cliente Cinema",
-          expiry_month: 12,
-          expiry_year: 2025,
-          cvv: "123"
-        }
-      };
+      let purchasePayload;
+
+      if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
+        // PSE payload
+        const pse = bookingData.pseData;
+        purchasePayload = {
+          movie_id: bookingData.movie.id,
+          quantity: bookingData.ticketCount || 1,
+          pse_info: {
+            bank_code: pse.bankCode,
+            bank_name: pse.bankName,
+            document_type: pse.documentType,
+            document_number: pse.documentNumber,
+            payer_email: pse.payerEmail,
+          }
+        };
+      } else {
+        // Card payload
+        const card = bookingData.cardData || {};
+        const [expiryMonth, expiryYear] = (card.expiry || '12/25').split('/');
+        const cardNumber = (card.number || '').replace(/\s/g, '') || '1234567812345678';
+
+        purchasePayload = {
+          movie_id: bookingData.movie.id,
+          quantity: bookingData.ticketCount || 1,
+          payment_info: {
+            card_number: cardNumber,
+            card_holder: card.name || bookingData.userName || "Cliente Cinema",
+            expiry_month: parseInt(expiryMonth, 10) || 12,
+            expiry_year: parseInt(`20${expiryYear}`, 10) || 2025,
+            cvv: card.cvv || "123"
+          }
+        };
+      }
 
       console.log('🚀 Payload CORRECTO enviado a /purchases:', purchasePayload);
 
