@@ -104,6 +104,20 @@ export const BookingProvider = ({ children }) => {
     setIsBookingActive(false);
   }, []);
 
+  // Espera a que la compra pase a CONFIRMED sondeando GET /purchases/{id}
+  const _pollUntilConfirmed = useCallback(async (purchaseId, { intervalMs = 2000, timeoutMs = 45000 } = {}) => {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      await new Promise(r => setTimeout(r, intervalMs));
+      const result = await bookingService.getBookingDetails(purchaseId);
+      if (!result.success) continue;
+      const { status, tickets } = result.data;
+      if (status === 'confirmed' && tickets?.length > 0) return result.data;
+      if (status === 'cancelled') throw new Error('La compra fue cancelada durante el procesamiento del pago.');
+    }
+    throw new Error('El pago tardó demasiado en confirmarse. Revisa "Mis Compras" para ver el estado.');
+  }, []);
+
   // 🔥 FUNCIÓN CRÍTICA CORREGIDA - USA /purchases
   const completeBooking = useCallback(async (transactionId) => {
     try {
@@ -134,45 +148,28 @@ export const BookingProvider = ({ children }) => {
         throw new Error(bookingResponse.message);
       }
 
-      console.log('✅ Compra creada:', bookingResponse.data);
+      console.log('✅ Compra creada (PENDING):', bookingResponse.data);
       const purchaseId = bookingResponse.data.id;
 
-      // Paso 2: Confirmar el pago usando /purchases/{id}/confirm-payment
-      const paymentConfirmation = {
-        transactionId: transactionId || `TXN-${Date.now()}`,
-        paymentMethod: bookingData.paymentMethod,
-        amount: bookingData.totalAmount,
-        details: {
-          processingDate: new Date().toISOString()
-        }
-      };
+      // Paso 2: Esperar a que el saga de Kafka confirme la compra y genere los tickets reales
+      console.log('⏳ Esperando confirmación del pago via saga...');
+      const confirmedPurchase = await _pollUntilConfirmed(purchaseId);
+      console.log('✅ Compra confirmada:', confirmedPurchase);
 
-      console.log('💳 Confirmando pago:', paymentConfirmation);
-
-      const paymentResponse = await bookingService.confirmPayment(purchaseId, paymentConfirmation);
-
-      if (!paymentResponse.success) {
-        console.error('❌ Error en confirmPayment:', paymentResponse.message);
-        throw new Error(paymentResponse.message);
-      }
-
-      console.log('✅ Pago confirmado:', paymentResponse.data);
-
-      // Paso 3: Construir objeto de reserva completa
-      // Usar seat_number reales del backend si están disponibles
-      const backendSeats = bookingResponse.data?.tickets?.map(t => t.seat_number);
-      const ticketCodes  = bookingResponse.data?.tickets?.map(t => t.ticket_code) || [];
+      // Paso 3: Construir objeto de reserva completa con datos reales del backend
+      const ticketCodes = confirmedPurchase.tickets.map(t => t.ticket_code);
+      const backendSeats = confirmedPurchase.tickets.map(t => t.seat_number);
       const completedBooking = {
         id: purchaseId,
         ...bookingData,
-        transactionId: paymentConfirmation.transactionId,
+        transactionId: confirmedPurchase.payment_summary?.transaction_id || transactionId,
         bookingDate: new Date(),
         status: 'confirmed',
-        seats: backendSeats?.length ? backendSeats : (paymentResponse.data?.assigned_seats || generateSeatNumbers(bookingData.ticketCount)),
-        bookingNumber: paymentResponse.data?.booking_number || `BK-${purchaseId}`,
+        seats: backendSeats,
+        bookingNumber: `BK-${purchaseId}`,
         // ticket_codes reales del backend (CINE-XXXXXXX) — usados para generar QR
         ticket_codes: ticketCodes,
-        qrCode: ticketCodes[0] || `QR-${purchaseId}-${Date.now()}`
+        qrCode: ticketCodes[0],
       };
 
       // Paso 4: Actualizar historial local
@@ -209,7 +206,7 @@ export const BookingProvider = ({ children }) => {
       // Re-lanzar el error para que el componente lo maneje
       throw error;
     }
-  }, [bookingData, bookingHistory, clearBooking, generateSeatNumbers, user]);
+  }, [bookingData, bookingHistory, clearBooking, generateSeatNumbers, user, _pollUntilConfirmed]);
 
   const getBookingsByStatus = useCallback((status) => {
     return bookingHistory.filter(booking => booking.status === status);
