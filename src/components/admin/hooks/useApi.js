@@ -109,6 +109,8 @@ export const useApi = () => {
 
     // Reports
     getSalesReport: () => apiCall('/admin/reports/sales'),
+    getReportByMovie: () => apiCall('/admin/reports/by-movie'),
+    getReportByDate: (period = 'daily') => apiCall(`/admin/reports/by-date?period=${period}`),
 
     // Ticket validation
     validateTicket: (ticketCode) =>

@@ -11,6 +11,7 @@ import UsersTab from './users/UsersTab';
 import PurchasesTab from './purchases/PurchasesTab';
 import TheatersTab from './theaters/TheatersTab';
 import TicketsTab from './tickets/TicketsTab';
+import AnalyticsTab from './analytics/AnalyticsTab';
 import {ToastProvider} from "./providers/ToasProvider.jsx";
 
 const AdminDashboardContent = () => {
@@ -292,6 +293,9 @@ const AdminDashboardContent = () => {
 
       case 'tickets':
         return <TicketsTab />;
+
+      case 'analytics':
+        return <AnalyticsTab />;
 
       default:
         return null;

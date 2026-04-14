@@ -1,6 +1,6 @@
 // src/components/admin/TabNavigation.jsx
 import React from 'react';
-import { Film, Users, ShoppingCart, Building2, QrCode } from 'lucide-react';
+import { Film, Users, ShoppingCart, Building2, QrCode, BarChart2 } from 'lucide-react';
 
 const TabNavigation = ({ activeTab, onTabChange }) => {
   const tabs = [
@@ -33,6 +33,12 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
       label: 'Boletería',
       icon: QrCode,
       description: 'Validar boletos en entrada'
+    },
+    {
+      id: 'analytics',
+      label: 'Analítica',
+      icon: BarChart2,
+      description: 'Ventas, ingresos y reembolsos'
     }
   ];
 
