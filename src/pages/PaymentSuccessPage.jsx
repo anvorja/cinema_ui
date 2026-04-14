@@ -216,7 +216,7 @@ const PaymentSuccessPage = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-white/70 text-sm">Referencia</p>
-                      <p className="text-white font-mono">{transactionId}</p>
+                      <p className="text-white font-mono">{booking?.transactionId || transactionId}</p>
                     </div>
                   </div>
                 </div>

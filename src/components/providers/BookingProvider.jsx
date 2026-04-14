@@ -162,6 +162,7 @@ export const BookingProvider = ({ children }) => {
       const completedBooking = {
         id: purchaseId,
         ...bookingData,
+        totalAmount: confirmedPurchase.total_amount ?? bookingData.totalAmount,
         transactionId: confirmedPurchase.payment_summary?.transaction_id || transactionId,
         bookingDate: new Date(),
         status: 'confirmed',
