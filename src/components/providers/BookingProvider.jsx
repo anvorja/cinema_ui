@@ -161,6 +161,7 @@ export const BookingProvider = ({ children }) => {
       // Paso 3: Construir objeto de reserva completa
       // Usar seat_number reales del backend si están disponibles
       const backendSeats = bookingResponse.data?.tickets?.map(t => t.seat_number);
+      const ticketCodes  = bookingResponse.data?.tickets?.map(t => t.ticket_code) || [];
       const completedBooking = {
         id: purchaseId,
         ...bookingData,
@@ -169,7 +170,9 @@ export const BookingProvider = ({ children }) => {
         status: 'confirmed',
         seats: backendSeats?.length ? backendSeats : (paymentResponse.data?.assigned_seats || generateSeatNumbers(bookingData.ticketCount)),
         bookingNumber: paymentResponse.data?.booking_number || `BK-${purchaseId}`,
-        qrCode: paymentResponse.data?.qr_code || `QR-${purchaseId}-${Date.now()}`
+        // ticket_codes reales del backend (CINE-XXXXXXX) — usados para generar QR
+        ticket_codes: ticketCodes,
+        qrCode: ticketCodes[0] || `QR-${purchaseId}-${Date.now()}`
       };
 
       // Paso 4: Actualizar historial local

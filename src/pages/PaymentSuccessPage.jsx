@@ -1,6 +1,7 @@
 // src/pages/PaymentSuccessPage.jsx
 import { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import QRCode from 'react-qr-code';
 import {
   CheckCircleIcon,
   TicketIcon,
@@ -17,7 +18,7 @@ import {FloatingParticles, GlassCard, PremiumButton} from '../components/ui';
 const PaymentSuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showQRCode, setShowQRCode] = useState(false);
+  const [showQRCode, setShowQRCode] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
 
   // Extraer datos del estado de navegación
@@ -48,6 +49,9 @@ const PaymentSuccessPage = () => {
   }
 
   // Información adicional de las boletas
+  // ticket_codes reales del backend (CINE-XXXXXXX), uno por boleta
+  const ticketCodes = booking?.ticket_codes || [];
+
   const ticketInfo = {
     reference: transactionId,
     date: new Date().toLocaleDateString('es-CO', {
@@ -62,7 +66,8 @@ const PaymentSuccessPage = () => {
     }),
     // Usar asientos reales del backend si están disponibles
     seats: Array.isArray(realSeats) ? realSeats.join(', ') : (realSeats || `${ticketCount || 1} x General`),
-    qrCode: `QR-${transactionId}`,
+    // Primer ticket_code como QR principal; si no hay, fallback a transactionId
+    qrCode: ticketCodes[0] || booking?.qrCode || transactionId,
     validUntil: new Date(Date.now() + 24 * 60 * 60 * 1000).toLocaleDateString('es-CO')
   };
 
@@ -230,25 +235,32 @@ const PaymentSuccessPage = () => {
                 </div>
 
                 {showQRCode && (
-                  <div className="text-center py-8">
-                    <div className="w-48 h-48 bg-white rounded-lg mx-auto mb-4 flex items-center justify-center">
-                      <div className="text-black font-mono text-xs p-4">
-                        <div>QR CODE</div>
-                        <div className="mt-2 text-xs">{ticketInfo.qrCode}</div>
-                        <div className="mt-2 grid grid-cols-8 gap-1">
-                          {Array.from({ length: 64 }).map((_, i) => (
-                            <div
-                              key={i}
-                              className={`w-2 h-2 ${
-                                Math.random() > 0.5 ? 'bg-black' : 'bg-white'
-                              }`}
-                            />
-                          ))}
+                  <div className="text-center py-6 space-y-4">
+                    {ticketCodes.length > 0 ? (
+                      ticketCodes.map((code, idx) => (
+                        <div key={code} className="flex flex-col items-center gap-2">
+                          {ticketCodes.length > 1 && (
+                            <p className="text-white/60 text-xs font-semibold uppercase tracking-wide">
+                              Boleta {idx + 1}
+                            </p>
+                          )}
+                          <div className="bg-white p-3 rounded-xl shadow-lg inline-block">
+                            <QRCode value={code} size={180} />
+                          </div>
+                          <p className="text-white/50 font-mono text-xs">{code}</p>
                         </div>
+                      ))
+                    ) : (
+                      /* Fallback si el backend no retornó ticket_codes todavía */
+                      <div className="flex flex-col items-center gap-2">
+                        <div className="bg-white p-3 rounded-xl shadow-lg inline-block">
+                          <QRCode value={ticketInfo.qrCode} size={180} />
+                        </div>
+                        <p className="text-white/50 font-mono text-xs">{ticketInfo.qrCode}</p>
                       </div>
-                    </div>
+                    )}
                     <p className="text-white/70 text-sm">
-                      Presenta este código QR en el cine para ingresar
+                      Presenta este código QR en la entrada del cine
                     </p>
                   </div>
                 )}
