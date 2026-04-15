@@ -9,6 +9,9 @@ import TabNavigation from './TabNavigation';
 import MoviesTab from './movies/MoviesTab';
 import UsersTab from './users/UsersTab';
 import PurchasesTab from './purchases/PurchasesTab';
+import TheatersTab from './theaters/TheatersTab';
+import TicketsTab from './tickets/TicketsTab';
+import AnalyticsTab from './analytics/AnalyticsTab';
 import {ToastProvider} from "./providers/ToasProvider.jsx";
 
 const AdminDashboardContent = () => {
@@ -18,6 +21,7 @@ const AdminDashboardContent = () => {
 
   const [activeTab, setActiveTab] = useState('movies');
   const [movies, setMovies] = useState([]);
+  const [theaters, setTheaters] = useState([]);
   const [users, setUsers] = useState([]);
   const [purchases, setPurchases] = useState([]);
   const [stats, setStats] = useState({});
@@ -36,6 +40,7 @@ const AdminDashboardContent = () => {
     try {
       await Promise.all([
         loadMovies(),
+        loadTheaters(),
         loadUsers(),
         loadPurchases(),
         loadStats()
@@ -57,6 +62,16 @@ const AdminDashboardContent = () => {
     } catch (error) {
       console.error('Error cargando películas:', error);
       setMovies([]);
+    }
+  };
+
+  const loadTheaters = async () => {
+    try {
+      const data = await adminApi.getTheaters();
+      setTheaters(Array.isArray(data) ? data : []);
+    } catch (error) {
+      console.error('Error cargando teatros:', error);
+      setTheaters([]);
     }
   };
 
@@ -165,6 +180,25 @@ const AdminDashboardContent = () => {
     }
   };
 
+  // Handlers para teatros
+  const handleToggleTheater = async (theaterId) => {
+    try {
+      await adminApi.toggleTheater(theaterId);
+      await loadTheaters();
+      const theater = theaters.find(t => t.id === theaterId);
+      const theaterName = theater ? theater.name : 'Teatro';
+      const action = theater?.is_active ? 'desactivado' : 'activado';
+      toast.success(`${theaterName} fue ${action} exitosamente`, {
+        title: 'Estado actualizado'
+      });
+    } catch (error) {
+      console.error('Error cambiando estado de teatro:', error);
+      toast.error('Error al cambiar el estado del teatro', {
+        title: 'Error de actualización'
+      });
+    }
+  };
+
   // Handlers para usuarios
   const handleToggleUser = async (userId) => {
     try {
@@ -225,6 +259,17 @@ const AdminDashboardContent = () => {
           />
         );
 
+      case 'theaters':
+        return (
+          <TheatersTab
+            theaters={theaters}
+            loading={loading}
+            onToggleTheater={handleToggleTheater}
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+          />
+        );
+
       case 'users':
         return (
           <UsersTab
@@ -245,6 +290,12 @@ const AdminDashboardContent = () => {
             onSearchChange={setSearchTerm}
           />
         );
+
+      case 'tickets':
+        return <TicketsTab />;
+
+      case 'analytics':
+        return <AnalyticsTab />;
 
       default:
         return null;

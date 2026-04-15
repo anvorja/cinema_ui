@@ -14,9 +14,13 @@ import {
   Phone,
   Clock,
   Eye,
-  EyeOff
+  EyeOff,
+  ShoppingBag,
+  XCircle,
+  Loader
 } from 'lucide-react';
 import useAuth from "../../hooks/useAuth.js";
+import { purchaseService, getErrorMessage } from '../../services/api.js';
 
 const UserProfile = ({ onClose }) => {
   const {
@@ -51,6 +55,11 @@ const UserProfile = ({ onClose }) => {
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Historial de compras
+  const [purchases, setPurchases] = useState([]);
+  const [purchasesLoading, setPurchasesLoading] = useState(false);
+  const [cancellingId, setCancellingId] = useState(null);
+
   // Cargar datos del usuario
   useEffect(() => {
     if (user) {
@@ -60,6 +69,16 @@ const UserProfile = ({ onClose }) => {
         phone: user.phone || ''
       });
     }
+  }, [user]);
+
+  // Cargar historial de compras
+  useEffect(() => {
+    if (!user) return;
+    setPurchasesLoading(true);
+    purchaseService.getMyPurchases({ limit: 20 })
+      .then(data => setPurchases(Array.isArray(data) ? data : []))
+      .catch(() => setPurchases([]))
+      .finally(() => setPurchasesLoading(false));
   }, [user]);
 
   // Limpiar mensajes después de 5 segundos
@@ -211,6 +230,24 @@ const UserProfile = ({ onClose }) => {
       [field]: !prev[field]
     }));
   };
+
+  const handleCancelPurchase = async (purchaseId) => {
+    setCancellingId(purchaseId);
+    try {
+      await purchaseService.cancel(purchaseId);
+      setPurchases(prev =>
+        prev.map(p => p.id === purchaseId ? { ...p, status: 'cancelled' } : p)
+      );
+      setSuccess('Compra cancelada exitosamente');
+    } catch (error) {
+      setErrors({ general: getErrorMessage(error) });
+    } finally {
+      setCancellingId(null);
+    }
+  };
+
+  const formatCurrency = (amount) =>
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(amount);
 
   if (!user) return null;
 
@@ -541,6 +578,68 @@ const UserProfile = ({ onClose }) => {
                     </button>
                   </div>
                 </form>
+              </div>
+            )}
+          </div>
+
+          {/* Mis Compras */}
+          <div className="border-t border-white/20 pt-6">
+            <h3 className="text-lg font-semibold text-white mb-4 flex items-center gap-2">
+              <ShoppingBag className="w-5 h-5" />
+              Mis Compras
+            </h3>
+
+            {purchasesLoading ? (
+              <div className="flex items-center justify-center py-8">
+                <Loader className="w-6 h-6 animate-spin text-white/60" />
+              </div>
+            ) : purchases.length === 0 ? (
+              <p className="text-white/50 text-sm py-4">No tienes compras registradas.</p>
+            ) : (
+              <div className="space-y-3 max-h-72 overflow-y-auto pr-1">
+                {purchases.map((p) => {
+                  const statusColors = {
+                    confirmed: 'text-green-400',
+                    cancelled: 'text-red-400',
+                    refunded: 'text-yellow-400',
+                    pending: 'text-blue-400',
+                  };
+                  const isCancelled = p.status === 'cancelled' || p.status === 'refunded';
+                  const movieTitle = p.movie?.title || p.movie_title || 'Película';
+                  return (
+                    <div
+                      key={p.id}
+                      className="flex items-center justify-between p-3 bg-white/5 border border-white/10 rounded-lg"
+                    >
+                      <div className="flex-1 min-w-0">
+                        <p className="text-white text-sm font-medium truncate">{movieTitle}</p>
+                        <p className="text-white/50 text-xs">
+                          {p.quantity} boleta{p.quantity !== 1 ? 's' : ''} · {formatCurrency(p.total_amount)}
+                          {' · '}
+                          {new Date(p.created_at).toLocaleDateString('es-CO', { day: 'numeric', month: 'short', year: 'numeric' })}
+                        </p>
+                        <span className={`text-xs font-medium capitalize ${statusColors[p.status] || 'text-white/60'}`}>
+                          {p.status}
+                        </span>
+                      </div>
+                      {!isCancelled && (
+                        <button
+                          onClick={() => handleCancelPurchase(p.id)}
+                          disabled={cancellingId === p.id}
+                          className="ml-3 flex items-center gap-1 px-3 py-1.5 bg-red-600/20 hover:bg-red-600/30 border border-red-600/30 rounded-lg text-red-400 text-xs transition-colors disabled:opacity-50 flex-shrink-0"
+                          title="Cancelar compra"
+                        >
+                          {cancellingId === p.id ? (
+                            <Loader className="w-3 h-3 animate-spin" />
+                          ) : (
+                            <XCircle className="w-3 h-3" />
+                          )}
+                          Cancelar
+                        </button>
+                      )}
+                    </div>
+                  );
+                })}
               </div>
             )}
           </div>

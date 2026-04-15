@@ -28,26 +28,42 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para respuestas y errores
+// Interceptor para respuestas y errores — con silent refresh
 api.interceptors.response.use(
-  (response) => {
-    console.log(`âœ… API Response: ${response.config.method?.toUpperCase()} ${response.config.url}`);
-    return response;
-  },
-  (error) => {
-    console.error('API Error:', {
-      url: error.config?.url,
-      method: error.config?.method,
-      status: error.response?.status,
-      data: error.response?.data
-    });
+  (response) => response,
+  async (error) => {
+    const originalRequest = error.config;
 
-    // Manejar token expirado (solo en rutas que no sean de autenticación)
-    if (error.response?.status === 401 && !error.config?.url?.includes('/auth/')) {
-      console.log('Token expired, clearing local storage');
-      localStorage.removeItem('cinema_token');
-      localStorage.removeItem('cinema_user');
-      window.dispatchEvent(new CustomEvent('auth:session-expired'));
+    // Solo intentar refresh si:
+    //  • 401 en ruta que no sea de auth
+    //  • no es ya un reintento (evitar loop)
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !originalRequest.url?.includes('/auth/')
+    ) {
+      originalRequest._retry = true;
+      const refreshToken = localStorage.getItem('cinema_refresh_token');
+
+      if (refreshToken) {
+        try {
+          const { data } = await api.post('/auth/refresh', { refresh_token: refreshToken });
+          const newToken = data.access_token;
+          localStorage.setItem('cinema_token', newToken);
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return api(originalRequest);   // retry with new token
+        } catch {
+          // Refresh failed — session truly expired
+          localStorage.removeItem('cinema_token');
+          localStorage.removeItem('cinema_refresh_token');
+          localStorage.removeItem('cinema_user');
+          window.dispatchEvent(new CustomEvent('auth:session-expired'));
+        }
+      } else {
+        localStorage.removeItem('cinema_token');
+        localStorage.removeItem('cinema_user');
+        window.dispatchEvent(new CustomEvent('auth:session-expired'));
+      }
     }
 
     return Promise.reject(error);
@@ -149,6 +165,34 @@ export const authService = {
   }
 };
 
+export const userService = {
+  getProfile: async () => {
+    const response = await api.get('/users/me');
+    return response.data;
+  },
+
+  updateProfile: async (data) => {
+    const response = await api.put('/users/me', {
+      first_name: data.firstName || data.first_name,
+      last_name: data.lastName || data.last_name,
+      phone: data.phone,
+    });
+    return response.data;
+  },
+
+  // Cambio de contraseña va a auth-service (dueño de credenciales)
+  changePassword: async (currentPassword, newPassword) => {
+    await api.put('/auth/password', {
+      current_password: currentPassword,
+      new_password: newPassword,
+    });
+  },
+
+  deleteAccount: async () => {
+    await api.delete('/users/me');
+  },
+};
+
 export const movieService = {
   getAll: async (params = {}) => {
     const response = await api.get('/movies', { params });
@@ -203,7 +247,13 @@ export const movieService = {
   getAvailability: async (movieId) => {
     const response = await api.get(`/movies/${movieId}/availability`);
     return response.data;
-  }
+  },
+
+  // Calificar una película (1-5 estrellas)
+  rate: async (movieId, score, review = null) => {
+    const response = await api.post(`/movies/${movieId}/rate`, { score, review });
+    return response.data;
+  },
 };
 
 export const theaterService = {
@@ -248,15 +298,21 @@ export const purchaseService = {
     return response.data;
   },
 
-  getMyPurchases: async () => {
-    const response = await api.get('/purchases');
+  // Historial enriquecido (movie info + tickets) desde user-service
+  getMyPurchases: async (params = {}) => {
+    const response = await api.get('/users/me/purchases', { params });
     return response.data;
   },
 
   getById: async (id) => {
     const response = await api.get(`/purchases/${id}`);
     return response.data;
-  }
+  },
+
+  cancel: async (id) => {
+    const response = await api.post(`/purchases/${id}/cancel`);
+    return response.data;
+  },
 };
 
 export const calendarService = {
@@ -312,10 +368,15 @@ export const adminService = {
       return response.data;
     },
 
-    getAll: async () => {
-      const response = await api.get('/admin/theaters');
+    getAll: async (params = {}) => {
+      const response = await api.get('/admin/theaters', { params });
       return response.data;
-    }
+    },
+
+    toggle: async (id) => {
+      const response = await api.patch(`/admin/theaters/${id}/toggle`);
+      return response.data;
+    },
   },
 
   // Usuarios

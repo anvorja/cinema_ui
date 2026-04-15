@@ -1,5 +1,5 @@
 // src/services/bookingService.js - VERSIÓN FINAL CORRECTA SEGÚN EL BACKEND
-import api, { movieService } from './api.js';
+import api, { movieService, purchaseService } from './api.js';
 
 class BookingService {
   // 🎬 Obtener horarios de una película
@@ -56,19 +56,61 @@ class BookingService {
         throw new Error('Falta información de la película');
       }
 
-      // 🔧 PAYLOAD EXACTO SEGÚN EL BACKEND
-      const purchasePayload = {
-        // ✅ Solo los campos que espera el backend
-        movie_id: bookingData.movie.id,
-        quantity: bookingData.ticketCount || 1,
-        payment_info: {
-          card_number: "1234567812345678", // Mock data - en producción sería real
-          card_holder: bookingData.userName || "Cliente Cinema",
-          expiry_month: 12,
-          expiry_year: 2025,
-          cvv: "123"
+      let purchasePayload;
+
+      // Normalizar selectedDate a string ISO "YYYY-MM-DD" (puede llegar como string o como Date)
+      let showDate = null;
+      const rawDate = bookingData.selectedDate;
+      if (rawDate) {
+        if (typeof rawDate === 'string') {
+          showDate = rawDate.split('T')[0]; // recortar timezone si viene como ISO completo
+        } else if (rawDate instanceof Date) {
+          showDate = rawDate.toISOString().split('T')[0];
         }
-      };
+        // Si es un objeto {dayName, dayNumber, monthName} no se puede convertir de forma segura → null
+      }
+      const showTime = bookingData.showtime?.time || null;
+
+      const showtimeId = bookingData.showtime?.id || null;
+
+      if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
+        // PSE payload
+        const pse = bookingData.pseData;
+        purchasePayload = {
+          movie_id: bookingData.movie.id,
+          quantity: bookingData.ticketCount || 1,
+          show_date: showDate,
+          show_time: showTime,
+          showtime_id: showtimeId,
+          pse_info: {
+            bank_code: pse.bankCode,
+            bank_name: pse.bankName,
+            document_type: pse.documentType,
+            document_number: pse.documentNumber,
+            payer_email: pse.payerEmail,
+          }
+        };
+      } else {
+        // Card payload
+        const card = bookingData.cardData || {};
+        const [expiryMonth, expiryYear] = (card.expiry || '12/25').split('/');
+        const cardNumber = (card.number || '').replace(/\s/g, '') || '1234567812345678';
+
+        purchasePayload = {
+          movie_id: bookingData.movie.id,
+          quantity: bookingData.ticketCount || 1,
+          show_date: showDate,
+          show_time: showTime,
+          showtime_id: showtimeId,
+          payment_info: {
+            card_number: cardNumber,
+            card_holder: card.name || bookingData.userName || "Cliente Cinema",
+            expiry_month: parseInt(expiryMonth, 10) || 12,
+            expiry_year: parseInt(`20${expiryYear}`, 10) || 2025,
+            cvv: card.cvv || "123"
+          }
+        };
+      }
 
       console.log('🚀 Payload CORRECTO enviado a /purchases:', purchasePayload);
 
@@ -150,22 +192,17 @@ class BookingService {
     }
   }
 
-  // ❌ Cancelar una compra
-  async cancelBooking(purchaseId, reason = '') {
+  // ❌ Cancelar una compra — llama al endpoint real
+  async cancelBooking(purchaseId) {
     try {
-      console.log(`Simulando cancelación de compra ${purchaseId} por: ${reason}`);
-
-      return {
-        success: true,
-        data: { id: purchaseId, status: 'cancelled', reason },
-        message: 'Compra cancelada exitosamente'
-      };
+      const data = await purchaseService.cancel(purchaseId);
+      return { success: true, data, message: 'Compra cancelada exitosamente' };
     } catch (error) {
       console.error('Error cancelling purchase:', error);
       return {
         success: false,
         data: null,
-        message: 'Error al cancelar la compra'
+        message: error.response?.data?.detail || 'Error al cancelar la compra',
       };
     }
   }

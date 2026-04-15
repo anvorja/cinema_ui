@@ -1,0 +1,43 @@
+# cinema_ui/netlify.toml
+#
+# Cómo funciona el sistema de ramas:
+#
+#   main     → producción  (https://tu-sitio.netlify.app)
+#   staging  → preproducción (https://staging--tu-sitio.netlify.app)
+#   feature/ → deploy preview automático por PR/push
+#
+# Netlify inyecta las variables de entorno según el contexto de build,
+# por lo que cada rama construye el frontend apuntando a su propio backend.
+# Las variables VITE_* se embeben en el bundle en tiempo de compilación.
+
+[build]
+  command   = "pnpm run build"
+  publish   = "dist"
+
+# SPA routing — sin esto, al hacer F5 en cualquier ruta devuelve 404
+[[redirects]]
+  from   = "/*"
+  to     = "/index.html"
+  status = 200
+
+# ── PRODUCCIÓN (rama main) ──────────────────────────────────────────────────────
+[context.production.environment]
+  VITE_API_BASE_URL            = "https://infra-cinema.onrender.com/api/v1"
+  VITE_CLOUDINARY_CLOUD_NAME   = "dv2xu8dwr"
+  VITE_CLOUDINARY_UPLOAD_PRESET = "cinema"
+
+# ── STAGING (rama staging) ─────────────────────────────────────────────────────
+# Por ahora apunta al mismo gateway de producción.
+# Cuando tengas un gateway de staging desplegado, cambia la URL aquí.
+[context.staging.environment]
+  VITE_API_BASE_URL            = "https://infra-cinema.onrender.com/api/v1"
+  VITE_CLOUDINARY_CLOUD_NAME   = "dv2xu8dwr"
+  VITE_CLOUDINARY_UPLOAD_PRESET = "cinema"
+
+# ── DEPLOY PREVIEW (cualquier PR o rama feature/*) ─────────────────────────────
+# Cada push a una rama feature genera una URL única de preview en Netlify.
+# Usa el backend de staging para no contaminar datos de producción.
+[context.deploy-preview.environment]
+  VITE_API_BASE_URL            = "https://infra-cinema.onrender.com/api/v1"
+  VITE_CLOUDINARY_CLOUD_NAME   = "dv2xu8dwr"
+  VITE_CLOUDINARY_UPLOAD_PRESET = "cinema"

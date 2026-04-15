@@ -1,5 +1,5 @@
 // src/pages/MovieDetailPage.jsx - CON LÓGICA DE BOTÓN CORREGIDA
-import { useState } from 'react';
+import { useState, useContext } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ClockIcon,
@@ -9,8 +9,10 @@ import {
   TicketIcon,
   PlayIcon,
   ExclamationCircleIcon,
-  CalendarDaysIcon
+  CalendarDaysIcon,
+  StarIcon,
 } from '@heroicons/react/24/outline';
+import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 import { GlassCard, PremiumButton, FloatingParticles } from '../components/ui';
 import { useMovie, useMovieAvailability, useMovieTheaters } from '../hooks/useMovies';
@@ -19,12 +21,50 @@ import { useBooking } from '../hooks/useBooking';
 import LoadingSpinner from '../components/ui/LoadingSpinner';
 import ErrorMessage from '../components/ui/ErrorMessage';
 import TheatersWithShowtimes from '../components/booking/TheatersWithShowtimes';
+import { movieService } from '../services/api';
+import useAuth from '../hooks/useAuth';
+
+const StarRating = ({ value, onChange, readonly = false, size = 'md' }) => {
+  const [hovered, setHovered] = useState(0);
+  const sizeClass = size === 'lg' ? 'w-8 h-8' : 'w-6 h-6';
+
+  return (
+    <div className="flex gap-1">
+      {[1, 2, 3, 4, 5].map((star) => {
+        const filled = (hovered || value) >= star;
+        return (
+          <button
+            key={star}
+            type="button"
+            disabled={readonly}
+            onClick={() => onChange?.(star)}
+            onMouseEnter={() => !readonly && setHovered(star)}
+            onMouseLeave={() => !readonly && setHovered(0)}
+            className={`transition-colors ${readonly ? 'cursor-default' : 'cursor-pointer'}`}
+          >
+            {filled
+              ? <StarSolid className={`${sizeClass} text-yellow-400`} />
+              : <StarIcon className={`${sizeClass} text-white/30`} />
+            }
+          </button>
+        );
+      })}
+    </div>
+  );
+};
 
 const MovieDetailPage = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const { startBooking } = useBooking();
+  const { isAuthenticated } = useAuth();
   const [showTrailer, setShowTrailer] = useState(false);
+
+  // Rating state
+  const [userScore, setUserScore] = useState(0);
+  const [userReview, setUserReview] = useState('');
+  const [ratingSubmitting, setRatingSubmitting] = useState(false);
+  const [ratingMsg, setRatingMsg] = useState(null); // { type: 'success'|'error', text }
 
   // Hooks para datos
   const { movie: rawMovie, loading, error, refetch } = useMovie(id);
@@ -89,28 +129,35 @@ const MovieDetailPage = () => {
     if (!purchaseInfo.canPurchase || !theaters || theaters.length === 0) return;
 
     const defaultTheater = theaters[0];
-    const defaultShowtime = {
-      id: 1,
-      time: '19:30',
-      format: '2D Doblada',
-      price: rawMovie.price,
-      available: true,
-      availableSeats: rawMovie.available_tickets
-    };
     const selectedDate = new Date().toISOString().split('T')[0];
 
-    // Inicializar booking
-    startBooking(movie, defaultTheater, defaultShowtime, selectedDate);
+    // No se pasa showtime_id porque el usuario no ha seleccionado función específica.
+    // El backend usará la disponibilidad general de la película.
+    startBooking(movie, defaultTheater, null, selectedDate);
 
-    // Navegar usando tu ruta con parámetros dinámicos
-    navigate(`/booking/${id}/${defaultTheater.id}/${defaultShowtime.id}`, {
+    navigate(`/booking/${id}/${defaultTheater.id}`, {
       state: {
         movie,
         theater: defaultTheater,
-        showtime: defaultShowtime,
+        showtime: null,
         selectedDate
       }
     });
+  };
+
+  const handleRateMovie = async () => {
+    if (!userScore) return;
+    setRatingSubmitting(true);
+    setRatingMsg(null);
+    try {
+      await movieService.rate(id, userScore, userReview || null);
+      setRatingMsg({ type: 'success', text: '¡Gracias por tu calificación!' });
+      refetch();
+    } catch {
+      setRatingMsg({ type: 'error', text: 'No se pudo guardar tu calificación.' });
+    } finally {
+      setRatingSubmitting(false);
+    }
   };
 
   if (loading) {
@@ -393,6 +440,70 @@ const MovieDetailPage = () => {
           </div>
         </section>
       )}
+
+      {/* Ratings Section */}
+      <section className="py-16">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <h2 className="text-3xl font-bold text-white mb-8 text-center">
+            Calificación de usuarios
+          </h2>
+          <div className="max-w-2xl mx-auto space-y-6">
+
+            {/* Promedio actual */}
+            <GlassCard className="p-6 text-center">
+              {rawMovie?.average_rating ? (
+                <>
+                  <p className="text-5xl font-bold text-yellow-400 mb-2">
+                    {rawMovie.average_rating.toFixed(1)}
+                  </p>
+                  <StarRating value={Math.round(rawMovie.average_rating)} readonly size="lg" />
+                  <p className="text-white/60 text-sm mt-2">
+                    Basado en {rawMovie.rating_count} {rawMovie.rating_count === 1 ? 'calificación' : 'calificaciones'}
+                  </p>
+                </>
+              ) : (
+                <p className="text-white/50 text-lg">Aún no hay calificaciones. ¡Sé el primero!</p>
+              )}
+            </GlassCard>
+
+            {/* Formulario de calificación — solo usuarios autenticados */}
+            {isAuthenticated ? (
+              <GlassCard className="p-6">
+                <h3 className="text-white font-semibold mb-4">Tu calificación</h3>
+                <div className="space-y-4">
+                  <StarRating value={userScore} onChange={setUserScore} size="lg" />
+                  <textarea
+                    value={userReview}
+                    onChange={(e) => setUserReview(e.target.value)}
+                    placeholder="Escribe una reseña opcional... (máx. 500 caracteres)"
+                    maxLength={500}
+                    rows={3}
+                    className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-white/40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  />
+                  {ratingMsg && (
+                    <p className={`text-sm ${ratingMsg.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
+                      {ratingMsg.text}
+                    </p>
+                  )}
+                  <button
+                    onClick={handleRateMovie}
+                    disabled={!userScore || ratingSubmitting}
+                    className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors text-sm"
+                  >
+                    {ratingSubmitting ? 'Enviando...' : 'Enviar calificación'}
+                  </button>
+                </div>
+              </GlassCard>
+            ) : (
+              <GlassCard className="p-4 text-center">
+                <p className="text-white/60 text-sm">
+                  <span className="text-blue-400 cursor-pointer hover:underline">Inicia sesión</span> para dejar tu calificación.
+                </p>
+              </GlassCard>
+            )}
+          </div>
+        </div>
+      </section>
     </div>
   );
 };

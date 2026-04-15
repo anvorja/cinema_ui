@@ -69,6 +69,19 @@ export const useApi = () => {
         method: 'PATCH'
       }),
 
+    // Theaters
+    getTheaters: (params = {}) => {
+      const queryString = new URLSearchParams({
+        include_inactive: true,
+        limit: 100,
+        ...params
+      }).toString();
+      return apiCall(`/admin/theaters?${queryString}`);
+    },
+
+    toggleTheater: (id) =>
+      apiCall(`/admin/theaters/${id}/toggle`, { method: 'PATCH' }),
+
     // Purchases
     getPurchases: (params = {}) => {
       const queryString = new URLSearchParams({
@@ -96,6 +109,12 @@ export const useApi = () => {
 
     // Reports
     getSalesReport: () => apiCall('/admin/reports/sales'),
+    getReportByMovie: () => apiCall('/admin/reports/by-movie'),
+    getReportByDate: (period = 'daily') => apiCall(`/admin/reports/by-date?period=${period}`),
+
+    // Ticket validation
+    validateTicket: (ticketCode) =>
+      apiCall(`/purchases/tickets/${ticketCode}/validate`, { method: 'POST' }),
   };
 
   return { apiCall, adminApi };

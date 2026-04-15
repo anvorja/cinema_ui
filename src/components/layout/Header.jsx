@@ -267,6 +267,7 @@ import { UserProfileDropdown } from './UserProfileDropdown';
 import { Sidebar } from './Sidebar';
 import { LoginModal } from '../auth/LoginModal.jsx';
 import { RegisterModal } from '../auth/RegisterModal.jsx';
+import UserProfile from '../auth/UserProfile.jsx';
 import useAuth from '../../hooks/useAuth';
 import { searchMovies } from '../../services/api';
 import { debounce } from 'lodash';
@@ -278,6 +279,7 @@ const Header = () => {
     const [showUserProfile, setShowUserProfile] = useState(false);
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
+    const [showProfileModal, setShowProfileModal] = useState(false);
 
     // NUEVOS ESTADOS para la funcionalidad de búsqueda
     const [searchResults, setSearchResults] = useState([]);
@@ -309,8 +311,9 @@ const Header = () => {
             if (showUserProfile) {
                 const dropdown = event.target.closest('.user-profile-dropdown');
                 const button = event.target.closest('.user-profile-button');
+                const portalContent = event.target.closest('[data-portal="user-dropdown"]');
 
-                if (!dropdown && !button) {
+                if (!dropdown && !button && !portalContent) {
                     setShowUserProfile(false);
                 }
             }
@@ -549,6 +552,7 @@ const Header = () => {
                                         <div className="user-profile-dropdown">
                                             <UserProfileDropdown
                                                 onClose={handleCloseDropdown}
+                                                onOpenProfile={() => setShowProfileModal(true)}
                                                 user={user}
                                             />
                                         </div>
@@ -660,6 +664,11 @@ const Header = () => {
                 onClose={closeAllModals}
                 onSwitchToLogin={handleSwitchToLogin}
             />
+
+            {/* Modal de perfil de usuario */}
+            {showProfileModal && (
+                <UserProfile onClose={() => setShowProfileModal(false)} />
+            )}
         </>
     );
 };
