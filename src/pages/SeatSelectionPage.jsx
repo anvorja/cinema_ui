@@ -60,12 +60,16 @@ const SeatSelectionPage = () => {
   // Occupied seats fetched from backend (already sold for this showtime)
   const [occupiedSeats, setOccupiedSeats] = useState(new Set());
 
-  // Extraer show_date e show_time para el fallback de asientos históricos
+  // Extraer show_date e show_time para la consulta de asientos ocupados.
+  // Priorizamos showtime.date (fecha real del backend) sobre selectedDate
+  // que en TheatersWithShowtimes queda fijo en "hoy" y puede no coincidir
+  // con la fecha real de la función almacenada en la compra.
   const showDateStr = (() => {
-    if (!selectedDate) return null;
-    if (typeof selectedDate === 'string') return selectedDate.split('T')[0];
-    if (selectedDate instanceof Date) return selectedDate.toISOString().split('T')[0];
-    if (selectedDate?.date) return String(selectedDate.date).split('T')[0];
+    const raw = showtime?.date || selectedDate;
+    if (!raw) return null;
+    if (typeof raw === 'string') return raw.split('T')[0];
+    if (raw instanceof Date) return raw.toISOString().split('T')[0];
+    if (raw?.date) return String(raw.date).split('T')[0];
     return null;
   })();
   const showTimeStr = showtime?.time || null;

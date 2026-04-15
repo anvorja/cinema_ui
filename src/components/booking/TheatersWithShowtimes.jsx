@@ -31,11 +31,12 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie }) => {
     setSelectedShowtime(showtime);
     setSelectedTheater(theater);
 
-    // Inicializar booking en el contexto
-    const selectedDate = new Date().toISOString().split('T')[0];
+    // Usar la fecha real de la función (del backend) como selectedDate.
+    // Antes se usaba new Date() (hoy), lo que podía diferir de la fecha
+    // real almacenada en la compra y romper la consulta de asientos ocupados.
+    const selectedDate = showtime.date || new Date().toISOString().split('T')[0];
     startBooking(movie, theater, showtime, selectedDate);
 
-    // Navegar usando tu ruta con parámetros dinámicos
     navigate(`/booking/${movieId}/${theater.id}/${showtime.id}`, {
       state: {
         movie: movie,
