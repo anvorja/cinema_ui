@@ -60,10 +60,26 @@ const SeatSelectionPage = () => {
   // Occupied seats fetched from backend (already sold for this showtime)
   const [occupiedSeats, setOccupiedSeats] = useState(new Set());
 
+  // Extraer show_date e show_time para el fallback de asientos históricos
+  const showDateStr = (() => {
+    if (!selectedDate) return null;
+    if (typeof selectedDate === 'string') return selectedDate.split('T')[0];
+    if (selectedDate instanceof Date) return selectedDate.toISOString().split('T')[0];
+    if (selectedDate?.date) return String(selectedDate.date).split('T')[0];
+    return null;
+  })();
+  const showTimeStr = showtime?.time || null;
+
   useEffect(() => {
     if (!showtimeId) return;
+    const params = new URLSearchParams();
+    if (movieId)      params.append('movie_id',  movieId);
+    if (showDateStr)  params.append('show_date', showDateStr);
+    if (showTimeStr)  params.append('show_time', showTimeStr);
+    const query = params.toString() ? `?${params.toString()}` : '';
+
     const fetchOccupied = () => {
-      api.get(`/purchases/showtimes/${showtimeId}/occupied-seats`)
+      api.get(`/purchases/showtimes/${showtimeId}/occupied-seats${query}`)
         .then(res => {
           const seats = res.data?.seats || [];
           setOccupiedSeats(prev => {
@@ -82,7 +98,7 @@ const SeatSelectionPage = () => {
     fetchOccupied();
     const interval = setInterval(fetchOccupied, 20000); // refresca cada 20 s
     return () => clearInterval(interval);
-  }, [showtimeId]);
+  }, [showtimeId, movieId, showDateStr, showTimeStr]);
 
   const handleToggle = useCallback((id) => {
     setSelectedSeats(prev => {
