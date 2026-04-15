@@ -46,12 +46,15 @@ const WheelchairSVG = () => (
 const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
   if (value === null) return <div className="w-6 h-6 flex-shrink-0" />;
 
-  const unavailable = value === X || occupied;
-  const isWC        = value === WC;
+  const isBlocked  = value === X;   // physically blocked by layout (not for sale)
+  const isWC       = value === WC;
+  const unavailable = isBlocked || occupied;
 
   let bg, cursor, text;
-  if (unavailable) {
+  if (occupied) {
     bg = 'bg-red-400/70';   cursor = 'cursor-not-allowed';  text = '';
+  } else if (isBlocked) {
+    bg = 'bg-gray-500/40';  cursor = 'cursor-not-allowed';  text = '';
   } else if (selected) {
     bg = 'bg-green-500';    cursor = 'cursor-pointer';
     text = isWC ? null : <span className="text-[9px] leading-none font-bold">✓</span>;
@@ -71,7 +74,7 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
                   text-white transition-colors select-none ${bg} ${cursor}`}
       disabled={unavailable}
       onClick={() => !unavailable && onToggle(id, rowType === 'wheelchair' ? 'general' : rowType)}
-      title={occupied ? 'Silla ya vendida' : unavailable ? 'No disponible' : `${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
+      title={occupied ? 'Silla ya vendida' : isBlocked ? 'No disponible' : `${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
     >
       {isWC ? <WheelchairSVG /> : text}
     </button>
@@ -87,7 +90,7 @@ const Legend = () => (
       <span className="w-4 h-4 rounded-[3px] bg-red-400/70 inline-block" /> Vendida
     </span>
     <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-gray-500/50 inline-block" /> No disponible
+      <span className="w-4 h-4 rounded-[3px] bg-gray-500/40 inline-block" /> No disponible
     </span>
     <span className="flex items-center gap-1.5">
       <span className="w-4 h-4 rounded-[3px] bg-blue-700 inline-block" /> General

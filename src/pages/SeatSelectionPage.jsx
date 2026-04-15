@@ -58,14 +58,26 @@ const SeatSelectionPage = () => {
 
   useEffect(() => {
     if (!showtimeId) return;
-    api.get(`/purchases/showtimes/${showtimeId}/occupied-seats`)
-      .then(res => {
-        const seats = res.data?.seats || [];
-        setOccupiedSeats(new Set(seats));
-      })
-      .catch(() => {
-        // silent fail — don't block seat selection if the call fails
-      });
+    const fetchOccupied = () => {
+      api.get(`/purchases/showtimes/${showtimeId}/occupied-seats`)
+        .then(res => {
+          const seats = res.data?.seats || [];
+          setOccupiedSeats(prev => {
+            // Deselect any seat the user had picked that is now occupied
+            setSelectedSeats(sel => {
+              const nowOccupied = new Set(seats);
+              const next = new Set(sel);
+              sel.forEach(id => { if (nowOccupied.has(id)) next.delete(id); });
+              return next;
+            });
+            return new Set(seats);
+          });
+        })
+        .catch(() => {});
+    };
+    fetchOccupied();
+    const interval = setInterval(fetchOccupied, 20000); // refresca cada 20 s
+    return () => clearInterval(interval);
   }, [showtimeId]);
 
   const handleToggle = useCallback((id) => {
