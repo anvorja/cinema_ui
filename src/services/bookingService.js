@@ -69,9 +69,19 @@ class BookingService {
         }
         // Si es un objeto {dayName, dayNumber, monthName} no se puede convertir de forma segura → null
       }
+      // showtime.time puede ser '' si el objeto no trajo el campo — normalizamos a null
       const showTime = bookingData.showtime?.time || null;
 
       const showtimeId = bookingData.showtime?.id || null;
+
+      if (!showtimeId) {
+        console.warn('⚠️ bookingService: showtimeId es null — la compra no tendrá showtime_id.',
+          'showtime recibido:', bookingData.showtime);
+      }
+      if (!showTime) {
+        console.warn('⚠️ bookingService: show_time es null — la compra no tendrá horario.',
+          'showtime recibido:', bookingData.showtime);
+      }
 
       // Filter out wheelchair seat IDs (format: "X-wc-section-idx") — backend only uses standard seat codes
       const selectedSeatsFiltered = (bookingData.selectedSeats || []).filter(id => !id.includes('wc'));

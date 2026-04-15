@@ -32,9 +32,11 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie }) => {
     setSelectedTheater(theater);
 
     // Usar la fecha real de la función (del backend) como selectedDate.
-    // Antes se usaba new Date() (hoy), lo que podía diferir de la fecha
-    // real almacenada en la compra y romper la consulta de asientos ocupados.
-    const selectedDate = showtime.date || new Date().toISOString().split('T')[0];
+    // showtime.date viene de show_date en el catálogo. Si por alguna razón
+    // el objeto no trae date, no usamos new Date() (hoy) porque generaría
+    // una compra con show_date incorrecto — dejamos null y el backend fallará
+    // de forma explícita en lugar de guardar una fecha fantasma.
+    const selectedDate = showtime.date ?? null;
     startBooking(movie, theater, showtime, selectedDate);
 
     navigate(`/booking/${movieId}/${theater.id}/${showtime.id}`, {

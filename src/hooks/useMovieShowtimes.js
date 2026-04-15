@@ -103,34 +103,48 @@ const transformBackendShowtimes = (backendData) => {
   return transformed;
 };
 
-// Función para convertir formato del backend a display
+// Función para convertir formato del backend a display.
+// El catálogo puede enviar snake_case (2d_dubbed) o SCREAMING_SNAKE_CASE
+// (TWO_D_DUBBED). Normalizamos antes de comparar.
 const formatDisplayName = (backendFormat) => {
+  if (!backendFormat) return '2D Doblada';
+  const key = backendFormat.toLowerCase().replace(/_/g, '');
   const formatMap = {
-    '2d_dubbed': '2D Doblada',
-    '2d_subtitled': '2D Subtitulada',
-    '3d_dubbed': '3D Doblada',
-    '3d_subtitled': '3D Subtitulada',
-    'imax': 'IMAX',
-    'imax_dubbed': 'IMAX Doblada',
-    'imax_subtitled': 'IMAX Subtitulada'
+    '2ddubbed':      '2D Doblada',
+    '2dsubtitled':   '2D Subtitulada',
+    'twoddubbed':    '2D Doblada',
+    'twodsubtitled': '2D Subtitulada',
+    'twod':          '2D Doblada',
+    '3ddubbed':      '3D Doblada',
+    '3dsubtitled':   '3D Subtitulada',
+    'threedddubbed': '3D Doblada',
+    'threedsubtitled':'3D Subtitulada',
+    'imax':          'IMAX',
+    'imaxdubbed':    'IMAX Doblada',
+    'imaxsubtitled': 'IMAX Subtitulada',
   };
-
-  return formatMap[backendFormat] || backendFormat;
+  return formatMap[key] || backendFormat;
 };
 
 // Función para calcular precios según formato
 const calculatePrice = (format) => {
+  if (!format) return 18000;
+  const key = format.toLowerCase().replace(/_/g, '');
   const priceMap = {
-    '2d_dubbed': 18000,
-    '2d_subtitled': 18000,
-    '3d_dubbed': 22000,
-    '3d_subtitled': 22000,
-    'imax': 28000,
-    'imax_dubbed': 28000,
-    'imax_subtitled': 28000
+    '2ddubbed':      18000,
+    '2dsubtitled':   18000,
+    'twoddubbed':    18000,
+    'twodsubtitled': 18000,
+    'twod':          18000,
+    '3ddubbed':      22000,
+    '3dsubtitled':   22000,
+    'threedddubbed': 22000,
+    'threedsubtitled':22000,
+    'imax':          28000,
+    'imaxdubbed':    28000,
+    'imaxsubtitled': 28000,
   };
-
-  return priceMap[format] || 18000;
+  return priceMap[key] || 18000;
 };
 
 // Función de fallback con datos mock
