@@ -51,8 +51,6 @@ const PaymentSuccessPage = () => {
   // Información adicional de las boletas
   // ticket_codes reales del backend (CINE-XXXXXXX), uno por boleta
   const ticketCodes = booking?.ticket_codes || [];
-  // QR values encode "CINE-XXXXXXX|A19" so the seat is visible when scanned
-  const ticketQrValues = booking?.ticket_qr_values || ticketCodes;
 
   const ticketInfo = {
     reference: transactionId,
@@ -324,28 +322,21 @@ const PaymentSuccessPage = () => {
                 </div>
 
                 {showQRCode && (
-                  <div className="text-center py-6 space-y-6">
+                  <div className="text-center py-6 space-y-4">
                     {ticketCodes.length > 0 ? (
-                      ticketCodes.map((code, idx) => {
-                        const seat = realSeats?.[idx] || '';
-                        const qrValue = ticketQrValues[idx] || code;
-                        return (
-                          <div key={code} className="flex flex-col items-center gap-2">
-                            {ticketCodes.length > 1 && (
-                              <p className="text-white/60 text-xs font-semibold uppercase tracking-wide">
-                                Boleta {idx + 1}
-                              </p>
-                            )}
-                            <div className="bg-white p-3 rounded-xl shadow-lg inline-block" data-qr-print>
-                              <QRCode value={qrValue} size={180} />
-                            </div>
-                            <p className="text-white/50 font-mono text-xs">{code}</p>
-                            {seat && (
-                              <p className="text-white/70 text-sm font-semibold">Asiento: {seat}</p>
-                            )}
+                      ticketCodes.map((code, idx) => (
+                        <div key={code} className="flex flex-col items-center gap-2">
+                          {ticketCodes.length > 1 && (
+                            <p className="text-white/60 text-xs font-semibold uppercase tracking-wide">
+                              Boleta {idx + 1}
+                            </p>
+                          )}
+                          <div className="bg-white p-3 rounded-xl shadow-lg inline-block" data-qr-print>
+                            <QRCode value={code} size={180} />
                           </div>
-                        );
-                      })
+                          <p className="text-white/50 font-mono text-xs">{code}</p>
+                        </div>
+                      ))
                     ) : (
                       /* Fallback si el backend no retornó ticket_codes todavía */
                       <div className="flex flex-col items-center gap-2">
