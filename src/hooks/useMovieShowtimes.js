@@ -17,49 +17,17 @@ export const useMovieShowtimes = (movieId) => {
       try {
         const response = await bookingService.getShowtimes(movieId);
 
-        if (response.success) {
-          // Verificar si hay datos válidos
-          if (response.data) {
-            // Tu backend probablemente devuelve datos en formato diferente
-            // Vamos a inspeccionar y transformar
-            console.log('Backend showtimes data:', response.data);
-
-            let transformedShowtimes;
-
-            // Si es un array, usar transformación normal
-            if (Array.isArray(response.data)) {
-              transformedShowtimes = transformBackendShowtimes(response.data);
-            }
-            // Si es un objeto con showtimes agrupados, usar directamente
-            else if (typeof response.data === 'object') {
-              transformedShowtimes = response.data;
-            }
-            // Si no se puede determinar el formato, usar mock
-            else {
-              console.warn('Unknown data format, using mock data');
-              transformedShowtimes = getMockShowtimes();
-            }
-
-            setShowtimes(transformedShowtimes);
-          } else {
-            console.warn('No showtimes data received, using mock data');
-            const mockData = getMockShowtimes();
-            setShowtimes(mockData);
-          }
+        if (response.success && Array.isArray(response.data)) {
+          setShowtimes(transformBackendShowtimes(response.data));
         } else {
-          // Fallback a datos mock si el backend falla
-          console.warn('Backend unavailable, using mock data:', response.message);
-          const mockData = getMockShowtimes();
-          setShowtimes(mockData);
+          console.warn('No showtimes data from backend:', response.message);
+          setShowtimes({});
         }
 
       } catch (err) {
         console.error('Error fetching showtimes:', err);
         setError(err.message);
-
-        // Fallback a datos mock en caso de error
-        const mockData = getMockShowtimes();
-        setShowtimes(mockData);
+        setShowtimes({});
       } finally {
         setLoading(false);
       }
@@ -100,48 +68,36 @@ export const useMovieShowtimes = (movieId) => {
   };
 };
 
-// Función para transformar datos del backend al formato del frontend
+// Función para transformar datos del backend al formato del frontend.
+// Agrupa por theater_id (campo real del backend) para que TheatersWithShowtimes
+// pueda hacer showtimes[theater.id] correctamente.
 const transformBackendShowtimes = (backendData) => {
   const transformed = {};
 
-  // Verificar que backendData sea un array válido
-  if (!backendData || !Array.isArray(backendData)) {
-    console.warn('Invalid backend data structure:', backendData);
-    return transformed;
-  }
-
-  // Agrupar horarios por teatro (ya que tu backend devuelve lista plana)
-  const theaterGroups = {};
+  if (!backendData || !Array.isArray(backendData)) return transformed;
 
   backendData.forEach(showtime => {
-    const theaterName = showtime.theater_name;
+    const tid = showtime.theater_id;
+    if (!tid) return;
 
-    if (!theaterGroups[theaterName]) {
-      theaterGroups[theaterName] = [];
+    if (!transformed[tid]) {
+      transformed[tid] = {
+        date: showtime.show_date,
+        theaterName: showtime.theater_name,
+        times: [],
+      };
     }
 
-    // Transformar formato individual
-    theaterGroups[theaterName].push({
+    transformed[tid].times.push({
       id: showtime.id,
       time: showtime.show_time,
-      format: formatDisplayName(showtime.format), // Convertir "2d_dubbed" a "2D Doblada"
+      format: formatDisplayName(showtime.format),
       available: showtime.available_tickets > 0,
-      price: calculatePrice(showtime.format), // Calcular precio según formato
+      price: calculatePrice(showtime.format),
       availableSeats: showtime.available_tickets,
       capacity: showtime.capacity,
-      date: showtime.show_date
+      date: showtime.show_date,
     });
-  });
-
-  // Convertir a formato esperado por el frontend (usar índices numéricos)
-  let theaterIndex = 1;
-  Object.keys(theaterGroups).forEach(theaterName => {
-    transformed[theaterIndex] = {
-      date: backendData[0]?.show_date || new Date().toISOString().split('T')[0],
-      theaterName: theaterName, // Agregar nombre del teatro
-      times: theaterGroups[theaterName]
-    };
-    theaterIndex++;
   });
 
   return transformed;

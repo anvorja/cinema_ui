@@ -46,8 +46,12 @@ const SeatSelectionPage = () => {
   const rawShowtime = state.showtime || bookingData.showtime;
   const selectedDate = state.selectedDate || bookingData.selectedDate;
 
-  const showtime = rawShowtime || getShowtimeById(theaterId, showtimeId) || {
-    time: '19:30', format: '2D Doblada'
+  // Garantizar que showtime.id siempre sea el ID real del URL param.
+  // Si el objeto viene sin id (fallback, recarga de página, etc.) lo inyectamos.
+  const showtimeIdNum = Number(showtimeId) || null;
+  const showtime = {
+    ...(rawShowtime || getShowtimeById(theaterId, showtimeId) || { time: '', format: '2D Doblada' }),
+    id: rawShowtime?.id || showtimeIdNum,
   };
 
   // Selected seats: Set of seat IDs
