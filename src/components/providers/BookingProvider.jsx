@@ -111,9 +111,13 @@ export const BookingProvider = ({ children }) => {
       await new Promise(r => setTimeout(r, intervalMs));
       const result = await bookingService.getBookingDetails(purchaseId);
       if (!result.success) continue;
-      const { status, tickets } = result.data;
+      const { status, tickets, payment_summary } = result.data;
       if (status === 'confirmed' && tickets?.length > 0) return result.data;
-      if (status === 'cancelled') throw new Error('La compra fue cancelada durante el procesamiento del pago.');
+      if (status === 'cancelled') {
+        const reason = payment_summary?.failure_reason
+          || 'Uno o más asientos seleccionados ya fueron adquiridos por otro usuario. Por favor elige otras sillas.';
+        throw new Error(reason);
+      }
     }
     throw new Error('El pago tardó demasiado en confirmarse. Revisa "Mis Compras" para ver el estado.');
   }, []);
