@@ -86,16 +86,14 @@ const SeatSelectionPage = () => {
       api.get(`/purchases/showtimes/${showtimeId}/occupied-seats${query}`)
         .then(res => {
           const seats = res.data?.seats || [];
-          setOccupiedSeats(prev => {
-            // Deselect any seat the user had picked that is now occupied
-            setSelectedSeats(sel => {
-              const nowOccupied = new Set(seats);
-              const next = new Set(sel);
-              sel.forEach(id => { if (nowOccupied.has(id)) next.delete(id); });
-              return next;
-            });
-            return new Set(seats);
+          const nowOccupied = new Set(seats);
+          // Deselect any seat the user had picked that is now occupied
+          setSelectedSeats(sel => {
+            const next = new Set(sel);
+            sel.forEach(id => { if (nowOccupied.has(id)) next.delete(id); });
+            return next;
           });
+          setOccupiedSeats(nowOccupied);
         })
         .catch(() => {});
     };
