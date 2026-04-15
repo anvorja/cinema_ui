@@ -75,6 +75,9 @@ class BookingService {
 
       // Filter out wheelchair seat IDs (format: "X-wc-section-idx") — backend only uses standard seat codes
       const selectedSeatsFiltered = (bookingData.selectedSeats || []).filter(id => !id.includes('wc'));
+      // Send null instead of [] when no real seats selected; backend uses GENERAL-X fallback for null.
+      // Sending [] would cause a validator error (len([]) != quantity).
+      const selectedSeatsPayload = selectedSeatsFiltered.length > 0 ? selectedSeatsFiltered : null;
       // Quantity: prefer the actual number of selected seats; fall back to ticketCount
       const quantity = selectedSeatsFiltered.length > 0 ? selectedSeatsFiltered.length : (bookingData.ticketCount || 1);
 
@@ -87,7 +90,7 @@ class BookingService {
           show_date: showDate,
           show_time: showTime,
           showtime_id: showtimeId,
-          selected_seats: selectedSeatsFiltered,
+          selected_seats: selectedSeatsPayload,
           pse_info: {
             bank_code: pse.bankCode,
             bank_name: pse.bankName,
@@ -108,7 +111,7 @@ class BookingService {
           show_date: showDate,
           show_time: showTime,
           showtime_id: showtimeId,
-          selected_seats: selectedSeatsFiltered,
+          selected_seats: selectedSeatsPayload,
           payment_info: {
             card_number: cardNumber,
             card_holder: card.name || bookingData.userName || "Cliente Cinema",
