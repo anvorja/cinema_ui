@@ -43,15 +43,15 @@ const WheelchairSVG = () => (
   </svg>
 );
 
-const Seat = ({ id, value, rowType, selected, onToggle }) => {
+const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
   if (value === null) return <div className="w-6 h-6 flex-shrink-0" />;
 
-  const unavailable = value === X;
+  const unavailable = value === X || occupied;
   const isWC        = value === WC;
 
   let bg, cursor, text;
   if (unavailable) {
-    bg = 'bg-gray-500/50';  cursor = 'cursor-default';  text = '';
+    bg = 'bg-red-400/70';   cursor = 'cursor-not-allowed';  text = '';
   } else if (selected) {
     bg = 'bg-green-500';    cursor = 'cursor-pointer';
     text = isWC ? null : <span className="text-[9px] leading-none font-bold">✓</span>;
@@ -71,7 +71,7 @@ const Seat = ({ id, value, rowType, selected, onToggle }) => {
                   text-white transition-colors select-none ${bg} ${cursor}`}
       disabled={unavailable}
       onClick={() => !unavailable && onToggle(id, rowType === 'wheelchair' ? 'general' : rowType)}
-      title={unavailable ? 'No disponible' : `${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
+      title={occupied ? 'Silla ya vendida' : unavailable ? 'No disponible' : `${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
     >
       {isWC ? <WheelchairSVG /> : text}
     </button>
@@ -82,6 +82,9 @@ const Legend = () => (
   <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-600 mb-4">
     <span className="flex items-center gap-1.5">
       <span className="w-4 h-4 rounded-[3px] bg-green-500 inline-block" /> Seleccionada
+    </span>
+    <span className="flex items-center gap-1.5">
+      <span className="w-4 h-4 rounded-[3px] bg-red-400/70 inline-block" /> Vendida
     </span>
     <span className="flex items-center gap-1.5">
       <span className="w-4 h-4 rounded-[3px] bg-gray-500/50 inline-block" /> No disponible
@@ -101,7 +104,7 @@ const Legend = () => (
 );
 
 // ── Main component ─────────────────────────────────────────────────────────────
-const CinemaSeatMap = ({ selectedSeats, onToggle }) => {
+const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) => {
   const [zoom, setZoom] = useState(1);
   const containerRef = useRef(null);
 
@@ -109,16 +112,20 @@ const CinemaSeatMap = ({ selectedSeats, onToggle }) => {
     setZoom(prev => Math.min(1.5, Math.max(0.6, +(prev + delta).toFixed(1))));
 
   const renderSection = (seats, row, rowType, section) =>
-    seats.map((val, idx) => (
-      <Seat
-        key={`${row}-${section}-${idx}`}
-        id={seatId(row, section, idx, val)}
-        value={val}
-        rowType={val === WC ? 'wheelchair' : rowType}
-        selected={selectedSeats.has(seatId(row, section, idx, val))}
-        onToggle={onToggle}
-      />
-    ));
+    seats.map((val, idx) => {
+      const id = seatId(row, section, idx, val);
+      return (
+        <Seat
+          key={`${row}-${section}-${idx}`}
+          id={id}
+          value={val}
+          rowType={val === WC ? 'wheelchair' : rowType}
+          selected={selectedSeats.has(id)}
+          occupied={val !== X && val !== null && occupiedSeats.has(id)}
+          onToggle={onToggle}
+        />
+      );
+    });
 
   return (
     <div className="flex flex-col gap-3">

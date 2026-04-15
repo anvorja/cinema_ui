@@ -21,7 +21,7 @@ const PaymentPage = () => {
 
   // Obtener datos del state o contexto
   const paymentData = location.state || {};
-  const { movie, theater, showtime, selectedDate, ticketCount, totalAmount } = paymentData;
+  const { movie, theater, showtime, selectedDate, ticketCount, totalAmount, selectedSeats } = paymentData;
 
   // Estados locales
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
@@ -94,6 +94,7 @@ const PaymentPage = () => {
       ticketCount: ticketCount || 1,
       totalAmount: totalAmount || 0,
       paymentMethod: selectedPaymentMethod,
+      selectedSeats: selectedSeats || [],
       step: 3,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps

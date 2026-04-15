@@ -1,5 +1,6 @@
 // src/pages/SeatSelectionPage.jsx
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import api from '../services/api.js';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   MapPinIcon, ComputerDesktopIcon, CalendarDaysIcon,
@@ -51,6 +52,21 @@ const SeatSelectionPage = () => {
 
   // Selected seats: Set of seat IDs
   const [selectedSeats, setSelectedSeats] = useState(new Set());
+
+  // Occupied seats fetched from backend (already sold for this showtime)
+  const [occupiedSeats, setOccupiedSeats] = useState(new Set());
+
+  useEffect(() => {
+    if (!showtimeId) return;
+    api.get(`/purchases/showtimes/${showtimeId}/occupied-seats`)
+      .then(res => {
+        const seats = res.data?.seats || [];
+        setOccupiedSeats(new Set(seats));
+      })
+      .catch(() => {
+        // silent fail — don't block seat selection if the call fails
+      });
+  }, [showtimeId]);
 
   const handleToggle = useCallback((id) => {
     setSelectedSeats(prev => {
@@ -201,7 +217,11 @@ const SeatSelectionPage = () => {
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Seleccione sus sillas</h1>
 
         {/* ── Seat map ───────────────────────────────────────────────────────── */}
-        <CinemaSeatMap selectedSeats={selectedSeats} onToggle={handleToggle} />
+        <CinemaSeatMap
+          selectedSeats={selectedSeats}
+          onToggle={handleToggle}
+          occupiedSeats={occupiedSeats}
+        />
 
         {/* ── Navigation ─────────────────────────────────────────────────────── */}
         <div className="flex justify-between items-center mt-6">

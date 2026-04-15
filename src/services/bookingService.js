@@ -73,15 +73,21 @@ class BookingService {
 
       const showtimeId = bookingData.showtime?.id || null;
 
+      // Filter out wheelchair seat IDs (format: "X-wc-section-idx") — backend only uses standard seat codes
+      const selectedSeatsFiltered = (bookingData.selectedSeats || []).filter(id => !id.includes('wc'));
+      // Quantity: prefer the actual number of selected seats; fall back to ticketCount
+      const quantity = selectedSeatsFiltered.length > 0 ? selectedSeatsFiltered.length : (bookingData.ticketCount || 1);
+
       if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
         // PSE payload
         const pse = bookingData.pseData;
         purchasePayload = {
           movie_id: bookingData.movie.id,
-          quantity: bookingData.ticketCount || 1,
+          quantity,
           show_date: showDate,
           show_time: showTime,
           showtime_id: showtimeId,
+          selected_seats: selectedSeatsFiltered,
           pse_info: {
             bank_code: pse.bankCode,
             bank_name: pse.bankName,
@@ -98,10 +104,11 @@ class BookingService {
 
         purchasePayload = {
           movie_id: bookingData.movie.id,
-          quantity: bookingData.ticketCount || 1,
+          quantity,
           show_date: showDate,
           show_time: showTime,
           showtime_id: showtimeId,
+          selected_seats: selectedSeatsFiltered,
           payment_info: {
             card_number: cardNumber,
             card_holder: card.name || bookingData.userName || "Cliente Cinema",
