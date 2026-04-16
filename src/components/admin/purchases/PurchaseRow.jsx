@@ -24,9 +24,9 @@ const PurchaseRow = ({ purchase }) => {
 
   const getStatusConfig = (status) => {
     switch (status) {
-      case 'completed':
+      case 'confirmed':
         return {
-          label: 'Completada',
+          label: 'Confirmada',
           className: 'bg-green-900 text-green-200',
           icon: '✓'
         };
@@ -41,6 +41,12 @@ const PurchaseRow = ({ purchase }) => {
           label: 'Cancelada',
           className: 'bg-red-900 text-red-200',
           icon: '✗'
+        };
+      case 'refunded':
+        return {
+          label: 'Reembolsada',
+          className: 'bg-blue-900 text-blue-200',
+          icon: '↩'
         };
       default:
         return {

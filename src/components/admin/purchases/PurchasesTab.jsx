@@ -10,7 +10,7 @@ const PurchasesTab = ({
   searchTerm,
   onSearchChange
 }) => {
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'completed', 'pending', 'cancelled'
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'confirmed', 'pending', 'cancelled', 'refunded'
   const [dateFilter, setDateFilter] = useState('all'); // 'all', 'today', 'week', 'month'
 
   // Filtrar compras
@@ -51,7 +51,7 @@ const PurchasesTab = ({
 
   // Calcular estadísticas
   const totalRevenue = filteredPurchases.reduce((sum, purchase) => sum + (purchase.total_amount || 0), 0);
-  const completedPurchases = filteredPurchases.filter(p => p.status === 'completed');
+  const completedPurchases = filteredPurchases.filter(p => p.status === 'confirmed');
   const pendingPurchases = filteredPurchases.filter(p => p.status === 'pending');
   const totalTickets = filteredPurchases.reduce((sum, purchase) => sum + (purchase.quantity || 0), 0);
 
@@ -67,8 +67,9 @@ const PurchasesTab = ({
         `"${purchase.movie?.title}"`,
         purchase.quantity,
         purchase.total_amount,
-        purchase.status === 'completed' ? 'Completada' :
-        purchase.status === 'pending' ? 'Pendiente' : 'Cancelada',
+        purchase.status === 'confirmed' ? 'Confirmada' :
+        purchase.status === 'pending' ? 'Pendiente' :
+        purchase.status === 'refunded' ? 'Reembolsada' : 'Cancelada',
         new Date(purchase.created_at).toLocaleDateString('es-ES')
       ].join(','))
     ].join('\n');
@@ -130,9 +131,10 @@ const PurchasesTab = ({
               className="bg-gray-700 border border-gray-600 rounded-md text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="all">Todos los estados</option>
-              <option value="completed">Completadas</option>
+              <option value="confirmed">Confirmadas</option>
               <option value="pending">Pendientes</option>
               <option value="cancelled">Canceladas</option>
+              <option value="refunded">Reembolsadas</option>
             </select>
           </div>
 
@@ -155,7 +157,7 @@ const PurchasesTab = ({
           <p className="text-2xl font-bold text-white">{filteredPurchases.length}</p>
         </div>
         <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Completadas</p>
+          <p className="text-sm text-gray-400">Confirmadas</p>
           <p className="text-2xl font-bold text-green-400">{completedPurchases.length}</p>
         </div>
         <div className="bg-gray-700 p-4 rounded-lg">

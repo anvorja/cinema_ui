@@ -23,7 +23,7 @@ const StatsCards = ({ movies, users, purchases, stats }) => {
     {
       title: 'Compras',
       value: purchases.length,
-      subtitle: `${purchases.filter(p => p.status === 'completed').length} completadas`,
+      subtitle: `${purchases.filter(p => p.status === 'confirmed').length} confirmadas`,
       icon: ShoppingCart,
       color: 'text-purple-500',
       bgColor: 'bg-purple-900/20'
