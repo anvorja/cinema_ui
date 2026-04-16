@@ -3,6 +3,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { ChevronLeftIcon, ChevronRightIcon, PlayIcon } from '@heroicons/react/24/outline';
 import {FloatingParticles, GlassCard, PremiumButton, ShimmerEffect} from '../common';
+import { HoverCard, HoverCardTrigger, HoverCardContent } from '../ui/hover-card';
+import { Badge } from '../ui/badge';
 
 const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -92,15 +94,20 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
 
             {/* Movie Poster - Mobile/Tablet */}
             <div className="lg:hidden flex justify-center mb-8">
-              <ShimmerEffect className="w-64 sm:w-80">
-                <GlassCard variant="premium" className="p-2 premium-card">
-                  <img
-                    src={currentMovie.poster_url}
-                    alt={currentMovie.title}
-                    className="w-full rounded-lg shadow-2xl"
-                  />
-                </GlassCard>
-              </ShimmerEffect>
+              <HoverCard openDelay={300}>
+                <HoverCardTrigger asChild>
+                  <ShimmerEffect className="w-64 sm:w-80 cursor-pointer">
+                    <GlassCard variant="premium" className="p-2 premium-card">
+                      <img
+                        src={currentMovie.poster_url}
+                        alt={currentMovie.title}
+                        className="w-full rounded-lg shadow-2xl"
+                      />
+                    </GlassCard>
+                  </ShimmerEffect>
+                </HoverCardTrigger>
+                <MoviePosterHoverCard movie={currentMovie} />
+              </HoverCard>
             </div>
 
             {/* Movie Info */}
@@ -171,15 +178,20 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
 
             {/* Movie Poster - Desktop */}
             <div className="hidden lg:flex justify-center">
-              <ShimmerEffect className="w-96">
-                <GlassCard variant="premium" className="p-3 premium-card">
-                  <img
-                    src={currentMovie.poster_url}
-                    alt={currentMovie.title}
-                    className="w-full rounded-lg shadow-2xl"
-                  />
-                </GlassCard>
-              </ShimmerEffect>
+              <HoverCard openDelay={200}>
+                <HoverCardTrigger asChild>
+                  <ShimmerEffect className="w-96 cursor-pointer">
+                    <GlassCard variant="premium" className="p-3 premium-card transition-transform duration-300 hover:scale-[1.02]">
+                      <img
+                        src={currentMovie.poster_url}
+                        alt={currentMovie.title}
+                        className="w-full rounded-lg shadow-2xl"
+                      />
+                    </GlassCard>
+                  </ShimmerEffect>
+                </HoverCardTrigger>
+                <MoviePosterHoverCard movie={currentMovie} side="left" />
+              </HoverCard>
             </div>
           </div>
         </div>
@@ -235,6 +247,63 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
     </div>
   );
 };
+
+// HoverCard con preview de la película
+const MoviePosterHoverCard = ({ movie, side = 'right' }: { movie: any; side?: 'left' | 'right' | 'top' | 'bottom' }) => (
+  <HoverCardContent
+    side={side}
+    sideOffset={12}
+    className="w-72 p-0 bg-slate-900/95 backdrop-blur-xl border-white/[0.12] shadow-2xl shadow-black/60 rounded-xl overflow-hidden"
+  >
+    {/* Backdrop mini */}
+    {movie.backdrop_url && (
+      <div className="relative h-24 overflow-hidden">
+        <img src={movie.backdrop_url} alt="" className="w-full h-full object-cover" />
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/95" />
+      </div>
+    )}
+
+    <div className="p-4 space-y-3">
+      <div>
+        <h3 className="text-white font-bold text-base leading-tight">{movie.title}</h3>
+        {movie.subtitle && (
+          <p className="text-white/50 text-xs mt-0.5">{movie.subtitle}</p>
+        )}
+      </div>
+
+      <div className="flex flex-wrap gap-1.5">
+        {movie.genre && (
+          <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-[10px]">
+            {movie.genre}
+          </Badge>
+        )}
+        {movie.ageRating && (
+          <Badge variant="outline" className="text-white/60 border-white/20 text-[10px]">
+            {movie.ageRating}
+          </Badge>
+        )}
+        {movie.duration && (
+          <Badge variant="outline" className="text-white/60 border-white/20 text-[10px]">
+            {movie.duration}
+          </Badge>
+        )}
+      </div>
+
+      {movie.description && (
+        <p className="text-white/60 text-xs leading-relaxed line-clamp-3">
+          {movie.description}
+        </p>
+      )}
+
+      <Link
+        to={`/movie/${movie.id}`}
+        className="block w-full text-center py-2 rounded-lg bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-semibold transition-colors"
+      >
+        Ver detalles →
+      </Link>
+    </div>
+  </HoverCardContent>
+);
 
 // Componente para película individual del carrusel
 const MovieSlide = ({ movie, isActive }) => {

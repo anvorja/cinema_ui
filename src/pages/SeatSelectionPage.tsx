@@ -9,6 +9,7 @@ import {
 import CinemaSeatMap, { LAYOUT } from '../components/seats/CinemaSeatMap';
 import { useBooking } from '../hooks/useBooking';
 import { useMovieShowtimes } from '../hooks/useMovieShowtimes';
+import { Badge } from '../components/ui/badge';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatDate = (dateStr) => {
@@ -162,77 +163,76 @@ const SeatSelectionPage = () => {
       <div className="max-w-4xl mx-auto px-4 py-6">
 
         {/* ── Info card ──────────────────────────────────────────────────────── */}
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 mb-6">
+        <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/[0.08] p-5 mb-6">
           <div className="flex gap-4 items-start">
             {poster && (
               <img src={poster} alt={title}
-                className="w-16 h-24 object-cover rounded-lg shadow flex-shrink-0" />
+                className="w-16 h-24 object-cover rounded-lg shadow-lg ring-1 ring-white/10 flex-shrink-0" />
             )}
             <div className="flex-1 min-w-0">
               <div className="flex items-start gap-2 flex-wrap mb-1">
-                <h2 className="text-lg font-bold text-gray-900">{title}</h2>
+                <h2 className="text-lg font-bold text-white">{title}</h2>
                 {ageRating && (
-                  <span className="text-xs text-gray-500 bg-gray-100 px-2 py-0.5 rounded shrink-0">
+                  <Badge variant="outline" className="text-white/60 border-white/20 text-[10px] shrink-0">
                     {ageRating}
-                  </span>
+                  </Badge>
                 )}
               </div>
 
               {/* Format badges */}
-              <div className="flex gap-2 mb-3">
+              <div className="flex gap-1.5 mb-3">
                 {format.split(' ').map((tag, i) => (
-                  <span key={i}
-                    className="text-[11px] font-bold bg-gray-800 text-white px-2 py-0.5 rounded">
+                  <Badge key={i} className="bg-white/10 text-white/80 border-white/15 text-[10px] font-bold">
                     {tag}
-                  </span>
+                  </Badge>
                 ))}
               </div>
 
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 text-sm">
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <MapPinIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-white/60">
+                  <MapPinIcon className="w-4 h-4 text-white/30 shrink-0" />
                   <div>
-                    <div className="text-[10px] text-gray-400 uppercase tracking-wide">Multiplex</div>
-                    <div className="font-medium text-gray-800 text-xs">{theaterName}</div>
+                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Multiplex</div>
+                    <div className="font-medium text-white/80 text-xs">{theaterName}</div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <ComputerDesktopIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-white/60">
+                  <ComputerDesktopIcon className="w-4 h-4 text-white/30 shrink-0" />
                   <div>
-                    <div className="text-[10px] text-gray-400 uppercase tracking-wide">Sala</div>
-                    <div className="font-medium text-gray-800 text-xs">
+                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Sala</div>
+                    <div className="font-medium text-white/80 text-xs">
                       SALA {showtime?.hall_number || 1}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <CalendarDaysIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-white/60">
+                  <CalendarDaysIcon className="w-4 h-4 text-white/30 shrink-0" />
                   <div>
-                    <div className="text-[10px] text-gray-400 uppercase tracking-wide">Fecha y horario</div>
-                    <div className="font-medium text-gray-800 text-xs">
+                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Fecha y horario</div>
+                    <div className="font-medium text-white/80 text-xs">
                       {dateLabel} {time && `${time} P.M.`}
                     </div>
                   </div>
                 </div>
 
-                <div className="flex items-center gap-1.5 text-gray-600">
-                  <ClockIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                <div className="flex items-center gap-1.5 text-white/60">
+                  <ClockIcon className="w-4 h-4 text-white/30 shrink-0" />
                   <div>
-                    <div className="text-[10px] text-gray-400 uppercase tracking-wide">Duración</div>
-                    <div className="font-medium text-gray-800 text-xs">
+                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Duración</div>
+                    <div className="font-medium text-white/80 text-xs">
                       {movie.duration_formatted || movie.duration || '–'}
                     </div>
                   </div>
                 </div>
 
                 {selectedList.length > 0 && (
-                  <div className="flex items-center gap-1.5 text-gray-600 col-span-2 sm:col-span-4">
-                    <TicketIcon className="w-4 h-4 text-gray-400 shrink-0" />
+                  <div className="flex items-center gap-1.5 text-white/60 col-span-2 sm:col-span-4">
+                    <TicketIcon className="w-4 h-4 text-white/30 shrink-0" />
                     <div>
-                      <div className="text-[10px] text-gray-400 uppercase tracking-wide">Sillas</div>
-                      <div className="font-medium text-gray-800 text-xs">
+                      <div className="text-[10px] text-white/30 uppercase tracking-wide">Sillas</div>
+                      <div className="font-medium text-white/80 text-xs">
                         {selectedList.join(', ')}
                       </div>
                     </div>

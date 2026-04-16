@@ -1,15 +1,18 @@
-// src/components/auth/LoginModal.jsx
+// src/components/auth/LoginModal.tsx
 import { useState } from 'react';
-import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { toast } from 'sonner';
 import useAuth from "../../hooks/useAuth.js";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
 
 const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const { login, loading } = useAuth();
-  const [formData, setFormData] = useState({
-    email: '',
-    password: ''
-  });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
 
@@ -17,160 +20,110 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     e.preventDefault();
     setErrors({});
 
-    // Validación básica
-    if (!formData.email.trim()) {
-      setErrors({ general: 'El email es requerido' });
-      return;
-    }
-    if (!formData.password) {
-      setErrors({ general: 'La contraseña es requerida' });
-      return;
-    }
+    if (!formData.email.trim()) { setErrors({ general: 'El email es requerido' }); return; }
+    if (!formData.password)     { setErrors({ general: 'La contraseña es requerida' }); return; }
 
-    // DEBUG: Verificar qué se está enviando
-    console.log('🔧 Login attempt with:', {
-      email: formData.email,
+    const result = await login({
+      email: formData.email.trim().toLowerCase(),
       password: formData.password,
-      emailLength: formData.email.length,
-      passwordLength: formData.password.length,
-      emailTrimmed: formData.email.trim(),
-      hasWhitespace: formData.email !== formData.email.trim()
     });
 
-    // Limpiar espacios en blanco
-    const cleanCredentials = {
-      email: formData.email.trim().toLowerCase(),
-      password: formData.password
-    };
-
-    console.log('🧹 Cleaned credentials:', cleanCredentials);
-
-    const result = await login(cleanCredentials);
-
-    console.log('🔑 Login result:', result);
-
     if (result.success) {
-      console.log('✅ Login successful, closing modal');
-
       toast.success(`¡Bienvenido, ${result.user.firstName || result.user.name}!`);
-
-      // Cerrar modal después de un breve delay para que se vea el toast
-      setTimeout(() => {
-        onClose();
-      }, 500);
-
+      setTimeout(onClose, 300);
     } else {
-      console.log('❌ Login failed:', result.error);
-
-      // El mensaje ya viene procesado desde getErrorMessage en api.js
-      const errorMessage = result.error;
-
-      toast.error(errorMessage);
-      setErrors({ general: errorMessage });
+      toast.error(result.error);
+      setErrors({ general: result.error });
     }
   };
 
-  if (!isOpen) return null;
-
   return (
-      <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full">
-          {/* Header */}
-          <div className="flex items-center justify-between p-6 border-b border-white/20">
-            <h2 className="text-2xl font-bold text-white">Iniciar Sesión</h2>
-            <button
-              onClick={onClose}
-              className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-            >
-              <X className="w-6 h-6 text-white" />
-            </button>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-white/[0.12] text-white shadow-2xl shadow-black/60 max-w-md [&>button]:text-white/50 [&>button]:hover:text-white">
+        <DialogHeader className="pb-2 border-b border-white/[0.08]">
+          <DialogTitle className="text-2xl font-bold text-white">Iniciar Sesión</DialogTitle>
+        </DialogHeader>
+
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
+          {errors.general && (
+            <div className="p-3 bg-red-500/15 border border-red-500/25 rounded-lg text-red-300 text-sm">
+              {errors.general}
+            </div>
+          )}
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-white/50">
+              <Mail className="w-4 h-4" /> Email
+            </label>
+            <input
+              type="email"
+              value={formData.email}
+              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
+              className="w-full px-3 py-2.5 bg-white/[0.06] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors text-sm"
+              placeholder="tu@email.com"
+              required
+              autoComplete="email"
+            />
           </div>
 
-          <form onSubmit={handleSubmit} className="p-6 space-y-4">
-            {errors.general && (
-              <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
-                {errors.general}
-              </div>
-            )}
-
-            {/* Email */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-white/60">
-                <Mail className="w-4 h-4" />
-                Email
-              </label>
+          {/* Password */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-white/50">
+              <Lock className="w-4 h-4" /> Contraseña
+            </label>
+            <div className="relative">
               <input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-                className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-                placeholder="tu@email.com"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                className="w-full px-3 py-2.5 bg-white/[0.06] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors text-sm pr-10"
+                placeholder="Tu contraseña"
                 required
-                autoComplete="email"
+                autoComplete="current-password"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
+          </div>
 
-            {/* Password */}
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-white/60">
-                <Lock className="w-4 h-4" />
-                Contraseña
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none pr-12"
-                  placeholder="Tu contraseña"
-                  required
-                  autoComplete="current-password"
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
+          {/* Submit */}
+          <button
+            type="submit"
+            disabled={loading}
+            className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-semibold transition-all text-sm shadow-lg shadow-blue-500/20"
+          >
+            {loading ? (
+              <span className="flex items-center justify-center gap-2">
+                <svg className="animate-spin h-4 w-4" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
+                </svg>
+                Iniciando sesión...
+              </span>
+            ) : 'Iniciar Sesión'}
+          </button>
 
-            {/* Submit Button */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 rounded-lg text-white font-medium transition-colors disabled:cursor-not-allowed"
-            >
-              {loading ? (
-                <div className="flex items-center justify-center gap-2">
-                  <svg className="animate-spin h-5 w-5" fill="none" viewBox="0 0 24 24">
-                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                  </svg>
-                  Iniciando sesión...
-                </div>
-              ) : (
-                'Iniciar Sesión'
-              )}
-            </button>
-
-            {/* Switch to Register */}
-            <div className="text-center pt-4 border-t border-white/20">
-              <p className="text-white/60">
-                ¿No tienes cuenta?{' '}
-                <button
-                  type="button"
-                  onClick={onSwitchToRegister}
-                  className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
-                >
-                  Regístrate aquí
-                </button>
-              </p>
-            </div>
-          </form>
-        </div>
-      </div>
+          <div className="text-center pt-3 border-t border-white/[0.08]">
+            <p className="text-white/50 text-sm">
+              ¿No tienes cuenta?{' '}
+              <button
+                type="button"
+                onClick={onSwitchToRegister}
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
+              >
+                Regístrate aquí
+              </button>
+            </p>
+          </div>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
 };
 

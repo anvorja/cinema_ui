@@ -1,17 +1,19 @@
-// src/components/auth/RegisterModal.jsx
+// src/components/auth/RegisterModal.tsx
 import { useState } from 'react';
-import { X, Mail, Lock, Eye, EyeOff, User, Phone } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, User, Phone } from 'lucide-react';
+import { toast } from 'sonner';
 import useAuth from "../../hooks/useAuth.js";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '../ui/dialog';
 
 const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
   const { register, loading } = useAuth();
   const [formData, setFormData] = useState({
-    firstName: '',
-    lastName: '',
-    email: '',
-    phone: '',
-    password: '',
-    confirmPassword: ''
+    firstName: '', lastName: '', email: '', phone: '', password: '', confirmPassword: ''
   });
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -27,164 +29,135 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
     const result = await register(formData);
     if (result.success) {
+      toast.success('¡Cuenta creada exitosamente!');
       onClose();
     } else {
       setErrors({ general: result.error });
     }
   };
 
-  if (!isOpen) return null;
+  const field = (
+    name: string,
+    label: string,
+    icon: React.ReactNode,
+    type = 'text',
+    placeholder = '',
+    extra?: React.InputHTMLAttributes<HTMLInputElement>
+  ) => (
+    <div className="space-y-1.5">
+      <label className="flex items-center gap-2 text-sm font-medium text-white/50">
+        {icon} {label}
+      </label>
+      <input
+        type={type}
+        value={formData[name]}
+        onChange={(e) => setFormData(prev => ({ ...prev, [name]: e.target.value }))}
+        className="w-full px-3 py-2.5 bg-white/[0.06] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors text-sm"
+        placeholder={placeholder}
+        required
+        {...extra}
+      />
+    </div>
+  );
 
   return (
-    <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full max-h-[90vh] overflow-y-auto">
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-white/20">
-          <h2 className="text-2xl font-bold text-white">Crear Cuenta</h2>
-          <button
-            onClick={onClose}
-            className="p-2 rounded-lg hover:bg-white/10 transition-colors"
-          >
-            <X className="w-6 h-6 text-white" />
-          </button>
-        </div>
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
+      <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-white/[0.12] text-white shadow-2xl shadow-black/60 max-w-md max-h-[90vh] overflow-y-auto [&>button]:text-white/50 [&>button]:hover:text-white">
+        <DialogHeader className="pb-2 border-b border-white/[0.08]">
+          <DialogTitle className="text-2xl font-bold text-white">Crear Cuenta</DialogTitle>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-2">
           {errors.general && (
-            <div className="p-4 bg-red-500/20 border border-red-500/30 rounded-lg text-red-300">
+            <div className="p-3 bg-red-500/15 border border-red-500/25 rounded-lg text-red-300 text-sm">
               {errors.general}
             </div>
           )}
 
           {/* Names */}
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-white/60">
-                <User className="w-4 h-4" />
-                Nombre
-              </label>
-              <input
-                type="text"
-                value={formData.firstName}
-                onChange={(e) => setFormData(prev => ({ ...prev, firstName: e.target.value }))}
-                className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-                placeholder="Tu nombre"
-                required
-              />
-            </div>
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/60">Apellido</label>
+          <div className="grid grid-cols-2 gap-3">
+            {field('firstName', 'Nombre',   <User className="w-4 h-4" />, 'text', 'Tu nombre')}
+            <div className="space-y-1.5">
+              <label className="text-sm font-medium text-white/50">Apellido</label>
               <input
                 type="text"
                 value={formData.lastName}
                 onChange={(e) => setFormData(prev => ({ ...prev, lastName: e.target.value }))}
-                className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
+                className="w-full px-3 py-2.5 bg-white/[0.06] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors text-sm"
                 placeholder="Tu apellido"
                 required
               />
             </div>
           </div>
 
-          {/* Email */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-white/60">
-              <Mail className="w-4 h-4" />
-              Email
+          {field('email', 'Email',    <Mail  className="w-4 h-4" />, 'email', 'tu@email.com')}
+          {field('phone', 'Teléfono', <Phone className="w-4 h-4" />, 'tel',   '3001234567')}
+
+          {/* Password */}
+          <div className="space-y-1.5">
+            <label className="flex items-center gap-2 text-sm font-medium text-white/50">
+              <Lock className="w-4 h-4" /> Contraseña
             </label>
-            <input
-              type="email"
-              value={formData.email}
-              onChange={(e) => setFormData(prev => ({ ...prev, email: e.target.value }))}
-              className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-              placeholder="tu@email.com"
-              required
-            />
-          </div>
-
-          {/* Phone */}
-          <div className="space-y-2">
-            <label className="flex items-center gap-2 text-sm font-medium text-white/60">
-              <Phone className="w-4 h-4" />
-              Teléfono
-            </label>
-            <input
-              type="tel"
-              value={formData.phone}
-              onChange={(e) => setFormData(prev => ({ ...prev, phone: e.target.value }))}
-              className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-              placeholder="3001234567"
-              required
-            />
-          </div>
-
-          {/* Passwords */}
-          <div className="grid grid-cols-1 gap-4">
-            <div className="space-y-2">
-              <label className="flex items-center gap-2 text-sm font-medium text-white/60">
-                <Lock className="w-4 h-4" />
-                Contraseña
-              </label>
-              <div className="relative">
-                <input
-                  type={showPassword ? 'text' : 'password'}
-                  value={formData.password}
-                  onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
-                  className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none pr-12"
-                  placeholder="Mínimo 6 caracteres"
-                  required
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  onClick={() => setShowPassword(!showPassword)}
-                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-white/60 hover:text-white"
-                >
-                  {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                </button>
-              </div>
-            </div>
-
-            <div className="space-y-2">
-              <label className="text-sm font-medium text-white/60">Confirmar Contraseña</label>
+            <div className="relative">
               <input
-                type="password"
-                value={formData.confirmPassword}
-                onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
-                className="w-full p-3 bg-white/5 border border-white/10 rounded-lg text-white placeholder-white/40 focus:border-blue-500/50 focus:outline-none"
-                placeholder="Repite tu contraseña"
+                type={showPassword ? 'text' : 'password'}
+                value={formData.password}
+                onChange={(e) => setFormData(prev => ({ ...prev, password: e.target.value }))}
+                className="w-full px-3 py-2.5 bg-white/[0.06] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors text-sm pr-10"
+                placeholder="Mínimo 6 caracteres"
                 required
+                minLength={6}
               />
-              {errors.confirmPassword && (
-                <p className="text-red-300 text-sm">{errors.confirmPassword}</p>
-              )}
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+              >
+                {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+              </button>
             </div>
           </div>
 
-          {/* Submit Button */}
+          {/* Confirm Password */}
+          <div className="space-y-1.5">
+            <label className="text-sm font-medium text-white/50">Confirmar Contraseña</label>
+            <input
+              type="password"
+              value={formData.confirmPassword}
+              onChange={(e) => setFormData(prev => ({ ...prev, confirmPassword: e.target.value }))}
+              className="w-full px-3 py-2.5 bg-white/[0.06] border border-white/[0.1] rounded-lg text-white placeholder-white/30 focus:border-blue-500/50 focus:outline-none focus:ring-1 focus:ring-blue-500/30 transition-colors text-sm"
+              placeholder="Repite tu contraseña"
+              required
+            />
+            {errors.confirmPassword && (
+              <p className="text-red-400 text-xs mt-1">{errors.confirmPassword}</p>
+            )}
+          </div>
+
+          {/* Submit */}
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-600/50 rounded-lg text-white font-medium transition-colors"
+            className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-semibold transition-all text-sm shadow-lg shadow-blue-500/20"
           >
-            {loading ? 'Registrando...' : 'Crear Cuenta'}
+            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>
 
-          {/* Switch to Login */}
-          <div className="text-center pt-4 border-t border-white/20">
-            <p className="text-white/60">
+          <div className="text-center pt-3 border-t border-white/[0.08]">
+            <p className="text-white/50 text-sm">
               ¿Ya tienes cuenta?{' '}
               <button
                 type="button"
                 onClick={onSwitchToLogin}
-                className="text-blue-400 hover:text-blue-300 font-medium"
+                className="text-blue-400 hover:text-blue-300 font-medium transition-colors"
               >
                 Inicia sesión aquí
               </button>
             </p>
           </div>
         </form>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 };
 
