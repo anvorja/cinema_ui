@@ -1,13 +1,11 @@
 // src/components/auth/LoginModal.jsx
 import { useState } from 'react';
 import { X, Mail, Lock, Eye, EyeOff } from 'lucide-react';
-import { useToast } from '../../hooks/useToast';
-import ToastContainer from '../common/ToastContainer';
+import { toast } from 'sonner';
 import useAuth from "../../hooks/useAuth.js";
 
 const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   const { login, loading } = useAuth();
-  const { toasts, showToast, removeToast } = useToast();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -54,8 +52,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
     if (result.success) {
       console.log('✅ Login successful, closing modal');
 
-      // 🎉 TOAST DE ÉXITO
-      showToast(`¡Bienvenido ${result.user.firstName || result.user.name}!`, 'success');
+      toast.success(`¡Bienvenido, ${result.user.firstName || result.user.name}!`);
 
       // Cerrar modal después de un breve delay para que se vea el toast
       setTimeout(() => {
@@ -68,7 +65,7 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
       // El mensaje ya viene procesado desde getErrorMessage en api.js
       const errorMessage = result.error;
 
-      showToast(errorMessage, 'error', 5000);
+      toast.error(errorMessage);
       setErrors({ general: errorMessage });
     }
   };
@@ -76,7 +73,6 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
   if (!isOpen) return null;
 
   return (
-    <>
       <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div className="bg-white/10 backdrop-blur-xl border border-white/20 rounded-2xl shadow-2xl max-w-md w-full">
           {/* Header */}
@@ -175,13 +171,6 @@ const LoginModal = ({ isOpen, onClose, onSwitchToRegister }) => {
           </form>
         </div>
       </div>
-
-      {/* Toast Container */}
-      <ToastContainer
-        toasts={toasts}
-        onRemoveToast={removeToast}
-      />
-    </>
   );
 };
 

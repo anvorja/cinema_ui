@@ -23,10 +23,12 @@ import AuthProvider from "./components/providers/AuthProvider.jsx";
 import ScrollToTop from "./components/layout/ScrollToTop.jsx";
 
 import AdminApp from "./components/admin/App.jsx";
+import { Toaster } from "./components/ui/sonner";
 
 function App() {
     return (
         <ThemeProvider>
+            <Toaster richColors closeButton />
             <AuthProvider>
                 <BookingProvider>
                     <Router>

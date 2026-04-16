@@ -2,6 +2,7 @@
 import { Link } from 'react-router-dom';
 import { GlassCard, PremiumButton, ShimmerEffect } from '../common';
 import { ClockIcon } from '@heroicons/react/24/outline';
+import { Badge } from '../ui/badge';
 
 const MovieCard = ({ movie, showReleaseDate = false }) => {
   // Formatear duración
@@ -52,21 +53,21 @@ const MovieCard = ({ movie, showReleaseDate = false }) => {
           <div className="aspect-[2/3] relative">
             {/* Badge de estado */}
             {(movie.status || movie.is_presale) && (
-              <div className="absolute top-3 left-3 z-10">
+              <div className="absolute top-3 left-3 z-10 flex flex-col gap-1">
                 {movie.is_presale && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-yellow-600 text-white mb-1 block">
+                  <Badge className="bg-amber-500/20 text-amber-300 border-amber-500/40 backdrop-blur-sm font-bold tracking-wide text-[10px]">
                     PREVENTA
-                  </span>
+                  </Badge>
                 )}
                 {movie.status === 'coming_soon' && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-blue-600 text-white block">
+                  <Badge className="bg-blue-500/20 text-blue-300 border-blue-500/40 backdrop-blur-sm font-bold tracking-wide text-[10px]">
                     PRÓXIMAMENTE
-                  </span>
+                  </Badge>
                 )}
                 {movie.status === 'in_theaters' && (
-                  <span className="px-3 py-1 rounded-full text-xs font-bold bg-green-600 text-white block">
+                  <Badge className="bg-emerald-500/20 text-emerald-300 border-emerald-500/40 backdrop-blur-sm font-bold tracking-wide text-[10px]">
                     ESTRENO
-                  </span>
+                  </Badge>
                 )}
               </div>
             )}
@@ -93,9 +94,9 @@ const MovieCard = ({ movie, showReleaseDate = false }) => {
                   <ClockIcon className="w-3 h-3 mr-1" />
                   {formatDuration(movie.duration)}
                 </span>
-                <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+                <Badge variant="outline" className="text-white/70 border-white/20 text-[10px] font-semibold">
                   {formatRating(movie.rating)}
-                </span>
+                </Badge>
               </div>
 
               {/* Precio */}
