@@ -1,4 +1,5 @@
 // src/components/admin/hooks/useApi.js
+import { useCallback, useMemo } from 'react';
 import { useAuth } from './useAuth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
@@ -12,7 +13,10 @@ const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 export const useApi = () => {
   const { token } = useAuth();
 
-  const apiCall = async (url, options = {}, _retries = MAX_RETRIES) => {
+  // useCallback garantiza referencia estable — solo cambia si cambia el token.
+  // Sin esto, adminApi se recrea en cada render y los useEffect de AnalyticsTab
+  // disparan un bucle infinito de requests.
+  const apiCall = useCallback(async (url, options = {}, _retries = MAX_RETRIES) => {
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -48,10 +52,11 @@ export const useApi = () => {
         await sleep(RETRY_DELAY_MS);
       }
     }
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
-  // Métodos específicos para el admin
-  const adminApi = {
+  // useMemo mantiene referencia estable de adminApi mientras apiCall no cambie
+  const adminApi = useMemo(() => ({
     // Movies
     getMovies: (params = {}) => {
       const queryString = new URLSearchParams({
@@ -139,7 +144,8 @@ export const useApi = () => {
     // Ticket validation
     validateTicket: (ticketCode) =>
       apiCall(`/purchases/tickets/${ticketCode}/validate`, { method: 'POST' }),
-  };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }), [apiCall]);
 
   return { apiCall, adminApi };
 };
