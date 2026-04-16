@@ -218,4 +218,4 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
 };
 
 export default CinemaSeatMap;
-export { LAYOUT, WC, X };
+export { LAYOUT, X };

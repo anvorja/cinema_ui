@@ -253,7 +253,7 @@
 // export { Header };
 
 // src/components/layout/Header.jsx
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -342,30 +342,33 @@ const Header = () => {
     ];
 
     // NUEVA: Búsqueda debounced
-    const debouncedSearch = useCallback(
-        debounce(async (query) => {
+    const debouncedSearchRef = useRef(
+        debounce(async (query, setResults, setShow, setSearching) => {
             if (!query.trim()) {
-                setSearchResults([]);
-                setShowSearchResults(false);
+                setResults([]);
+                setShow(false);
                 return;
             }
 
-            setIsSearching(true);
+            setSearching(true);
             try {
                 const response = await searchMovies(query, { limit: 5 });
                 const results = Array.isArray(response) ? response : response.data || [];
-                setSearchResults(results);
-                setShowSearchResults(true);
+                setResults(results);
+                setShow(true);
             } catch (error) {
                 console.error('Error en búsqueda:', error);
-                setSearchResults([]);
-                setShowSearchResults(false);
+                setResults([]);
+                setShow(false);
             } finally {
-                setIsSearching(false);
+                setSearching(false);
             }
-        }, 300),
-        []
+        }, 300)
     );
+
+    const debouncedSearch = useCallback((query) => {
+        debouncedSearchRef.current(query, setSearchResults, setShowSearchResults, setIsSearching);
+    }, []);
 
     // NUEVAS: Funciones de búsqueda
     const handleSearchChange = (e) => {

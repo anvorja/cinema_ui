@@ -162,7 +162,7 @@ const PaymentSuccessPage = () => {
   <p style="text-align:center;font-size:10px;color:#aaa;margin-top:16px;">
     Generado el ${new Date().toLocaleDateString('es-CO')} · Válido solo para la función indicada
   </p>
-  <script>window.onload = () => { window.print(); }<\/script>
+  <script>window.onload = () => { window.print(); }</script>
 </body>
 </html>`;
 

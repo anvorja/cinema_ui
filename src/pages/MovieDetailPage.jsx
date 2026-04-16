@@ -1,5 +1,5 @@
 // src/pages/MovieDetailPage.jsx - CON LÓGICA DE BOTÓN CORREGIDA
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ClockIcon,
