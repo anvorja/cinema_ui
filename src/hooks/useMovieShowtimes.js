@@ -15,7 +15,8 @@ export const useMovieShowtimes = (movieId) => {
       setError(null);
 
       try {
-        const response = await bookingService.getShowtimes(movieId);
+        const today = new Date().toISOString().split('T')[0];
+        const response = await bookingService.getShowtimes(movieId, today);
 
         if (response.success && Array.isArray(response.data)) {
           setShowtimes(transformBackendShowtimes(response.data));
