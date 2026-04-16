@@ -132,20 +132,20 @@ const FoodSelectionPage = () => {
   const items = FOOD_ITEMS[activeCategory] || [];
 
   return (
-    <div className="min-h-screen bg-gray-50 pt-20">
+    <div className="min-h-screen pt-20">
       <div className="max-w-5xl mx-auto px-4 py-6">
         <div className="flex gap-6">
 
           {/* ── Left: food catalogue ───────────────────────────────────────── */}
           <div className="flex-1 min-w-0">
-            <h1 className="text-2xl font-bold text-gray-900 mb-2">Comprar comida y bebidas</h1>
-            <p className="text-sm text-gray-500 bg-blue-50 border border-blue-100 rounded-lg p-3 mb-5">
+            <h1 className="text-2xl font-bold text-white mb-2">Comprar comida y bebidas</h1>
+            <p className="text-sm text-white/75 bg-white/10 border border-white/20 rounded-lg p-3 mb-5 backdrop-blur-sm">
               Presente su tiquete de compra para que preparemos y entreguemos su pedido.
               La vigencia de la compra de comidas es de 8 días a partir de la fecha de compra.
             </p>
 
             {/* Category tabs */}
-            <div className="flex gap-1 border-b border-gray-200 mb-5 overflow-x-auto">
+            <div className="flex gap-1 border-b border-white/20 mb-5 overflow-x-auto">
               {CATEGORIES.map(cat => (
                 <button
                   key={cat}
@@ -153,8 +153,8 @@ const FoodSelectionPage = () => {
                   className={`flex items-center gap-1.5 px-4 py-2.5 text-sm font-medium whitespace-nowrap
                     border-b-2 transition-colors
                     ${activeCategory === cat
-                      ? 'border-blue-700 text-blue-700'
-                      : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                      ? 'border-white text-white'
+                      : 'border-transparent text-white/60 hover:text-white/90'}`}
                 >
                   {CATEGORY_EMOJI[cat]} {cat}
                 </button>
@@ -284,8 +284,8 @@ const FoodSelectionPage = () => {
         <div className="mt-6">
           <button
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-5 py-2.5 border border-gray-300 rounded-full
-                       text-gray-700 hover:bg-gray-50 transition-colors font-medium text-sm"
+            className="flex items-center gap-2 px-5 py-2.5 border border-white/30 rounded-full
+                       text-white/90 hover:bg-white/10 transition-colors font-medium text-sm backdrop-blur-sm"
           >
             <ArrowLeftIcon className="w-4 h-4" /> Atrás
           </button>

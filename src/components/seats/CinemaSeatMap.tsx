@@ -93,7 +93,7 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
 };
 
 const Legend = () => (
-  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-gray-600 mb-4">
+  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/90 mb-4">
     <span className="flex items-center gap-1.5">
       <span className="w-4 h-4 rounded-[3px] bg-green-500 inline-block" /> Seleccionada
     </span>
@@ -101,7 +101,7 @@ const Legend = () => (
       <span className="w-4 h-4 rounded-[3px] bg-red-400/70 inline-block" /> Vendida
     </span>
     <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-gray-500/40 inline-block" /> No disponible
+      <span className="w-4 h-4 rounded-[3px] bg-gray-500/40 border border-white/20 inline-block" /> No disponible
     </span>
     <span className="flex items-center gap-1.5">
       <span className="w-4 h-4 rounded-[3px] bg-blue-700 inline-block" /> General
@@ -112,7 +112,7 @@ const Legend = () => (
       </span> Silla de Ruedas
     </span>
     <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-gray-700 inline-block" /> Preferencial
+      <span className="w-4 h-4 rounded-[3px] bg-gray-600 inline-block" /> Preferencial
     </span>
   </div>
 );
