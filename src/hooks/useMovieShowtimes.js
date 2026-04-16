@@ -97,6 +97,7 @@ const transformBackendShowtimes = (backendData) => {
       availableSeats: showtime.available_tickets,
       capacity: showtime.capacity,
       date: showtime.show_date,
+      hall_number: showtime.hall_number ?? null,
     });
   });
 

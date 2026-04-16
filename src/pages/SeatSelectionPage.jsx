@@ -20,11 +20,7 @@ const formatDate = (dateStr) => {
   } catch { return dateStr; }
 };
 
-const seatLabel = (id) => {
-  // ID formats: "A19" → "A19", "A-wc-C-2" → skip display
-  if (id.includes('wc')) return null;
-  return id;
-};
+const seatLabel = (id) => id;
 
 // Determine if a seat is general or preferencial from the layout
 const seatTypeFromId = (id) => {
@@ -206,7 +202,7 @@ const SeatSelectionPage = () => {
                   <div>
                     <div className="text-[10px] text-gray-400 uppercase tracking-wide">Sala</div>
                     <div className="font-medium text-gray-800 text-xs">
-                      {theater.room_name || theater.sala || 'SALA 1'}
+                      SALA {showtime?.hall_number || 1}
                     </div>
                   </div>
                 </div>

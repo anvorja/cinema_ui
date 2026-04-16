@@ -31,6 +31,14 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie }) => {
     setSelectedShowtime(showtime);
     setSelectedTheater(theater);
 
+    console.log('🎬 Showtime seleccionado:', {
+      id: showtime.id,
+      time: showtime.time,
+      date: showtime.date,
+      format: showtime.format,
+      fullObject: showtime,
+    });
+
     // Usar la fecha real de la función (del backend) como selectedDate.
     // showtime.date viene de show_date en el catálogo. Si por alguna razón
     // el objeto no trae date, no usamos new Date() (hoy) porque generaría

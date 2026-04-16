@@ -236,11 +236,6 @@ const MovieDetailPage = () => {
                   <p className="text-white font-semibold">{movie.ageRating}</p>
                 </GlassCard>
 
-                <GlassCard className="p-4 text-center">
-                  <CurrencyDollarIcon className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Precio</p>
-                  <p className="text-white font-semibold">{movie.price_formatted}</p>
-                </GlassCard>
               </div>
 
               {/* Additional Info */}

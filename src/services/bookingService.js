@@ -74,6 +74,15 @@ class BookingService {
 
       const showtimeId = bookingData.showtime?.id || null;
 
+      console.log('🔍 showtime completo en bookingService:', {
+        id: bookingData.showtime?.id,
+        idType: typeof bookingData.showtime?.id,
+        time: bookingData.showtime?.time,
+        date: bookingData.showtime?.date,
+        selectedDate: bookingData.selectedDate,
+        showDate,
+      });
+
       if (!showtimeId) {
         console.warn('⚠️ bookingService: showtimeId es null — la compra no tendrá showtime_id.',
           'showtime recibido:', bookingData.showtime);
@@ -83,13 +92,10 @@ class BookingService {
           'showtime recibido:', bookingData.showtime);
       }
 
-      // Filter out wheelchair seat IDs (format: "X-wc-section-idx") — backend only uses standard seat codes
-      const selectedSeatsFiltered = (bookingData.selectedSeats || []).filter(id => !id.includes('wc'));
-      // Send null instead of [] when no real seats selected; backend uses GENERAL-X fallback for null.
-      // Sending [] would cause a validator error (len([]) != quantity).
-      const selectedSeatsPayload = selectedSeatsFiltered.length > 0 ? selectedSeatsFiltered : null;
-      // Quantity: prefer the actual number of selected seats; fall back to ticketCount
-      const quantity = selectedSeatsFiltered.length > 0 ? selectedSeatsFiltered.length : (bookingData.ticketCount || 1);
+      const selectedSeats = bookingData.selectedSeats || [];
+      // Send null instead of [] when no seats selected; backend uses GENERAL-X fallback for null.
+      const selectedSeatsPayload = selectedSeats.length > 0 ? selectedSeats : null;
+      const quantity = selectedSeats.length > 0 ? selectedSeats.length : (bookingData.ticketCount || 1);
 
       if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
         // PSE payload
