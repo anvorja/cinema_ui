@@ -11,6 +11,10 @@ import {
   ExclamationCircleIcon,
   CalendarDaysIcon,
   StarIcon,
+  MapPinIcon,
+  ComputerDesktopIcon,
+  MinusIcon,
+  PlusIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
@@ -27,6 +31,9 @@ import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert';
 import { Badge } from '../components/ui/badge';
 import { Progress } from '../components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
+import {
+  Drawer, DrawerContent, DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter, DrawerClose,
+} from '../components/ui/drawer';
 
 const StarRating = ({ value, onChange = undefined, readonly = false, size = 'md' }: { value: any; onChange?: any; readonly?: boolean; size?: string }) => {
   const [hovered, setHovered] = useState(0);
@@ -59,11 +66,17 @@ const StarRating = ({ value, onChange = undefined, readonly = false, size = 'md'
 
 const MovieDetailPage = () => {
   const { id } = useParams();
-  const _navigate = useNavigate();
-  const { startBooking: _startBooking } = useBooking();
+  const navigate = useNavigate();
+  const { startBooking } = useBooking();
   const { isAuthenticated } = useAuth();
   const [showTrailer, setShowTrailer] = useState(false);
   const [activeTab, setActiveTab] = useState('horarios');
+
+  // Drawer de confirmación de función
+  const [drawerOpen, setDrawerOpen] = useState(false);
+  const [drawerTheater, setDrawerTheater] = useState<any>(null);
+  const [drawerShowtime, setDrawerShowtime] = useState<any>(null);
+  const [seatCount, setSeatCount] = useState(2);
 
   // Rating state
   const [userScore, setUserScore] = useState(0);
@@ -128,6 +141,31 @@ const MovieDetailPage = () => {
   };
 
   const purchaseInfo = getPurchaseAvailability();
+
+  // Interceptar clic en horario → abrir Drawer en lugar de navegar directo
+  const handleShowtimeSelect = (theater: any, showtime: any) => {
+    setDrawerTheater(theater);
+    setDrawerShowtime(showtime);
+    setSeatCount(2);
+    setDrawerOpen(true);
+  };
+
+  // Confirmar desde el Drawer → navegar a selección de asientos
+  const handleDrawerConfirm = () => {
+    if (!drawerTheater || !drawerShowtime) return;
+    const selectedDate = drawerShowtime.date ?? null;
+    startBooking(movie, drawerTheater, drawerShowtime, selectedDate);
+    setDrawerOpen(false);
+    navigate(`/booking/${id}/${drawerTheater.id}/${drawerShowtime.id}`, {
+      state: {
+        movie,
+        theater: drawerTheater,
+        showtime: drawerShowtime,
+        selectedDate,
+        suggestedSeatCount: seatCount,
+      }
+    });
+  };
 
   // Llevar al usuario a la sección de teatros/horarios para que elija función real
   const handleQuickBuy = () => {
@@ -342,6 +380,132 @@ const MovieDetailPage = () => {
         </div>
       )}
 
+      {/* ── Drawer: Confirmación de función ── */}
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
+        <DrawerContent className="bg-slate-900/98 backdrop-blur-2xl border-t border-white/[0.12] text-white pb-safe">
+          {/* Drag handle decorativo ya lo agrega DrawerContent — solo el contenido */}
+          <DrawerHeader className="pt-2 pb-0">
+            <DrawerTitle className="sr-only">Confirmar función</DrawerTitle>
+            <DrawerDescription className="sr-only">Resumen de la función seleccionada</DrawerDescription>
+          </DrawerHeader>
+
+          <div className="px-4 pb-2 space-y-5">
+            {/* ── Cabecera: poster + info película ── */}
+            <div className="flex gap-4 items-center">
+              <img
+                src={movie?.images?.poster}
+                alt={movie?.title}
+                className="w-14 h-20 object-cover rounded-lg shadow-lg ring-1 ring-white/10 flex-shrink-0"
+              />
+              <div className="min-w-0">
+                <p className="text-xs text-white/40 uppercase tracking-widest mb-0.5">Función seleccionada</p>
+                <h3 className="text-white font-bold text-lg leading-tight truncate">{movie?.title}</h3>
+                <div className="flex flex-wrap gap-1 mt-1.5">
+                  {drawerShowtime?.format?.split(' ').map((tag: string, i: number) => (
+                    <Badge key={i} className="bg-blue-500/20 text-blue-300 border-blue-500/30 text-[10px] font-bold">
+                      {tag}
+                    </Badge>
+                  ))}
+                  {movie?.ageRating && (
+                    <Badge variant="outline" className="text-white/50 border-white/20 text-[10px]">
+                      {movie.ageRating}
+                    </Badge>
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* ── Detalles de la función ── */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="bg-white/[0.05] rounded-xl p-3 flex items-start gap-2.5">
+                <MapPinIcon className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[10px] text-white/30 uppercase tracking-wide">Multiplex</p>
+                  <p className="text-white/90 text-sm font-medium leading-tight">
+                    {drawerTheater?.name}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white/[0.05] rounded-xl p-3 flex items-start gap-2.5">
+                <ComputerDesktopIcon className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[10px] text-white/30 uppercase tracking-wide">Sala</p>
+                  <p className="text-white/90 text-sm font-medium">
+                    Sala {drawerShowtime?.hall_number ?? 1}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white/[0.05] rounded-xl p-3 flex items-start gap-2.5">
+                <CalendarDaysIcon className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[10px] text-white/30 uppercase tracking-wide">Fecha</p>
+                  <p className="text-white/90 text-sm font-medium">
+                    {drawerShowtime?.date
+                      ? new Date(drawerShowtime.date).toLocaleDateString('es-CO', { weekday: 'short', day: 'numeric', month: 'short' })
+                      : 'Hoy'}
+                  </p>
+                </div>
+              </div>
+
+              <div className="bg-white/[0.05] rounded-xl p-3 flex items-start gap-2.5">
+                <ClockIcon className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
+                <div>
+                  <p className="text-[10px] text-white/30 uppercase tracking-wide">Horario</p>
+                  <p className="text-white/90 text-sm font-medium">
+                    {drawerShowtime?.time} PM
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* ── Selector de cantidad ── */}
+            <div className="bg-white/[0.05] rounded-xl p-4">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-white/90 text-sm font-semibold">¿Cuántas sillas?</p>
+                  <p className="text-white/40 text-xs mt-0.5">Podrás elegir los asientos exactos en el siguiente paso</p>
+                </div>
+                <div className="flex items-center gap-3">
+                  <button
+                    onClick={() => setSeatCount(c => Math.max(1, c - 1))}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30"
+                    disabled={seatCount <= 1}
+                  >
+                    <MinusIcon className="w-4 h-4 text-white" />
+                  </button>
+                  <span className="text-white font-bold text-xl w-6 text-center tabular-nums">{seatCount}</span>
+                  <button
+                    onClick={() => setSeatCount(c => Math.min(8, c + 1))}
+                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30"
+                    disabled={seatCount >= 8}
+                  >
+                    <PlusIcon className="w-4 h-4 text-white" />
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <DrawerFooter className="pt-2">
+            <button
+              onClick={handleDrawerConfirm}
+              className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
+            >
+              <TicketIcon className="w-4 h-4" />
+              Seleccionar {seatCount === 1 ? 'asiento' : `${seatCount} asientos`}
+              <span className="text-blue-200 ml-1">›</span>
+            </button>
+            <DrawerClose asChild>
+              <button className="w-full py-2.5 text-white/40 hover:text-white/70 text-sm transition-colors">
+                Cancelar
+              </button>
+            </DrawerClose>
+          </DrawerFooter>
+        </DrawerContent>
+      </Drawer>
+
       {/* ── Tabs: Horarios / Galería / Disponibilidad / Calificaciones ── */}
       <section id="movie-tabs" className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
@@ -375,6 +539,7 @@ const MovieDetailPage = () => {
                   movieId={id}
                   movie={movie}
                   canPurchase={purchaseInfo.canPurchase}
+                  onShowtimeSelect={handleShowtimeSelect}
                 />
               </TabsContent>
             )}
