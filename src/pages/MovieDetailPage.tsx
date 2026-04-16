@@ -13,8 +13,6 @@ import {
   StarIcon,
   MapPinIcon,
   ComputerDesktopIcon,
-  MinusIcon,
-  PlusIcon,
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
@@ -76,7 +74,6 @@ const MovieDetailPage = () => {
   const [drawerOpen, setDrawerOpen] = useState(false);
   const [drawerTheater, setDrawerTheater] = useState<any>(null);
   const [drawerShowtime, setDrawerShowtime] = useState<any>(null);
-  const [seatCount, setSeatCount] = useState(2);
 
   // Rating state
   const [userScore, setUserScore] = useState(0);
@@ -146,7 +143,6 @@ const MovieDetailPage = () => {
   const handleShowtimeSelect = (theater: any, showtime: any) => {
     setDrawerTheater(theater);
     setDrawerShowtime(showtime);
-    setSeatCount(2);
     setDrawerOpen(true);
   };
 
@@ -162,7 +158,6 @@ const MovieDetailPage = () => {
         theater: drawerTheater,
         showtime: drawerShowtime,
         selectedDate,
-        suggestedSeatCount: seatCount,
       }
     });
   };
@@ -389,7 +384,7 @@ const MovieDetailPage = () => {
             <DrawerDescription className="sr-only">Resumen de la función seleccionada</DrawerDescription>
           </DrawerHeader>
 
-          <div className="px-4 pb-2 space-y-5">
+          <div className="px-4 pb-2 space-y-4">
             {/* ── Cabecera: poster + info película ── */}
             <div className="flex gap-4 items-center">
               <img
@@ -421,9 +416,7 @@ const MovieDetailPage = () => {
                 <MapPinIcon className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[10px] text-white/30 uppercase tracking-wide">Multiplex</p>
-                  <p className="text-white/90 text-sm font-medium leading-tight">
-                    {drawerTheater?.name}
-                  </p>
+                  <p className="text-white/90 text-sm font-medium leading-tight">{drawerTheater?.name}</p>
                 </div>
               </div>
 
@@ -431,9 +424,7 @@ const MovieDetailPage = () => {
                 <ComputerDesktopIcon className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[10px] text-white/30 uppercase tracking-wide">Sala</p>
-                  <p className="text-white/90 text-sm font-medium">
-                    Sala {drawerShowtime?.hall_number ?? 1}
-                  </p>
+                  <p className="text-white/90 text-sm font-medium">Sala {drawerShowtime?.hall_number ?? 1}</p>
                 </div>
               </div>
 
@@ -453,36 +444,7 @@ const MovieDetailPage = () => {
                 <ClockIcon className="w-4 h-4 text-white/30 mt-0.5 shrink-0" />
                 <div>
                   <p className="text-[10px] text-white/30 uppercase tracking-wide">Horario</p>
-                  <p className="text-white/90 text-sm font-medium">
-                    {drawerShowtime?.time} PM
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* ── Selector de cantidad ── */}
-            <div className="bg-white/[0.05] rounded-xl p-4">
-              <div className="flex items-center justify-between">
-                <div>
-                  <p className="text-white/90 text-sm font-semibold">¿Cuántas sillas?</p>
-                  <p className="text-white/40 text-xs mt-0.5">Podrás elegir los asientos exactos en el siguiente paso</p>
-                </div>
-                <div className="flex items-center gap-3">
-                  <button
-                    onClick={() => setSeatCount(c => Math.max(1, c - 1))}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30"
-                    disabled={seatCount <= 1}
-                  >
-                    <MinusIcon className="w-4 h-4 text-white" />
-                  </button>
-                  <span className="text-white font-bold text-xl w-6 text-center tabular-nums">{seatCount}</span>
-                  <button
-                    onClick={() => setSeatCount(c => Math.min(8, c + 1))}
-                    className="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors disabled:opacity-30"
-                    disabled={seatCount >= 8}
-                  >
-                    <PlusIcon className="w-4 h-4 text-white" />
-                  </button>
+                  <p className="text-white/90 text-sm font-medium">{drawerShowtime?.time} PM</p>
                 </div>
               </div>
             </div>
@@ -494,12 +456,12 @@ const MovieDetailPage = () => {
               className="w-full py-3.5 bg-blue-600 hover:bg-blue-500 active:bg-blue-700 text-white font-semibold rounded-xl transition-colors flex items-center justify-center gap-2 text-sm"
             >
               <TicketIcon className="w-4 h-4" />
-              Seleccionar {seatCount === 1 ? 'asiento' : `${seatCount} asientos`}
+              Seleccionar asientos
               <span className="text-blue-200 ml-1">›</span>
             </button>
             <DrawerClose asChild>
               <button className="w-full py-2.5 text-white/40 hover:text-white/70 text-sm transition-colors">
-                Cancelar
+                Cancelar — elegir otro horario
               </button>
             </DrawerClose>
           </DrawerFooter>
