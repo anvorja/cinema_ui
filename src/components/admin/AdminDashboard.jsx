@@ -1,5 +1,6 @@
 // src/components/admin/AdminDashboard.jsx con Toasts
 import React, { useState, useEffect } from 'react';
+import { AlertCircle, RefreshCw } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useApi } from './hooks/useApi';
 import { useToast } from './hooks/useToast';
@@ -26,12 +27,14 @@ const AdminDashboardContent = () => {
   const [purchases, setPurchases] = useState([]);
   const [stats, setStats] = useState({});
   const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
 
   // Estados de búsqueda
   const [searchTerm, setSearchTerm] = useState('');
 
   const loadInitialData = async () => {
     setLoading(true);
+    setLoadError(false);
     try {
       await Promise.all([
         loadMovies(),
@@ -42,8 +45,10 @@ const AdminDashboardContent = () => {
       ]);
     } catch (error) {
       console.error('Error cargando datos:', error);
-      toast.error('Error cargando datos del dashboard', {
-        title: 'Error de carga'
+      setLoadError(true);
+      toast.error('Error cargando datos. Los servicios pueden estar iniciando — intenta de nuevo en unos segundos.', {
+        title: 'Error de carga',
+        duration: 8000,
       });
     } finally {
       setLoading(false);
@@ -301,13 +306,44 @@ const AdminDashboardContent = () => {
     }
   };
 
+  // Detectar si todos los datos llegaron vacíos tras cargar (posible cold-start)
+  const allEmpty = !loading && movies.length === 0 && users.length === 0 && purchases.length === 0;
+
   return (
     <div className="min-h-screen bg-gray-900 text-white">
       {/* Header */}
-      <DashboardHeader user={user} onLogout={handleLogout} />
+      <DashboardHeader
+        user={user}
+        onLogout={handleLogout}
+        onRefresh={loadInitialData}
+        loading={loading}
+      />
 
       {/* Main Content */}
       <div className="px-6 py-6">
+
+        {/* Banner cold-start */}
+        {allEmpty && (
+          <div className="mb-6 flex items-start gap-3 bg-yellow-900/30 border border-yellow-600/40 rounded-lg px-5 py-4">
+            <AlertCircle className="h-5 w-5 text-yellow-400 mt-0.5 shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-yellow-300">Los servicios del backend están iniciando</p>
+              <p className="text-xs text-yellow-400/80 mt-0.5">
+                En el plan gratuito de Render los servicios se duermen tras 15 min de inactividad.
+                Espera unos segundos y haz clic en <strong>Actualizar</strong>.
+              </p>
+            </div>
+            <button
+              onClick={loadInitialData}
+              disabled={loading}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-yellow-600 hover:bg-yellow-500 disabled:opacity-40 text-white text-xs font-medium rounded-lg transition-colors shrink-0"
+            >
+              <RefreshCw className={`h-3.5 w-3.5 ${loading ? 'animate-spin' : ''}`} />
+              Actualizar
+            </button>
+          </div>
+        )}
+
         {/* Stats Cards */}
         <StatsCards
           movies={movies}

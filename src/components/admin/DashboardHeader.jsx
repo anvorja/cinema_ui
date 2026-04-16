@@ -1,8 +1,8 @@
 // src/components/admin/DashboardHeader.jsx
 import React from 'react';
-import { Film, LogOut, User } from 'lucide-react';
+import { Film, LogOut, User, RefreshCw } from 'lucide-react';
 
-const DashboardHeader = ({ user, onLogout }) => {
+const DashboardHeader = ({ user, onLogout, onRefresh, loading }) => {
   return (
     <header className="bg-gray-800 border-b border-gray-700 px-6 py-4">
       <div className="flex items-center justify-between">
@@ -26,6 +26,16 @@ const DashboardHeader = ({ user, onLogout }) => {
               </p>
             </div>
           </div>
+
+          <button
+            onClick={onRefresh}
+            disabled={loading}
+            className="flex items-center text-gray-400 hover:text-white disabled:opacity-40 disabled:cursor-not-allowed transition-colors duration-200 px-3 py-2 rounded-md hover:bg-gray-700"
+            title="Actualizar datos"
+          >
+            <RefreshCw className={`h-5 w-5 mr-2 ${loading ? 'animate-spin' : ''}`} />
+            <span className="hidden sm:block">Actualizar</span>
+          </button>
 
           <button
             onClick={onLogout}

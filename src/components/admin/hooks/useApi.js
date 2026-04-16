@@ -3,10 +3,16 @@ import { useAuth } from './useAuth';
 
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
+// Máximo de reintentos y delay base (ms) para errores de cold-start en Render
+const MAX_RETRIES = 3;
+const RETRY_DELAY_MS = 4000;
+
+const sleep = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
 export const useApi = () => {
   const { token } = useAuth();
 
-  const apiCall = async (url, options = {}) => {
+  const apiCall = async (url, options = {}, _retries = MAX_RETRIES) => {
     const config = {
       headers: {
         'Content-Type': 'application/json',
@@ -16,14 +22,32 @@ export const useApi = () => {
       ...options,
     };
 
-    const response = await fetch(`${API_BASE_URL}${url}`, config);
+    for (let attempt = 1; attempt <= _retries; attempt++) {
+      try {
+        const response = await fetch(`${API_BASE_URL}${url}`, config);
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}));
+          const err = new Error(errorData.detail || `Error ${response.status}: ${response.statusText}`);
+          err.status = response.status;
+          // No reintentar errores de cliente (4xx)
+          if (response.status >= 400 && response.status < 500) throw err;
+          // Reintentar errores de servidor (5xx) si quedan intentos
+          if (attempt < _retries) {
+            await sleep(RETRY_DELAY_MS);
+            continue;
+          }
+          throw err;
+        }
+
+        return response.json();
+      } catch (err) {
+        // Si ya tiene status (fue lanzado por nosotros) o se agotaron los intentos, propagar
+        if (err.status || attempt >= _retries) throw err;
+        // Error de red (fetch falló completamente) — reintentar
+        await sleep(RETRY_DELAY_MS);
+      }
     }
-
-    return response.json();
   };
 
   // Métodos específicos para el admin
