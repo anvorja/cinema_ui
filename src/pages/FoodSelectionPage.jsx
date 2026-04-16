@@ -60,7 +60,6 @@ const FoodSelectionPage = () => {
     generalCount  = 0,
     prefCount     = 0,
     ticketCount   = 0,
-    subtotal      = 0,
     totalAmount: ticketTotal = 0,
   } = state || {};
 

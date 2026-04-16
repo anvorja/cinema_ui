@@ -38,7 +38,7 @@ export const useBookingInitialization = (movie, theater, showtime, selectedDate)
         hasInitialized.current = false;
       }
     };
-  }, [movie?.id, theater?.id, showtime?.id, isBookingActive, navigate, startBooking, bookingData.movie, bookingData.theater, bookingData.showtime, selectedDate]);
+  }, [movie, theater, showtime, isBookingActive, navigate, startBooking, bookingData.movie, bookingData.theater, bookingData.showtime, selectedDate]);
 
   return {
     isInitialized: hasInitialized.current,

@@ -1,5 +1,5 @@
 // src/components/admin/analytics/AnalyticsTab.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useApi } from '../hooks/useApi';
 import {
   DollarSign, TrendingUp, TrendingDown, RefreshCw,
@@ -9,7 +9,7 @@ import {
 const formatCOP = (value) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(value);
 
-const SummaryCard = ({ title, value, subtitle, icon: Icon, color, bgColor, trend }) => (
+const SummaryCard = ({ title, value, subtitle, icon, color, bgColor, trend }) => (
   <div className="bg-gray-800 rounded-lg p-5 border border-gray-700">
     <div className="flex items-center justify-between">
       <div className="flex-1 min-w-0">
@@ -18,7 +18,7 @@ const SummaryCard = ({ title, value, subtitle, icon: Icon, color, bgColor, trend
         {subtitle && <p className="text-xs text-gray-500 mt-1">{subtitle}</p>}
       </div>
       <div className={`p-3 rounded-lg ${bgColor} ml-3 shrink-0`}>
-        <Icon className={`h-5 w-5 ${color}`} />
+        {React.createElement(icon, { className: `h-5 w-5 ${color}` })}
       </div>
     </div>
     {trend != null && (
@@ -169,7 +169,7 @@ const AnalyticsTab = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
-  const loadData = async (selectedPeriod = period) => {
+  const loadData = useCallback(async (selectedPeriod = 'daily') => {
     setLoading(true);
     setError(null);
     try {
@@ -181,14 +181,14 @@ const AnalyticsTab = () => {
       setSalesReport(sales);
       setMovieReport(movies);
       setDateReport(dates);
-    } catch (e) {
+    } catch {
       setError('Error cargando datos de analítica');
     } finally {
       setLoading(false);
     }
-  };
+  }, [adminApi]);
 
-  useEffect(() => { loadData(); }, []);
+  useEffect(() => { loadData(); }, [loadData]);
 
   const handlePeriodChange = (p) => {
     setPeriod(p);

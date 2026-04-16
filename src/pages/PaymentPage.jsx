@@ -21,7 +21,7 @@ const PaymentPage = () => {
 
   // Obtener datos del state o contexto
   const paymentData = location.state || {};
-  const { movie, theater, showtime, selectedDate, ticketCount, totalAmount } = paymentData;
+  const { movie, theater, showtime, selectedDate, ticketCount, totalAmount, selectedSeats } = paymentData;
 
   // Estados locales
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState('card');
@@ -94,6 +94,7 @@ const PaymentPage = () => {
       ticketCount: ticketCount || 1,
       totalAmount: totalAmount || 0,
       paymentMethod: selectedPaymentMethod,
+      selectedSeats: selectedSeats || [],
       step: 3,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -296,6 +297,9 @@ const PaymentPage = () => {
       </div>
     );
   }
+
+  const SERVICE_FEE = 1600;
+  const grandTotal = (totalAmount || 0) + SERVICE_FEE;
 
   // Verificación de datos
   if (!movie || !theater || !showtime) {
@@ -583,7 +587,7 @@ const PaymentPage = () => {
                       {ticketCount} x Entrada
                     </span>
                     <span className="text-white">
-                      {formatPrice(ticketCount * showtime.price)}
+                      {formatPrice(totalAmount)}
                     </span>
                   </div>
 
@@ -592,7 +596,7 @@ const PaymentPage = () => {
                       Tarifa de servicio
                     </span>
                     <span className="text-white">
-                      {formatPrice(ticketCount * 800)}
+                      {formatPrice(SERVICE_FEE)}
                     </span>
                   </div>
 
@@ -601,7 +605,7 @@ const PaymentPage = () => {
                   <div className="flex justify-between">
                     <span className="text-white font-semibold">Total</span>
                     <span className="text-green-400 font-bold text-xl">
-                      {formatPrice(totalAmount)}
+                      {formatPrice(grandTotal)}
                     </span>
                   </div>
                 </div>
@@ -639,12 +643,12 @@ const PaymentPage = () => {
                   ) : selectedPaymentMethod === 'pse' ? (
                     <>
                       <BanknotesIcon className="w-5 h-5" />
-                      Pagar con PSE {formatPrice(totalAmount)}
+                      Pagar con PSE {formatPrice(grandTotal)}
                     </>
                   ) : (
                     <>
                       <CreditCardIcon className="w-5 h-5" />
-                      Pagar {formatPrice(totalAmount)}
+                      Pagar {formatPrice(grandTotal)}
                     </>
                   )}
                 </PremiumButton>

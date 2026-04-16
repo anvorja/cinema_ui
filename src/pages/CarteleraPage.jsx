@@ -25,8 +25,6 @@ const Cartelera = () => {
     priceRange: '',
     format: ''
   });
-  const [showFilters, setShowFilters] = useState(false);
-
   // Hook personalizado para gestionar películas
   const {
     movies,
@@ -45,31 +43,6 @@ const Cartelera = () => {
     filters: filters
   });
 
-  // Géneros disponibles (pueden venir de la API también)
-  const genres = [
-    'Acción', 'Aventura', 'Comedia', 'Drama', 'Terror', 'Ciencia Ficción',
-    'Romance', 'Thriller', 'Animación', 'Documental'
-  ];
-
-  // Manejar búsqueda
-  const handleSearch = async (e) => {
-    e.preventDefault();
-    if (searchQuery.trim()) {
-      await search(searchQuery, filters);
-    } else {
-      // Si no hay query, recargar todas las películas
-      await fetchMovies({ skip: 0, replace: true });
-    }
-  };
-
-  // Manejar cambio de filtros
-  const handleFilterChange = (filterName, value) => {
-    setFilters(prev => ({
-      ...prev,
-      [filterName]: value
-    }));
-  };
-
   // Aplicar filtros cuando cambien
   useEffect(() => {
     if (searchQuery) {
@@ -77,7 +50,7 @@ const Cartelera = () => {
     } else {
       fetchMovies({ skip: 0, replace: true, ...filters });
     }
-  }, [filters]);
+  }, [filters, searchQuery, search, fetchMovies]);
 
   // Limpiar filtros
   const clearFilters = () => {

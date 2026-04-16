@@ -31,11 +31,22 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie }) => {
     setSelectedShowtime(showtime);
     setSelectedTheater(theater);
 
-    // Inicializar booking en el contexto
-    const selectedDate = new Date().toISOString().split('T')[0];
+    console.log('🎬 Showtime seleccionado:', {
+      id: showtime.id,
+      time: showtime.time,
+      date: showtime.date,
+      format: showtime.format,
+      fullObject: showtime,
+    });
+
+    // Usar la fecha real de la función (del backend) como selectedDate.
+    // showtime.date viene de show_date en el catálogo. Si por alguna razón
+    // el objeto no trae date, no usamos new Date() (hoy) porque generaría
+    // una compra con show_date incorrecto — dejamos null y el backend fallará
+    // de forma explícita en lugar de guardar una fecha fantasma.
+    const selectedDate = showtime.date ?? null;
     startBooking(movie, theater, showtime, selectedDate);
 
-    // Navegar usando tu ruta con parámetros dinámicos
     navigate(`/booking/${movieId}/${theater.id}/${showtime.id}`, {
       state: {
         movie: movie,
@@ -111,29 +122,35 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie }) => {
                 {/* Sección expandible de horarios */}
                 <div className={`
                   transition-all duration-300 overflow-hidden
-                  ${isExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}
+                  ${isExpanded ? 'max-h-[420px] opacity-100' : 'max-h-0 opacity-0'}
                 `}>
-                  <div className="px-6 pb-6 border-t border-white/10">
+                  <div className="px-6 pb-5 border-t border-white/10">
                     <div className="pt-4">
-                      <h4 className="text-white font-medium mb-3 flex items-center gap-2">
-                        <span>Horarios disponibles para hoy</span>
-                        <span className="text-sm text-white/60">
-                          ({new Date().toLocaleDateString('es-ES', {
-                            weekday: 'long',
-                            day: 'numeric',
-                            month: 'long'
-                          })})
-                        </span>
-                      </h4>
+                      <div className="flex items-center justify-between mb-3">
+                        <h4 className="text-white/90 text-sm font-semibold flex items-center gap-2">
+                          Hoy ·
+                          <span className="text-white/50 font-normal">
+                            {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
+                          </span>
+                        </h4>
+                        {hasShowtimes && (
+                          <span className="text-xs text-white/40">
+                            {theaterShowtimes.times.filter(t => t.available).length} funciones disponibles
+                          </span>
+                        )}
+                      </div>
 
                       {showtimesLoading ? (
-                        <div className="text-center py-8">
-                          <LoadingSpinner />
-                          <p className="text-white/60 mt-2">Cargando horarios...</p>
+                        <div className="flex items-center gap-3 py-6">
+                          <LoadingSpinner size="sm" />
+                          <p className="text-white/50 text-sm">Cargando horarios...</p>
                         </div>
                       ) : hasShowtimes ? (
-                        <div className="space-y-4">
-                          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                        <div
+                          className="overflow-y-auto pr-1"
+                          style={{ maxHeight: '280px', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.15) transparent' }}
+                        >
+                          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
                             {theaterShowtimes.times.map((showtime) => (
                               <ShowtimeButton
                                 key={showtime.id}
@@ -146,28 +163,11 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie }) => {
                               />
                             ))}
                           </div>
-
-                          {/* Información adicional del teatro */}
-                          <div className="mt-4 p-3 bg-white/5 rounded-lg">
-                            <div className="flex items-center justify-between text-sm">
-                              <span className="text-white/70">
-                                Horarios disponibles: {theaterShowtimes.times.filter(t => t.available).length}
-                              </span>
-                              <span className="text-white/70">
-                                Formatos: {[...new Set(theaterShowtimes.times.map(t => t.format))].join(', ')}
-                              </span>
-                            </div>
-                          </div>
                         </div>
                       ) : (
-                        <div className="text-center py-8">
-                          <div className="text-white/40 mb-2">
-                            <TicketIcon className="w-12 h-12 mx-auto mb-2" />
-                          </div>
-                          <p className="text-white/60">No hay horarios disponibles para hoy</p>
-                          <p className="text-white/40 text-sm mt-1">
-                            Revisa mañana o selecciona otro teatro
-                          </p>
+                        <div className="flex flex-col items-center gap-2 py-8 text-center">
+                          <TicketIcon className="w-10 h-10 text-white/20" />
+                          <p className="text-white/50 text-sm">Sin funciones disponibles hoy</p>
                         </div>
                       )}
                     </div>

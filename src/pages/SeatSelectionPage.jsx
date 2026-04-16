@@ -1,5 +1,6 @@
 // src/pages/SeatSelectionPage.jsx
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
+import api from '../services/api.js';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import {
   MapPinIcon, ComputerDesktopIcon, CalendarDaysIcon,
@@ -19,11 +20,7 @@ const formatDate = (dateStr) => {
   } catch { return dateStr; }
 };
 
-const seatLabel = (id) => {
-  // ID formats: "A19" → "A19", "A-wc-C-2" → skip display
-  if (id.includes('wc')) return null;
-  return id;
-};
+const seatLabel = (id) => id;
 
 // Determine if a seat is general or preferencial from the layout
 const seatTypeFromId = (id) => {
@@ -45,12 +42,61 @@ const SeatSelectionPage = () => {
   const rawShowtime = state.showtime || bookingData.showtime;
   const selectedDate = state.selectedDate || bookingData.selectedDate;
 
-  const showtime = rawShowtime || getShowtimeById(theaterId, showtimeId) || {
-    time: '19:30', format: '2D Doblada'
+  // Garantizar que showtime.id siempre sea el ID real del URL param.
+  // Si el objeto viene sin id (fallback, recarga de página, etc.) lo inyectamos.
+  const showtimeIdNum = Number(showtimeId) || null;
+  const showtime = {
+    ...(rawShowtime || getShowtimeById(theaterId, showtimeId) || { time: '', format: '2D Doblada' }),
+    id: rawShowtime?.id || showtimeIdNum,
   };
 
   // Selected seats: Set of seat IDs
   const [selectedSeats, setSelectedSeats] = useState(new Set());
+
+  // Occupied seats fetched from backend (already sold for this showtime)
+  const [occupiedSeats, setOccupiedSeats] = useState(new Set());
+
+  // Extraer show_date e show_time para la consulta de asientos ocupados.
+  // Priorizamos showtime.date (fecha real del backend) sobre selectedDate
+  // que en TheatersWithShowtimes queda fijo en "hoy" y puede no coincidir
+  // con la fecha real de la función almacenada en la compra.
+  const showDateStr = (() => {
+    const raw = showtime?.date || selectedDate;
+    if (!raw) return null;
+    if (typeof raw === 'string') return raw.split('T')[0];
+    if (raw instanceof Date) return raw.toISOString().split('T')[0];
+    if (raw?.date) return String(raw.date).split('T')[0];
+    return null;
+  })();
+  const showTimeStr = showtime?.time || null;
+
+  useEffect(() => {
+    if (!showtimeId) return;
+    const params = new URLSearchParams();
+    if (movieId)      params.append('movie_id',  movieId);
+    if (showDateStr)  params.append('show_date', showDateStr);
+    if (showTimeStr)  params.append('show_time', showTimeStr);
+    const query = params.toString() ? `?${params.toString()}` : '';
+
+    const fetchOccupied = () => {
+      api.get(`/purchases/showtimes/${showtimeId}/occupied-seats${query}`)
+        .then(res => {
+          const seats = res.data?.seats || [];
+          const nowOccupied = new Set(seats);
+          // Deselect any seat the user had picked that is now occupied
+          setSelectedSeats(sel => {
+            const next = new Set(sel);
+            sel.forEach(id => { if (nowOccupied.has(id)) next.delete(id); });
+            return next;
+          });
+          setOccupiedSeats(nowOccupied);
+        })
+        .catch(() => {});
+    };
+    fetchOccupied();
+    const interval = setInterval(fetchOccupied, 20000); // refresca cada 20 s
+    return () => clearInterval(interval);
+  }, [showtimeId, movieId, showDateStr, showTimeStr]);
 
   const handleToggle = useCallback((id) => {
     setSelectedSeats(prev => {
@@ -156,7 +202,7 @@ const SeatSelectionPage = () => {
                   <div>
                     <div className="text-[10px] text-gray-400 uppercase tracking-wide">Sala</div>
                     <div className="font-medium text-gray-800 text-xs">
-                      {theater.room_name || theater.sala || 'SALA 1'}
+                      SALA {showtime?.hall_number || 1}
                     </div>
                   </div>
                 </div>
@@ -201,7 +247,11 @@ const SeatSelectionPage = () => {
         <h1 className="text-2xl font-bold text-gray-900 mb-4">Seleccione sus sillas</h1>
 
         {/* ── Seat map ───────────────────────────────────────────────────────── */}
-        <CinemaSeatMap selectedSeats={selectedSeats} onToggle={handleToggle} />
+        <CinemaSeatMap
+          selectedSeats={selectedSeats}
+          onToggle={handleToggle}
+          occupiedSeats={occupiedSeats}
+        />
 
         {/* ── Navigation ─────────────────────────────────────────────────────── */}
         <div className="flex justify-between items-center mt-6">

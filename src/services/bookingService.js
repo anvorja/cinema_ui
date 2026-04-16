@@ -69,19 +69,44 @@ class BookingService {
         }
         // Si es un objeto {dayName, dayNumber, monthName} no se puede convertir de forma segura → null
       }
+      // showtime.time puede ser '' si el objeto no trajo el campo — normalizamos a null
       const showTime = bookingData.showtime?.time || null;
 
       const showtimeId = bookingData.showtime?.id || null;
+
+      console.log('🔍 showtime completo en bookingService:', {
+        id: bookingData.showtime?.id,
+        idType: typeof bookingData.showtime?.id,
+        time: bookingData.showtime?.time,
+        date: bookingData.showtime?.date,
+        selectedDate: bookingData.selectedDate,
+        showDate,
+      });
+
+      if (!showtimeId) {
+        console.warn('⚠️ bookingService: showtimeId es null — la compra no tendrá showtime_id.',
+          'showtime recibido:', bookingData.showtime);
+      }
+      if (!showTime) {
+        console.warn('⚠️ bookingService: show_time es null — la compra no tendrá horario.',
+          'showtime recibido:', bookingData.showtime);
+      }
+
+      const selectedSeats = bookingData.selectedSeats || [];
+      // Send null instead of [] when no seats selected; backend uses GENERAL-X fallback for null.
+      const selectedSeatsPayload = selectedSeats.length > 0 ? selectedSeats : null;
+      const quantity = selectedSeats.length > 0 ? selectedSeats.length : (bookingData.ticketCount || 1);
 
       if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
         // PSE payload
         const pse = bookingData.pseData;
         purchasePayload = {
           movie_id: bookingData.movie.id,
-          quantity: bookingData.ticketCount || 1,
+          quantity,
           show_date: showDate,
           show_time: showTime,
           showtime_id: showtimeId,
+          selected_seats: selectedSeatsPayload,
           pse_info: {
             bank_code: pse.bankCode,
             bank_name: pse.bankName,
@@ -98,10 +123,11 @@ class BookingService {
 
         purchasePayload = {
           movie_id: bookingData.movie.id,
-          quantity: bookingData.ticketCount || 1,
+          quantity,
           show_date: showDate,
           show_time: showTime,
           showtime_id: showtimeId,
+          selected_seats: selectedSeatsPayload,
           payment_info: {
             card_number: cardNumber,
             card_holder: card.name || bookingData.userName || "Cliente Cinema",

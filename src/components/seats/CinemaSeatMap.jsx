@@ -1,23 +1,29 @@
 // src/components/seats/CinemaSeatMap.jsx
 import React, { useState, useRef } from 'react';
 
-const WC = 'wc';   // wheelchair
 const X  = 'x';   // unavailable
 
 const desc = (lo, hi) =>
   Array.from({ length: hi - lo + 1 }, (_, i) => hi - i);
 
+// Seats that are wheelchair-accessible spots (identified by seat ID)
+const WC_SEAT_IDS = new Set([
+  'D1','D2','D3','D4','D7','D8','D9','D10','D11','D12','D14','D15','D17','D18','D19',
+  'E12','E13',
+]);
+
 // ── Layout ────────────────────────────────────────────────────────────────────
 //  Each row: { row, type, left[], center[], right[] }
-//  Values: number → selectable seat,  WC → wheelchair,  X → unavailable,  null → gap (no render)
+//  Values: number → selectable seat,  X → unavailable,  null → gap (no render)
+//  Wheelchair seats use regular numbers; WC_SEAT_IDS determines which render as wheelchair.
 const LAYOUT = [
   { row: 'A', type: 'general',      left: [],           center: desc(7,19), right: desc(1,4) },
   { row: 'B', type: 'general',      left: [],           center: desc(7,19), right: desc(1,4) },
   { row: 'C', type: 'general',      left: [],           center: desc(7,19), right: desc(1,4) },
   { row: 'D', type: 'wheelchair',   left: [],
-    center: [WC,WC,WC,null,WC,WC,null,WC,WC,WC,WC,WC,WC], right: [WC,WC,WC,WC] },
+    center: [19,18,17,null,15,14,null,12,11,10,9,8,7],  right: [4,3,2,1] },
   { row: 'E', type: 'general',      left: [23,22],
-    center: [19,18,17,16,15,14,WC,WC,11,10,9,8,7],       right: desc(1,4) },
+    center: desc(7,19),                                  right: desc(1,4) },
   { row: 'F', type: 'general',      left: [23,22],      center: desc(7,19), right: desc(1,4) },
   { row: 'G', type: 'general',      left: [23,22],      center: desc(7,19), right: desc(1,4) },
   { row: 'H', type: 'general',      left: [23,22],      center: desc(7,19), right: desc(1,4) },
@@ -34,8 +40,7 @@ const LAYOUT = [
 ];
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
-const seatId = (row, section, index, val) =>
-  val === WC ? `${row}-wc-${section}-${index}` : `${row}${val}`;
+const seatId = (row, section, index, val) => `${row}${val}`;
 
 const WheelchairSVG = () => (
   <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
@@ -43,20 +48,23 @@ const WheelchairSVG = () => (
   </svg>
 );
 
-const Seat = ({ id, value, rowType, selected, onToggle }) => {
+const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
   if (value === null) return <div className="w-6 h-6 flex-shrink-0" />;
 
-  const unavailable = value === X;
-  const isWC        = value === WC;
+  const isBlocked   = value === X;
+  const isWC        = WC_SEAT_IDS.has(id);
+  const unavailable = isBlocked || occupied;
 
   let bg, cursor, text;
-  if (unavailable) {
-    bg = 'bg-gray-500/50';  cursor = 'cursor-default';  text = '';
+  if (occupied) {
+    bg = 'bg-red-400/70';   cursor = 'cursor-not-allowed';  text = '';
+  } else if (isBlocked) {
+    bg = 'bg-gray-500/40';  cursor = 'cursor-not-allowed';  text = '';
   } else if (selected) {
     bg = 'bg-green-500';    cursor = 'cursor-pointer';
     text = isWC ? null : <span className="text-[9px] leading-none font-bold">✓</span>;
   } else if (isWC) {
-    bg = 'bg-blue-600';     cursor = 'cursor-pointer';   text = null;
+    bg = 'bg-blue-600';     cursor = 'cursor-pointer';      text = null;
   } else if (rowType === 'preferencial') {
     bg = 'bg-gray-700 hover:bg-gray-600'; cursor = 'cursor-pointer';
     text = <span className="text-[9px] leading-none">{value}</span>;
@@ -65,13 +73,19 @@ const Seat = ({ id, value, rowType, selected, onToggle }) => {
     text = <span className="text-[9px] leading-none">{value}</span>;
   }
 
+  const handleClick = () => {
+    if (unavailable) return;
+    if (isWC && !window.confirm('Este es un espacio para sillas de ruedas. Al aceptar, está confirmando que entiende esto.')) return;
+    onToggle(id);
+  };
+
   return (
     <button
       className={`w-6 h-6 rounded-[3px] flex-shrink-0 flex items-center justify-center
                   text-white transition-colors select-none ${bg} ${cursor}`}
       disabled={unavailable}
-      onClick={() => !unavailable && onToggle(id, rowType === 'wheelchair' ? 'general' : rowType)}
-      title={unavailable ? 'No disponible' : `${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
+      onClick={handleClick}
+      title={occupied ? 'Silla ya vendida' : isBlocked ? 'No disponible' : `${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
     >
       {isWC ? <WheelchairSVG /> : text}
     </button>
@@ -84,7 +98,10 @@ const Legend = () => (
       <span className="w-4 h-4 rounded-[3px] bg-green-500 inline-block" /> Seleccionada
     </span>
     <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-gray-500/50 inline-block" /> No disponible
+      <span className="w-4 h-4 rounded-[3px] bg-red-400/70 inline-block" /> Vendida
+    </span>
+    <span className="flex items-center gap-1.5">
+      <span className="w-4 h-4 rounded-[3px] bg-gray-500/40 inline-block" /> No disponible
     </span>
     <span className="flex items-center gap-1.5">
       <span className="w-4 h-4 rounded-[3px] bg-blue-700 inline-block" /> General
@@ -101,7 +118,7 @@ const Legend = () => (
 );
 
 // ── Main component ─────────────────────────────────────────────────────────────
-const CinemaSeatMap = ({ selectedSeats, onToggle }) => {
+const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) => {
   const [zoom, setZoom] = useState(1);
   const containerRef = useRef(null);
 
@@ -109,16 +126,20 @@ const CinemaSeatMap = ({ selectedSeats, onToggle }) => {
     setZoom(prev => Math.min(1.5, Math.max(0.6, +(prev + delta).toFixed(1))));
 
   const renderSection = (seats, row, rowType, section) =>
-    seats.map((val, idx) => (
-      <Seat
-        key={`${row}-${section}-${idx}`}
-        id={seatId(row, section, idx, val)}
-        value={val}
-        rowType={val === WC ? 'wheelchair' : rowType}
-        selected={selectedSeats.has(seatId(row, section, idx, val))}
-        onToggle={onToggle}
-      />
-    ));
+    seats.map((val, idx) => {
+      const id = seatId(row, section, idx, val);
+      return (
+        <Seat
+          key={`${row}-${section}-${idx}`}
+          id={id}
+          value={val}
+          rowType={rowType}
+          selected={selectedSeats.has(id)}
+          occupied={val !== X && val !== null && occupiedSeats.has(id)}
+          onToggle={onToggle}
+        />
+      );
+    });
 
   return (
     <div className="flex flex-col gap-3">
@@ -197,4 +218,4 @@ const CinemaSeatMap = ({ selectedSeats, onToggle }) => {
 };
 
 export default CinemaSeatMap;
-export { LAYOUT, WC, X };
+export { LAYOUT, X };

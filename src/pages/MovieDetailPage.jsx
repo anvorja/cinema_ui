@@ -1,5 +1,5 @@
 // src/pages/MovieDetailPage.jsx - CON LÓGICA DE BOTÓN CORREGIDA
-import { useState, useContext } from 'react';
+import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ClockIcon,
@@ -124,25 +124,10 @@ const MovieDetailPage = () => {
 
   const purchaseInfo = getPurchaseAvailability();
 
-  // Función para manejar compra rápida (sin seleccionar horario específico)
+  // Llevar al usuario a la sección de teatros/horarios para que elija función real
   const handleQuickBuy = () => {
-    if (!purchaseInfo.canPurchase || !theaters || theaters.length === 0) return;
-
-    const defaultTheater = theaters[0];
-    const selectedDate = new Date().toISOString().split('T')[0];
-
-    // No se pasa showtime_id porque el usuario no ha seleccionado función específica.
-    // El backend usará la disponibilidad general de la película.
-    startBooking(movie, defaultTheater, null, selectedDate);
-
-    navigate(`/booking/${id}/${defaultTheater.id}`, {
-      state: {
-        movie,
-        theater: defaultTheater,
-        showtime: null,
-        selectedDate
-      }
-    });
+    if (!purchaseInfo.canPurchase) return;
+    document.getElementById('theaters-showtimes-section')?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleRateMovie = async () => {
@@ -236,11 +221,6 @@ const MovieDetailPage = () => {
                   <p className="text-white font-semibold">{movie.ageRating}</p>
                 </GlassCard>
 
-                <GlassCard className="p-4 text-center">
-                  <CurrencyDollarIcon className="w-8 h-8 text-yellow-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Precio</p>
-                  <p className="text-white font-semibold">{movie.price_formatted}</p>
-                </GlassCard>
               </div>
 
               {/* Additional Info */}
@@ -392,12 +372,14 @@ const MovieDetailPage = () => {
 
       {/* Theaters Section con horarios - SOLO SI HAY THEATERS Y PUEDE COMPRAR O ES COMING_SOON */}
       {theaters && theaters.length > 0 && (rawMovie?.status === 'in_theaters' || rawMovie?.is_presale || rawMovie?.status === 'coming_soon') && (
+        <div id="theaters-showtimes-section">
         <TheatersWithShowtimes
           theaters={theaters}
           movieId={id}
           movie={movie}
           canPurchase={purchaseInfo.canPurchase}
         />
+        </div>
       )}
 
       {/* Availability Info */}

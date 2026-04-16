@@ -30,11 +30,6 @@ const AdminDashboardContent = () => {
   // Estados de búsqueda
   const [searchTerm, setSearchTerm] = useState('');
 
-  // Cargar datos iniciales
-  useEffect(() => {
-    loadInitialData();
-  }, []);
-
   const loadInitialData = async () => {
     setLoading(true);
     try {
@@ -54,6 +49,10 @@ const AdminDashboardContent = () => {
       setLoading(false);
     }
   };
+
+  // Cargar datos iniciales al montar
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  useEffect(() => { loadInitialData(); }, []);
 
   const loadMovies = async () => {
     try {
