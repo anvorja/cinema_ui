@@ -13,6 +13,7 @@ import useAuth from '../../hooks/useAuth';
 import { searchMovies } from '../../services/api';
 import { debounce } from 'lodash';
 import { Button } from '../ui/button';
+import ThemeToggle from '../ui/ThemeToggle';
 import {
     Tooltip,
     TooltipContent,
@@ -220,6 +221,16 @@ const Header = () => {
                                         </Button>
                                     </TooltipTrigger>
                                     <TooltipContent side="bottom">Buscar</TooltipContent>
+                                </Tooltip>
+
+                                {/* Theme toggle */}
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <span>
+                                            <ThemeToggle variant="header" />
+                                        </span>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom">Cambiar tema</TooltipContent>
                                 </Tooltip>
 
                                 {/* User area */}

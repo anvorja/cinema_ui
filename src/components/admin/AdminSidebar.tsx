@@ -1,5 +1,6 @@
 // src/components/admin/AdminSidebar.tsx
 import { Film, Building2, Users, ShoppingCart, QrCode, BarChart2, LogOut, RefreshCw } from 'lucide-react';
+import ThemeToggle from '../ui/ThemeToggle';
 import {
   Sidebar,
   SidebarContent,
@@ -133,6 +134,11 @@ const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loadi
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
               <span className="text-xs">Actualizar</span>
             </SidebarMenuButton>
+          </SidebarMenuItem>
+
+          {/* Theme toggle */}
+          <SidebarMenuItem>
+            <ThemeToggle variant="sidebar" className="justify-start" />
           </SidebarMenuItem>
           <SidebarMenuItem>
             <SidebarMenuButton
