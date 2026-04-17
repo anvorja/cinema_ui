@@ -32,7 +32,7 @@ const PosterCard = ({ movie, onEdit, onToggle }) => {
 
   return (
     <>
-      <div className="group relative rounded-xl overflow-hidden bg-zinc-900 border border-zinc-800 hover:border-zinc-700 transition-all duration-300 cursor-pointer">
+      <div className="group relative rounded-xl overflow-hidden bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 transition-all duration-300 cursor-pointer">
         {/* Poster */}
         <div className="aspect-[2/3] relative overflow-hidden">
           {movie.poster_url ? (
@@ -42,9 +42,9 @@ const PosterCard = ({ movie, onEdit, onToggle }) => {
               className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             />
           ) : (
-            <div className="w-full h-full bg-zinc-800 flex flex-col items-center justify-center gap-3">
-              <Film className="h-10 w-10 text-zinc-600" />
-              <p className="text-xs text-zinc-600 text-center px-4 leading-relaxed">{movie.title}</p>
+            <div className="w-full h-full bg-gray-100 dark:bg-zinc-800 flex flex-col items-center justify-center gap-3">
+              <Film className="h-10 w-10 text-gray-300 dark:text-zinc-600" />
+              <p className="text-xs text-gray-400 dark:text-zinc-600 text-center px-4 leading-relaxed">{movie.title}</p>
             </div>
           )}
 
@@ -112,15 +112,15 @@ const PosterCard = ({ movie, onEdit, onToggle }) => {
         </div>
 
         {/* Footer fuera del poster */}
-        <div className="px-3 py-2.5 flex items-center justify-between border-t border-zinc-800">
+        <div className="px-3 py-2.5 flex items-center justify-between border-t border-gray-100 dark:border-zinc-800">
           <span className="text-sm font-semibold text-emerald-400">{fmtCOP(movie.price)}</span>
           <div className="flex items-center gap-1.5">
-            <Ticket className="h-3 w-3 text-zinc-600" />
-            <span className="text-[11px] text-zinc-500">
+            <Ticket className="h-3 w-3 text-gray-400 dark:text-zinc-600" />
+            <span className="text-[11px] text-gray-400 dark:text-zinc-500">
               {movie.available_tickets ?? 0}/{movie.max_capacity}
             </span>
             {/* Mini occupancy bar */}
-            <div className="w-12 h-1 bg-zinc-800 rounded-full overflow-hidden">
+            <div className="w-12 h-1 bg-gray-200 dark:bg-zinc-800 rounded-full overflow-hidden">
               <div
                 className={`h-full rounded-full transition-all ${
                   occupancy > 80 ? 'bg-red-500' : occupancy > 50 ? 'bg-amber-500' : 'bg-emerald-500'
@@ -134,19 +134,19 @@ const PosterCard = ({ movie, onEdit, onToggle }) => {
 
       {/* AlertDialog toggle */}
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-sm">
+        <AlertDialogContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-white max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className={movie.is_active ? 'text-red-400' : 'text-emerald-400'}>
+            <AlertDialogTitle className={movie.is_active ? 'text-red-500 dark:text-red-400' : 'text-emerald-500 dark:text-emerald-400'}>
               {movie.is_active ? 'Ocultar película' : 'Activar película'}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
+            <AlertDialogDescription className="text-gray-500 dark:text-zinc-400">
               {movie.is_active
                 ? `"${movie.title}" dejará de estar visible para los usuarios.`
                 : `"${movie.title}" volverá a aparecer en la cartelera.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">
+            <AlertDialogCancel className="bg-gray-100 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-900 dark:hover:text-white">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
@@ -171,7 +171,7 @@ const ListRow = ({ movie, onEdit, onToggle }) => {
 
   return (
     <>
-      <TableRow className="border-zinc-800 hover:bg-zinc-800/40 transition-colors">
+      <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
         {/* Poster + Título */}
         <TableCell className="py-3">
           <div className="flex items-center gap-3">
@@ -182,14 +182,14 @@ const ListRow = ({ movie, onEdit, onToggle }) => {
                 className="w-9 h-[52px] object-cover rounded shrink-0"
               />
             ) : (
-              <div className="w-9 h-[52px] bg-zinc-800 rounded flex items-center justify-center shrink-0">
-                <Film className="h-4 w-4 text-zinc-600" />
+              <div className="w-9 h-[52px] bg-gray-100 dark:bg-zinc-800 rounded flex items-center justify-center shrink-0">
+                <Film className="h-4 w-4 text-gray-300 dark:text-zinc-600" />
               </div>
             )}
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate max-w-[180px]">{movie.title}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate max-w-[180px]">{movie.title}</p>
               {movie.director && (
-                <p className="text-[11px] text-zinc-600 truncate max-w-[180px]">{movie.director}</p>
+                <p className="text-[11px] text-gray-400 dark:text-zinc-600 truncate max-w-[180px]">{movie.director}</p>
               )}
             </div>
           </div>
@@ -197,19 +197,19 @@ const ListRow = ({ movie, onEdit, onToggle }) => {
 
         {/* Género */}
         <TableCell className="py-3">
-          <span className="text-xs text-zinc-400 bg-zinc-800 px-2 py-0.5 rounded">
+          <span className="text-xs text-gray-600 dark:text-zinc-400 bg-gray-100 dark:bg-zinc-800 px-2 py-0.5 rounded">
             {movie.genre}
           </span>
         </TableCell>
 
         {/* Rating */}
         <TableCell className="py-3">
-          <span className="text-xs font-mono text-zinc-400">{movie.rating}</span>
+          <span className="text-xs font-mono text-gray-600 dark:text-zinc-400">{movie.rating}</span>
         </TableCell>
 
         {/* Duración */}
         <TableCell className="py-3">
-          <div className="flex items-center gap-1 text-xs text-zinc-500">
+          <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-zinc-500">
             <Clock className="h-3 w-3" />
             {movie.duration} min
           </div>
@@ -228,7 +228,7 @@ const ListRow = ({ movie, onEdit, onToggle }) => {
         </TableCell>
 
         {/* Estreno */}
-        <TableCell className="py-3 text-xs text-zinc-500">
+        <TableCell className="py-3 text-xs text-gray-500 dark:text-zinc-500">
           {movie.release_date ? fmtDate(movie.release_date) : '—'}
         </TableCell>
 
@@ -238,11 +238,11 @@ const ListRow = ({ movie, onEdit, onToggle }) => {
             <Switch
               checked={movie.is_active}
               onCheckedChange={() => setConfirmOpen(true)}
-              className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-zinc-700"
+              className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
             />
             <button
               onClick={() => onEdit(movie)}
-              className="p-1.5 text-zinc-500 hover:text-blue-400 hover:bg-zinc-800 rounded-md transition-colors"
+              className="p-1.5 text-gray-400 dark:text-zinc-500 hover:text-blue-500 dark:hover:text-blue-400 hover:bg-gray-100 dark:hover:bg-zinc-800 rounded-md transition-colors"
             >
               <Edit2 className="h-3.5 w-3.5" />
             </button>
@@ -251,19 +251,19 @@ const ListRow = ({ movie, onEdit, onToggle }) => {
       </TableRow>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-sm">
+        <AlertDialogContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-white max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className={movie.is_active ? 'text-red-400' : 'text-emerald-400'}>
+            <AlertDialogTitle className={movie.is_active ? 'text-red-500 dark:text-red-400' : 'text-emerald-500 dark:text-emerald-400'}>
               {movie.is_active ? 'Ocultar película' : 'Activar película'}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
+            <AlertDialogDescription className="text-gray-500 dark:text-zinc-400">
               {movie.is_active
                 ? `"${movie.title}" dejará de estar visible para los usuarios.`
                 : `"${movie.title}" volverá a aparecer en la cartelera.`}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-zinc-300 hover:bg-zinc-700 hover:text-white">
+            <AlertDialogCancel className="bg-gray-100 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-zinc-300 hover:bg-gray-200 dark:hover:bg-zinc-700 hover:text-gray-900 dark:hover:text-white">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction

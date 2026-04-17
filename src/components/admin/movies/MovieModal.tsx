@@ -14,12 +14,12 @@ import { Badge }    from '../../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const inputCls    = 'bg-zinc-800 border-zinc-700 text-white placeholder-zinc-600 focus-visible:ring-zinc-600 h-9';
-const inputErrCls = 'bg-zinc-800 border-red-500/60 text-white placeholder-zinc-600 focus-visible:ring-red-500/40 h-9';
-const selCls      = 'bg-zinc-800 border-zinc-700 text-white h-9 focus:ring-zinc-600';
-const contentCls  = 'bg-zinc-900 border-zinc-700 text-white';
-const itemCls     = 'text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer';
-const labelCls    = 'text-xs text-zinc-400 mb-1.5';
+const inputCls    = 'bg-gray-50 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-gray-300 dark:focus-visible:ring-zinc-600 h-9';
+const inputErrCls = 'bg-gray-50 dark:bg-zinc-800 border-red-500/60 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-red-500/40 h-9';
+const selCls      = 'bg-gray-50 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white h-9 focus:ring-gray-300 dark:focus:ring-zinc-600';
+const contentCls  = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
+const itemCls     = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
+const labelCls    = 'text-xs text-gray-500 dark:text-zinc-400 mb-1.5';
 
 const genres = [
   'Acción','Aventura','Animación','Biografía','Comedia','Crimen',
@@ -55,10 +55,10 @@ const EMPTY_FORM = {
 const Section = ({ icon: Icon, title, children }: any) => (
   <div className="space-y-4">
     <div className="flex items-center gap-2">
-      <div className="p-1.5 bg-zinc-800 rounded-md">
-        <Icon className="h-3.5 w-3.5 text-zinc-400" />
+      <div className="p-1.5 bg-gray-100 dark:bg-zinc-800 rounded-md">
+        <Icon className="h-3.5 w-3.5 text-gray-400 dark:text-zinc-400" />
       </div>
-      <p className="text-xs font-semibold text-zinc-400 uppercase tracking-widest">{title}</p>
+      <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-widest">{title}</p>
     </div>
     {children}
   </div>
@@ -192,31 +192,31 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
     <Sheet open={isOpen} onOpenChange={open => !open && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-[680px] bg-zinc-950 border-zinc-800 p-0 flex flex-col"
+        className="w-full sm:max-w-[680px] bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 p-0 flex flex-col"
       >
         {/* Header */}
-        <SheetHeader className="px-6 pt-6 pb-4 border-b border-zinc-800 shrink-0">
+        <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100 dark:border-zinc-800 shrink-0">
           <div className="flex items-center gap-3">
             <div className="p-2 bg-blue-500/10 ring-1 ring-blue-500/20 rounded-lg">
               <Film className="h-4 w-4 text-blue-400" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-white text-base">
+              <SheetTitle className="text-gray-900 dark:text-white text-base">
                 {movie ? 'Editar película' : 'Nueva película'}
               </SheetTitle>
-              <SheetDescription className="text-zinc-500 text-xs mt-0.5">
+              <SheetDescription className="text-gray-400 dark:text-zinc-500 text-xs mt-0.5">
                 {movie ? movie.title : 'Completa los campos para agregar una película a la cartelera'}
               </SheetDescription>
             </div>
             {/* Completion pill */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <div className="w-16 h-1.5 bg-zinc-800 rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 bg-gray-200 dark:bg-zinc-800 rounded-full overflow-hidden">
                 <div
                   className={`h-full rounded-full transition-all duration-300 ${pct === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className={`text-[10px] font-medium ${pct === 100 ? 'text-emerald-400' : 'text-zinc-500'}`}>
+              <span className={`text-[10px] font-medium ${pct === 100 ? 'text-emerald-400' : 'text-gray-400 dark:text-zinc-500'}`}>
                 {pct}%
               </span>
             </div>
@@ -242,7 +242,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               )}
             </Section>
 
-            <div className="border-t border-zinc-800" />
+            <div className="border-t border-gray-100 dark:border-zinc-800" />
 
             {/* ── Sección 2: Identidad ─────────────────────────────── */}
             <Section icon={Tag} title="Identidad">
@@ -298,11 +298,11 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                     placeholder="Sinopsis de la película..."
                     rows={4}
                     maxLength={1000}
-                    className={`resize-none bg-zinc-800 border-zinc-700 text-white placeholder-zinc-600 focus-visible:ring-zinc-600 ${errors.description ? 'border-red-500/60' : ''}`}
+                    className={`resize-none bg-gray-50 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-gray-300 dark:focus-visible:ring-zinc-600 ${errors.description ? 'border-red-500/60' : ''}`}
                   />
                   <span className={`absolute bottom-2 right-2.5 text-[10px] ${
                     formData.description.length > 950 ? 'text-red-400' :
-                    formData.description.length > 800 ? 'text-amber-400' : 'text-zinc-700'
+                    formData.description.length > 800 ? 'text-amber-400' : 'text-gray-300 dark:text-zinc-700'
                   }`}>
                     {formData.description.length}/1000
                   </span>
@@ -310,7 +310,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               </Field>
             </Section>
 
-            <div className="border-t border-zinc-800" />
+            <div className="border-t border-gray-100 dark:border-zinc-800" />
 
             {/* ── Sección 3: Clasificación y tiempo ───────────────── */}
             <Section icon={Star} title="Clasificación y tiempo">
@@ -344,7 +344,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                     type="date"
                     value={formData.release_date}
                     onChange={handleChange}
-                    className={`${errors.release_date ? inputErrCls : inputCls} [color-scheme:dark]`}
+                    className={`${errors.release_date ? inputErrCls : inputCls} dark:[color-scheme:dark]`}
                   />
                 </Field>
 
@@ -361,14 +361,14 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               </div>
             </Section>
 
-            <div className="border-t border-zinc-800" />
+            <div className="border-t border-gray-100 dark:border-zinc-800" />
 
             {/* ── Sección 4: Disponibilidad ────────────────────────── */}
             <Section icon={Ticket} title="Disponibilidad">
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Precio (COP)" required error={errors.price}>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-zinc-500">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-zinc-500">$</span>
                     <Input
                       name="price"
                       type="number"
@@ -407,10 +407,10 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                 </Field>
 
                 {/* Presale toggle */}
-                <div className="flex items-center justify-between p-3 bg-zinc-900 border border-zinc-800 rounded-lg col-span-2">
+                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg col-span-2">
                   <div>
-                    <p className="text-sm text-white">Preventa activa</p>
-                    <p className="text-[11px] text-zinc-600 mt-0.5">La película se mostrará como preventa</p>
+                    <p className="text-sm text-gray-900 dark:text-white">Preventa activa</p>
+                    <p className="text-[11px] text-gray-400 dark:text-zinc-600 mt-0.5">La película se mostrará como preventa</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {formData.is_presale && (
@@ -421,7 +421,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                     <Switch
                       checked={formData.is_presale}
                       onCheckedChange={v => setFormData(prev => ({ ...prev, is_presale: v }))}
-                      className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-zinc-700"
+                      className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
                     />
                   </div>
                 </div>
@@ -430,9 +430,9 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
 
             {/* API Error */}
             {apiError && (
-              <div className="flex items-start gap-2 p-3 bg-red-900/30 border border-red-500/40 rounded-lg">
+              <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/40 rounded-lg">
                 <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
-                <p className="text-red-300 text-sm">{apiError}</p>
+                <p className="text-red-500 dark:text-red-300 text-sm">{apiError}</p>
               </div>
             )}
 
@@ -442,11 +442,11 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
         </form>
 
         {/* Sticky footer */}
-        <div className="shrink-0 px-6 py-4 border-t border-zinc-800 bg-zinc-950 flex items-center justify-between gap-3">
+        <div className="shrink-0 px-6 py-4 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="h-9 px-4 text-sm text-zinc-400 hover:text-white bg-zinc-800 hover:bg-zinc-700 border border-zinc-700 rounded-lg transition-colors"
+            className="h-9 px-4 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 rounded-lg transition-colors"
           >
             Cancelar
           </button>

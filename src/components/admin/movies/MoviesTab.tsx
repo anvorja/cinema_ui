@@ -8,9 +8,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Skeleton } from '../../ui/skeleton';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '../../ui/table';
 
-const selectCls = 'w-40 h-9 bg-zinc-900 border-zinc-700 text-white text-sm focus:ring-zinc-600';
-const contentCls = 'bg-zinc-900 border-zinc-700 text-white';
-const itemCls    = 'text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer';
+const selectCls = 'w-40 h-9 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm focus:ring-gray-300 dark:focus:ring-zinc-600';
+const contentCls = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
+const itemCls    = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
 
 // ── Skeleton ───────────────────────────────────────────────────────────────────
 const MoviesTabSkeleton = () => (
@@ -74,13 +74,13 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
         <div className="flex items-center gap-2 flex-wrap flex-1">
           {/* Search */}
           <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
             <input
               type="text"
               placeholder="Buscar por título, género o director..."
               value={searchTerm}
               onChange={e => onSearchChange(e.target.value)}
-              className="w-full pl-9 pr-4 h-9 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+              className="w-full pl-9 pr-4 h-9 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-zinc-600"
             />
           </div>
 
@@ -96,11 +96,11 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
           </Select>
 
           {/* View toggle */}
-          <div className="flex items-center bg-zinc-900 border border-zinc-700 rounded-lg p-0.5 ml-auto sm:ml-0">
+          <div className="flex items-center bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg p-0.5 ml-auto sm:ml-0">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                viewMode === 'grid' ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-white' : 'text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300'
               }`}
             >
               <Grid className="h-4 w-4" />
@@ -108,7 +108,7 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
             <button
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'
+                viewMode === 'list' ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-white' : 'text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300'
               }`}
             >
               <List className="h-4 w-4" />
@@ -134,11 +134,11 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
           { label: 'Inactivas', value: movies.filter(m => !m.is_active).length,     color: 'text-red-400',     icon: EyeOff },
           { label: 'Preventa',  value: movies.filter(m => m.is_presale).length,     color: 'text-amber-400',   icon: Clapperboard },
         ].map(s => (
-          <Card key={s.label} className="bg-zinc-900 border-zinc-800">
+          <Card key={s.label} className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
             <CardContent className="p-3 flex items-center gap-3">
               <s.icon className={`h-4 w-4 ${s.color} shrink-0`} />
               <div>
-                <p className="text-xs text-zinc-600">{s.label}</p>
+                <p className="text-xs text-gray-500 dark:text-zinc-600">{s.label}</p>
                 <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
               </div>
             </CardContent>
@@ -148,9 +148,9 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
 
       {/* Content */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-zinc-800 py-20 text-center">
-          <Film className="h-10 w-10 text-zinc-700 mx-auto mb-3" />
-          <p className="text-zinc-600 text-sm">
+        <div className="rounded-xl border border-gray-200 dark:border-zinc-800 py-20 text-center">
+          <Film className="h-10 w-10 text-gray-300 dark:text-zinc-700 mx-auto mb-3" />
+          <p className="text-gray-400 dark:text-zinc-600 text-sm">
             {searchTerm || filterStatus !== 'all'
               ? 'Sin películas que coincidan con los filtros'
               : 'No hay películas registradas'}
@@ -178,12 +178,12 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-zinc-800 overflow-hidden">
+        <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
           <Table className="">
             <TableHeader className="">
-              <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/60">
+              <TableRow className="border-gray-200 dark:border-zinc-800 hover:bg-transparent bg-gray-50 dark:bg-zinc-900/60">
                 {['Película', 'Género', 'Clasif.', 'Duración', 'Precio', 'Estado', 'Estreno', 'Activo'].map(h => (
-                  <TableHead key={h} className="text-[10px] text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
+                  <TableHead key={h} className="text-[10px] text-gray-500 dark:text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>
