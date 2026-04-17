@@ -80,7 +80,7 @@ const TheatersTab = ({ theaters, loading, onToggleTheater, searchTerm, onSearchC
       {/* Mini stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Total',    value: theaters.length,                          color: 'text-white' },
+          { label: 'Total',    value: theaters.length,                          color: 'text-gray-900 dark:text-white' },
           { label: 'Activos',  value: theaters.filter(t => t.is_active).length,  color: 'text-emerald-400' },
           { label: 'Inactivos',value: theaters.filter(t => !t.is_active).length, color: 'text-red-400' },
         ].map(s => (

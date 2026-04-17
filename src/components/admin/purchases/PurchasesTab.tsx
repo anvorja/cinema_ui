@@ -148,7 +148,7 @@ const PurchasesTab = ({ purchases, loading, searchTerm, onSearchChange }) => {
       {/* Mini stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
-          { label: 'Compras',     value: filtered.length, color: 'text-white' },
+          { label: 'Compras',     value: filtered.length, color: 'text-gray-900 dark:text-white' },
           { label: 'Confirmadas', value: confirmed,        color: 'text-emerald-400' },
           { label: 'Pendientes',  value: pending,          color: 'text-amber-400' },
           { label: 'Tickets',     value: tickets,          color: 'text-blue-400' },

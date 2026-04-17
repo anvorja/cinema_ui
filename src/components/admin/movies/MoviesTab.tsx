@@ -129,7 +129,7 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
       {/* Mini stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total',     value: movies.length,                               color: 'text-white',       icon: Film },
+          { label: 'Total',     value: movies.length,                               color: 'text-gray-900 dark:text-white', icon: Film },
           { label: 'Activas',   value: movies.filter(m => m.is_active).length,      color: 'text-emerald-400', icon: Eye },
           { label: 'Inactivas', value: movies.filter(m => !m.is_active).length,     color: 'text-red-400',     icon: EyeOff },
           { label: 'Preventa',  value: movies.filter(m => m.is_presale).length,     color: 'text-amber-400',   icon: Clapperboard },

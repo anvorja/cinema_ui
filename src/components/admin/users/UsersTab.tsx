@@ -122,7 +122,7 @@ const UsersTab = ({ users, loading, onToggleUser, searchTerm, onSearchChange }) 
       {/* Mini stats */}
       <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
         {[
-          { label: 'Total',    value: users.length,                                      color: 'text-white' },
+          { label: 'Total',    value: users.length,                                      color: 'text-gray-900 dark:text-white' },
           { label: 'Clientes', value: users.filter(u => u.role === 'customer').length,    color: 'text-blue-400' },
           { label: 'Admins',   value: users.filter(u => u.role === 'admin').length,       color: 'text-violet-400' },
           { label: 'Activos',  value: users.filter(u => u.is_active).length,             color: 'text-emerald-400' },
