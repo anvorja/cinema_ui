@@ -1,208 +1,213 @@
-// src/components/admin/movies/MoviesTab.jsx
-import React, { useState } from 'react';
-import { Loader, Filter, Grid, List, Plus, Search } from 'lucide-react';
+// src/components/admin/movies/MoviesTab.tsx
+import { useState } from 'react';
+import { Plus, Search, Grid, List, Film, Clapperboard, Eye, EyeOff } from 'lucide-react';
 import MovieCard from './MovieCard';
 import MovieModal from './MovieModal';
+import { Card, CardContent } from '../../ui/card';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { Skeleton } from '../../ui/skeleton';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '../../ui/table';
 
-const MoviesTab = ({
-  movies,
-  loading,
-  onCreateMovie,
-  onUpdateMovie,
-  onToggleMovie,
-  searchTerm,
-  onSearchChange
-}) => {
-  const [movieModal, setMovieModal] = useState({ isOpen: false, movie: null });
-  const [viewMode, setViewMode] = useState('grid'); // 'grid' or 'list'
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'active', 'inactive'
+const selectCls = 'w-40 h-9 bg-zinc-900 border-zinc-700 text-white text-sm focus:ring-zinc-600';
+const contentCls = 'bg-zinc-900 border-zinc-700 text-white';
+const itemCls    = 'text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer';
 
-  // Filtrar películas
-  const filteredMovies = movies.filter(movie => {
-    const matchesSearch = movie.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         movie.genre.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         (movie.director && movie.director.toLowerCase().includes(searchTerm.toLowerCase()));
+// ── Skeleton ───────────────────────────────────────────────────────────────────
+const MoviesTabSkeleton = () => (
+  <div className="space-y-5">
+    <div className="flex gap-3">
+      <Skeleton className="h-9 w-64 bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-40 bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-20 bg-zinc-800 rounded-lg ml-auto" />
+      <Skeleton className="h-9 w-32 bg-zinc-800 rounded-lg" />
+    </div>
+    <div className="grid grid-cols-4 gap-3">
+      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 bg-zinc-800 rounded-xl" />)}
+    </div>
+    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+      {[...Array(10)].map((_, i) => (
+        <div key={i} className="space-y-2">
+          <Skeleton className="w-full aspect-[2/3] bg-zinc-800 rounded-xl" />
+          <Skeleton className="h-3 w-3/4 bg-zinc-800 rounded" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
-    const matchesStatus = filterStatus === 'all' ||
-                         (filterStatus === 'active' && movie.is_active) ||
-                         (filterStatus === 'inactive' && !movie.is_active);
+// ── Main ───────────────────────────────────────────────────────────────────────
+const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovie, searchTerm, onSearchChange }) => {
+  const [movieModal, setMovieModal] = useState<{ isOpen: boolean; movie: any | null }>({ isOpen: false, movie: null });
+  const [viewMode,     setViewMode]     = useState<'grid' | 'list'>('grid');
+  const [filterStatus, setFilterStatus] = useState('all');
 
-    return matchesSearch && matchesStatus;
+  const filtered = movies.filter(m => {
+    const q = searchTerm.toLowerCase();
+    const matchSearch =
+      m.title?.toLowerCase().includes(q) ||
+      m.genre?.toLowerCase().includes(q)  ||
+      m.director?.toLowerCase().includes(q);
+    const matchStatus = filterStatus === 'all' ||
+      (filterStatus === 'active'   && m.is_active)  ||
+      (filterStatus === 'inactive' && !m.is_active) ||
+      (filterStatus === 'presale'  && m.is_presale);
+    return matchSearch && matchStatus;
   });
 
-  const handleCreateMovie = async (movieData) => {
-    try {
-      await onCreateMovie(movieData);
-      setMovieModal({ isOpen: false, movie: null });
-    } catch (error) {
-      console.error('Error creating movie:', error);
-      // Aquí podrías mostrar un toast de error
-    }
+  const handleCreate = async (data: any) => {
+    await onCreateMovie(data);
+    setMovieModal({ isOpen: false, movie: null });
   };
 
-  const handleUpdateMovie = async (movieData) => {
-    try {
-      await onUpdateMovie(movieModal.movie.id, movieData);
-      setMovieModal({ isOpen: false, movie: null });
-    } catch (error) {
-      console.error('Error updating movie:', error);
-      // Aquí podrías mostrar un toast de error
-    }
+  const handleUpdate = async (data: any) => {
+    await onUpdateMovie(movieModal.movie.id, data);
+    setMovieModal({ isOpen: false, movie: null });
   };
 
-  const handleEditMovie = (movie) => {
-    setMovieModal({ isOpen: true, movie });
-  };
-
-  const openCreateModal = () => {
-    setMovieModal({ isOpen: true, movie: null });
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <Loader className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-400">Cargando películas...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <MoviesTabSkeleton />;
 
   return (
-    <div className="space-y-6">
-      {/* ✨ AGREGADO: Barra de búsqueda con botón Nueva Película */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <div className="flex items-center space-x-4 flex-1">
-          {/* Barra de búsqueda */}
-          <div className="relative max-w-md">
-            <Search className="h-5 w-5 absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+    <div className="space-y-5">
+
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="flex items-center gap-2 flex-wrap flex-1">
+          {/* Search */}
+          <div className="relative w-full sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
             <input
               type="text"
               placeholder="Buscar por título, género o director..."
               value={searchTerm}
-              onChange={(e) => onSearchChange(e.target.value)}
-              className="pl-10 pr-4 py-2 bg-gray-700 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent w-full min-w-[300px]"
+              onChange={e => onSearchChange(e.target.value)}
+              className="w-full pl-9 pr-4 h-9 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
             />
           </div>
 
-          {/* Filtro por estado */}
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-gray-400" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded-md text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">Todas</option>
-              <option value="active">Activas</option>
-              <option value="inactive">Inactivas</option>
-            </select>
-          </div>
+          {/* Status filter */}
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className={selectCls}><SelectValue /></SelectTrigger>
+            <SelectContent className={contentCls}>
+              <SelectItem value="all"      className={itemCls}>Todos los estados</SelectItem>
+              <SelectItem value="active"   className={itemCls}>Activas</SelectItem>
+              <SelectItem value="inactive" className={itemCls}>Inactivas</SelectItem>
+              <SelectItem value="presale"  className={itemCls}>Preventa</SelectItem>
+            </SelectContent>
+          </Select>
 
-          {/* Toggle de vista */}
-          <div className="flex items-center bg-gray-700 rounded-lg p-1">
+          {/* View toggle */}
+          <div className="flex items-center bg-zinc-900 border border-zinc-700 rounded-lg p-0.5 ml-auto sm:ml-0">
             <button
               onClick={() => setViewMode('grid')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'grid' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-400 hover:text-white'
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'grid' ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'
               }`}
-              title="Vista de cuadrícula"
             >
               <Grid className="h-4 w-4" />
             </button>
             <button
               onClick={() => setViewMode('list')}
-              className={`p-2 rounded-md transition-colors ${
-                viewMode === 'list' 
-                  ? 'bg-blue-600 text-white' 
-                  : 'text-gray-400 hover:text-white'
+              className={`p-1.5 rounded-md transition-colors ${
+                viewMode === 'list' ? 'bg-zinc-700 text-white' : 'text-zinc-500 hover:text-zinc-300'
               }`}
-              title="Vista de lista"
             >
               <List className="h-4 w-4" />
             </button>
           </div>
         </div>
 
-        {/* ✨ BOTÓN NUEVA PELÍCULA */}
+        {/* Nueva Película */}
         <button
-          onClick={openCreateModal}
-          className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 focus:ring-offset-gray-800 flex items-center transition-colors duration-200"
+          onClick={() => setMovieModal({ isOpen: true, movie: null })}
+          className="flex items-center gap-1.5 h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0"
         >
-          <Plus className="h-5 w-5 mr-2" />
-          <span className="hidden sm:inline">Nueva Película</span>
+          <Plus className="h-4 w-4" />
+          <span>Nueva Película</span>
         </button>
       </div>
 
-      {/* Estadísticas rápidas */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Total</p>
-          <p className="text-2xl font-bold text-white">{movies.length}</p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Activas</p>
-          <p className="text-2xl font-bold text-green-400">
-            {movies.filter(m => m.is_active).length}
-          </p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Inactivas</p>
-          <p className="text-2xl font-bold text-red-400">
-            {movies.filter(m => !m.is_active).length}
-          </p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Filtradas</p>
-          <p className="text-2xl font-bold text-blue-400">{filteredMovies.length}</p>
-        </div>
+      {/* Mini stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {[
+          { label: 'Total',     value: movies.length,                               color: 'text-white',       icon: Film },
+          { label: 'Activas',   value: movies.filter(m => m.is_active).length,      color: 'text-emerald-400', icon: Eye },
+          { label: 'Inactivas', value: movies.filter(m => !m.is_active).length,     color: 'text-red-400',     icon: EyeOff },
+          { label: 'Preventa',  value: movies.filter(m => m.is_presale).length,     color: 'text-amber-400',   icon: Clapperboard },
+        ].map(s => (
+          <Card key={s.label} className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-3 flex items-center gap-3">
+              <s.icon className={`h-4 w-4 ${s.color} shrink-0`} />
+              <div>
+                <p className="text-xs text-zinc-600">{s.label}</p>
+                <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Lista de películas */}
-      <div className="bg-gray-800 rounded-lg p-6">
-        {filteredMovies.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">
-              {searchTerm || filterStatus !== 'all'
-                ? 'No se encontraron películas con los filtros aplicados'
-                : 'No hay películas registradas'
-              }
-            </p>
-            {(!searchTerm && filterStatus === 'all') && (
-              <button
-                onClick={openCreateModal}
-                className="mt-4 bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Crear primera película
-              </button>
-            )}
-          </div>
-        ) : (
-          <div className={viewMode === 'grid'
-            ? 'grid gap-6 grid-cols-1 xl:grid-cols-2'
-            : 'space-y-4'
-          }>
-            {filteredMovies.map((movie) => (
-              <MovieCard
-                key={movie.id}
-                movie={movie}
-                onEdit={handleEditMovie}
-                onToggle={onToggleMovie}
-              />
-            ))}
-          </div>
-        )}
-      </div>
+      {/* Content */}
+      {filtered.length === 0 ? (
+        <div className="rounded-xl border border-zinc-800 py-20 text-center">
+          <Film className="h-10 w-10 text-zinc-700 mx-auto mb-3" />
+          <p className="text-zinc-600 text-sm">
+            {searchTerm || filterStatus !== 'all'
+              ? 'Sin películas que coincidan con los filtros'
+              : 'No hay películas registradas'}
+          </p>
+          {!searchTerm && filterStatus === 'all' && (
+            <button
+              onClick={() => setMovieModal({ isOpen: true, movie: null })}
+              className="mt-4 flex items-center gap-1.5 h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors mx-auto"
+            >
+              <Plus className="h-4 w-4" />
+              Crear primera película
+            </button>
+          )}
+        </div>
+      ) : viewMode === 'grid' ? (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+          {filtered.map(m => (
+            <MovieCard
+              key={m.id}
+              movie={m}
+              viewMode="grid"
+              onEdit={movie => setMovieModal({ isOpen: true, movie })}
+              onToggle={onToggleMovie}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="rounded-xl border border-zinc-800 overflow-hidden">
+          <Table className="">
+            <TableHeader className="">
+              <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/60">
+                {['Película', 'Género', 'Clasif.', 'Duración', 'Precio', 'Estado', 'Estreno', 'Activo'].map(h => (
+                  <TableHead key={h} className="text-[10px] text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
+                ))}
+              </TableRow>
+            </TableHeader>
+            <TableBody className="">
+              {filtered.map(m => (
+                <MovieCard
+                  key={m.id}
+                  movie={m}
+                  viewMode="list"
+                  onEdit={movie => setMovieModal({ isOpen: true, movie })}
+                  onToggle={onToggleMovie}
+                />
+              ))}
+            </TableBody>
+          </Table>
+        </div>
+      )}
 
-      {/* Modal de película */}
+      {/* Sheet / Modal */}
       <MovieModal
         movie={movieModal.movie}
         isOpen={movieModal.isOpen}
         onClose={() => setMovieModal({ isOpen: false, movie: null })}
-        onSave={movieModal.movie ? handleUpdateMovie : handleCreateMovie}
+        onSave={movieModal.movie ? handleUpdate : handleCreate}
       />
     </div>
   );
