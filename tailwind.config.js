@@ -159,5 +159,5 @@ export default {
   },
   plugins: [],
   // Support for dark mode
-  darkMode: ['class', "class"],
+  darkMode: 'class',
 };
