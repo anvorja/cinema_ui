@@ -7,9 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Skeleton } from '../../ui/skeleton';
 import { Card, CardContent } from '../../ui/card';
 
-const selectCls = 'w-36 h-9 bg-zinc-900 border-zinc-700 text-white text-sm focus:ring-zinc-600';
-const contentCls = 'bg-zinc-900 border-zinc-700 text-white';
-const itemCls = 'text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer';
+const selectCls = 'w-36 h-9 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm focus:ring-gray-300 dark:focus:ring-zinc-600';
+const contentCls = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
+const itemCls = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
 
 const UsersTabSkeleton = () => (
   <div className="space-y-5">
@@ -86,7 +86,7 @@ const UsersTab = ({ users, loading, onToggleUser, searchTerm, onSearchChange }) 
             placeholder="Buscar usuarios..."
             value={searchTerm}
             onChange={e => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 h-9 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+            className="w-full pl-9 pr-4 h-9 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-zinc-600"
           />
         </div>
 
@@ -128,9 +128,9 @@ const UsersTab = ({ users, loading, onToggleUser, searchTerm, onSearchChange }) 
           { label: 'Activos',  value: users.filter(u => u.is_active).length,             color: 'text-emerald-400' },
           { label: 'Filtrados',value: filtered.length,                                    color: 'text-amber-400' },
         ].map(s => (
-          <Card key={s.label} className="bg-zinc-900 border-zinc-800">
+          <Card key={s.label} className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
             <CardContent className="p-3">
-              <p className="text-xs text-zinc-600 mb-1">{s.label}</p>
+              <p className="text-xs text-gray-500 dark:text-zinc-600 mb-1">{s.label}</p>
               <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
             </CardContent>
           </Card>
@@ -138,19 +138,20 @@ const UsersTab = ({ users, loading, onToggleUser, searchTerm, onSearchChange }) 
       </div>
 
       {/* Tabla */}
-      <div className="rounded-xl border border-zinc-800 overflow-hidden">
+      <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-zinc-600 text-sm">
+          <div className="py-16 text-center text-gray-400 dark:text-zinc-600 text-sm">
             {searchTerm || filterRole !== 'all' || filterStatus !== 'all'
               ? 'Sin usuarios que coincidan con los filtros'
               : 'No hay usuarios registrados'}
+
           </div>
         ) : (
           <Table className="">
             <TableHeader className="">
-              <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/60">
+              <TableRow className="border-gray-200 dark:border-zinc-800 hover:bg-transparent bg-gray-50 dark:bg-zinc-900/60">
                 {['Usuario','Email','Teléfono','Rol','Estado','Registro','Activo'].map(h => (
-                  <TableHead key={h} className="text-[10px] text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
+                  <TableHead key={h} className="text-[10px] text-gray-500 dark:text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

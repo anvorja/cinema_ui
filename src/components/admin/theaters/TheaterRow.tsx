@@ -18,20 +18,20 @@ const TheaterRow = ({ theater, onToggle }: { theater: any; onToggle: (id: number
 
   return (
     <>
-      <TableRow className="border-zinc-800 hover:bg-zinc-800/40 transition-colors">
+      <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
         <TableCell className="py-3">
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-full bg-blue-500/15 ring-1 ring-blue-500/30 flex items-center justify-center shrink-0">
               <Building2 className="w-4 h-4 text-blue-400" />
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">{theater.name}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{theater.name}</p>
               <p className="text-[11px] text-zinc-600">ID {theater.id}</p>
             </div>
           </div>
         </TableCell>
 
-        <TableCell className="py-3 text-sm text-zinc-400">{theater.location}</TableCell>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-400">{theater.location}</TableCell>
 
         <TableCell className="py-3 text-sm text-zinc-500 max-w-[200px] truncate">
           {theater.description || '—'}
@@ -47,7 +47,7 @@ const TheaterRow = ({ theater, onToggle }: { theater: any; onToggle: (id: number
           </Badge>
         </TableCell>
 
-        <TableCell className="py-3 text-sm text-zinc-500">
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-500">
           {theater.created_at ? fmt(theater.created_at) : '—'}
         </TableCell>
 
@@ -61,15 +61,15 @@ const TheaterRow = ({ theater, onToggle }: { theater: any; onToggle: (id: number
       </TableRow>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-sm">
+        <AlertDialogContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-white max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
               {willDisable ? 'Desactivar teatro' : 'Activar teatro'}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
+            <AlertDialogDescription className="text-gray-500 dark:text-zinc-400">
               {willDisable
-                ? <>El teatro <strong className="text-white">{theater.name}</strong> dejará de aparecer como opción de compra para los usuarios.</>
-                : <>El teatro <strong className="text-white">{theater.name}</strong> volverá a estar disponible para la venta de entradas.</>
+                ? <>El teatro <strong className="text-gray-900 dark:text-white">{theater.name}</strong> dejará de aparecer como opción de compra para los usuarios.</>
+                : <>El teatro <strong className="text-gray-900 dark:text-white">{theater.name}</strong> volverá a estar disponible para la venta de entradas.</>
               }
             </AlertDialogDescription>
           </AlertDialogHeader>

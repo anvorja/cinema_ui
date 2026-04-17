@@ -20,7 +20,7 @@ const PurchaseRow = ({ purchase }: { purchase: any }) => {
   const status = STATUS[purchase.status] ?? { label: 'Desconocido', className: 'border-zinc-700 text-zinc-500 bg-zinc-800/50' };
 
   return (
-    <TableRow className="border-zinc-800 hover:bg-zinc-800/40 transition-colors">
+    <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
       {/* ID */}
       <TableCell className="py-3">
         <div className="flex items-center gap-2.5">
@@ -38,10 +38,10 @@ const PurchaseRow = ({ purchase }: { purchase: any }) => {
             <User className="w-3.5 h-3.5 text-violet-400" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-white truncate">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
               {purchase.user?.first_name} {purchase.user?.last_name}
             </p>
-            <p className="text-[11px] text-zinc-600 truncate">{purchase.user?.email}</p>
+            <p className="text-[11px] text-gray-400 dark:text-zinc-600 truncate">{purchase.user?.email}</p>
           </div>
         </div>
       </TableCell>
@@ -53,7 +53,7 @@ const PurchaseRow = ({ purchase }: { purchase: any }) => {
             <Film className="w-3.5 h-3.5 text-amber-400" />
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-white truncate">
+            <p className="text-sm font-medium text-gray-900 dark:text-white truncate">
               {purchase.movie?.title || 'Sin título'}
             </p>
             {purchase.movie?.genre && (
@@ -65,7 +65,7 @@ const PurchaseRow = ({ purchase }: { purchase: any }) => {
 
       {/* Cantidad */}
       <TableCell className="py-3">
-        <span className="text-sm font-medium text-white">{purchase.quantity}</span>
+        <span className="text-sm font-medium text-gray-900 dark:text-white">{purchase.quantity}</span>
         <span className="ml-1 text-[11px] text-zinc-600">{purchase.quantity === 1 ? 'ticket' : 'tickets'}</span>
       </TableCell>
 
@@ -82,7 +82,7 @@ const PurchaseRow = ({ purchase }: { purchase: any }) => {
       </TableCell>
 
       {/* Fecha */}
-      <TableCell className="py-3 text-sm text-zinc-500">
+      <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-500">
         {purchase.created_at ? fmtDate(purchase.created_at) : '—'}
       </TableCell>
     </TableRow>

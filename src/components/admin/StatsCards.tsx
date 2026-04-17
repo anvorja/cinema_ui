@@ -9,7 +9,7 @@ const StatsCards = ({ movies, users, purchases, stats }) => {
       value: movies.length,
       subtitle: `${movies.filter(m => m.is_active).length} activas`,
       icon: Film,
-      accent: 'text-blue-400',
+      accent: 'text-blue-500',
       ring: 'ring-blue-500/20 bg-blue-500/10',
     },
     {
@@ -17,7 +17,7 @@ const StatsCards = ({ movies, users, purchases, stats }) => {
       value: users.length,
       subtitle: `${users.filter(u => u.is_active).length} activos`,
       icon: Users,
-      accent: 'text-emerald-400',
+      accent: 'text-emerald-500',
       ring: 'ring-emerald-500/20 bg-emerald-500/10',
     },
     {
@@ -25,7 +25,7 @@ const StatsCards = ({ movies, users, purchases, stats }) => {
       value: purchases.length,
       subtitle: `${purchases.filter(p => p.status === 'confirmed').length} confirmadas`,
       icon: ShoppingCart,
-      accent: 'text-violet-400',
+      accent: 'text-violet-500',
       ring: 'ring-violet-500/20 bg-violet-500/10',
     },
     {
@@ -33,7 +33,7 @@ const StatsCards = ({ movies, users, purchases, stats }) => {
       value: `$${(stats.total_revenue || 0).toLocaleString('es-CO')}`,
       subtitle: 'COP acumulado',
       icon: DollarSign,
-      accent: 'text-amber-400',
+      accent: 'text-amber-500',
       ring: 'ring-amber-500/20 bg-amber-500/10',
       trend: stats.revenue_trend,
     },
@@ -46,18 +46,18 @@ const StatsCards = ({ movies, users, purchases, stats }) => {
         return (
           <Card
             key={card.title}
-            className="bg-zinc-900 border-zinc-800/60 hover:border-zinc-700 transition-colors duration-200"
+            className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800/60 hover:border-gray-300 dark:hover:border-zinc-700 transition-colors duration-200"
           >
             <CardContent className="p-5">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0 flex-1">
-                  <p className="text-xs font-medium text-zinc-500 uppercase tracking-wide mb-2">
+                  <p className="text-xs font-medium text-gray-500 dark:text-zinc-500 uppercase tracking-wide mb-2">
                     {card.title}
                   </p>
-                  <p className="text-2xl font-bold text-white leading-none mb-1 truncate">
+                  <p className="text-2xl font-bold text-gray-900 dark:text-white leading-none mb-1 truncate">
                     {card.value}
                   </p>
-                  <p className="text-xs text-zinc-600">{card.subtitle}</p>
+                  <p className="text-xs text-gray-400 dark:text-zinc-600">{card.subtitle}</p>
                 </div>
                 <div className={`p-2.5 rounded-lg ring-1 ${card.ring} shrink-0`}>
                   <Icon className={`h-5 w-5 ${card.accent}`} />
@@ -65,7 +65,7 @@ const StatsCards = ({ movies, users, purchases, stats }) => {
               </div>
 
               {card.trend != null && (
-                <div className="mt-3 pt-3 border-t border-zinc-800/60 flex items-center gap-1 text-xs text-emerald-400">
+                <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800/60 flex items-center gap-1 text-xs text-emerald-500">
                   <TrendingUp className="h-3 w-3" />
                   <span>+{card.trend}% vs mes anterior</span>
                 </div>

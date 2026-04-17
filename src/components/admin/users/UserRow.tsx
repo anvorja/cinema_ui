@@ -19,7 +19,7 @@ const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void
 
   return (
     <>
-      <TableRow className="border-zinc-800 hover:bg-zinc-800/40 transition-colors">
+      <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
         <TableCell className="py-3">
           <div className="flex items-center gap-3">
             <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
@@ -31,15 +31,15 @@ const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void
               }
             </div>
             <div className="min-w-0">
-              <p className="text-sm font-medium text-white truncate">{user.first_name} {user.last_name}</p>
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.first_name} {user.last_name}</p>
               <p className="text-[11px] text-zinc-600">ID {user.id}</p>
             </div>
           </div>
         </TableCell>
 
-        <TableCell className="py-3 text-sm text-zinc-400">{user.email}</TableCell>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-400">{user.email}</TableCell>
 
-        <TableCell className="py-3 text-sm text-zinc-500">{user.phone || '—'}</TableCell>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-500">{user.phone || '—'}</TableCell>
 
         <TableCell className="py-3">
           {isAdmin ? (
@@ -63,7 +63,7 @@ const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void
           </Badge>
         </TableCell>
 
-        <TableCell className="py-3 text-sm text-zinc-500">
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-500">
           {user.created_at ? fmt(user.created_at) : '—'}
         </TableCell>
 
@@ -81,15 +81,15 @@ const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void
       </TableRow>
 
       <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
-        <AlertDialogContent className="bg-zinc-900 border-zinc-800 text-white max-w-sm">
+        <AlertDialogContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-white max-w-sm">
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-white">
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
               {willDisable ? 'Deshabilitar usuario' : 'Habilitar usuario'}
             </AlertDialogTitle>
-            <AlertDialogDescription className="text-zinc-400">
+            <AlertDialogDescription className="text-gray-500 dark:text-zinc-400">
               {willDisable
-                ? <><strong className="text-white">{user.first_name} {user.last_name}</strong> no podrá iniciar sesión hasta ser reactivado.</>
-                : <><strong className="text-white">{user.first_name} {user.last_name}</strong> recuperará acceso completo al sistema.</>
+                ? <><strong className="text-gray-900 dark:text-white">{user.first_name} {user.last_name}</strong> no podrá iniciar sesión hasta ser reactivado.</>
+                : <><strong className="text-gray-900 dark:text-white">{user.first_name} {user.last_name}</strong> recuperará acceso completo al sistema.</>
               }
             </AlertDialogDescription>
           </AlertDialogHeader>

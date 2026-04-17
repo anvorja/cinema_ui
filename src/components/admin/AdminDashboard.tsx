@@ -137,7 +137,7 @@ const AdminDashboardContent = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-zinc-950">
+      <div className="flex min-h-screen w-full bg-gray-50 dark:bg-zinc-950">
         <AdminSidebar
           activeTab={activeTab}
           onTabChange={handleTabChange}
@@ -147,7 +147,7 @@ const AdminDashboardContent = () => {
           loading={loading}
         />
 
-        <SidebarInset className="flex flex-col min-w-0 bg-zinc-950">
+        <SidebarInset className="flex flex-col min-w-0 bg-gray-50 dark:bg-zinc-950">
           <DashboardHeader
             activeTab={activeTab}
             onRefresh={loadInitialData}
