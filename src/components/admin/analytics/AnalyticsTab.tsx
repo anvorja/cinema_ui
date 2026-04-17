@@ -1,5 +1,5 @@
 // src/components/admin/analytics/AnalyticsTab.tsx — Shadcn-only version (Camino A)
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useApi } from '../hooks/useApi';
 import {
   DollarSign, TrendingUp, TrendingDown,
@@ -117,9 +117,11 @@ const RankingChart = ({ data, labelKey, valueKey, title, accent, formatValue }: 
   );
 };
 
-// ── SVG Line chart con Shadcn Tooltip en puntos ───────────────────────────────
+// SVG height constant (must match style={{ height }} on the <svg>)
+const SVG_H_PX = 180;
+
+// ── SVG Line chart con tooltip HTML personalizado ─────────────────────────────
 const LineChartSVG = ({ data, period }: { data: any[]; period: string }) => {
-  const svgRef = useRef<SVGSVGElement>(null);
   const [hovered, setHovered] = useState<number | null>(null);
 
   if (data.length === 0) {
@@ -145,71 +147,78 @@ const LineChartSVG = ({ data, period }: { data: any[]; period: string }) => {
     ? data.map((_, i) => i)
     : [0, Math.floor(data.length / 2), data.length - 1];
 
+  const hp = hovered !== null ? pts[hovered] : null;
+
   return (
-    <TooltipProvider delayDuration={0}>
-      <div className="relative">
-        <svg
-          ref={svgRef}
-          viewBox={`0 0 ${W} ${H}`}
-          className="w-full"
-          style={{ height: 180 }}
-          preserveAspectRatio="none"
+    <div className="relative">
+      <svg
+        viewBox={`0 0 ${W} ${H}`}
+        className="w-full"
+        style={{ height: SVG_H_PX }}
+        preserveAspectRatio="none"
+      >
+        <defs>
+          <linearGradient id="areaGradA" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.2" />
+            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
+          </linearGradient>
+        </defs>
+
+        {/* Grid lines */}
+        {[25, 50, 75].map(y => (
+          <line key={y} x1="0" y1={y} x2="100" y2={y}
+            stroke="#27272a" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+        ))}
+
+        <path d={areaD} fill="url(#areaGradA)" />
+        <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+
+        {/* Puntos — solo eventos de mouse, sin Radix Tooltip */}
+        {pts.map((p, i) => (
+          <circle
+            key={i}
+            cx={p.x} cy={p.y} r={hovered === i ? 3 : 2}
+            fill={hovered === i ? '#60a5fa' : '#3b82f6'}
+            stroke={hovered === i ? '#93c5fd' : 'transparent'}
+            strokeWidth="1.5"
+            vectorEffect="non-scaling-stroke"
+            style={{ cursor: 'pointer' }}
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+          />
+        ))}
+      </svg>
+
+      {/* Tooltip HTML posicionado sobre el SVG */}
+      {hp !== null && (
+        <div
+          className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full"
+          style={{
+            left: `${hp.x}%`,
+            top:  `${(hp.y / H) * SVG_H_PX - 8}px`,
+          }}
         >
-          <defs>
-            <linearGradient id="areaGradA" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.2" />
-              <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-            </linearGradient>
-          </defs>
-
-          {/* Grid lines */}
-          {[25, 50, 75].map(y => (
-            <line key={y} x1="0" y1={y} x2="100" y2={y}
-              stroke="#27272a" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
-          ))}
-
-          <path d={areaD} fill="url(#areaGradA)" />
-          <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
-
-          {/* Puntos con Tooltip */}
-          {pts.map((p, i) => (
-            <Tooltip key={i}>
-              <TooltipTrigger asChild>
-                <circle
-                  cx={p.x} cy={p.y} r="2"
-                  fill={hovered === i ? '#60a5fa' : '#3b82f6'}
-                  stroke={hovered === i ? '#93c5fd' : 'transparent'}
-                  strokeWidth="1.5"
-                  vectorEffect="non-scaling-stroke"
-                  className="cursor-pointer transition-all"
-                  onMouseEnter={() => setHovered(i)}
-                  onMouseLeave={() => setHovered(null)}
-                />
-              </TooltipTrigger>
-              <TooltipContent
-                side="top"
-                className="bg-zinc-900 border-zinc-700 text-white text-xs"
-              >
-                <p className="text-zinc-400 mb-0.5">{fmtPeriodLabel(p.period, period)}</p>
-                <p className="font-bold text-white">{fmtCOP(p.revenue)}</p>
-                {p.tickets_sold != null && (
-                  <p className="text-zinc-500">{p.tickets_sold} boletos</p>
-                )}
-              </TooltipContent>
-            </Tooltip>
-          ))}
-        </svg>
-
-        {/* Eje X con labels */}
-        <div className="flex justify-between mt-1">
-          {labelIndices.map(i => (
-            <span key={i} className="text-[10px] text-zinc-600">
-              {fmtPeriodLabel(data[i].period, period)}
-            </span>
-          ))}
+          <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 shadow-xl text-xs whitespace-nowrap">
+            <p className="text-zinc-400 mb-0.5">{fmtPeriodLabel(hp.period, period)}</p>
+            <p className="font-bold text-white">{fmtCOP(hp.revenue)}</p>
+            {hp.tickets_sold != null && (
+              <p className="text-zinc-500 mt-0.5">{hp.tickets_sold} boletos</p>
+            )}
+          </div>
+          {/* Flecha apuntando hacia abajo */}
+          <div className="mx-auto w-2 h-2 bg-zinc-900 border-b border-r border-zinc-700 rotate-45 -mt-1" />
         </div>
+      )}
+
+      {/* Eje X con labels */}
+      <div className="flex justify-between mt-1">
+        {labelIndices.map(i => (
+          <span key={i} className="text-[10px] text-zinc-600">
+            {fmtPeriodLabel(data[i].period, period)}
+          </span>
+        ))}
       </div>
-    </TooltipProvider>
+    </div>
   );
 };
 
