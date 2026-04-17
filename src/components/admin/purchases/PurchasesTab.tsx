@@ -1,233 +1,192 @@
-// src/components/admin/purchases/PurchasesTab.jsx
-import React, { useState } from 'react';
-import { Loader, Download, Filter, Calendar, TrendingUp } from 'lucide-react';
-import SearchBar from '../SearchBar';
+// src/components/admin/purchases/PurchasesTab.tsx
+import { useState } from 'react';
+import { Download, Search, TrendingUp } from 'lucide-react';
 import PurchaseRow from './PurchaseRow';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '../../ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { Skeleton } from '../../ui/skeleton';
+import { Card, CardContent } from '../../ui/card';
 
-const PurchasesTab = ({
-  purchases,
-  loading,
-  searchTerm,
-  onSearchChange
-}) => {
-  const [filterStatus, setFilterStatus] = useState('all'); // 'all', 'confirmed', 'pending', 'cancelled', 'refunded'
-  const [dateFilter, setDateFilter] = useState('all'); // 'all', 'today', 'week', 'month'
+const selectCls = 'w-40 h-9 bg-zinc-900 border-zinc-700 text-white text-sm focus:ring-zinc-600';
+const contentCls = 'bg-zinc-900 border-zinc-700 text-white';
+const itemCls    = 'text-zinc-300 focus:bg-zinc-800 focus:text-white cursor-pointer';
 
-  // Filtrar compras
-  const filteredPurchases = purchases.filter(purchase => {
-    const matchesSearch = purchase.user?.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         purchase.user?.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         purchase.user?.email?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         purchase.movie?.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-                         purchase.id.toString().includes(searchTerm);
+const fmtCOP = (v: number) =>
+  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v);
 
-    const matchesStatus = filterStatus === 'all' || purchase.status === filterStatus;
+const PurchasesTabSkeleton = () => (
+  <div className="space-y-5">
+    <div className="flex gap-3">
+      <Skeleton className="h-9 w-64 bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-40 bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-40 bg-zinc-800 rounded-lg" />
+    </div>
+    <div className="grid grid-cols-5 gap-3">
+      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 bg-zinc-800 rounded-xl" />)}
+    </div>
+    <div className="rounded-xl border border-zinc-800 overflow-hidden">
+      {[...Array(8)].map((_, i) => (
+        <div key={i} className="flex items-center gap-4 px-6 py-3.5 border-b border-zinc-800/60">
+          <Skeleton className="h-7 w-7 rounded-full bg-zinc-800 shrink-0" />
+          <Skeleton className="h-3 w-12 bg-zinc-800" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-3.5 w-28 bg-zinc-800" />
+            <Skeleton className="h-2.5 w-36 bg-zinc-800" />
+          </div>
+          <Skeleton className="h-3.5 w-32 bg-zinc-800" />
+          <Skeleton className="h-3 w-10 bg-zinc-800" />
+          <Skeleton className="h-3 w-20 bg-zinc-800" />
+          <Skeleton className="h-5 w-16 bg-zinc-800 rounded-full" />
+          <Skeleton className="h-3 w-24 bg-zinc-800" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
-    let matchesDate = true;
-    if (dateFilter !== 'all' && purchase.created_at) {
-      const purchaseDate = new Date(purchase.created_at);
+const PurchasesTab = ({ purchases, loading, searchTerm, onSearchChange }) => {
+  const [filterStatus, setFilterStatus] = useState('all');
+  const [dateFilter,   setDateFilter]   = useState('all');
+
+  const filtered = purchases.filter(p => {
+    const q = searchTerm.toLowerCase();
+    const matchSearch =
+      p.user?.first_name?.toLowerCase().includes(q) ||
+      p.user?.last_name?.toLowerCase().includes(q)  ||
+      p.user?.email?.toLowerCase().includes(q)       ||
+      p.movie?.title?.toLowerCase().includes(q)      ||
+      p.id.toString().includes(q);
+
+    const matchStatus = filterStatus === 'all' || p.status === filterStatus;
+
+    let matchDate = true;
+    if (dateFilter !== 'all' && p.created_at) {
+      const d = new Date(p.created_at);
       const now = new Date();
-      const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-
-      switch (dateFilter) {
-        case 'today':
-          matchesDate = purchaseDate >= todayStart;
-          break;
-        case 'week': {
-          const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
-          matchesDate = purchaseDate >= weekAgo;
-          break;
-        }
-        case 'month': {
-          const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
-          matchesDate = purchaseDate >= monthAgo;
-          break;
-        }
-      }
+      const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      if (dateFilter === 'today')  matchDate = d >= today;
+      if (dateFilter === 'week')   matchDate = d >= new Date(now.getTime() - 7  * 86400000);
+      if (dateFilter === 'month')  matchDate = d >= new Date(now.getTime() - 30 * 86400000);
     }
-
-    return matchesSearch && matchesStatus && matchesDate;
+    return matchSearch && matchStatus && matchDate;
   });
 
-  // Calcular estadísticas
-  const totalRevenue = filteredPurchases.reduce((sum, purchase) => sum + (purchase.total_amount || 0), 0);
-  const completedPurchases = filteredPurchases.filter(p => p.status === 'confirmed');
-  const pendingPurchases = filteredPurchases.filter(p => p.status === 'pending');
-  const totalTickets = filteredPurchases.reduce((sum, purchase) => sum + (purchase.quantity || 0), 0);
+  const revenue = filtered.reduce((s, p) => s + (p.total_amount || 0), 0);
+  const confirmed = filtered.filter(p => p.status === 'confirmed').length;
+  const pending   = filtered.filter(p => p.status === 'pending').length;
+  const tickets   = filtered.reduce((s, p) => s + (p.quantity || 0), 0);
 
-  const exportPurchases = () => {
-    // Crear CSV con los datos de compras
-    const headers = ['ID', 'Cliente', 'Email Cliente', 'Película', 'Cantidad', 'Total', 'Estado', 'Fecha'];
-    const csvContent = [
-      headers.join(','),
-      ...filteredPurchases.map(purchase => [
-        purchase.id,
-        `"${purchase.user?.first_name} ${purchase.user?.last_name}"`,
-        purchase.user?.email,
-        `"${purchase.movie?.title}"`,
-        purchase.quantity,
-        purchase.total_amount,
-        purchase.status === 'confirmed' ? 'Confirmada' :
-        purchase.status === 'pending' ? 'Pendiente' :
-        purchase.status === 'refunded' ? 'Reembolsada' : 'Cancelada',
-        new Date(purchase.created_at).toLocaleDateString('es-ES')
-      ].join(','))
-    ].join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-    const link = document.createElement('a');
-    const url = URL.createObjectURL(blob);
-    link.setAttribute('href', url);
-    link.setAttribute('download', `compras_${new Date().toISOString().split('T')[0]}.csv`);
-    link.style.visibility = 'hidden';
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const exportCSV = () => {
+    const rows = [
+      ['ID','Cliente','Email','Película','Cantidad','Total','Estado','Fecha'],
+      ...filtered.map(p => [
+        p.id,
+        `"${p.user?.first_name} ${p.user?.last_name}"`,
+        p.user?.email,
+        `"${p.movie?.title}"`,
+        p.quantity,
+        p.total_amount,
+        p.status,
+        new Date(p.created_at).toLocaleDateString('es-ES'),
+      ]),
+    ].map(r => r.join(',')).join('\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([rows], { type: 'text/csv;charset=utf-8;' }));
+    a.download = `compras_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
   };
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <Loader className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-400">Cargando compras...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <PurchasesTabSkeleton />;
 
   return (
-    <div className="space-y-6">
-      {/* Barra de búsqueda y filtros */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={onSearchChange}
-          placeholder="Buscar por cliente, película o ID..."
-        />
+    <div className="space-y-5">
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="relative max-w-xs w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <input
+            type="text"
+            placeholder="Buscar por cliente, película o ID..."
+            value={searchTerm}
+            onChange={e => onSearchChange(e.target.value)}
+            className="w-full pl-9 pr-4 h-9 bg-zinc-900 border border-zinc-700 rounded-lg text-sm text-white placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-zinc-600"
+          />
+        </div>
 
-        <div className="flex items-center space-x-4">
-          {/* Filtro por fecha */}
-          <div className="flex items-center space-x-2">
-            <Calendar className="h-4 w-4 text-gray-400" />
-            <select
-              value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded-md text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">Todas las fechas</option>
-              <option value="today">Hoy</option>
-              <option value="week">Última semana</option>
-              <option value="month">Último mes</option>
-            </select>
-          </div>
+        <div className="flex items-center gap-2 flex-wrap">
+          <Select value={dateFilter} onValueChange={setDateFilter}>
+            <SelectTrigger className={selectCls}><SelectValue /></SelectTrigger>
+            <SelectContent className={contentCls}>
+              <SelectItem value="all"   className={itemCls}>Todas las fechas</SelectItem>
+              <SelectItem value="today" className={itemCls}>Hoy</SelectItem>
+              <SelectItem value="week"  className={itemCls}>Última semana</SelectItem>
+              <SelectItem value="month" className={itemCls}>Último mes</SelectItem>
+            </SelectContent>
+          </Select>
 
-          {/* Filtro por estado */}
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-gray-400" />
-            <select
-              value={filterStatus}
-              onChange={(e) => setFilterStatus(e.target.value)}
-              className="bg-gray-700 border border-gray-600 rounded-md text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="all">Todos los estados</option>
-              <option value="confirmed">Confirmadas</option>
-              <option value="pending">Pendientes</option>
-              <option value="cancelled">Canceladas</option>
-              <option value="refunded">Reembolsadas</option>
-            </select>
-          </div>
+          <Select value={filterStatus} onValueChange={setFilterStatus}>
+            <SelectTrigger className={selectCls}><SelectValue /></SelectTrigger>
+            <SelectContent className={contentCls}>
+              <SelectItem value="all"       className={itemCls}>Todos los estados</SelectItem>
+              <SelectItem value="confirmed" className={itemCls}>Confirmadas</SelectItem>
+              <SelectItem value="pending"   className={itemCls}>Pendientes</SelectItem>
+              <SelectItem value="cancelled" className={itemCls}>Canceladas</SelectItem>
+              <SelectItem value="refunded"  className={itemCls}>Reembolsadas</SelectItem>
+            </SelectContent>
+          </Select>
 
-          {/* Botón de exportar */}
           <button
-            onClick={exportPurchases}
-            className="bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700 transition-colors flex items-center"
-            title="Exportar compras a CSV"
+            onClick={exportCSV}
+            className="flex items-center gap-1.5 h-9 px-3 bg-emerald-700/20 hover:bg-emerald-700/30 border border-emerald-600/30 text-emerald-400 text-sm rounded-lg transition-colors"
           >
-            <Download className="h-4 w-4 mr-2" />
+            <Download className="h-3.5 w-3.5" />
             <span className="hidden sm:inline">Exportar</span>
           </button>
         </div>
       </div>
 
-      {/* Estadísticas rápidas */}
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Total Compras</p>
-          <p className="text-2xl font-bold text-white">{filteredPurchases.length}</p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Confirmadas</p>
-          <p className="text-2xl font-bold text-green-400">{completedPurchases.length}</p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Pendientes</p>
-          <p className="text-2xl font-bold text-yellow-400">{pendingPurchases.length}</p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Total Tickets</p>
-          <p className="text-2xl font-bold text-blue-400">{totalTickets}</p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <div className="flex items-center">
-            <TrendingUp className="h-4 w-4 text-green-400 mr-1" />
-            <p className="text-sm text-gray-400">Ingresos</p>
-          </div>
-          <p className="text-xl font-bold text-green-400">
-            ${totalRevenue.toLocaleString()} COP
-          </p>
-        </div>
+      {/* Mini stats */}
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-3">
+        {[
+          { label: 'Compras',     value: filtered.length, color: 'text-white' },
+          { label: 'Confirmadas', value: confirmed,        color: 'text-emerald-400' },
+          { label: 'Pendientes',  value: pending,          color: 'text-amber-400' },
+          { label: 'Tickets',     value: tickets,          color: 'text-blue-400' },
+          { label: 'Ingresos',    value: fmtCOP(revenue),  color: 'text-emerald-400', small: true },
+        ].map(s => (
+          <Card key={s.label} className="bg-zinc-900 border-zinc-800">
+            <CardContent className="p-3">
+              <div className="flex items-center gap-1 mb-1">
+                {s.label === 'Ingresos' && <TrendingUp className="h-3 w-3 text-emerald-500" />}
+                <p className="text-xs text-zinc-600">{s.label}</p>
+              </div>
+              <p className={`font-bold ${s.color} ${s.small ? 'text-base' : 'text-xl'}`}>{s.value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Tabla de compras */}
-      <div className="bg-gray-800 rounded-lg overflow-hidden">
-        {filteredPurchases.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">
-              {searchTerm || filterStatus !== 'all' || dateFilter !== 'all'
-                ? 'No se encontraron compras con los filtros aplicados'
-                : 'No hay compras registradas'
-              }
-            </p>
+      {/* Tabla */}
+      <div className="rounded-xl border border-zinc-800 overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="py-16 text-center text-zinc-600 text-sm">
+            {searchTerm || filterStatus !== 'all' || dateFilter !== 'all'
+              ? 'Sin compras que coincidan con los filtros'
+              : 'No hay compras registradas'}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gray-900">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    ID Compra
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Cliente
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Película
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Cantidad
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Total
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Estado
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">
-                    Fecha
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-600">
-                {filteredPurchases.map((purchase) => (
-                  <PurchaseRow
-                    key={purchase.id}
-                    purchase={purchase}
-                  />
+          <Table className="">
+            <TableHeader className="">
+              <TableRow className="border-zinc-800 hover:bg-transparent bg-zinc-900/60">
+                {['ID','Cliente','Película','Cantidad','Total','Estado','Fecha'].map(h => (
+                  <TableHead key={h} className="text-[10px] text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="">
+              {filtered.map(p => <PurchaseRow key={p.id} purchase={p} />)}
+            </TableBody>
+          </Table>
         )}
       </div>
     </div>

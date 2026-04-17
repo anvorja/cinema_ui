@@ -1,147 +1,91 @@
-// src/components/admin/purchases/PurchaseRow.jsx
-import React from 'react';
-import { User, Film, Calendar, DollarSign, Ticket } from 'lucide-react';
+// src/components/admin/purchases/PurchaseRow.tsx
+import { User, Film, Ticket } from 'lucide-react';
+import { TableRow, TableCell } from '../../ui/table';
+import { Badge } from '../../ui/badge';
 
-const PurchaseRow = ({ purchase }) => {
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
-    });
-  };
+const fmtDate = (d: string) =>
+  new Date(d).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
-  const formatPrice = (price) => {
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0,
-      maximumFractionDigits: 0
-    }).format(price);
-  };
+const fmtCOP = (v: number) =>
+  new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v);
 
-  const getStatusConfig = (status) => {
-    switch (status) {
-      case 'confirmed':
-        return {
-          label: 'Confirmada',
-          className: 'bg-green-900 text-green-200',
-          icon: '✓'
-        };
-      case 'pending':
-        return {
-          label: 'Pendiente',
-          className: 'bg-yellow-900 text-yellow-200',
-          icon: '⏳'
-        };
-      case 'cancelled':
-        return {
-          label: 'Cancelada',
-          className: 'bg-red-900 text-red-200',
-          icon: '✗'
-        };
-      case 'refunded':
-        return {
-          label: 'Reembolsada',
-          className: 'bg-blue-900 text-blue-200',
-          icon: '↩'
-        };
-      default:
-        return {
-          label: 'Desconocido',
-          className: 'bg-gray-900 text-gray-200',
-          icon: '?'
-        };
-    }
-  };
+const STATUS: Record<string, { label: string; className: string }> = {
+  confirmed: { label: 'Confirmada',   className: 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10' },
+  pending:   { label: 'Pendiente',    className: 'border-amber-500/30   text-amber-400   bg-amber-500/10'   },
+  cancelled: { label: 'Cancelada',    className: 'border-red-500/30     text-red-400     bg-red-500/10'     },
+  refunded:  { label: 'Reembolsada',  className: 'border-blue-500/30    text-blue-400    bg-blue-500/10'    },
+};
 
-  const statusConfig = getStatusConfig(purchase.status);
+const PurchaseRow = ({ purchase }: { purchase: any }) => {
+  const status = STATUS[purchase.status] ?? { label: 'Desconocido', className: 'border-zinc-700 text-zinc-500 bg-zinc-800/50' };
 
   return (
-    <tr className="hover:bg-gray-700 transition-colors">
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 h-8 w-8 bg-blue-900 rounded-full flex items-center justify-center">
-            <Ticket className="h-4 w-4 text-blue-400" />
+    <TableRow className="border-zinc-800 hover:bg-zinc-800/40 transition-colors">
+      {/* ID */}
+      <TableCell className="py-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full bg-blue-500/15 ring-1 ring-blue-500/30 flex items-center justify-center shrink-0">
+            <Ticket className="w-3.5 h-3.5 text-blue-400" />
           </div>
-          <div className="ml-3">
-            <div className="text-sm font-medium text-white">
-              #{purchase.id}
-            </div>
-          </div>
+          <span className="text-sm font-mono font-medium text-zinc-300">#{purchase.id}</span>
         </div>
-      </td>
+      </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 h-8 w-8 bg-purple-900 rounded-full flex items-center justify-center">
-            <User className="h-4 w-4 text-purple-400" />
+      {/* Cliente */}
+      <TableCell className="py-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full bg-violet-500/15 ring-1 ring-violet-500/30 flex items-center justify-center shrink-0">
+            <User className="w-3.5 h-3.5 text-violet-400" />
           </div>
-          <div className="ml-3">
-            <div className="text-sm font-medium text-white">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-white truncate">
               {purchase.user?.first_name} {purchase.user?.last_name}
-            </div>
-            <div className="text-sm text-gray-400">
-              {purchase.user?.email}
-            </div>
+            </p>
+            <p className="text-[11px] text-zinc-600 truncate">{purchase.user?.email}</p>
           </div>
         </div>
-      </td>
+      </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 h-8 w-8 bg-orange-900 rounded-full flex items-center justify-center">
-            <Film className="h-4 w-4 text-orange-400" />
+      {/* Película */}
+      <TableCell className="py-3">
+        <div className="flex items-center gap-2.5">
+          <div className="w-7 h-7 rounded-full bg-amber-500/15 ring-1 ring-amber-500/30 flex items-center justify-center shrink-0">
+            <Film className="w-3.5 h-3.5 text-amber-400" />
           </div>
-          <div className="ml-3">
-            <div className="text-sm font-medium text-white">
-              {purchase.movie?.title || 'Película no encontrada'}
-            </div>
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-white truncate">
+              {purchase.movie?.title || 'Sin título'}
+            </p>
             {purchase.movie?.genre && (
-              <div className="text-sm text-gray-400">
-                {purchase.movie.genre}
-              </div>
+              <p className="text-[11px] text-zinc-600">{purchase.movie.genre}</p>
             )}
           </div>
         </div>
-      </td>
+      </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <span className="text-sm font-medium text-white">
-            {purchase.quantity}
-          </span>
-          <span className="ml-1 text-xs text-gray-400">
-            {purchase.quantity === 1 ? 'ticket' : 'tickets'}
-          </span>
-        </div>
-      </td>
+      {/* Cantidad */}
+      <TableCell className="py-3">
+        <span className="text-sm font-medium text-white">{purchase.quantity}</span>
+        <span className="ml-1 text-[11px] text-zinc-600">{purchase.quantity === 1 ? 'ticket' : 'tickets'}</span>
+      </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <DollarSign className="h-4 w-4 text-green-400 mr-1" />
-          <span className="text-sm font-medium text-white">
-            {formatPrice(purchase.total_amount || 0)}
-          </span>
-        </div>
-      </td>
+      {/* Total */}
+      <TableCell className="py-3 text-sm font-semibold text-emerald-400">
+        {fmtCOP(purchase.total_amount || 0)}
+      </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusConfig.className}`}>
-          <span className="mr-1">{statusConfig.icon}</span>
-          {statusConfig.label}
-        </span>
-      </td>
+      {/* Estado */}
+      <TableCell className="py-3">
+        <Badge variant="outline" className={`text-[11px] ${status.className}`}>
+          {status.label}
+        </Badge>
+      </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center text-sm text-gray-300">
-          <Calendar className="h-4 w-4 text-gray-400 mr-2" />
-          {purchase.created_at ? formatDate(purchase.created_at) : 'N/A'}
-        </div>
-      </td>
-    </tr>
+      {/* Fecha */}
+      <TableCell className="py-3 text-sm text-zinc-500">
+        {purchase.created_at ? fmtDate(purchase.created_at) : '—'}
+      </TableCell>
+    </TableRow>
   );
 };
 
