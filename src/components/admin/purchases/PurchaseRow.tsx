@@ -17,7 +17,7 @@ const STATUS: Record<string, { label: string; className: string }> = {
 };
 
 const PurchaseRow = ({ purchase }: { purchase: any }) => {
-  const status = STATUS[purchase.status] ?? { label: 'Desconocido', className: 'border-zinc-700 text-zinc-500 bg-zinc-800/50' };
+  const status = STATUS[purchase.status] ?? { label: 'Desconocido', className: 'border-gray-300 dark:border-zinc-700 text-gray-400 dark:text-zinc-500 bg-gray-100/50 dark:bg-zinc-800/50' };
 
   return (
     <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">

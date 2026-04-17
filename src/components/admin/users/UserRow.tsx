@@ -56,9 +56,9 @@ const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void
         <TableCell className="py-3">
           <Badge variant="outline" className={user.is_active
             ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[11px]'
-            : 'border-zinc-700 text-zinc-500 bg-zinc-800/50 text-[11px]'
+            : 'border-gray-300 dark:border-zinc-700 text-gray-400 dark:text-zinc-500 bg-gray-100/50 dark:bg-zinc-800/50 text-[11px]'
           }>
-            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.is_active ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.is_active ? 'bg-emerald-400' : 'bg-gray-400 dark:bg-zinc-600'}`} />
             {user.is_active ? 'Activo' : 'Inactivo'}
           </Badge>
         </TableCell>
@@ -72,10 +72,10 @@ const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void
             <Switch
               checked={user.is_active}
               onCheckedChange={() => setConfirmOpen(true)}
-              className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-zinc-700"
+              className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
             />
           ) : (
-            <span className="text-xs text-zinc-700">—</span>
+            <span className="text-xs text-gray-300 dark:text-zinc-700">—</span>
           )}
         </TableCell>
       </TableRow>
@@ -94,7 +94,7 @@ const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700">
+            <AlertDialogCancel className="bg-gray-100 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-zinc-700">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction

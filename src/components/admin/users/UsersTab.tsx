@@ -9,31 +9,31 @@ import { Card, CardContent } from '../../ui/card';
 
 const selectCls = 'w-36 h-9 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm focus:ring-gray-300 dark:focus:ring-zinc-600';
 const contentCls = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
-const itemCls = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
+const itemCls = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
 
 const UsersTabSkeleton = () => (
   <div className="space-y-5">
     <div className="flex gap-3">
-      <Skeleton className="h-9 w-64 bg-zinc-800 rounded-lg" />
-      <Skeleton className="h-9 w-36 bg-zinc-800 rounded-lg" />
-      <Skeleton className="h-9 w-36 bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-64 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-36 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-36 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
     </div>
     <div className="grid grid-cols-5 gap-3">
-      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 bg-zinc-800 rounded-xl" />)}
+      {[...Array(5)].map((_, i) => <Skeleton key={i} className="h-16 bg-gray-200 dark:bg-zinc-800 rounded-xl" />)}
     </div>
-    <div className="rounded-xl border border-zinc-800 overflow-hidden">
+    <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
       {[...Array(7)].map((_, i) => (
-        <div key={i} className="flex items-center gap-4 px-6 py-3.5 border-b border-zinc-800/60">
-          <Skeleton className="h-8 w-8 rounded-full bg-zinc-800 shrink-0" />
+        <div key={i} className="flex items-center gap-4 px-6 py-3.5 border-b border-gray-100 dark:border-zinc-800/60">
+          <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-zinc-800 shrink-0" />
           <div className="flex-1 space-y-1.5">
-            <Skeleton className="h-3.5 w-28 bg-zinc-800" />
-            <Skeleton className="h-2.5 w-16 bg-zinc-800" />
+            <Skeleton className="h-3.5 w-28 bg-gray-200 dark:bg-zinc-800" />
+            <Skeleton className="h-2.5 w-16 bg-gray-200 dark:bg-zinc-800" />
           </div>
-          <Skeleton className="h-3 w-36 bg-zinc-800" />
-          <Skeleton className="h-3 w-20 bg-zinc-800" />
-          <Skeleton className="h-5 w-14 bg-zinc-800 rounded-full" />
-          <Skeleton className="h-5 w-14 bg-zinc-800 rounded-full" />
-          <Skeleton className="h-5 w-9 bg-zinc-800 rounded-full" />
+          <Skeleton className="h-3 w-36 bg-gray-200 dark:bg-zinc-800" />
+          <Skeleton className="h-3 w-20 bg-gray-200 dark:bg-zinc-800" />
+          <Skeleton className="h-5 w-14 bg-gray-200 dark:bg-zinc-800 rounded-full" />
+          <Skeleton className="h-5 w-14 bg-gray-200 dark:bg-zinc-800 rounded-full" />
+          <Skeleton className="h-5 w-9 bg-gray-200 dark:bg-zinc-800 rounded-full" />
         </div>
       ))}
     </div>

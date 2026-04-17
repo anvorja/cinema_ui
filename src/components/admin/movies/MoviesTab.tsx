@@ -10,25 +10,25 @@ import { Table, TableBody, TableHead, TableHeader, TableRow } from '../../ui/tab
 
 const selectCls = 'w-40 h-9 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm focus:ring-gray-300 dark:focus:ring-zinc-600';
 const contentCls = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
-const itemCls    = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
+const itemCls    = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
 
 // ── Skeleton ───────────────────────────────────────────────────────────────────
 const MoviesTabSkeleton = () => (
   <div className="space-y-5">
     <div className="flex gap-3">
-      <Skeleton className="h-9 w-64 bg-zinc-800 rounded-lg" />
-      <Skeleton className="h-9 w-40 bg-zinc-800 rounded-lg" />
-      <Skeleton className="h-9 w-20 bg-zinc-800 rounded-lg ml-auto" />
-      <Skeleton className="h-9 w-32 bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-64 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-20 bg-gray-200 dark:bg-zinc-800 rounded-lg ml-auto" />
+      <Skeleton className="h-9 w-32 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
     </div>
     <div className="grid grid-cols-4 gap-3">
-      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 bg-zinc-800 rounded-xl" />)}
+      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 bg-gray-200 dark:bg-zinc-800 rounded-xl" />)}
     </div>
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {[...Array(10)].map((_, i) => (
         <div key={i} className="space-y-2">
-          <Skeleton className="w-full aspect-[2/3] bg-zinc-800 rounded-xl" />
-          <Skeleton className="h-3 w-3/4 bg-zinc-800 rounded" />
+          <Skeleton className="w-full aspect-[2/3] bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+          <Skeleton className="h-3 w-3/4 bg-gray-200 dark:bg-zinc-800 rounded" />
         </div>
       ))}
     </div>

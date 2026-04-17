@@ -226,14 +226,14 @@ const LineChartSVG = ({ data, period }: { data: any[]; period: string }) => {
 const AnalyticsSkeleton = () => (
   <div className="space-y-6">
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 bg-zinc-800 rounded-xl" />)}
+      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-xl" />)}
     </div>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Skeleton className="h-72 bg-zinc-800 rounded-xl" />
-      <Skeleton className="h-72 bg-zinc-800 rounded-xl" />
+      <Skeleton className="h-72 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+      <Skeleton className="h-72 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
     </div>
-    <Skeleton className="h-72 bg-zinc-800 rounded-xl" />
-    <Skeleton className="h-64 bg-zinc-800 rounded-xl" />
+    <Skeleton className="h-72 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+    <Skeleton className="h-64 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
   </div>
 );
 
@@ -399,7 +399,7 @@ const AnalyticsTab = () => {
                 {topMovies.map((m: any, i: number) => {
                   const pct = maxRevenue > 0 ? Math.round((m.net_revenue / maxRevenue) * 100) : 0;
                   return (
-                    <TableRow key={m.movie_id} className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
+                    <TableRow key={m.movie_id} className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-gray-200 dark:bg-zinc-800/40 transition-colors">
                       <TableCell className="py-3">
                         <div className="flex items-center gap-2">
                           <span className="text-[10px] text-gray-300 dark:text-zinc-700 font-mono w-4">#{i + 1}</span>

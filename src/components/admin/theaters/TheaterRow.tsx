@@ -40,9 +40,9 @@ const TheaterRow = ({ theater, onToggle }: { theater: any; onToggle: (id: number
         <TableCell className="py-3">
           <Badge variant="outline" className={theater.is_active
             ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[11px]'
-            : 'border-zinc-700 text-zinc-500 bg-zinc-800/50 text-[11px]'
+            : 'border-gray-300 dark:border-zinc-700 text-gray-400 dark:text-zinc-500 bg-gray-100/50 dark:bg-zinc-800/50 text-[11px]'
           }>
-            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${theater.is_active ? 'bg-emerald-400' : 'bg-zinc-600'}`} />
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${theater.is_active ? 'bg-emerald-400' : 'bg-gray-400 dark:bg-zinc-600'}`} />
             {theater.is_active ? 'Activo' : 'Inactivo'}
           </Badge>
         </TableCell>
@@ -55,7 +55,7 @@ const TheaterRow = ({ theater, onToggle }: { theater: any; onToggle: (id: number
           <Switch
             checked={theater.is_active}
             onCheckedChange={() => setConfirmOpen(true)}
-            className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-zinc-700"
+            className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
           />
         </TableCell>
       </TableRow>
@@ -74,7 +74,7 @@ const TheaterRow = ({ theater, onToggle }: { theater: any; onToggle: (id: number
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel className="bg-zinc-800 border-zinc-700 text-white hover:bg-zinc-700">
+            <AlertDialogCancel className="bg-gray-100 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-zinc-700">
               Cancelar
             </AlertDialogCancel>
             <AlertDialogAction
