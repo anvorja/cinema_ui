@@ -72,7 +72,7 @@ const HomePage = () => {
 
           {/* Contenido de cartelera */}
           {homeData.cartelera.loading && homeData.cartelera.movies.length === 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="aspect-[2/3] bg-white/10 rounded-lg mb-3"></div>
@@ -84,7 +84,7 @@ const HomePage = () => {
           ) : homeData.cartelera.movies.length > 0 ? (
             <MovieGrid
               movies={homeData.cartelera.movies}
-              className="grid-cols-2 md:grid-cols-4"
+              className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               showDetailsButton={false} // ⭐ Sin botón en Home
             />
           ) : (
@@ -135,7 +135,7 @@ const HomePage = () => {
 
           {/* Contenido de próximos estrenos */}
           {(homeData.comingSoon.loading || homeData.presales.loading) && homeData.pronto.length === 0 ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
               {[...Array(8)].map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="aspect-[2/3] bg-white/10 rounded-lg mb-3"></div>
@@ -147,7 +147,7 @@ const HomePage = () => {
           ) : homeData.pronto.length > 0 ? (
             <MovieGrid
               movies={homeData.pronto}
-              className="grid-cols-2 md:grid-cols-4"
+              className="grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5"
               showDetailsButton={false} // ⭐ Sin botón en Home
             />
           ) : (

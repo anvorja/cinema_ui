@@ -88,7 +88,7 @@ const Cartelera = () => {
       <GlassCard className="group hover:scale-105 transition-all duration-300 cursor-pointer">
         <Link to={`/movie/${movie.id}`} className="block">
           {/* Imagen de la película */}
-          <div className="relative aspect-[2/3] overflow-hidden rounded-lg mb-4">
+          <div className="relative aspect-[3/4] overflow-hidden rounded-lg mb-3">
             <img
               src={movie.poster_url || '/placeholder-movie.jpg'}
               alt={movie.title}
@@ -188,15 +188,7 @@ const Cartelera = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-      <div className="container mx-auto px-4 py-8">
-        {/* Header */}
-        <div className="text-center mb-12">
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-blue-400 to-purple-600 bg-clip-text text-transparent mb-4">
-            Cartelera
-          </h1>
-        </div>
-
-
+      <div className="container mx-auto px-4 pt-24 pb-8">
         {/* Indicadores de estado */}
         {searchQuery && (
           <div className="mb-6">
@@ -252,7 +244,7 @@ const Cartelera = () => {
         {/* Grid de películas */}
         {!isEmpty && (
           <>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8 mb-12">
+            <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-12">
               {movies.map((movie) => (
                 <MovieCard key={movie.id} movie={movie} />
               ))}

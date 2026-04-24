@@ -139,26 +139,18 @@ const Header = () => {
 
                             {/* ── Left: hamburger + logo ── */}
                             <div className="flex items-center gap-3">
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => setIsSidebarOpen(true)}
-                                            className="text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
-                                            aria-label="Abrir menú"
-                                        >
-                                            <Menu className="h-5 w-5" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom">Menú</TooltipContent>
-                                </Tooltip>
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => setIsSidebarOpen(true)}
+                                    className="text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
+                                    aria-label="Abrir menú"
+                                >
+                                    <Menu className="h-5 w-5" />
+                                </Button>
 
                                 <Link to="/" className="flex items-center gap-2.5 group transition-all duration-200">
-                                    <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-blue-700 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/25 group-hover:shadow-blue-500/40 transition-shadow">
-                                        <span className="text-white font-bold text-sm tracking-tight">C+</span>
-                                    </div>
-                                    <span className="hidden sm:block text-white font-bold text-lg tracking-widest">
+                                    <span className="text-white font-bold text-lg tracking-widest">
                                         CINEMAPLUS
                                     </span>
                                 </Link>

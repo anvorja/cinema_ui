@@ -23,7 +23,7 @@ const MovieGrid = ({ movies = [], className = '', showStats = false, showDetails
   }
 
   return (
-    <div className={`grid gap-6 ${className || 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+    <div className={`grid gap-6 ${className || 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
       {transformedMovies.map((movie) => (
         <MovieCard
           key={movie.id}
@@ -61,7 +61,7 @@ const MovieCard = ({ movie, showStats = false, showDetailsButton = true }) => {
 const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = true }: { movie: any; statusBadge: any; showStats: any; showDetailsButton?: any }) => {
   return (
     <>
-      <div className="aspect-[2/3] relative">
+      <div className="aspect-[3/4] relative">
         {/* Badge de estado */}
         {statusBadge && (
           <div className="absolute top-3 left-3 z-10">
@@ -236,10 +236,10 @@ const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = t
 // Componente para grid con loading skeletons — usa Skeleton de Shadcn
 export const MovieGridSkeleton = ({ count = 8, className = '' }) => {
   return (
-    <div className={`grid gap-6 ${className || 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+    <div className={`grid gap-6 ${className || 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
       {[...Array(count)].map((_, i) => (
         <div key={i} className="flex flex-col gap-3">
-          <Skeleton className="aspect-[2/3] w-full rounded-xl bg-white/[0.07]" />
+          <Skeleton className="aspect-[3/4] w-full rounded-xl bg-white/[0.07]" />
           <div className="px-1 space-y-2">
             <Skeleton className="h-4 w-3/4 rounded-md bg-white/[0.07]" />
             <Skeleton className="h-3 w-1/2 rounded-md bg-white/[0.05]" />

@@ -3,7 +3,6 @@ import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { Home, Film, Clock, User, CreditCard, LogOut, Utensils, Truck } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
-import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
 import UserProfile from "../auth/UserProfile.jsx";
@@ -49,18 +48,13 @@ const baseMenuSections: MenuSection[] = [
 ];
 
 const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProps) => {
-    const { isAuthenticated, user, logout } = useAuth();
+    const { isAuthenticated, logout } = useAuth();
     const [showUserProfile, setShowUserProfile] = useState(false);
     const location = useLocation();
 
     const isItemActive = (href: string) => {
         if (href === '/') return location.pathname === '/';
         return location.pathname.startsWith(href);
-    };
-
-    const getUserInitials = (name?: string) => {
-        if (!name) return 'U';
-        return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
     };
 
     const handleLogout = async () => {
@@ -109,22 +103,6 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                         </div>
                         <span className="text-white font-bold text-base tracking-widest">CINEMAPLUS</span>
                     </div>
-
-                    {/* ── User profile strip (authenticated) ── */}
-                    {isAuthenticated && user && (
-                        <div className="flex items-center gap-3 px-5 py-3.5 bg-white/[0.025] border-b border-white/[0.06] shrink-0">
-                            <Avatar className="h-9 w-9 shrink-0 ring-1 ring-white/15">
-                                <AvatarImage src={user.avatar} alt={user.name} />
-                                <AvatarFallback className="bg-gradient-to-br from-blue-500/40 to-purple-600/40 text-white text-xs font-semibold">
-                                    {getUserInitials(user.name)}
-                                </AvatarFallback>
-                            </Avatar>
-                            <div className="flex-1 min-w-0">
-                                <p className="text-white/90 font-medium text-sm leading-tight truncate">{user.name}</p>
-                                <p className="text-white/40 text-xs leading-tight truncate mt-0.5">{user.email}</p>
-                            </div>
-                        </div>
-                    )}
 
                     {/* ── Navigation ── */}
                     <ScrollArea className="flex-1">
