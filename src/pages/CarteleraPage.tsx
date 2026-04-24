@@ -273,7 +273,7 @@ const Cartelera = () => {
             {/* Info de paginación */}
             {!canLoadMore && movies.length > 12 && (
               <div className="text-center text-gray-500">
-                <p>Se muestran todas las películas disponibles ({movies.length} total)</p>
+                <p>Disponibles ({movies.length} películas)</p>
               </div>
             )}
           </>

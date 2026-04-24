@@ -3,7 +3,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, Search, X } from 'lucide-react';
-import { GlassCard, GlassInput } from '../common';
+import { GlassCard } from '../common';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { Sidebar } from './Sidebar';
 import { LoginModal } from '../auth/LoginModal.jsx';
@@ -177,11 +177,16 @@ const Header = () => {
                             <div className="flex items-center gap-2">
                                 {/* Desktop search */}
                                 <div className="hidden md:flex items-center relative search-container">
-                                    <GlassInput
+                                    <input
+                                        type="text"
                                         value={searchQuery}
                                         onChange={handleSearchChange}
                                         placeholder="Buscar películas..."
-                                        className="w-44 lg:w-60 pl-9 pr-8 h-9 text-sm bg-black/25 border-white/[0.12] focus:bg-black/35 focus:border-white/25 placeholder:text-white/40"
+                                        className="w-44 lg:w-60 pl-9 pr-8 h-9 rounded-xl border text-sm text-white transition-all duration-200 outline-none
+                                                   bg-transparent border-white/[0.12]
+                                                   hover:border-white/25
+                                                   focus:bg-black/30 focus:border-white/30
+                                                   placeholder:text-white/35"
                                     />
                                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                                     {searchQuery && !isSearching && (
