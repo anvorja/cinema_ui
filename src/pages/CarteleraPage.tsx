@@ -2,8 +2,6 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
-  MagnifyingGlassIcon,
-  FunnelIcon,
   StarIcon,
   ClockIcon,
   CurrencyDollarIcon,
@@ -88,7 +86,7 @@ const Cartelera = () => {
       <GlassCard className="group hover:scale-105 transition-all duration-300 cursor-pointer">
         <Link to={`/movie/${movie.id}`} className="block">
           {/* Imagen de la película */}
-          <div className="relative aspect-[3/4] overflow-hidden rounded-lg mb-3">
+          <div className="relative aspect-[4/5] overflow-hidden rounded-lg mb-3">
             <img
               src={movie.poster_url || '/placeholder-movie.jpg'}
               alt={movie.title}

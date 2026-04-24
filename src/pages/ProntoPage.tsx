@@ -2,10 +2,9 @@
 import { useState, useEffect } from 'react';
 import { MovieGrid } from '../components/cinema/MovieGrid';
 import { FloatingParticles, GlassCard, PremiumButton } from "../components/common";
-import Footer from '../components/layout/Footer';
 import { useComingSoonMovies, usePresaleMovies } from '../hooks/useMovies.js';
 import { transformMovieData } from '../utils/movieUtils.js';
-import { ExclamationTriangleIcon, FilmIcon, CalendarDaysIcon } from '@heroicons/react/24/outline';
+import { ExclamationTriangleIcon, FilmIcon } from '@heroicons/react/24/outline';
 
 const ProntoPage = () => {
   // 🎬 CONECTAR AL BACKEND - Usar hooks reales
@@ -113,35 +112,6 @@ const ProntoPage = () => {
       <FloatingParticles count={30} className="opacity-20" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-
-        {/* Header */}
-        <div className="mb-8">
-          <h1 className="text-4xl lg:text-5xl font-bold text-white mb-4">PRONTO</h1>
-          <p className="text-white/80 text-lg">Los próximos estrenos que no te puedes perder</p>
-        </div>
-
-        {/* 📊 Estadísticas rápidas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <GlassCard className="p-4 text-center">
-            <FilmIcon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{allMovies.length}</div>
-            <div className="text-white/60 text-sm">Próximos Estrenos</div>
-          </GlassCard>
-
-          <GlassCard className="p-4 text-center">
-            <CalendarDaysIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-            <div className="text-2xl font-bold text-white">{presalesCount}</div>
-            <div className="text-white/60 text-sm">En Preventa</div>
-          </GlassCard>
-
-          <GlassCard className="p-4 text-center">
-            <div className="w-8 h-8 bg-purple-400 rounded-full mx-auto mb-2 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">🎫</span>
-            </div>
-            <div className="text-2xl font-bold text-white">{comingSoonCount}</div>
-            <div className="text-white/60 text-sm">Próximamente</div>
-          </GlassCard>
-        </div>
 
         {/* 📄 Tabs de categorías */}
         <div className="mb-8">

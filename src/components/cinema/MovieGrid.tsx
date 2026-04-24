@@ -61,7 +61,7 @@ const MovieCard = ({ movie, showStats = false, showDetailsButton = true }) => {
 const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = true }: { movie: any; statusBadge: any; showStats: any; showDetailsButton?: any }) => {
   return (
     <>
-      <div className="aspect-[3/4] relative">
+      <div className="aspect-[4/5] relative">
         {/* Badge de estado */}
         {statusBadge && (
           <div className="absolute top-3 left-3 z-10">
@@ -239,7 +239,7 @@ export const MovieGridSkeleton = ({ count = 8, className = '' }) => {
     <div className={`grid gap-6 ${className || 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
       {[...Array(count)].map((_, i) => (
         <div key={i} className="flex flex-col gap-3">
-          <Skeleton className="aspect-[3/4] w-full rounded-xl bg-white/[0.07]" />
+          <Skeleton className="aspect-[4/5] w-full rounded-xl bg-white/[0.07]" />
           <div className="px-1 space-y-2">
             <Skeleton className="h-4 w-3/4 rounded-md bg-white/[0.07]" />
             <Skeleton className="h-3 w-1/2 rounded-md bg-white/[0.05]" />
