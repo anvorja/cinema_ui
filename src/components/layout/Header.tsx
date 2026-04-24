@@ -31,6 +31,7 @@ const Header = () => {
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showSearchResults, setShowSearchResults] = useState(false);
+    const [isSearchFocused, setIsSearchFocused] = useState(false);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -181,12 +182,15 @@ const Header = () => {
                                         type="text"
                                         value={searchQuery}
                                         onChange={handleSearchChange}
+                                        onFocus={() => setIsSearchFocused(true)}
+                                        onBlur={() => setIsSearchFocused(false)}
                                         placeholder="Buscar películas..."
+                                        style={{
+                                            background: isSearchFocused ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.08)',
+                                            borderColor: isSearchFocused ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.12)',
+                                        }}
                                         className="w-44 lg:w-60 pl-9 pr-8 h-9 rounded-xl border text-sm text-white transition-all duration-200 outline-none
-                                                   bg-transparent border-white/[0.12]
-                                                   hover:border-white/25
-                                                   focus:bg-black/30 focus:border-white/30
-                                                   placeholder:text-white/35"
+                                                   placeholder:text-white/40"
                                     />
                                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                                     {searchQuery && !isSearching && (
