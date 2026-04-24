@@ -181,7 +181,7 @@ const Header = () => {
                                         value={searchQuery}
                                         onChange={handleSearchChange}
                                         placeholder="Buscar películas..."
-                                        className="w-44 lg:w-60 pl-9 pr-8 h-9 text-sm"
+                                        className="w-44 lg:w-60 pl-9 pr-8 h-9 text-sm bg-black/25 border-white/[0.12] focus:bg-black/35 focus:border-white/25 placeholder:text-white/40"
                                     />
                                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                                     {searchQuery && !isSearching && (
