@@ -3,6 +3,9 @@ import { Link } from 'react-router-dom';
 import { ClockIcon, CurrencyDollarIcon, TicketIcon } from '@heroicons/react/24/outline';
 import { GlassCard, PremiumButton } from '../common';
 import { transformMovieData } from '../../utils/movieUtils';
+import { Badge } from '../ui/badge';
+import { Skeleton } from '../ui/skeleton';
+import { Progress } from '../ui/progress';
 
 const MovieGrid = ({ movies = [], className = '', showStats = false, showDetailsButton = true }) => {
   // Transformar datos del backend
@@ -20,7 +23,7 @@ const MovieGrid = ({ movies = [], className = '', showStats = false, showDetails
   }
 
   return (
-    <div className={`grid gap-6 ${className || 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+    <div className={`grid gap-6 ${className || 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
       {transformedMovies.map((movie) => (
         <MovieCard
           key={movie.id}
@@ -58,26 +61,26 @@ const MovieCard = ({ movie, showStats = false, showDetailsButton = true }) => {
 const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = true }: { movie: any; statusBadge: any; showStats: any; showDetailsButton?: any }) => {
   return (
     <>
-      <div className="aspect-[2/3] relative">
+      <div className="aspect-[4/5] relative">
         {/* Badge de estado */}
         {statusBadge && (
           <div className="absolute top-3 left-3 z-10">
-            <span className={`px-3 py-1 rounded-full text-xs font-bold ${statusBadge.className}`}>
+            <Badge className={`backdrop-blur-sm font-bold tracking-wide text-[10px] ${statusBadge.className}`}>
               {statusBadge.text}
-            </span>
+            </Badge>
           </div>
         )}
 
         {/* Indicador de disponibilidad */}
         <div className="absolute top-3 right-3 z-10">
           {movie.isSoldOut ? (
-            <span className="px-2 py-1 bg-red-600 text-white text-xs rounded-full font-bold">
+            <Badge className="bg-red-500/20 text-red-300 border-red-500/40 backdrop-blur-sm font-bold text-[10px]">
               AGOTADO
-            </span>
+            </Badge>
           ) : movie.soldOutPercentage > 80 ? (
-            <span className="px-2 py-1 bg-orange-600 text-white text-xs rounded-full font-bold">
+            <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 backdrop-blur-sm font-bold text-[10px]">
               POCAS
-            </span>
+            </Badge>
           ) : null}
         </div>
 
@@ -117,9 +120,9 @@ const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = t
                 <ClockIcon className="w-3 h-3 mr-1" />
                 {movie.duration_formatted}
               </span>
-              <span className="bg-blue-600 text-white px-2 py-1 rounded text-xs">
+              <Badge variant="outline" className="text-white/70 border-white/20 text-[10px] font-semibold">
                 {movie.ageRating}
-              </span>
+              </Badge>
             </div>
 
             {/* Información adicional */}
@@ -211,42 +214,35 @@ const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = t
           </>
         )}
 
-        {/* Barra de disponibilidad SOLO si NO hay botón de detalles */}
-        {!showDetailsButton && movie.max_capacity > 0 && (
-          <div className="mt-2">
-            <div className="flex justify-between text-xs text-white/60 mb-1">
-              <span>Disponibilidad</span>
-              <span>{Math.round((movie.available_tickets / movie.max_capacity) * 100)}%</span>
+        {/* Barra de disponibilidad con Progress de Shadcn */}
+        {!showDetailsButton && movie.max_capacity > 0 && (() => {
+          const pct = Math.round((movie.available_tickets / movie.max_capacity) * 100);
+          const color = pct > 50 ? '[&>div]:bg-emerald-500' : pct > 20 ? '[&>div]:bg-amber-500' : '[&>div]:bg-red-500';
+          return (
+            <div className="mt-2">
+              <div className="flex justify-between text-xs text-white/60 mb-1.5">
+                <span>Disponibilidad</span>
+                <span>{pct}%</span>
+              </div>
+              <Progress value={pct} className={`h-1.5 bg-white/10 ${color}`} />
             </div>
-            <div className="w-full bg-white/20 rounded-full h-1.5">
-              <div
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  movie.available_tickets / movie.max_capacity > 0.5 
-                    ? 'bg-green-500' 
-                    : movie.available_tickets / movie.max_capacity > 0.2 
-                    ? 'bg-yellow-500' 
-                    : 'bg-red-500'
-                }`}
-                style={{ width: `${(movie.available_tickets / movie.max_capacity) * 100}%` }}
-              />
-            </div>
-          </div>
-        )}
+          );
+        })()}
       </div>
     </>
   );
 };
 
-// Componente para grid con loading skeletons
+// Componente para grid con loading skeletons — usa Skeleton de Shadcn
 export const MovieGridSkeleton = ({ count = 8, className = '' }) => {
   return (
-    <div className={`grid gap-6 ${className || 'grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4'}`}>
+    <div className={`grid gap-6 ${className || 'grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'}`}>
       {[...Array(count)].map((_, i) => (
-        <div key={i} className="animate-pulse">
-          <div className="aspect-[2/3] bg-white/10 rounded-lg mb-3"></div>
-          <div className="px-4 pb-4 space-y-2">
-            <div className="h-4 bg-white/10 rounded w-3/4"></div>
-            <div className="h-3 bg-white/10 rounded w-1/2"></div>
+        <div key={i} className="flex flex-col gap-3">
+          <Skeleton className="aspect-[4/5] w-full rounded-xl bg-white/[0.07]" />
+          <div className="px-1 space-y-2">
+            <Skeleton className="h-4 w-3/4 rounded-md bg-white/[0.07]" />
+            <Skeleton className="h-3 w-1/2 rounded-md bg-white/[0.05]" />
           </div>
         </div>
       ))}

@@ -1,5 +1,5 @@
 // src/components/seats/CinemaSeatMap.jsx
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 
 const X  = 'x';   // unavailable
 
@@ -93,7 +93,7 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
 };
 
 const Legend = () => (
-  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 text-xs text-white/90 mb-4">
+  <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-5 gap-y-1.5 text-[10px] sm:text-xs text-white/90 mb-3">
     <span className="flex items-center gap-1.5">
       <span className="w-4 h-4 rounded-[3px] bg-green-500 inline-block" /> Seleccionada
     </span>
@@ -121,6 +121,11 @@ const Legend = () => (
 const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) => {
   const [zoom, setZoom] = useState(1);
   const containerRef = useRef(null);
+
+  // Zoom inicial más pequeño en mobile para que el mapa entre sin scroll horizontal
+  useEffect(() => {
+    if (window.innerWidth < 640) setZoom(0.5);
+  }, []);
 
   const changeZoom = (delta) =>
     setZoom(prev => Math.min(1.5, Math.max(0.6, +(prev + delta).toFixed(1))));

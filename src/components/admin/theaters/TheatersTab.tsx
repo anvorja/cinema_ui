@@ -1,103 +1,119 @@
-// src/components/admin/theaters/TheatersTab.jsx
-import React, { useState } from 'react';
-import { Loader, Filter } from 'lucide-react';
-import SearchBar from '../SearchBar';
+// src/components/admin/theaters/TheatersTab.tsx
+import { useState } from 'react';
+import { Search } from 'lucide-react';
 import TheaterRow from './TheaterRow';
+import { Table, TableBody, TableHead, TableHeader, TableRow } from '../../ui/table';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
+import { Skeleton } from '../../ui/skeleton';
+import { Card, CardContent } from '../../ui/card';
+
+const selectCls = 'w-40 h-9 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm focus:ring-gray-300 dark:focus:ring-zinc-600';
+const contentCls = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
+const itemCls    = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
+
+const TheatersTabSkeleton = () => (
+  <div className="space-y-5">
+    <div className="flex gap-3">
+      <Skeleton className="h-9 w-64 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+    </div>
+    <div className="grid grid-cols-3 gap-3">
+      {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 bg-gray-200 dark:bg-zinc-800 rounded-xl" />)}
+    </div>
+    <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+      {[...Array(5)].map((_, i) => (
+        <div key={i} className="flex items-center gap-4 px-6 py-3.5 border-b border-gray-100 dark:border-zinc-800/60">
+          <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-zinc-800 shrink-0" />
+          <div className="flex-1 space-y-1.5">
+            <Skeleton className="h-3.5 w-32 bg-gray-200 dark:bg-zinc-800" />
+            <Skeleton className="h-2.5 w-16 bg-gray-200 dark:bg-zinc-800" />
+          </div>
+          <Skeleton className="h-3 w-40 bg-gray-200 dark:bg-zinc-800" />
+          <Skeleton className="h-3 w-28 bg-gray-200 dark:bg-zinc-800" />
+          <Skeleton className="h-5 w-14 bg-gray-200 dark:bg-zinc-800 rounded-full" />
+          <Skeleton className="h-5 w-9  bg-gray-200 dark:bg-zinc-800 rounded-full" />
+        </div>
+      ))}
+    </div>
+  </div>
+);
 
 const TheatersTab = ({ theaters, loading, onToggleTheater, searchTerm, onSearchChange }) => {
   const [filterStatus, setFilterStatus] = useState('all');
 
-  const filteredTheaters = theaters.filter((t) => {
-    const matchesSearch =
-      t.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      t.location?.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesStatus =
-      filterStatus === 'all' ||
-      (filterStatus === 'active' && t.is_active) ||
+  const filtered = theaters.filter(t => {
+    const q = searchTerm.toLowerCase();
+    const matchSearch = t.name?.toLowerCase().includes(q) || t.location?.toLowerCase().includes(q);
+    const matchStatus = filterStatus === 'all' ||
+      (filterStatus === 'active'   && t.is_active) ||
       (filterStatus === 'inactive' && !t.is_active);
-    return matchesSearch && matchesStatus;
+    return matchSearch && matchStatus;
   });
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center py-12">
-        <div className="text-center">
-          <Loader className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-400">Cargando teatros...</p>
-        </div>
-      </div>
-    );
-  }
+  if (loading) return <TheatersTabSkeleton />;
 
   return (
-    <div className="space-y-6">
-      {/* Barra de búsqueda y filtros */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
-        <SearchBar
-          searchTerm={searchTerm}
-          onSearchChange={onSearchChange}
-          placeholder="Buscar por nombre o ubicación..."
-        />
-        <div className="flex items-center space-x-2">
-          <Filter className="h-4 w-4 text-gray-400" />
-          <select
-            value={filterStatus}
-            onChange={(e) => setFilterStatus(e.target.value)}
-            className="bg-gray-700 border border-gray-600 rounded-md text-white text-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-          >
-            <option value="all">Todos los estados</option>
-            <option value="active">Activos</option>
-            <option value="inactive">Inactivos</option>
-          </select>
+    <div className="space-y-5">
+      {/* Toolbar */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+        <div className="relative max-w-xs w-full">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <input
+            type="text"
+            placeholder="Buscar teatros..."
+            value={searchTerm}
+            onChange={e => onSearchChange(e.target.value)}
+            className="w-full pl-9 pr-4 h-9 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-zinc-600"
+          />
         </div>
+
+        <Select value={filterStatus} onValueChange={setFilterStatus}>
+          <SelectTrigger className={selectCls}><SelectValue /></SelectTrigger>
+          <SelectContent className={contentCls}>
+            <SelectItem value="all"      className={itemCls}>Todos los estados</SelectItem>
+            <SelectItem value="active"   className={itemCls}>Activos</SelectItem>
+            <SelectItem value="inactive" className={itemCls}>Inactivos</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Estadísticas rápidas */}
-      <div className="grid grid-cols-3 gap-4">
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Total</p>
-          <p className="text-2xl font-bold text-white">{theaters.length}</p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Activos</p>
-          <p className="text-2xl font-bold text-green-400">{theaters.filter(t => t.is_active).length}</p>
-        </div>
-        <div className="bg-gray-700 p-4 rounded-lg">
-          <p className="text-sm text-gray-400">Inactivos</p>
-          <p className="text-2xl font-bold text-red-400">{theaters.filter(t => !t.is_active).length}</p>
-        </div>
+      {/* Mini stats */}
+      <div className="grid grid-cols-3 gap-3">
+        {[
+          { label: 'Total',    value: theaters.length,                          color: 'text-gray-900 dark:text-white' },
+          { label: 'Activos',  value: theaters.filter(t => t.is_active).length,  color: 'text-emerald-400' },
+          { label: 'Inactivos',value: theaters.filter(t => !t.is_active).length, color: 'text-red-400' },
+        ].map(s => (
+          <Card key={s.label} className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+            <CardContent className="p-3">
+              <p className="text-xs text-gray-500 dark:text-zinc-600 mb-1">{s.label}</p>
+              <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
+            </CardContent>
+          </Card>
+        ))}
       </div>
 
-      {/* Tabla de teatros */}
-      <div className="bg-gray-800 rounded-lg overflow-hidden">
-        {filteredTheaters.length === 0 ? (
-          <div className="text-center py-12">
-            <p className="text-gray-400 text-lg">
-              {searchTerm || filterStatus !== 'all'
-                ? 'No se encontraron teatros con los filtros aplicados'
-                : 'No hay teatros registrados'}
-            </p>
+      {/* Tabla */}
+      <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+        {filtered.length === 0 ? (
+          <div className="py-16 text-center text-gray-400 dark:text-zinc-600 text-sm">
+            {searchTerm || filterStatus !== 'all'
+              ? 'Sin teatros que coincidan con los filtros'
+              : 'No hay teatros registrados'}
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead className="bg-gray-900">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Teatro</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Ubicación</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Descripción</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Estado</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Creado</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-400 uppercase tracking-wider">Acciones</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-600">
-                {filteredTheaters.map((theater) => (
-                  <TheaterRow key={theater.id} theater={theater} onToggle={onToggleTheater} />
+          <Table className="">
+            <TableHeader className="">
+              <TableRow className="border-gray-200 dark:border-zinc-800 hover:bg-transparent bg-gray-50 dark:bg-zinc-900/60">
+                {['Teatro','Ubicación','Descripción','Estado','Creado','Activo'].map(h => (
+                  <TableHead key={h} className="text-[10px] text-gray-500 dark:text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </TableRow>
+            </TableHeader>
+            <TableBody className="">
+              {filtered.map(t => <TheaterRow key={t.id} theater={t} onToggle={onToggleTheater} />)}
+            </TableBody>
+          </Table>
         )}
       </div>
     </div>

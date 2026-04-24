@@ -9,7 +9,7 @@ import { useBooking } from '../../hooks/useBooking';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ShowtimeButton from './ShowtimeButton';
 
-const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurchase, ..._rest }: { theaters: any; movieId: any; movie: any; canPurchase?: any; [key: string]: any }) => {
+const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurchase, onShowtimeSelect, ..._rest }: { theaters: any; movieId: any; movie: any; canPurchase?: any; onShowtimeSelect?: (theater: any, showtime: any) => void; [key: string]: any }) => {
   const navigate = useNavigate();
   const { startBooking } = useBooking();
   const { showtimes, loading: showtimesLoading } = useMovieShowtimes(movieId);
@@ -31,19 +31,12 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
     setSelectedShowtime(showtime);
     setSelectedTheater(theater);
 
-    console.log('🎬 Showtime seleccionado:', {
-      id: showtime.id,
-      time: showtime.time,
-      date: showtime.date,
-      format: showtime.format,
-      fullObject: showtime,
-    });
+    // Si hay un handler externo (ej: Drawer en MovieDetailPage), delegarle
+    if (onShowtimeSelect) {
+      onShowtimeSelect(theater, showtime);
+      return;
+    }
 
-    // Usar la fecha real de la función (del backend) como selectedDate.
-    // showtime.date viene de show_date en el catálogo. Si por alguna razón
-    // el objeto no trae date, no usamos new Date() (hoy) porque generaría
-    // una compra con show_date incorrecto — dejamos null y el backend fallará
-    // de forma explícita en lugar de guardar una fecha fantasma.
     const selectedDate = showtime.date ?? null;
     startBooking(movie, theater, showtime, selectedDate);
 

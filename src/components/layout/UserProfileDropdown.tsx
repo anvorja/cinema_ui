@@ -1,224 +1,145 @@
-// src/components/layout/UserProfileDropdown.jsx
-import { useState, useRef, useEffect } from 'react';
-import { createPortal } from 'react-dom';
+// src/components/layout/UserProfileDropdown.tsx
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { User, Ticket, CreditCard, Settings, LogOut } from 'lucide-react';
 import {
-    UserIcon,
-    CreditCardIcon,
-    TicketIcon,
-    Cog6ToothIcon
-} from '@heroicons/react/24/outline';
-import { GlassCard } from '../common';
-import useAuth from "../../hooks/useAuth.js";
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '../ui/dropdown-menu';
+import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
+import useAuth from '../../hooks/useAuth.js';
 
-// Icono moderno de logout personalizado
-const LogoutIcon = ({ className }) => (
-    <svg
-        className={className}
-        fill="none"
-        viewBox="0 0 24 24"
-        strokeWidth={1.5}
-        stroke="currentColor"
-    >
-        <path
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            d="M8.25 9V5.25A2.25 2.25 0 0 1 10.5 3h6a2.25 2.25 0 0 1 2.25 2.25v13.5A2.25 2.25 0 0 1 16.5 21h-6a2.25 2.25 0 0 1-2.25-2.25V15m-3 0-3-3m0 0 3-3m-3 3H15"
-        />
-    </svg>
-);
+interface UserProfileDropdownProps {
+    user: { name?: string; email?: string; avatar?: string } | null;
+    onOpenProfile?: () => void;
+}
 
-const UserProfileDropdown = ({ onClose, onOpenProfile, user }) => {
+const UserProfileDropdown = ({ user, onOpenProfile }: UserProfileDropdownProps) => {
     const { logout, loading } = useAuth();
-    const [dropdownPosition, setDropdownPosition] = useState({ top: 0, right: 0 });
     const [isLoggingOut, setIsLoggingOut] = useState(false);
-    const buttonRef = useRef(null);
 
-    // Calcular posición del dropdown
-    useEffect(() => {
-        if (buttonRef.current) {
-            const rect = buttonRef.current.getBoundingClientRect();
-            setDropdownPosition({
-                top: rect.bottom + 8,
-                right: window.innerWidth - rect.right
-            });
-        }
-    }, []);
+    const getUserInitials = (name?: string) => {
+        if (!name) return 'U';
+        return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    };
 
-    const menuItems = [
-        {
-            name: 'Mi Perfil',
-            action: () => { onOpenProfile?.(); onClose(); },
-            icon: UserIcon,
-            type: 'action'
-        },
-        { name: 'Mis Compras', href: '/profile/purchases', icon: TicketIcon, type: 'link' },
-        { name: 'Mis Transacciones', href: '/profile/transactions', icon: CreditCardIcon, type: 'link' },
-        { name: 'Mis Tarjetas Cineco', href: '/profile/cards', icon: CreditCardIcon, type: 'link' },
-        { name: 'Configuración', href: '/profile/settings', icon: Cog6ToothIcon, type: 'link' }
-    ];
-
-    // 🔥 FUNCIÓN DE LOGOUT SIMPLIFICADA Y CORREGIDA
     const handleLogout = async () => {
+        if (loading || isLoggingOut) return;
+        setIsLoggingOut(true);
         try {
-            console.log('🔴 LOGOUT DEBUG: Inicio del proceso');
-
-            if (loading || isLoggingOut) {
-                console.log('🔴 LOGOUT DEBUG: Ya está en proceso, cancelando');
-                return;
-            }
-
-            setIsLoggingOut(true);
-            console.log('🔴 LOGOUT DEBUG: Estado isLoggingOut establecido');
-
-            console.log('🚪 UserProfileDropdown: Iniciando logout...');
-
-            // Cerrar dropdown primero
-            console.log('🔴 LOGOUT DEBUG: Cerrando dropdown');
-            onClose();
-
-            // Pequeña pausa para que se cierre el dropdown
-            await new Promise(resolve => setTimeout(resolve, 200));
-
-            // Ejecutar logout
-            console.log('🔴 LOGOUT DEBUG: Llamando función logout');
             await logout();
-
-            console.log('✅ UserProfileDropdown: Logout completado');
-
-        } catch (error) {
-            console.error('❌ UserProfileDropdown: Error en logout:', error);
-
-            // Incluso si hay error, cerrar el dropdown
-            onClose();
-
-            // Limpieza de emergencia
+        } catch {
             localStorage.removeItem('cinema_token');
             localStorage.removeItem('cinema_user');
-
-            // Redirigir después de un breve delay
-            setTimeout(() => {
-                window.location.href = '/';
-            }, 1000);
+            setTimeout(() => { window.location.href = '/'; }, 500);
         } finally {
             setIsLoggingOut(false);
         }
     };
 
-    const handleItemClick = (item) => {
-        if (item.type === 'action') {
-            item.action(); // action already calls onClose() internally
-        }
-    };
+    return (
+        <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 px-1.5 py-1 rounded-xl transition-all duration-200 hover:bg-white/[0.08] outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 group">
+                    <Avatar className="h-8 w-8 ring-1 ring-white/20 group-hover:ring-white/35 transition-all">
+                        <AvatarImage src={user?.avatar} alt={user?.name} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold">
+                            {getUserInitials(user?.name)}
+                        </AvatarFallback>
+                    </Avatar>
+                    <span className="hidden sm:block text-white/85 font-medium text-sm group-hover:text-white transition-colors">
+                        {user?.name}
+                    </span>
+                </button>
+            </DropdownMenuTrigger>
 
-    const DropdownContent = () => (
-        <div
-            data-portal="user-dropdown"
-            className="fixed w-64"
-            style={{
-                top: `${dropdownPosition.top}px`,
-                right: `${dropdownPosition.right}px`,
-                zIndex: 99999
-            }}
-        >
-            <GlassCard variant="premium" className="p-0 overflow-hidden shadow-2xl">
-                {/* Header con información del usuario */}
-                <div className="p-4 border-b border-white/10">
-                    <div className="flex items-center gap-3">
-                        {user?.avatar ? (
-                            <img
-                                src={user.avatar}
-                                alt={user.name}
-                                className="w-10 h-10 rounded-full border-2 border-white/20"
-                            />
-                        ) : (
-                            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-blue-700 rounded-full flex items-center justify-center">
-                                <UserIcon className="w-6 h-6 text-white" />
-                            </div>
-                        )}
-                        <div>
-                            <p className="text-white font-medium">{user?.name || 'Usuario'}</p>
-                            <p className="text-white/60 text-sm">{user?.email}</p>
-                        </div>
+            <DropdownMenuContent
+                align="end"
+                sideOffset={8}
+                className="w-60 bg-slate-900/95 backdrop-blur-xl border-white/[0.12] text-white shadow-2xl shadow-black/50 rounded-xl p-0 overflow-hidden"
+            >
+                {/* ── User info header ── */}
+                <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.08]">
+                    <Avatar className="h-9 w-9 ring-1 ring-white/15 shrink-0">
+                        <AvatarImage src={user?.avatar} alt={user?.name} />
+                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold">
+                            {getUserInitials(user?.name)}
+                        </AvatarFallback>
+                    </Avatar>
+                    <div className="flex-1 min-w-0">
+                        <p className="text-white/90 font-medium text-sm leading-tight truncate">
+                            {user?.name || 'Usuario'}
+                        </p>
+                        <p className="text-white/40 text-xs leading-tight truncate mt-0.5">
+                            {user?.email}
+                        </p>
                     </div>
                 </div>
 
-                {/* Menu Items */}
-                <div className="p-2">
-                    {menuItems.map((item) => {
-                        const IconComponent = item.icon;
-
-                        return item.type === 'link' ? (
-                            <Link
-                                key={item.name}
-                                to={item.href}
-                                onClick={onClose}
-                                className="flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200"
-                            >
-                                {IconComponent && <IconComponent className="w-5 h-5" />}
-                                <span className="font-medium">{item.name}</span>
-                            </Link>
-                        ) : (
-                            <button
-                                key={item.name}
-                                onClick={() => handleItemClick(item)}
-                                className="w-full flex items-center gap-3 px-3 py-3 rounded-lg text-white/80 hover:text-white hover:bg-white/10 transition-all duration-200"
-                            >
-                                {IconComponent && <IconComponent className="w-5 h-5" />}
-                                <span className="font-medium">{item.name}</span>
-                            </button>
-                        );
-                    })}
-                </div>
-
-                <div className="p-2 border-t border-white/10">
-                    <div
-                        onMouseDown={(e) => {
-                            e.preventDefault();
-                            e.stopPropagation();
-                            console.log('🔴 LOGOUT DEBUG: onMouseDown ejecutado');
-                            handleLogout();
-                        }}
-                        role="button"
-                        tabIndex={0}
-                        onKeyDown={(e) => {
-                            if (e.key === 'Enter' || e.key === ' ') {
-                                e.preventDefault();
-                                e.stopPropagation();
-                                handleLogout();
-                            }
-                        }}
-                        className={`
-      w-full flex items-center gap-3 px-3 py-3 rounded-lg 
-      transition-all duration-200
-      ${loading || isLoggingOut
-                            ? 'text-red-300 bg-red-400/5 cursor-not-allowed opacity-70'
-                            : 'text-red-400 hover:text-red-300 hover:bg-red-400/10 cursor-pointer'
-                        }
-    `}
+                {/* ── Menu items ── */}
+                <div className="p-1.5 space-y-0.5">
+                    <DropdownMenuItem
+                        inset={false}
+                        onClick={onOpenProfile}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/70 hover:text-white focus:text-white hover:bg-white/[0.07] focus:bg-white/[0.07] cursor-pointer transition-colors"
                     >
-                        {loading || isLoggingOut ? (
-                            <>
-                                <svg className="animate-spin w-5 h-5" fill="none" viewBox="0 0 24 24">
-                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"/>
-                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"/>
-                                </svg>
-                                <span className="font-medium">Cerrando sesión...</span>
-                            </>
-                        ) : (
-                            <>
-                                <LogoutIcon className="w-5 h-5" />
-                                <span className="font-medium">Cerrar sesión</span>
-                            </>
-                        )}
-                    </div>
+                        <User className="w-4 h-4 shrink-0" />
+                        <span className="text-sm">Mi Perfil</span>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem inset={false} className="" asChild>
+                        <Link
+                            to="/profile/purchases"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/70 hover:text-white focus:text-white hover:bg-white/[0.07] focus:bg-white/[0.07] cursor-pointer transition-colors text-sm"
+                        >
+                            <Ticket className="w-4 h-4 shrink-0" />
+                            <span>Mis Compras</span>
+                        </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem inset={false} className="" asChild>
+                        <Link
+                            to="/profile/transactions"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/70 hover:text-white focus:text-white hover:bg-white/[0.07] focus:bg-white/[0.07] cursor-pointer transition-colors text-sm"
+                        >
+                            <CreditCard className="w-4 h-4 shrink-0" />
+                            <span>Mis Transacciones</span>
+                        </Link>
+                    </DropdownMenuItem>
+
+                    <DropdownMenuItem inset={false} className="" asChild>
+                        <Link
+                            to="/profile/settings"
+                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/70 hover:text-white focus:text-white hover:bg-white/[0.07] focus:bg-white/[0.07] cursor-pointer transition-colors text-sm"
+                        >
+                            <Settings className="w-4 h-4 shrink-0" />
+                            <span>Configuración</span>
+                        </Link>
+                    </DropdownMenuItem>
                 </div>
 
-            </GlassCard>
-        </div>
-    );
+                <DropdownMenuSeparator className="bg-white/[0.08] mx-0 my-0" />
 
-    return createPortal(<DropdownContent />, document.body);
+                {/* ── Logout ── */}
+                <div className="p-1.5">
+                    <DropdownMenuItem
+                        inset={false}
+                        onClick={handleLogout}
+                        disabled={loading || isLoggingOut}
+                        className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-red-400/80 hover:text-red-300 focus:text-red-300 hover:bg-red-500/[0.1] focus:bg-red-500/[0.1] cursor-pointer transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    >
+                        <LogOut className="w-4 h-4 shrink-0" />
+                        <span className="text-sm">
+                            {isLoggingOut ? 'Cerrando sesión...' : 'Cerrar sesión'}
+                        </span>
+                    </DropdownMenuItem>
+                </div>
+            </DropdownMenuContent>
+        </DropdownMenu>
+    );
 };
 
 export { UserProfileDropdown };

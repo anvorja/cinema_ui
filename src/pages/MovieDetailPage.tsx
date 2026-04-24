@@ -23,6 +23,10 @@ import ErrorMessage from '../components/common/ErrorMessage';
 import TheatersWithShowtimes from '../components/booking/TheatersWithShowtimes';
 import { movieService } from '../services/api';
 import useAuth from '../hooks/useAuth';
+import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert';
+import { Badge } from '../components/ui/badge';
+import { Progress } from '../components/ui/progress';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 
 const StarRating = ({ value, onChange = undefined, readonly = false, size = 'md' }: { value: any; onChange?: any; readonly?: boolean; size?: string }) => {
   const [hovered, setHovered] = useState(0);
@@ -55,10 +59,12 @@ const StarRating = ({ value, onChange = undefined, readonly = false, size = 'md'
 
 const MovieDetailPage = () => {
   const { id } = useParams();
-  const _navigate = useNavigate();
-  const { startBooking: _startBooking } = useBooking();
+  const navigate = useNavigate();
+  const { startBooking } = useBooking();
   const { isAuthenticated } = useAuth();
   const [showTrailer, setShowTrailer] = useState(false);
+  const [activeTab, setActiveTab] = useState('horarios');
+
 
   // Rating state
   const [userScore, setUserScore] = useState(0);
@@ -124,10 +130,22 @@ const MovieDetailPage = () => {
 
   const purchaseInfo = getPurchaseAvailability();
 
+  // Navegar directo a selección de asientos al elegir horario
+  const handleShowtimeSelect = (theater: any, showtime: any) => {
+    const selectedDate = showtime.date ?? null;
+    startBooking(movie, theater, showtime, selectedDate);
+    navigate(`/booking/${id}/${theater.id}/${showtime.id}`, {
+      state: { movie, theater, showtime, selectedDate }
+    });
+  };
+
   // Llevar al usuario a la sección de teatros/horarios para que elija función real
   const handleQuickBuy = () => {
     if (!purchaseInfo.canPurchase) return;
-    document.getElementById('theaters-showtimes-section')?.scrollIntoView({ behavior: 'smooth' });
+    setActiveTab('horarios');
+    setTimeout(() => {
+      document.getElementById('movie-tabs')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 50);
   };
 
   const handleRateMovie = async () => {
@@ -158,16 +176,16 @@ const MovieDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen">
       <FloatingParticles count={50} className="opacity-30" />
 
-      {/* Hero Section */}
-      <section className="relative py-16">
+      {/* Hero Section — imagen cubre desde top-0, detrás del header transparente */}
+      <section className="relative pt-28 pb-16">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${movie.images.backdrop})` }}
         >
-          <div className="absolute inset-0 bg-black/70"></div>
+          <div className="absolute inset-0 bg-black/65"></div>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -177,9 +195,9 @@ const MovieDetailPage = () => {
               <div className="relative">
                 {/* Badge de estado */}
                 <div className="absolute top-3 left-3 z-10">
-                  <span className={`px-3 py-1 rounded-full text-xs font-bold text-white ${purchaseInfo.statusColor}`}>
+                  <Badge className={`backdrop-blur-sm font-bold tracking-wide text-[10px] ${purchaseInfo.statusColor} text-white border-0`}>
                     {purchaseInfo.statusBadge}
-                  </span>
+                  </Badge>
                 </div>
 
                 <img
@@ -202,25 +220,24 @@ const MovieDetailPage = () => {
               </div>
 
               {/* Movie Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <GlassCard className="p-4 text-center">
-                  <ClockIcon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Duración</p>
-                  <p className="text-white font-semibold">{movie.duration_formatted}</p>
+              <div className="flex gap-2">
+                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
+                  <ClockIcon className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                  <p className="text-white/60 text-[10px]">Duración</p>
+                  <p className="text-white font-semibold text-xs">{movie.duration_formatted}</p>
                 </GlassCard>
 
-                <GlassCard className="p-4 text-center">
-                  <TagIcon className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Género</p>
-                  <p className="text-white font-semibold">{movie.genre}</p>
+                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
+                  <TagIcon className="w-5 h-5 text-purple-400 mx-auto mb-1" />
+                  <p className="text-white/60 text-[10px]">Género</p>
+                  <p className="text-white font-semibold text-xs leading-tight">{movie.genre}</p>
                 </GlassCard>
 
-                <GlassCard className="p-4 text-center">
-                  <UserIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Clasificación</p>
-                  <p className="text-white font-semibold">{movie.ageRating}</p>
+                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
+                  <UserIcon className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                  <p className="text-white/60 text-[10px]">Clasificación</p>
+                  <p className="text-white font-semibold text-xs leading-tight">{movie.ageRating}</p>
                 </GlassCard>
-
               </div>
 
               {/* Additional Info */}
@@ -279,35 +296,27 @@ const MovieDetailPage = () => {
                 </button>
               </div>
 
-              {/* ✅ MENSAJE INFORMATIVO PARA PRÓXIMAMENTE */}
+              {/* MENSAJE INFORMATIVO PARA PRÓXIMAMENTE */}
               {rawMovie?.status === 'coming_soon' && !rawMovie?.is_presale && (
-                <GlassCard className="p-6 border-l-4 border-blue-500">
-                  <div className="flex items-center gap-3">
-                    <CalendarDaysIcon className="w-6 h-6 text-blue-400" />
-                    <div>
-                      <h4 className="text-white font-semibold">Próximamente en cines</h4>
-                      <p className="text-white/70 text-sm">
-                        Esta película aún no está disponible para comprar. Se estrenará el {movie.release_date_formatted}.
-                        {theaters && theaters.length > 0 && " Puedes ver los horarios programados más abajo."}
-                      </p>
-                    </div>
-                  </div>
-                </GlassCard>
+                <Alert className="border-blue-500/30 bg-blue-500/10 text-white backdrop-blur-sm">
+                  <CalendarDaysIcon className="h-4 w-4 text-blue-400" />
+                  <AlertTitle className="text-white font-semibold">Próximamente en cines</AlertTitle>
+                  <AlertDescription className="text-white/70 text-sm">
+                    Esta película aún no está disponible para comprar. Se estrenará el {movie.release_date_formatted}.
+                    {theaters && theaters.length > 0 && ' Puedes ver los horarios programados en la pestaña Horarios.'}
+                  </AlertDescription>
+                </Alert>
               )}
 
-              {/* ✅ MENSAJE INFORMATIVO PARA PREVENTA */}
+              {/* MENSAJE INFORMATIVO PARA PREVENTA */}
               {rawMovie?.status === 'coming_soon' && rawMovie?.is_presale && (
-                <GlassCard className="p-6 border-l-4 border-yellow-500">
-                  <div className="flex items-center gap-3">
-                    <TicketIcon className="w-6 h-6 text-yellow-400" />
-                    <div>
-                      <h4 className="text-white font-semibold">Preventa Disponible</h4>
-                      <p className="text-white/70 text-sm">
-                        ¡Ya puedes comprar tus entradas! Esta película se estrena el {movie.release_date_formatted}.
-                      </p>
-                    </div>
-                  </div>
-                </GlassCard>
+                <Alert className="border-amber-500/30 bg-amber-500/10 text-white backdrop-blur-sm">
+                  <TicketIcon className="h-4 w-4 text-amber-400" />
+                  <AlertTitle className="text-white font-semibold">Preventa Disponible</AlertTitle>
+                  <AlertDescription className="text-white/70 text-sm">
+                    ¡Ya puedes comprar tus entradas! Esta película se estrena el {movie.release_date_formatted}.
+                  </AlertDescription>
+                </Alert>
               )}
             </div>
           </div>
@@ -342,148 +351,137 @@ const MovieDetailPage = () => {
         </div>
       )}
 
-      {/* Detailed Images Section */}
-      {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
-        <section className="py-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-white mb-8 text-center">
-              Imágenes de la Película
-            </h2>
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="space-y-4">
-                <img
-                  src={movie.images.detail1}
-                  alt={`${movie.title} - Detalle 1`}
-                  className="w-full rounded-lg shadow-2xl"
-                />
-              </div>
-
-              <div className="space-y-4">
-                <img
-                  src={movie.images.detail2}
-                  alt={`${movie.title} - Detalle 2`}
-                  className="w-full rounded-lg shadow-2xl"
-                />
-              </div>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Theaters Section con horarios - SOLO SI HAY THEATERS Y PUEDE COMPRAR O ES COMING_SOON */}
-      {theaters && theaters.length > 0 && (rawMovie?.status === 'in_theaters' || rawMovie?.is_presale || rawMovie?.status === 'coming_soon') && (
-        <div id="theaters-showtimes-section">
-        <TheatersWithShowtimes
-          theaters={theaters}
-          movieId={id}
-          movie={movie}
-          canPurchase={purchaseInfo.canPurchase}
-        />
-        </div>
-      )}
-
-      {/* Availability Info */}
-      {availability && (
-        <section className="py-16">
-          <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-            <h2 className="text-3xl font-bold text-white mb-8 text-center">
-              Información de Disponibilidad
-            </h2>
-            <div className="max-w-2xl mx-auto">
-              <GlassCard className="p-8">
-                <div className="grid grid-cols-2 gap-6 text-center">
-                  <div>
-                    <p className="text-3xl font-bold text-green-400 mb-2">
-                      {availability.total_available}
-                    </p>
-                    <p className="text-white/70">Entradas Disponibles</p>
-                  </div>
-                  <div>
-                    <p className="text-3xl font-bold text-blue-400 mb-2">
-                      {availability.total_capacity}
-                    </p>
-                    <p className="text-white/70">Capacidad Total</p>
-                  </div>
-                </div>
-
-                <div className="mt-6">
-                  <div className="w-full bg-gray-700 rounded-full h-2">
-                    <div
-                      className="bg-gradient-to-r from-green-500 to-blue-500 h-2 rounded-full transition-all duration-500"
-                      style={{ width: `${availability.occupancy_rate}%` }}
-                    ></div>
-                  </div>
-                  <p className="text-center text-white/70 mt-2">
-                    {availability.occupancy_rate}% ocupado
-                  </p>
-                </div>
-              </GlassCard>
-            </div>
-          </div>
-        </section>
-      )}
-
-      {/* Ratings Section */}
-      <section className="py-16">
+      {/* ── Tabs: Horarios / Galería / Disponibilidad / Calificaciones ── */}
+      <section id="movie-tabs" className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <h2 className="text-3xl font-bold text-white mb-8 text-center">
-            Calificación de usuarios
-          </h2>
-          <div className="max-w-2xl mx-auto space-y-6">
-
-            {/* Promedio actual */}
-            <GlassCard className="p-6 text-center">
-              {rawMovie?.average_rating ? (
-                <>
-                  <p className="text-5xl font-bold text-yellow-400 mb-2">
-                    {rawMovie.average_rating.toFixed(1)}
-                  </p>
-                  <StarRating value={Math.round(rawMovie.average_rating)} readonly size="lg" />
-                  <p className="text-white/60 text-sm mt-2">
-                    Basado en {rawMovie.rating_count} {rawMovie.rating_count === 1 ? 'calificación' : 'calificaciones'}
-                  </p>
-                </>
-              ) : (
-                <p className="text-white/50 text-lg">Aún no hay calificaciones. ¡Sé el primero!</p>
+          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+            <TabsList className="bg-white/[0.08] border border-white/10 h-10 mb-8 w-full sm:w-auto">
+              {theaters && theaters.length > 0 && (
+                <TabsTrigger value="horarios" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+                  Horarios
+                </TabsTrigger>
               )}
-            </GlassCard>
+              {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
+                <TabsTrigger value="galeria" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+                  Galería
+                </TabsTrigger>
+              )}
+              {availability && (
+                <TabsTrigger value="disponibilidad" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+                  Disponibilidad
+                </TabsTrigger>
+              )}
+              <TabsTrigger value="calificaciones" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+                Calificaciones
+              </TabsTrigger>
+            </TabsList>
 
-            {/* Formulario de calificación — solo usuarios autenticados */}
-            {isAuthenticated ? (
-              <GlassCard className="p-6">
-                <h3 className="text-white font-semibold mb-4">Tu calificación</h3>
-                <div className="space-y-4">
-                  <StarRating value={userScore} onChange={setUserScore} size="lg" />
-                  <textarea
-                    value={userReview}
-                    onChange={(e) => setUserReview(e.target.value)}
-                    placeholder="Escribe una reseña opcional... (máx. 500 caracteres)"
-                    maxLength={500}
-                    rows={3}
-                    className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-white/40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
-                  />
-                  {ratingMsg && (
-                    <p className={`text-sm ${ratingMsg.type === 'success' ? 'text-green-400' : 'text-red-400'}`}>
-                      {ratingMsg.text}
-                    </p>
-                  )}
-                  <button
-                    onClick={handleRateMovie}
-                    disabled={!userScore || ratingSubmitting}
-                    className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors text-sm"
-                  >
-                    {ratingSubmitting ? 'Enviando...' : 'Enviar calificación'}
-                  </button>
-                </div>
-              </GlassCard>
-            ) : (
-              <GlassCard className="p-4 text-center">
-                <p className="text-white/60 text-sm">
-                  <span className="text-blue-400 cursor-pointer hover:underline">Inicia sesión</span> para dejar tu calificación.
-                </p>
-              </GlassCard>
+            {/* Horarios */}
+            {theaters && theaters.length > 0 && (
+              <TabsContent value="horarios">
+                <TheatersWithShowtimes
+                  theaters={theaters}
+                  movieId={id}
+                  movie={movie}
+                  canPurchase={purchaseInfo.canPurchase}
+                  onShowtimeSelect={handleShowtimeSelect}
+                />
+              </TabsContent>
             )}
-          </div>
+
+            {/* Galería */}
+            {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
+              <TabsContent value="galeria">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                  <div className="w-full h-60 lg:h-72 overflow-hidden rounded-xl shadow-2xl">
+                    <img src={movie.images.detail1} alt={`${movie.title} - Detalle 1`} className="w-full h-full object-cover" />
+                  </div>
+                  <div className="w-full h-60 lg:h-72 overflow-hidden rounded-xl shadow-2xl">
+                    <img src={movie.images.detail2} alt={`${movie.title} - Detalle 2`} className="w-full h-full object-cover" />
+                  </div>
+                </div>
+              </TabsContent>
+            )}
+
+            {/* Disponibilidad */}
+            {availability && (
+              <TabsContent value="disponibilidad">
+                <div className="max-w-2xl mx-auto">
+                  <GlassCard className="p-8">
+                    <div className="grid grid-cols-2 gap-6 text-center mb-6">
+                      <div>
+                        <p className="text-3xl font-bold text-emerald-400 mb-1">{availability.total_available}</p>
+                        <p className="text-white/60 text-sm">Entradas disponibles</p>
+                      </div>
+                      <div>
+                        <p className="text-3xl font-bold text-blue-400 mb-1">{availability.total_capacity}</p>
+                        <p className="text-white/60 text-sm">Capacidad total</p>
+                      </div>
+                    </div>
+                    <Progress
+                      value={availability.occupancy_rate}
+                      className="h-2 bg-white/10 [&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-blue-500"
+                    />
+                    <p className="text-center text-white/50 text-sm mt-2">{availability.occupancy_rate}% ocupado</p>
+                  </GlassCard>
+                </div>
+              </TabsContent>
+            )}
+
+            {/* Calificaciones */}
+            <TabsContent value="calificaciones">
+              <div className="max-w-2xl mx-auto space-y-6">
+                <GlassCard className="p-6 text-center">
+                  {rawMovie?.average_rating ? (
+                    <>
+                      <p className="text-5xl font-bold text-yellow-400 mb-2">{rawMovie.average_rating.toFixed(1)}</p>
+                      <StarRating value={Math.round(rawMovie.average_rating)} readonly size="lg" />
+                      <p className="text-white/60 text-sm mt-2">
+                        Basado en {rawMovie.rating_count} {rawMovie.rating_count === 1 ? 'calificación' : 'calificaciones'}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-white/50 text-lg">Aún no hay calificaciones. ¡Sé el primero!</p>
+                  )}
+                </GlassCard>
+
+                {isAuthenticated ? (
+                  <GlassCard className="p-6">
+                    <h3 className="text-white font-semibold mb-4">Tu calificación</h3>
+                    <div className="space-y-4">
+                      <StarRating value={userScore} onChange={setUserScore} size="lg" />
+                      <textarea
+                        value={userReview}
+                        onChange={(e) => setUserReview(e.target.value)}
+                        placeholder="Escribe una reseña opcional... (máx. 500 caracteres)"
+                        maxLength={500}
+                        rows={3}
+                        className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-white/40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                      />
+                      {ratingMsg && (
+                        <p className={`text-sm ${ratingMsg.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
+                          {ratingMsg.text}
+                        </p>
+                      )}
+                      <button
+                        onClick={handleRateMovie}
+                        disabled={!userScore || ratingSubmitting}
+                        className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors text-sm"
+                      >
+                        {ratingSubmitting ? 'Enviando...' : 'Enviar calificación'}
+                      </button>
+                    </div>
+                  </GlassCard>
+                ) : (
+                  <GlassCard className="p-4 text-center">
+                    <p className="text-white/60 text-sm">
+                      <span className="text-blue-400 cursor-pointer hover:underline">Inicia sesión</span> para dejar tu calificación.
+                    </p>
+                  </GlassCard>
+                )}
+              </div>
+            </TabsContent>
+          </Tabs>
         </div>
       </section>
     </div>

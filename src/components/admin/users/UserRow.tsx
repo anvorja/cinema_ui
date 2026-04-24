@@ -1,125 +1,115 @@
-// src/components/admin/users/UserRow.jsx
-import React from 'react';
-import { Shield, User, ToggleLeft, ToggleRight } from 'lucide-react';
+// src/components/admin/users/UserRow.tsx
+import { useState } from 'react';
+import { Shield, User } from 'lucide-react';
+import { TableRow, TableCell } from '../../ui/table';
+import { Badge } from '../../ui/badge';
+import { Switch } from '../../ui/switch';
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction,
+} from '../../ui/alert-dialog';
 
-const UserRow = ({ user, onToggle }) => {
-  const handleToggle = () => {
-    onToggle(user.id);
-  };
+const fmt = (d: string) =>
+  new Date(d).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
 
-  const formatDate = (dateString) => {
-    return new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'short',
-      day: 'numeric'
-    });
-  };
-
+const UserRow = ({ user, onToggle }: { user: any; onToggle: (id: number) => void }) => {
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const isAdmin = user.role === 'admin';
+  const willDisable = user.is_active;
 
   return (
-    <tr className="hover:bg-gray-700 transition-colors">
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className={`flex-shrink-0 h-10 w-10 rounded-full flex items-center justify-center ${
-            isAdmin ? 'bg-purple-900' : 'bg-blue-900'
-          }`}>
-            {isAdmin ? (
-              <Shield className="h-5 w-5 text-purple-400" />
-            ) : (
-              <User className="h-5 w-5 text-blue-400" />
-            )}
-          </div>
-          <div className="ml-4">
-            <div className="text-sm font-medium text-white">
-              {user.first_name} {user.last_name}
+    <>
+      <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
+        <TableCell className="py-3">
+          <div className="flex items-center gap-3">
+            <div className={`w-8 h-8 rounded-full flex items-center justify-center shrink-0 ${
+              isAdmin ? 'bg-violet-500/15 ring-1 ring-violet-500/30' : 'bg-blue-500/15 ring-1 ring-blue-500/30'
+            }`}>
+              {isAdmin
+                ? <Shield className="w-4 h-4 text-violet-400" />
+                : <User className="w-4 h-4 text-blue-400" />
+              }
             </div>
-            <div className="text-sm text-gray-400">
-              ID: {user.id}
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{user.first_name} {user.last_name}</p>
+              <p className="text-[11px] text-zinc-600">ID {user.id}</p>
             </div>
           </div>
-        </div>
-      </td>
+        </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-300">
-          {user.email}
-        </div>
-      </td>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-400">{user.email}</TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="text-sm text-gray-300">
-          {user.phone || 'N/A'}
-        </div>
-      </td>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-500">{user.phone || '—'}</TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          isAdmin 
-            ? 'bg-purple-900 text-purple-200' 
-            : 'bg-blue-900 text-blue-200'
-        }`}>
+        <TableCell className="py-3">
           {isAdmin ? (
-            <>
-              <Shield className="h-3 w-3 mr-1" />
-              Administrador
-            </>
+            <Badge className="bg-violet-500/15 text-violet-300 border-violet-500/25 gap-1 text-[11px]">
+              <Shield className="w-3 h-3" /> Admin
+            </Badge>
           ) : (
-            <>
-              <User className="h-3 w-3 mr-1" />
-              Cliente
-            </>
+            <Badge className="bg-blue-500/15 text-blue-300 border-blue-500/25 gap-1 text-[11px]">
+              <User className="w-3 h-3" /> Cliente
+            </Badge>
           )}
-        </span>
-      </td>
+        </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          user.is_active 
-            ? 'bg-green-900 text-green-200' 
-            : 'bg-red-900 text-red-200'
-        }`}>
-          <span className={`w-2 h-2 rounded-full mr-2 ${
-            user.is_active ? 'bg-green-400' : 'bg-red-400'
-          }`} />
-          {user.is_active ? 'Activo' : 'Inactivo'}
-        </span>
-      </td>
+        <TableCell className="py-3">
+          <Badge variant="outline" className={user.is_active
+            ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[11px]'
+            : 'border-gray-300 dark:border-zinc-700 text-gray-400 dark:text-zinc-500 bg-gray-100/50 dark:bg-zinc-800/50 text-[11px]'
+          }>
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${user.is_active ? 'bg-emerald-400' : 'bg-gray-400 dark:bg-zinc-600'}`} />
+            {user.is_active ? 'Activo' : 'Inactivo'}
+          </Badge>
+        </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-        {user.created_at ? formatDate(user.created_at) : 'N/A'}
-      </td>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-500">
+          {user.created_at ? fmt(user.created_at) : '—'}
+        </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        {!isAdmin ? (
-          <button
-            onClick={handleToggle}
-            className={`inline-flex items-center px-3 py-1 rounded-md text-sm transition-colors ${
-              user.is_active 
-                ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20' 
-                : 'text-green-400 hover:text-green-300 hover:bg-green-900/20'
-            }`}
-            title={user.is_active ? 'Deshabilitar usuario' : 'Habilitar usuario'}
-          >
-            {user.is_active ? (
-              <>
-                <ToggleRight className="h-4 w-4 mr-1" />
-                Deshabilitar
-              </>
-            ) : (
-              <>
-                <ToggleLeft className="h-4 w-4 mr-1" />
-                Habilitar
-              </>
-            )}
-          </button>
-        ) : (
-          <span className="text-gray-500 text-sm">
-            Sin acciones
-          </span>
-        )}
-      </td>
-    </tr>
+        <TableCell className="py-3">
+          {!isAdmin ? (
+            <Switch
+              checked={user.is_active}
+              onCheckedChange={() => setConfirmOpen(true)}
+              className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
+            />
+          ) : (
+            <span className="text-xs text-gray-300 dark:text-zinc-700">—</span>
+          )}
+        </TableCell>
+      </TableRow>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-white max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
+              {willDisable ? 'Deshabilitar usuario' : 'Habilitar usuario'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-500 dark:text-zinc-400">
+              {willDisable
+                ? <><strong className="text-gray-900 dark:text-white">{user.first_name} {user.last_name}</strong> no podrá iniciar sesión hasta ser reactivado.</>
+                : <><strong className="text-gray-900 dark:text-white">{user.first_name} {user.last_name}</strong> recuperará acceso completo al sistema.</>
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-100 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-zinc-700">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => onToggle(user.id)}
+              className={willDisable
+                ? 'bg-red-600 hover:bg-red-700 text-white border-0'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white border-0'
+              }
+            >
+              {willDisable ? 'Deshabilitar' : 'Habilitar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 

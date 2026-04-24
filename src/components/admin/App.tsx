@@ -1,10 +1,12 @@
 // src/components/admin/App.jsx
 import React, { useState } from 'react';
+import { Routes, Route } from 'react-router-dom';
 import { Loader } from 'lucide-react';
 import { useAuth } from './hooks/useAuth';
 import { useToast } from './hooks/useToast';
 import LoginForm from './LoginForm';
 import AdminDashboard from './AdminDashboard';
+import MovieEditPage from './movies/MovieEditPage';
 import {ToastProvider} from "./providers/ToasProvider.jsx";
 
 const AppContent = () => {
@@ -69,7 +71,13 @@ const AppContent = () => {
     );
   }
 
-  return <AdminDashboard />;
+  return (
+    <Routes>
+      <Route path="peliculas/nueva"        element={<MovieEditPage />} />
+      <Route path="peliculas/:id/editar"   element={<MovieEditPage />} />
+      <Route path="*"                      element={<AdminDashboard />} />
+    </Routes>
+  );
 };
 
 const App = () => {

@@ -1,66 +1,95 @@
-// src/components/admin/theaters/TheaterRow.jsx
-import React from 'react';
-import { Building2, ToggleLeft, ToggleRight } from 'lucide-react';
+// src/components/admin/theaters/TheaterRow.tsx
+import { useState } from 'react';
+import { Building2 } from 'lucide-react';
+import { TableRow, TableCell } from '../../ui/table';
+import { Badge } from '../../ui/badge';
+import { Switch } from '../../ui/switch';
+import {
+  AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogFooter,
+  AlertDialogTitle, AlertDialogDescription, AlertDialogCancel, AlertDialogAction,
+} from '../../ui/alert-dialog';
 
-const TheaterRow = ({ theater, onToggle }) => {
-  const formatDate = (dateString) =>
-    new Date(dateString).toLocaleDateString('es-ES', {
-      year: 'numeric', month: 'short', day: 'numeric',
-    });
+const fmt = (d: string) =>
+  new Date(d).toLocaleDateString('es-ES', { year: 'numeric', month: 'short', day: 'numeric' });
+
+const TheaterRow = ({ theater, onToggle }: { theater: any; onToggle: (id: number) => void }) => {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const willDisable = theater.is_active;
 
   return (
-    <tr className="hover:bg-gray-700 transition-colors">
-      <td className="px-6 py-4 whitespace-nowrap">
-        <div className="flex items-center">
-          <div className="flex-shrink-0 h-10 w-10 rounded-full bg-blue-900 flex items-center justify-center">
-            <Building2 className="h-5 w-5 text-blue-400" />
+    <>
+      <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-800/40 transition-colors">
+        <TableCell className="py-3">
+          <div className="flex items-center gap-3">
+            <div className="w-8 h-8 rounded-full bg-blue-500/15 ring-1 ring-blue-500/30 flex items-center justify-center shrink-0">
+              <Building2 className="w-4 h-4 text-blue-400" />
+            </div>
+            <div className="min-w-0">
+              <p className="text-sm font-medium text-gray-900 dark:text-white truncate">{theater.name}</p>
+              <p className="text-[11px] text-zinc-600">ID {theater.id}</p>
+            </div>
           </div>
-          <div className="ml-4">
-            <div className="text-sm font-medium text-white">{theater.name}</div>
-            <div className="text-sm text-gray-400">ID: {theater.id}</div>
-          </div>
-        </div>
-      </td>
+        </TableCell>
 
-      <td className="px-6 py-4">
-        <div className="text-sm text-gray-300">{theater.location}</div>
-      </td>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-400">{theater.location}</TableCell>
 
-      <td className="px-6 py-4">
-        <div className="text-sm text-gray-400">{theater.description || '—'}</div>
-      </td>
+        <TableCell className="py-3 text-sm text-zinc-500 max-w-[200px] truncate">
+          {theater.description || '—'}
+        </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap">
-        <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-          theater.is_active ? 'bg-green-900 text-green-200' : 'bg-red-900 text-red-200'
-        }`}>
-          <span className={`w-2 h-2 rounded-full mr-2 ${theater.is_active ? 'bg-green-400' : 'bg-red-400'}`} />
-          {theater.is_active ? 'Activo' : 'Inactivo'}
-        </span>
-      </td>
+        <TableCell className="py-3">
+          <Badge variant="outline" className={theater.is_active
+            ? 'border-emerald-500/30 text-emerald-400 bg-emerald-500/10 text-[11px]'
+            : 'border-gray-300 dark:border-zinc-700 text-gray-400 dark:text-zinc-500 bg-gray-100/50 dark:bg-zinc-800/50 text-[11px]'
+          }>
+            <span className={`w-1.5 h-1.5 rounded-full mr-1.5 ${theater.is_active ? 'bg-emerald-400' : 'bg-gray-400 dark:bg-zinc-600'}`} />
+            {theater.is_active ? 'Activo' : 'Inactivo'}
+          </Badge>
+        </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-300">
-        {theater.created_at ? formatDate(theater.created_at) : 'N/A'}
-      </td>
+        <TableCell className="py-3 text-sm text-gray-500 dark:text-zinc-500">
+          {theater.created_at ? fmt(theater.created_at) : '—'}
+        </TableCell>
 
-      <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-        <button
-          onClick={() => onToggle(theater.id)}
-          className={`inline-flex items-center px-3 py-1 rounded-md text-sm transition-colors ${
-            theater.is_active
-              ? 'text-red-400 hover:text-red-300 hover:bg-red-900/20'
-              : 'text-green-400 hover:text-green-300 hover:bg-green-900/20'
-          }`}
-          title={theater.is_active ? 'Desactivar teatro' : 'Activar teatro'}
-        >
-          {theater.is_active ? (
-            <><ToggleRight className="h-4 w-4 mr-1" />Desactivar</>
-          ) : (
-            <><ToggleLeft className="h-4 w-4 mr-1" />Activar</>
-          )}
-        </button>
-      </td>
-    </tr>
+        <TableCell className="py-3">
+          <Switch
+            checked={theater.is_active}
+            onCheckedChange={() => setConfirmOpen(true)}
+            className="data-[state=checked]:bg-emerald-600 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
+          />
+        </TableCell>
+      </TableRow>
+
+      <AlertDialog open={confirmOpen} onOpenChange={setConfirmOpen}>
+        <AlertDialogContent className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 text-gray-900 dark:text-white max-w-sm">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="text-gray-900 dark:text-white">
+              {willDisable ? 'Desactivar teatro' : 'Activar teatro'}
+            </AlertDialogTitle>
+            <AlertDialogDescription className="text-gray-500 dark:text-zinc-400">
+              {willDisable
+                ? <>El teatro <strong className="text-gray-900 dark:text-white">{theater.name}</strong> dejará de aparecer como opción de compra para los usuarios.</>
+                : <>El teatro <strong className="text-gray-900 dark:text-white">{theater.name}</strong> volverá a estar disponible para la venta de entradas.</>
+              }
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-gray-100 dark:bg-zinc-800 border-gray-200 dark:border-zinc-700 text-gray-700 dark:text-white hover:bg-gray-200 dark:hover:bg-zinc-700">
+              Cancelar
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => onToggle(theater.id)}
+              className={willDisable
+                ? 'bg-red-600 hover:bg-red-700 text-white border-0'
+                : 'bg-emerald-600 hover:bg-emerald-700 text-white border-0'
+              }
+            >
+              {willDisable ? 'Desactivar' : 'Activar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
 
