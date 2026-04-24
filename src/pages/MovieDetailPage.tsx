@@ -176,16 +176,16 @@ const MovieDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen pt-20">
+    <div className="min-h-screen">
       <FloatingParticles count={50} className="opacity-30" />
 
-      {/* Hero Section */}
-      <section className="relative py-16">
+      {/* Hero Section — imagen cubre desde top-0, detrás del header transparente */}
+      <section className="relative pt-28 pb-16">
         <div
           className="absolute inset-0 bg-cover bg-center bg-no-repeat"
           style={{ backgroundImage: `url(${movie.images.backdrop})` }}
         >
-          <div className="absolute inset-0 bg-black/70"></div>
+          <div className="absolute inset-0 bg-black/65"></div>
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
@@ -220,25 +220,24 @@ const MovieDetailPage = () => {
               </div>
 
               {/* Movie Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <GlassCard className="p-4 text-center">
-                  <ClockIcon className="w-8 h-8 text-blue-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Duración</p>
-                  <p className="text-white font-semibold">{movie.duration_formatted}</p>
+              <div className="flex gap-2">
+                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
+                  <ClockIcon className="w-5 h-5 text-blue-400 mx-auto mb-1" />
+                  <p className="text-white/60 text-[10px]">Duración</p>
+                  <p className="text-white font-semibold text-xs">{movie.duration_formatted}</p>
                 </GlassCard>
 
-                <GlassCard className="p-4 text-center">
-                  <TagIcon className="w-8 h-8 text-purple-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Género</p>
-                  <p className="text-white font-semibold">{movie.genre}</p>
+                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
+                  <TagIcon className="w-5 h-5 text-purple-400 mx-auto mb-1" />
+                  <p className="text-white/60 text-[10px]">Género</p>
+                  <p className="text-white font-semibold text-xs leading-tight">{movie.genre}</p>
                 </GlassCard>
 
-                <GlassCard className="p-4 text-center">
-                  <UserIcon className="w-8 h-8 text-green-400 mx-auto mb-2" />
-                  <p className="text-white/70 text-sm">Clasificación</p>
-                  <p className="text-white font-semibold">{movie.ageRating}</p>
+                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
+                  <UserIcon className="w-5 h-5 text-green-400 mx-auto mb-1" />
+                  <p className="text-white/60 text-[10px]">Clasificación</p>
+                  <p className="text-white font-semibold text-xs leading-tight">{movie.ageRating}</p>
                 </GlassCard>
-
               </div>
 
               {/* Additional Info */}
