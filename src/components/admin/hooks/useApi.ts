@@ -66,6 +66,9 @@ export const useApi = () => {
       return apiCall(`/admin/movies?${queryString}`);
     },
 
+    getMovie: (id: number | string) =>
+      apiCall(`/admin/movies/${id}`),
+
     createMovie: (movieData) =>
       apiCall('/admin/movies', {
         method: 'POST',

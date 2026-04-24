@@ -125,7 +125,7 @@ const AdminDashboardContent = () => {
 
   const renderTab = () => {
     switch (activeTab) {
-      case 'movies':    return <MoviesTab movies={movies} loading={loading} onCreateMovie={handleCreateMovie} onUpdateMovie={handleUpdateMovie} onToggleMovie={handleToggleMovie} searchTerm={searchTerm} onSearchChange={setSearchTerm} />;
+      case 'movies':    return <MoviesTab movies={movies} loading={loading} onToggleMovie={handleToggleMovie} searchTerm={searchTerm} onSearchChange={setSearchTerm} />;
       case 'theaters':  return <TheatersTab theaters={theaters} loading={loading} onToggleTheater={handleToggleTheater} searchTerm={searchTerm} onSearchChange={setSearchTerm} />;
       case 'users':     return <UsersTab users={users} loading={loading} onToggleUser={handleToggleUser} searchTerm={searchTerm} onSearchChange={setSearchTerm} />;
       case 'purchases': return <PurchasesTab purchases={purchases} loading={loading} searchTerm={searchTerm} onSearchChange={setSearchTerm} />;

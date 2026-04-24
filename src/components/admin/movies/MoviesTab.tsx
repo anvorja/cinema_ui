@@ -1,8 +1,8 @@
 // src/components/admin/movies/MoviesTab.tsx
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Plus, Search, Grid, List, Film, Clapperboard, Eye, EyeOff } from 'lucide-react';
 import MovieCard from './MovieCard';
-import MovieModal from './MovieModal';
 import { Card, CardContent } from '../../ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 import { Skeleton } from '../../ui/skeleton';
@@ -36,8 +36,8 @@ const MoviesTabSkeleton = () => (
 );
 
 // ── Main ───────────────────────────────────────────────────────────────────────
-const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovie, searchTerm, onSearchChange }) => {
-  const [movieModal, setMovieModal] = useState<{ isOpen: boolean; movie: any | null }>({ isOpen: false, movie: null });
+const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange }) => {
+  const navigate = useNavigate();
   const [viewMode,     setViewMode]     = useState<'grid' | 'list'>('grid');
   const [filterStatus, setFilterStatus] = useState('all');
 
@@ -53,16 +53,6 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
       (filterStatus === 'presale'  && m.is_presale);
     return matchSearch && matchStatus;
   });
-
-  const handleCreate = async (data: any) => {
-    await onCreateMovie(data);
-    setMovieModal({ isOpen: false, movie: null });
-  };
-
-  const handleUpdate = async (data: any) => {
-    await onUpdateMovie(movieModal.movie.id, data);
-    setMovieModal({ isOpen: false, movie: null });
-  };
 
   if (loading) return <MoviesTabSkeleton />;
 
@@ -118,7 +108,7 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
 
         {/* Nueva Película */}
         <button
-          onClick={() => setMovieModal({ isOpen: true, movie: null })}
+          onClick={() => navigate('/admin/peliculas/nueva')}
           className="flex items-center gap-1.5 h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0"
         >
           <Plus className="h-4 w-4" />
@@ -157,7 +147,7 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
           </p>
           {!searchTerm && filterStatus === 'all' && (
             <button
-              onClick={() => setMovieModal({ isOpen: true, movie: null })}
+              onClick={() => navigate('/admin/peliculas/nueva')}
               className="mt-4 flex items-center gap-1.5 h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors mx-auto"
             >
               <Plus className="h-4 w-4" />
@@ -172,7 +162,7 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
               key={m.id}
               movie={m}
               viewMode="grid"
-              onEdit={movie => setMovieModal({ isOpen: true, movie })}
+              onEdit={movie => navigate(`/admin/peliculas/${movie.id}/editar`, { state: { movie } })}
               onToggle={onToggleMovie}
             />
           ))}
@@ -193,7 +183,7 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
                   key={m.id}
                   movie={m}
                   viewMode="list"
-                  onEdit={movie => setMovieModal({ isOpen: true, movie })}
+                  onEdit={movie => navigate(`/admin/peliculas/${movie.id}/editar`, { state: { movie } })}
                   onToggle={onToggleMovie}
                 />
               ))}
@@ -202,13 +192,6 @@ const MoviesTab = ({ movies, loading, onCreateMovie, onUpdateMovie, onToggleMovi
         </div>
       )}
 
-      {/* Sheet / Modal */}
-      <MovieModal
-        movie={movieModal.movie}
-        isOpen={movieModal.isOpen}
-        onClose={() => setMovieModal({ isOpen: false, movie: null })}
-        onSave={movieModal.movie ? handleUpdate : handleCreate}
-      />
     </div>
   );
 };
