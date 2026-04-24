@@ -167,23 +167,21 @@ const FoodSelectionPage = () => {
                 const qty = getQty(item.id);
                 return (
                   <div key={item.id}
-                    className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow">
+                    className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
 
                     {/* Placeholder image */}
-                    <div className="h-32 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center text-5xl">
+                    <div className="h-32 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center text-5xl flex-shrink-0">
                       {CATEGORY_EMOJI[activeCategory]}
                     </div>
 
-                    <div className="p-3">
+                    <div className="p-3 flex flex-col flex-1">
                       <h3 className="font-semibold text-gray-800 text-sm leading-snug mb-1">
                         {item.name}
                       </h3>
                       <p className="font-bold text-gray-900 mb-1">{formatCOP(item.price)}</p>
-                      {item.desc && (
-                        <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2">
-                          {item.desc}
-                        </p>
-                      )}
+                      <p className="text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2 flex-1">
+                        {item.desc || ' '}
+                      </p>
 
                       {qty === 0 ? (
                         <button
