@@ -30,7 +30,7 @@
 # Por ahora apunta al mismo gateway de producción.
 # Cuando tengas un gateway de staging desplegado, cambia la URL aquí.
 [context.staging.environment]
-  VITE_API_BASE_URL            = "https://infra-cinema.onrender-1.com/api/v1"
+  VITE_API_BASE_URL            = "https://infra-cinema-1.onrender.com/api/v1"
   VITE_CLOUDINARY_CLOUD_NAME   = "dv2xu8dwr"
   VITE_CLOUDINARY_UPLOAD_PRESET = "cinema"
 
