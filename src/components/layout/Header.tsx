@@ -2,7 +2,7 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, Search, X } from 'lucide-react';
+import { Menu, Search, X, User } from 'lucide-react';
 import { GlassCard } from '../common';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { Sidebar } from './Sidebar';
@@ -226,19 +226,47 @@ const Header = () => {
 
                                 {/* User area */}
                                 {isAuthenticated ? (
-                                    <UserProfileDropdown
-                                        user={user}
-                                        onOpenProfile={() => setShowProfileModal(true)}
-                                    />
+                                    <>
+                                        {/* Desktop: dropdown completo */}
+                                        <span className="hidden sm:block">
+                                            <UserProfileDropdown
+                                                user={user}
+                                                onOpenProfile={() => setShowProfileModal(true)}
+                                            />
+                                        </span>
+                                        {/* Mobile: ícono de perfil */}
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={() => setShowProfileModal(true)}
+                                            className="sm:hidden text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
+                                            aria-label="Mi perfil"
+                                        >
+                                            <User className="h-4 w-4" />
+                                        </Button>
+                                    </>
                                 ) : (
-                                    <Button
-                                        variant="ghost"
-                                        size="sm"
-                                        onClick={handleLoginClick}
-                                        className="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10 border border-white/20 hover:border-white/35 rounded-xl h-9 px-4 text-sm font-medium transition-all"
-                                    >
-                                        Iniciar Sesión
-                                    </Button>
+                                    <>
+                                        {/* Desktop: botón de texto */}
+                                        <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={handleLoginClick}
+                                            className="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10 border border-white/20 hover:border-white/35 rounded-xl h-9 px-4 text-sm font-medium transition-all"
+                                        >
+                                            Iniciar Sesión
+                                        </Button>
+                                        {/* Mobile: ícono de persona */}
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            onClick={handleLoginClick}
+                                            className="sm:hidden text-white/70 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
+                                            aria-label="Iniciar sesión"
+                                        >
+                                            <User className="h-4 w-4" />
+                                        </Button>
+                                    </>
                                 )}
                             </div>
                         </div>

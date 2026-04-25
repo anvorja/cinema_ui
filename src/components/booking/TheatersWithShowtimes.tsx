@@ -1,53 +1,67 @@
 // src/components/booking/TheatersWithShowtimes.jsx
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPinIcon, ChevronDownIcon, TicketIcon } from '@heroicons/react/24/outline';
 
 import { GlassCard } from '../common';
 import { useMovieShowtimes } from '../../hooks/useMovieShowtimes';
 import { useBooking } from '../../hooks/useBooking';
+import useAuth from '../../hooks/useAuth';
+import { LoginModal } from '../auth/LoginModal.jsx';
+import { RegisterModal } from '../auth/RegisterModal.jsx';
 import LoadingSpinner from '../common/LoadingSpinner';
 import ShowtimeButton from './ShowtimeButton';
 
 const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurchase, onShowtimeSelect, ..._rest }: { theaters: any; movieId: any; movie: any; canPurchase?: any; onShowtimeSelect?: (theater: any, showtime: any) => void; [key: string]: any }) => {
   const navigate = useNavigate();
   const { startBooking } = useBooking();
+  const { isAuthenticated } = useAuth();
   const { showtimes, loading: showtimesLoading } = useMovieShowtimes(movieId);
 
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
   const [expandedTheater, setExpandedTheater] = useState(null);
+  const [showLoginModal, setShowLoginModal] = useState(false);
+  const [showRegisterModal, setShowRegisterModal] = useState(false);
+  const [pendingBooking, setPendingBooking] = useState<{ theater: any; showtime: any } | null>(null);
+
+  // Cuando el usuario se autentica con un booking pendiente, continuar el flujo
+  useEffect(() => {
+    if (isAuthenticated && pendingBooking) {
+      proceedToBooking(pendingBooking.theater, pendingBooking.showtime);
+      setPendingBooking(null);
+    }
+  }, [isAuthenticated]);
+
+  const proceedToBooking = (theater, showtime) => {
+    if (onShowtimeSelect) {
+      onShowtimeSelect(theater, showtime);
+      return;
+    }
+    const selectedDate = showtime.date ?? null;
+    startBooking(movie, theater, showtime, selectedDate);
+    navigate(`/booking/${movieId}/${theater.id}/${showtime.id}`, {
+      state: { movie, theater, showtime, selectedDate }
+    });
+  };
 
   const handleTheaterClick = (theater) => {
     const isExpanded = expandedTheater === theater.id;
     setExpandedTheater(isExpanded ? null : theater.id);
-
-    if (!isExpanded) {
-      setSelectedTheater(theater);
-    }
+    if (!isExpanded) setSelectedTheater(theater);
   };
 
   const handleShowtimeSelect = (theater, showtime) => {
     setSelectedShowtime(showtime);
     setSelectedTheater(theater);
 
-    // Si hay un handler externo (ej: Drawer en MovieDetailPage), delegarle
-    if (onShowtimeSelect) {
-      onShowtimeSelect(theater, showtime);
+    if (!isAuthenticated) {
+      setPendingBooking({ theater, showtime });
+      setShowLoginModal(true);
       return;
     }
 
-    const selectedDate = showtime.date ?? null;
-    startBooking(movie, theater, showtime, selectedDate);
-
-    navigate(`/booking/${movieId}/${theater.id}/${showtime.id}`, {
-      state: {
-        movie: movie,
-        theater: theater,
-        showtime: showtime,
-        selectedDate: selectedDate
-      }
-    });
+    proceedToBooking(theater, showtime);
   };
 
   if (!theaters || theaters.length === 0) {
@@ -55,6 +69,7 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
   }
 
   return (
+    <>
     <section className="py-16">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8">
         <h2 className="text-3xl font-bold text-white mb-8 text-center">
@@ -186,6 +201,19 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
         </div>
       </div>
     </section>
+
+      {/* Modales de autenticación para gate de horario */}
+      <LoginModal
+        isOpen={showLoginModal}
+        onClose={() => setShowLoginModal(false)}
+        onSwitchToRegister={() => { setShowLoginModal(false); setShowRegisterModal(true); }}
+      />
+      <RegisterModal
+        isOpen={showRegisterModal}
+        onClose={() => setShowRegisterModal(false)}
+        onSwitchToLogin={() => { setShowRegisterModal(false); setShowLoginModal(true); }}
+      />
+    </>
   );
 };
 
