@@ -89,7 +89,7 @@ const MovieDetailPage = () => {
       return {
         canPurchase: rawMovie.available_tickets > 0,
         message: rawMovie.available_tickets > 0
-          ? `¡Ya disponible en cines! ${rawMovie.available_tickets} entradas disponibles`
+          ? '¡Ya disponible en cines!'
           : 'Entradas agotadas',
         buttonText: rawMovie.available_tickets > 0 ? 'Comprar Entradas' : 'Agotado',
         statusBadge: 'EN CARTELERA',
