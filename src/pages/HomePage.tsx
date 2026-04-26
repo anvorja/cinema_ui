@@ -106,8 +106,8 @@ const HomePage = () => {
 
           {/* Movie grid */}
           {homeData.loading && mobileMovies.length === 0 ? (
-            <div className="grid grid-cols-3 gap-2">
-              {[...Array(9)].map((_, i) => (
+            <div className="grid grid-cols-2 gap-3">
+              {[...Array(6)].map((_, i) => (
                 <div key={i} className="animate-pulse">
                   <div className="aspect-[2/3] bg-white/10 rounded-lg mb-2" />
                   <div className="h-3 bg-white/10 rounded mb-1" />
