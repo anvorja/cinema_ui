@@ -1,5 +1,5 @@
 // src/components/booking/TheatersWithShowtimes.jsx
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { MapPinIcon, ChevronDownIcon, TicketIcon } from '@heroicons/react/24/outline';
 
@@ -17,6 +17,17 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
   const { startBooking } = useBooking();
   const { isAuthenticated } = useAuth();
   const { showtimes, loading: showtimesLoading } = useMovieShowtimes(movieId);
+
+  // If the theaters prop is empty, derive theater list from showtimes data
+  const effectiveTheaters = useMemo(() => {
+    if (theaters && theaters.length > 0) return theaters;
+    return Object.entries(showtimes).map(([tid, data]: [string, any]) => ({
+      id: Number(tid),
+      name: data.theaterName || `Teatro ${tid}`,
+      location: '',
+      capacity: data.times?.[0]?.capacity ?? 100,
+    }));
+  }, [theaters, showtimes]);
 
   const [selectedTheater, setSelectedTheater] = useState(null);
   const [selectedShowtime, setSelectedShowtime] = useState(null);
@@ -64,7 +75,7 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
     proceedToBooking(theater, showtime);
   };
 
-  if (!theaters || theaters.length === 0) {
+  if (!showtimesLoading && effectiveTheaters.length === 0) {
     return null;
   }
 
@@ -76,8 +87,14 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
           Teatros y Horarios Disponibles
         </h2>
 
+        {showtimesLoading && effectiveTheaters.length === 0 && (
+          <div className="flex justify-center py-12">
+            <LoadingSpinner size="lg" />
+          </div>
+        )}
+
         <div className="max-w-4xl mx-auto space-y-6">
-          {theaters.map((theater) => {
+          {effectiveTheaters.map((theater) => {
             const theaterShowtimes = showtimes[theater.id];
             const isExpanded = expandedTheater === theater.id;
             const hasShowtimes = theaterShowtimes?.times?.length > 0;
@@ -93,7 +110,7 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
                       <MapPinIcon className="w-8 h-8 text-blue-400 mt-1 flex-shrink-0" />
                       <div>
                         <h3 className="text-white font-semibold text-xl mb-1">
-                          {theater.name || theaterShowtimes.theaterName || `Teatro ${theater.id}`}
+                          {theater.name || theaterShowtimes?.theaterName || `Teatro ${theater.id}`}
                         </h3>
                         <p className="text-white/70 text-sm mb-2">
                           {theater.location}

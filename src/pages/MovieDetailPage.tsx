@@ -356,11 +356,9 @@ const MovieDetailPage = () => {
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
             <TabsList className="bg-white/[0.08] border border-white/10 h-10 mb-8 w-full sm:w-auto">
-              {theaters && theaters.length > 0 && (
-                <TabsTrigger value="horarios" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
-                  Horarios
-                </TabsTrigger>
-              )}
+              <TabsTrigger value="horarios" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+                Horarios
+              </TabsTrigger>
               {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
                 <TabsTrigger value="galeria" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
                   Galería
@@ -377,17 +375,15 @@ const MovieDetailPage = () => {
             </TabsList>
 
             {/* Horarios */}
-            {theaters && theaters.length > 0 && (
-              <TabsContent value="horarios">
-                <TheatersWithShowtimes
-                  theaters={theaters}
-                  movieId={id}
-                  movie={movie}
-                  canPurchase={purchaseInfo.canPurchase}
-                  onShowtimeSelect={handleShowtimeSelect}
-                />
-              </TabsContent>
-            )}
+            <TabsContent value="horarios">
+              <TheatersWithShowtimes
+                theaters={theaters}
+                movieId={id}
+                movie={movie}
+                canPurchase={purchaseInfo.canPurchase}
+                onShowtimeSelect={handleShowtimeSelect}
+              />
+            </TabsContent>
 
             {/* Galería */}
             {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
