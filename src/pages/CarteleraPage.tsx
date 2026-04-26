@@ -1,12 +1,7 @@
 // src/pages/Cartelera.jsx - PÁGINA ACTUALIZADA CON API REAL
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import {
-  StarIcon,
-  ClockIcon,
-  CurrencyDollarIcon,
-  ArrowPathIcon
-} from '@heroicons/react/24/outline';
+import { ArrowPathIcon } from '@heroicons/react/24/outline';
 
 import { GlassCard, GlassInput } from '../components/common';
 import { useMovies } from '../hooks/useMovies';
@@ -62,120 +57,54 @@ const Cartelera = () => {
     refresh();
   };
 
-  // Formatear duración
-  const formatDuration = (minutes) => {
-    if (!minutes) return 'N/A';
-    const hours = Math.floor(minutes / 60);
-    const mins = minutes % 60;
-    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
-  };
-
-  // Formatear precio
-  const formatPrice = (price) => {
-    if (!price) return 'Precio no disponible';
-    return new Intl.NumberFormat('es-CO', {
-      style: 'currency',
-      currency: 'COP',
-      minimumFractionDigits: 0
-    }).format(price);
-  };
-
   // Componente para tarjeta de película
   const MovieCard = ({ movie }) => {
+    const ageRating = movie.age_rating || movie.rating_label || null;
+    const releaseDate = movie.release_date
+      ? new Date(movie.release_date).toLocaleDateString('es-CO', { day: 'numeric', month: 'long', year: 'numeric' })
+      : null;
+
     return (
-      <GlassCard className="group hover:scale-105 transition-all duration-300 cursor-pointer">
+      <GlassCard className="group hover:scale-[1.02] transition-all duration-300 cursor-pointer overflow-hidden">
         <Link to={`/movie/${movie.id}`} className="block">
-          {/* Imagen de la película */}
-          <div className="relative aspect-[4/5] overflow-hidden rounded-lg mb-3">
+          {/* Imagen */}
+          <div className="relative aspect-[2/3] overflow-hidden">
             <img
               src={movie.poster_url || '/placeholder-movie.jpg'}
               alt={movie.title}
-              className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/placeholder-movie.jpg';
               }}
             />
-
-            {/* Badge de estado */}
-            <div className="absolute top-2 right-2">
+            {/* Badges */}
+            <div className="absolute top-2 left-2">
               {movie.is_presale && (
-                <span className="px-2 py-1 text-xs font-semibold bg-yellow-500 text-black rounded-full">
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-yellow-500 text-black rounded">
                   PREVENTA
                 </span>
               )}
-              {movie.status === 'coming_soon' && (
-                <span className="px-2 py-1 text-xs font-semibold bg-blue-500 text-white rounded-full">
-                  PRÓXIMAMENTE
+              {movie.status === 'coming_soon' && !movie.is_presale && (
+                <span className="px-2 py-0.5 text-[10px] font-bold bg-blue-500 text-white rounded">
+                  PRONTO
                 </span>
               )}
             </div>
-
-            {/* Overlay con información adicional */}
-            <div className="absolute inset-0 bg-black/0 group-hover:bg-black/70 transition-colors duration-300 flex items-center justify-center opacity-0 group-hover:opacity-100">
-              <div className="text-center text-white p-4">
-                <p className="text-sm mb-2">Ver detalles</p>
-                <div className="flex items-center justify-center space-x-4 text-xs">
-                  {movie.rating && (
-                    <div className="flex items-center">
-                      <StarIcon className="w-4 h-4 text-yellow-400 mr-1" />
-                      {movie.rating}
-                    </div>
-                  )}
-                  {movie.duration && (
-                    <div className="flex items-center">
-                      <ClockIcon className="w-4 h-4 mr-1" />
-                      {formatDuration(movie.duration)}
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
           </div>
 
-          {/* Información de la película */}
-          <div className="p-4">
-            <h3 className="font-bold text-lg mb-2 text-white group-hover:text-blue-400 transition-colors line-clamp-2">
+          {/* Info simplificada */}
+          <div className="p-3">
+            <h3 className="font-bold text-sm text-white line-clamp-2 mb-1">
               {movie.title}
             </h3>
-
-            {/* Género y duración */}
-            <div className="flex items-center justify-between text-sm text-gray-400 mb-3">
-              <span>{movie.genre || 'Género no disponible'}</span>
-              <span>{formatDuration(movie.duration)}</span>
-            </div>
-
-            {/* Director */}
-            {movie.director && (
-              <p className="text-sm text-gray-300 mb-2">
-                <span className="font-medium">Director:</span> {movie.director}
-              </p>
+            {ageRating && (
+              <span className="inline-block bg-white/10 text-white/70 border border-white/15 rounded text-[10px] px-1.5 py-0.5 mb-1.5">
+                {ageRating}
+              </span>
             )}
-
-            {/* Precio */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center">
-                <CurrencyDollarIcon className="w-5 h-5 text-green-400 mr-1" />
-                <span className="font-bold text-green-400">
-                  {formatPrice(movie.price)}
-                </span>
-              </div>
-
-              {/* Disponibilidad */}
-              <div className="text-xs">
-                {movie.available_tickets > 0 ? (
-                  <span className="text-green-400">
-                    {movie.available_tickets} disponibles
-                  </span>
-                ) : (
-                  <span className="text-red-400">Agotado</span>
-                )}
-              </div>
-            </div>
-
-            {/* Fecha de estreno para próximamente */}
-            {movie.release_date && movie.status === 'coming_soon' && (
-              <p className="text-xs text-blue-400 mt-2">
-                Estreno: {new Date(movie.release_date).toLocaleDateString('es-CO')}
+            {releaseDate && (
+              <p className="text-white/55 text-xs">
+                <span className="font-medium text-white/70">Estreno:</span> {releaseDate}
               </p>
             )}
           </div>
