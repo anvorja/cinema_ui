@@ -138,6 +138,22 @@ export const useApi = () => {
       return apiCall(`/admin/purchases/user/${userId}?${queryString}`);
     },
 
+    // Showtimes
+    getMovieShowtimes: (movieId: number | string, startDate: string, endDate: string) =>
+      apiCall(`/movies/${movieId}/showtimes?start_date=${startDate}&end_date=${endDate}`),
+
+    reprogramarShowtimes: (movieId: number | string, daysCount = 30) => {
+      const now = new Date();
+      const startDate = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
+      return apiCall(`/admin/movies/${movieId}/showtimes`, {
+        method: 'POST',
+        body: JSON.stringify({ start_date: startDate, days_count: daysCount }),
+      });
+    },
+
+    deleteShowtime: (movieId: number | string, showtimeId: number) =>
+      apiCall(`/admin/movies/${movieId}/showtimes/${showtimeId}`, { method: 'DELETE' }),
+
     // Reports
     getSalesReport: () => apiCall('/admin/reports/sales'),
     getReportByMovie: () => apiCall('/admin/reports/by-movie'),

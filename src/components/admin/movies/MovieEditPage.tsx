@@ -6,6 +6,7 @@ import { getErrorMessage } from '../../../services/api';
 import { useApi } from '../hooks/useApi';
 import { useToast } from '../hooks/useToast';
 import MultipleImageUpload from './MultipleImageUpload';
+import ShowtimesSection from './ShowtimesSection';
 import { Input }    from '../../ui/input';
 import { Textarea } from '../../ui/textarea';
 import { Label }    from '../../ui/label';
@@ -299,7 +300,7 @@ const MovieEditPage = () => {
       </header>
 
       {/* ── Body ───────────────────────────────────────────────────────────────── */}
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 py-8 space-y-8">
         <form id="movie-edit-form" onSubmit={handleSubmit}>
           <div className="grid grid-cols-1 lg:grid-cols-[1fr_300px] gap-8 items-start">
 
@@ -522,6 +523,9 @@ const MovieEditPage = () => {
 
           </div>
         </form>
+
+        {/* ── Showtimes (edit mode only) ────────────────────────────────────── */}
+        {isEdit && <ShowtimesSection movieId={id!} />}
       </main>
     </div>
   );
