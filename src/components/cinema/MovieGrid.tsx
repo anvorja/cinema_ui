@@ -41,14 +41,14 @@ const MovieCard = ({ movie, showStats = false, showDetailsButton = true }) => {
     <GlassCard className="group overflow-hidden hover:scale-[1.02] transition-all duration-300">
       {!showDetailsButton ? (
         <Link to={`/movie/${movie.id}`} className="block">
-          <MovieCardContent movie={movie} statusBadge={statusBadge} showStats={showStats} />
+          <MovieCardContent movie={movie} statusBadge={statusBadge} showStats={showStats} showDetailsButton={false} />
         </Link>
       ) : (
         <MovieCardContent
           movie={movie}
           statusBadge={statusBadge}
           showStats={showStats}
-          showDetailsButton={showDetailsButton}
+          showDetailsButton={true}
         />
       )}
     </GlassCard>

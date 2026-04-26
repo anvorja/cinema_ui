@@ -15,7 +15,9 @@ export const useMovieShowtimes = (movieId) => {
       setError(null);
 
       try {
-        const today = new Date().toISOString().split('T')[0];
+        // Usar fecha local (no UTC) para evitar desfase de zona horaria
+        const now = new Date();
+        const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
         const response = await bookingService.getShowtimes(movieId, today);
 
         if (response.success && Array.isArray(response.data)) {
