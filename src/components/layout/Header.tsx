@@ -1,5 +1,5 @@
 // src/components/layout/Header.tsx
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, Search, X, User } from 'lucide-react';
@@ -23,6 +23,8 @@ import {
 
 const Header = () => {
     const [isScrolled, setIsScrolled] = useState(false);
+    const [isHeaderVisible, setIsHeaderVisible] = useState(true);
+    const lastScrollYRef = useRef(0);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [showLoginModal, setShowLoginModal] = useState(false);
@@ -37,10 +39,19 @@ const Header = () => {
     const navigate = useNavigate();
     const { user, isAuthenticated } = useAuth();
 
-    // Scroll effect
+    // Scroll effect: isScrolled styling + hide-on-scroll-down for mobile
     useEffect(() => {
-        const handleScroll = () => setIsScrolled(window.scrollY > 20);
-        window.addEventListener('scroll', handleScroll);
+        const handleScroll = () => {
+            const currentY = window.scrollY;
+            setIsScrolled(currentY > 20);
+            if (currentY > 80) {
+                setIsHeaderVisible(currentY < lastScrollYRef.current);
+            } else {
+                setIsHeaderVisible(true);
+            }
+            lastScrollYRef.current = currentY;
+        };
+        window.addEventListener('scroll', handleScroll, { passive: true });
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
@@ -129,7 +140,7 @@ const Header = () => {
     return (
         <TooltipProvider delayDuration={300}>
             <>
-                <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'}`}>
+                <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'} ${!isHeaderVisible ? '-translate-y-full' : 'translate-y-0'}`}>
                     <GlassCard
                         variant="premium"
                         className={`mx-4 transition-all duration-300 ${
@@ -208,21 +219,6 @@ const Header = () => {
                                         </div>
                                     )}
                                 </div>
-
-                                {/* Mobile search icon */}
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            className="md:hidden text-white/70 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
-                                            aria-label="Buscar"
-                                        >
-                                            <Search className="h-4 w-4" />
-                                        </Button>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom">Buscar</TooltipContent>
-                                </Tooltip>
 
                                 {/* User area */}
                                 {isAuthenticated ? (
