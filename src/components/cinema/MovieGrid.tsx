@@ -111,7 +111,7 @@ const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = t
                 {movie.ageRating}
               </span>
             )}
-            {movie.release_date && (
+            {movie.release_date_short && (
               <p className="text-white/55 text-xs">
                 <span className="font-medium text-white/70">Estreno:</span> {movie.release_date_short}
               </p>

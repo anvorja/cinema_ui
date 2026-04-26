@@ -198,8 +198,8 @@ export const transformMovieData = (movie) => {
     ageRating: formatRatingForDisplay(movie.rating),
     duration_formatted: formatDuration(movie.duration),
     price_formatted: formatPrice(movie.price),
-    release_date_formatted: formatReleaseDate(movie.release_date),
-    release_date_short: formatDateShort(movie.release_date),
+    release_date_formatted: formatReleaseDate(movie.release_date) || movie.formatted_release_date || '',
+    release_date_short: formatDateShort(movie.release_date) || movie.formatted_release_date || '',
 
     // Estado de disponibilidad
     isAvailable: (movie.available_tickets || 0) > 0,
