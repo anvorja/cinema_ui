@@ -33,7 +33,7 @@ const ComidasPage = () => {
         {
           id: 3,
           name: 'Kurashiki Combo',
-          description: '½ Philadelphia Roll + ½ Salmón Teriyaki + ½ Spider Roll + ½ Cine Colombia Roll',
+          description: '½ Philadelphia Roll + ½ Salmón Teriyaki + ½ Spider Roll + ½ Cinema Roll',
           image: '/api/placeholder/600/400',
           price: 22000
         }
