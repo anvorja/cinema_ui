@@ -92,16 +92,46 @@ class BookingService {
           'showtime recibido:', bookingData.showtime);
       }
 
-      const selectedSeats = bookingData.selectedSeats || [];
-      // Send null instead of [] when no seats selected; backend uses GENERAL-X fallback for null.
-      const selectedSeatsPayload = selectedSeats.length > 0 ? selectedSeats : null;
-      const quantity = selectedSeats.length > 0 ? selectedSeats.length : (bookingData.ticketCount || 1);
+      // ── Capa de seguridad / integridad ──────────────────────────────────────
+      // Formato permitido para IDs de asiento: una letra mayúscula + 1-3 dígitos (ej: K25, N3, B12)
+      const SEAT_ID_PATTERN = /^[A-Z][0-9]{1,3}$/;
+
+      // Sanitizar: solo strings no vacíos
+      const rawSeats: string[] = (bookingData.selectedSeats || [])
+        .filter((s): s is string => typeof s === 'string' && s.trim().length > 0)
+        .map(s => s.trim().toUpperCase());
+
+      const ticketCount = Number(bookingData.ticketCount) || 0;
+
+      // 1. Validar formato de cada asiento (previene inyección SQL/script desde payload manipulado)
+      const invalidSeats = rawSeats.filter(s => !SEAT_ID_PATTERN.test(s));
+      if (invalidSeats.length > 0) {
+        throw new Error(`Asientos con formato inválido: ${invalidSeats.join(', ')}`);
+      }
+
+      // 2. Integridad estricta: cantidad de boletas DEBE coincidir con asientos seleccionados
+      //    Bloquea peticiones manipuladas desde terminal/devtools con counts inconsistentes
+      if (rawSeats.length > 0 && rawSeats.length !== ticketCount) {
+        throw new Error(
+          `Error de integridad: ${ticketCount} boleta(s) confirmada(s) pero ${rawSeats.length} asiento(s) seleccionado(s). Por favor reinicia la selección.`
+        );
+      }
+
+      // 3. Validar movie_id como entero positivo seguro (previene inyección por ID manipulado)
+      const movieId = parseInt(String(bookingData.movie?.id ?? ''), 10);
+      if (!Number.isInteger(movieId) || movieId <= 0) {
+        throw new Error('ID de película inválido.');
+      }
+
+      // Valores autorizados — se usan en todo el payload de aquí en adelante
+      const selectedSeatsPayload = rawSeats.length > 0 ? rawSeats : null;
+      const quantity = rawSeats.length > 0 ? rawSeats.length : ticketCount || 1;
 
       if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
         // PSE payload
         const pse = bookingData.pseData;
         purchasePayload = {
-          movie_id: bookingData.movie.id,
+          movie_id: movieId,
           quantity,
           show_date: showDate,
           show_time: showTime,
@@ -122,7 +152,7 @@ class BookingService {
         const cardNumber = (card.number || '').replace(/\s/g, '') || '1234567812345678';
 
         purchasePayload = {
-          movie_id: bookingData.movie.id,
+          movie_id: movieId,
           quantity,
           show_date: showDate,
           show_time: showTime,

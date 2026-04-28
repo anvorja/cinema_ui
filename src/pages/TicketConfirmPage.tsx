@@ -75,9 +75,9 @@ const TicketConfirmPage = () => {
   const subtotal      = genQty * GENERAL_PRICE + prefQty * PREFERENCIAL_PRICE;
   const total         = subtotal;
 
-  // Desfase crítico: boletas confirmadas < sillas físicamente seleccionadas
+  // Desfase: boletas confirmadas DEBEN ser exactamente iguales a sillas seleccionadas
   const maxSelected = generalCount + prefCount;
-  const mismatch    = totalSelected > 0 && totalSelected < maxSelected;
+  const mismatch    = totalSelected !== maxSelected;
 
   const selectedSeatLabels = useMemo(
     () => selectedSeats.filter(id => !id.includes('wc')).sort().join(', '),
