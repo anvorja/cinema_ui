@@ -109,7 +109,7 @@ const TransactionsPage = () => {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <ReceiptRefundIcon className="w-7 h-7 text-blue-400" />
-              Mis Transacciones
+              Mis Compras
             </h1>
             <p className="text-white/50 text-sm mt-0.5">Historial completo de tus compras y pagos</p>
           </div>

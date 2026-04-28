@@ -1,7 +1,7 @@
 // src/components/layout/UserProfileDropdown.tsx
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { User, Ticket, CreditCard, Settings, LogOut } from 'lucide-react';
+import { User, Ticket, Settings, LogOut } from 'lucide-react';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -97,16 +97,6 @@ const UserProfileDropdown = ({ user, onOpenProfile }: UserProfileDropdownProps) 
                         >
                             <Ticket className="w-4 h-4 shrink-0" />
                             <span>Mis Compras</span>
-                        </Link>
-                    </DropdownMenuItem>
-
-                    <DropdownMenuItem inset={false} className="" asChild>
-                        <Link
-                            to="/profile/transactions"
-                            className="flex items-center gap-2.5 px-3 py-2 rounded-lg text-white/70 hover:text-white focus:text-white hover:bg-white/[0.07] focus:bg-white/[0.07] cursor-pointer transition-colors text-sm"
-                        >
-                            <CreditCard className="w-4 h-4 shrink-0" />
-                            <span>Mis Transacciones</span>
                         </Link>
                     </DropdownMenuItem>
 

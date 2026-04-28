@@ -1,6 +1,6 @@
 // src/components/layout/MobileProfileMenu.tsx
 import { Link } from 'react-router-dom';
-import { User, Ticket, CreditCard, Settings, LogOut } from 'lucide-react';
+import { User, Ticket, Settings, LogOut } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
 import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import { Separator } from '../ui/separator';
@@ -14,9 +14,8 @@ interface MobileProfileMenuProps {
 }
 
 const menuItems = [
-    { label: 'Mis Compras',       to: '/profile/purchases',    icon: Ticket,   color: 'text-purple-400' },
-    { label: 'Mis Transacciones', to: '/profile/transactions', icon: CreditCard, color: 'text-emerald-400' },
-    { label: 'Configuración',     to: '/profile/settings',     icon: Settings,  color: 'text-blue-400' },
+    { label: 'Mis Compras',   to: '/profile/purchases', icon: Ticket,   color: 'text-purple-400' },
+    { label: 'Configuración', to: '/profile/settings',  icon: Settings, color: 'text-blue-400' },
 ];
 
 const getUserInitials = (name?: string) => {

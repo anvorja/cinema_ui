@@ -50,7 +50,7 @@ function App() {
                                 <Route path="payment" element={<PaymentPage />} />
                                 <Route path="payment-success" element={<PaymentSuccessPage />} />
                                 <Route path="/profile" element={<ProfilePage />} />
-                                <Route path="/profile/purchases" element={<ProfilePage />} />
+                                <Route path="/profile/purchases" element={<TransactionsPage />} />
                                 <Route path="/profile/transactions" element={<TransactionsPage />} />
                                 <Route path="/profile/cards" element={<CardsPage />} />
                                 <Route path="/profile/settings" element={<SettingsPage />} />
