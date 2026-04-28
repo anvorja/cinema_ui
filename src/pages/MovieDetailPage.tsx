@@ -71,6 +71,8 @@ const MovieDetailPage = () => {
   const [userReview, setUserReview] = useState('');
   const [ratingSubmitting, setRatingSubmitting] = useState(false);
   const [ratingMsg, setRatingMsg] = useState(null); // { type: 'success'|'error', text }
+  const [reviews, setReviews] = useState<any[]>([]);
+  const [reviewsLoading, setReviewsLoading] = useState(false);
 
   // Hooks para datos
   const { movie: rawMovie, loading, error, refetch } = useMovie(id);
@@ -148,6 +150,19 @@ const MovieDetailPage = () => {
     }, 50);
   };
 
+  const loadReviews = async () => {
+    if (!id) return;
+    setReviewsLoading(true);
+    try {
+      const data = await movieService.getRatings(id);
+      setReviews(data);
+    } catch {
+      // silencioso — si falla, simplemente no se muestran
+    } finally {
+      setReviewsLoading(false);
+    }
+  };
+
   const handleRateMovie = async () => {
     if (!userScore) return;
     setRatingSubmitting(true);
@@ -156,6 +171,7 @@ const MovieDetailPage = () => {
       await movieService.rate(id, userScore, userReview || null);
       setRatingMsg({ type: 'success', text: '¡Gracias por tu calificación!' });
       refetch();
+      loadReviews();
     } catch (err: any) {
       if (err?.response?.status === 403) {
         setRatingMsg({
@@ -362,7 +378,14 @@ const MovieDetailPage = () => {
       {/* ── Tabs: Horarios / Galería / Disponibilidad / Calificaciones ── */}
       <section id="movie-tabs" className="py-12">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+          <Tabs
+            value={activeTab}
+            onValueChange={(tab) => {
+              setActiveTab(tab);
+              if (tab === 'calificaciones' && reviews.length === 0) loadReviews();
+            }}
+            className="w-full"
+          >
             <TabsList className="bg-white/[0.08] border border-white/10 h-10 mb-8 w-full sm:w-auto">
               <TabsTrigger value="horarios" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
                 Horarios
@@ -435,6 +458,7 @@ const MovieDetailPage = () => {
             {/* Calificaciones */}
             <TabsContent value="calificaciones">
               <div className="max-w-2xl mx-auto space-y-6">
+                {/* Promedio global */}
                 <GlassCard className="p-6 text-center">
                   {rawMovie?.average_rating ? (
                     <>
@@ -449,6 +473,7 @@ const MovieDetailPage = () => {
                   )}
                 </GlassCard>
 
+                {/* Formulario para el usuario autenticado */}
                 {isAuthenticated ? (
                   <GlassCard className="p-6">
                     <h3 className="text-white font-semibold mb-4">Tu calificación</h3>
@@ -483,6 +508,35 @@ const MovieDetailPage = () => {
                     </p>
                   </GlassCard>
                 )}
+
+                {/* Lista de reseñas */}
+                {reviewsLoading ? (
+                  <p className="text-white/40 text-sm text-center">Cargando reseñas...</p>
+                ) : reviews.filter((r) => r.review).length > 0 ? (
+                  <div className="space-y-3">
+                    <h3 className="text-white font-semibold">Reseñas</h3>
+                    {reviews.filter((r) => r.review).map((r, i) => (
+                      <GlassCard key={i} className="p-4 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <StarRating value={r.score} readonly size="md" />
+                            <span className="text-white/50 text-xs">{r.author}</span>
+                          </div>
+                          <span className="text-white/30 text-xs">
+                            {new Date(r.created_at).toLocaleDateString('es-CO', {
+                              year: 'numeric', month: 'short', day: 'numeric',
+                            })}
+                          </span>
+                        </div>
+                        <p className="text-white/80 text-sm leading-relaxed">{r.review}</p>
+                      </GlassCard>
+                    ))}
+                  </div>
+                ) : reviews.length > 0 ? (
+                  <p className="text-white/40 text-sm text-center">
+                    Hay {reviews.length} {reviews.length === 1 ? 'calificación' : 'calificaciones'} pero ninguna incluye comentario.
+                  </p>
+                ) : null}
               </div>
             </TabsContent>
           </Tabs>

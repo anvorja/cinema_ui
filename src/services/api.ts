@@ -254,6 +254,12 @@ export const movieService = {
     const response = await api.post(`/movies/${movieId}/rate`, { score, review });
     return response.data;
   },
+
+  // Listado de reseñas de una película
+  getRatings: async (movieId, skip = 0, limit = 20) => {
+    const response = await api.get(`/movies/${movieId}/ratings`, { params: { skip, limit } });
+    return response.data;
+  },
 };
 
 export const theaterService = {
