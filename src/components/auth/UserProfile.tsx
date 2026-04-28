@@ -54,6 +54,13 @@ const UserProfile = ({ onClose }) => {
   const [success, setSuccess] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
 
+  // Bloquear scroll del body mientras el modal está abierto
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    return () => { document.body.style.overflow = prev; };
+  }, []);
+
   // Cargar datos del usuario
   useEffect(() => {
     if (user) {
