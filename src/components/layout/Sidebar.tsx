@@ -96,9 +96,7 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
 
                     {/* ── Logo header ── */}
                     <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.08] shrink-0">
-                        <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-blue-500 to-purple-600 flex items-center justify-center shadow-lg shadow-blue-500/25 shrink-0">
-                            <span className="text-white font-bold text-sm tracking-tight">C+</span>
-                        </div>
+                        <img src="/icons8.png" alt="Cinemaplus" className="w-9 h-9 rounded-xl shrink-0" />
                         <span className="text-white font-bold text-base tracking-widest">CINEMAPLUS</span>
                     </div>
 
