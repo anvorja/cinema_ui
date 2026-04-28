@@ -13,7 +13,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '../ui/avatar';
 import useAuth from '../../hooks/useAuth.js';
 
 interface UserProfileDropdownProps {
-    user: { name?: string; email?: string; avatar?: string } | null;
+    user: { name?: string; first_name?: string; last_name?: string; email?: string; avatar?: string } | null;
     onOpenProfile?: () => void;
 }
 
@@ -21,9 +21,20 @@ const UserProfileDropdown = ({ user, onOpenProfile }: UserProfileDropdownProps) 
     const { logout, loading } = useAuth();
     const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-    const getUserInitials = (name?: string) => {
-        if (!name) return 'U';
-        return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    const getDisplayName = () => {
+        if (user?.first_name || user?.last_name) {
+            return [user.first_name, user.last_name].filter(Boolean).join(' ');
+        }
+        return user?.name || '';
+    };
+
+    const getUserInitials = () => {
+        if (user?.first_name && user?.last_name) {
+            return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+        }
+        if (user?.first_name) return user.first_name[0].toUpperCase();
+        if (user?.name) return user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+        return 'U';
     };
 
     const handleLogout = async () => {
@@ -47,11 +58,11 @@ const UserProfileDropdown = ({ user, onOpenProfile }: UserProfileDropdownProps) 
                     <Avatar className="h-8 w-8 ring-1 ring-white/20 group-hover:ring-white/35 transition-all">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold">
-                            {getUserInitials(user?.name)}
+                            {getUserInitials()}
                         </AvatarFallback>
                     </Avatar>
                     <span className="hidden sm:block text-white/85 font-medium text-sm group-hover:text-white transition-colors">
-                        {user?.name}
+                        {getDisplayName()}
                     </span>
                 </button>
             </DropdownMenuTrigger>
@@ -66,12 +77,12 @@ const UserProfileDropdown = ({ user, onOpenProfile }: UserProfileDropdownProps) 
                     <Avatar className="h-9 w-9 ring-1 ring-white/15 shrink-0">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold">
-                            {getUserInitials(user?.name)}
+                            {getUserInitials()}
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                         <p className="text-white/90 font-medium text-sm leading-tight truncate">
-                            {user?.name || 'Usuario'}
+                            {getDisplayName()}
                         </p>
                         <p className="text-white/40 text-xs leading-tight truncate mt-0.5">
                             {user?.email}

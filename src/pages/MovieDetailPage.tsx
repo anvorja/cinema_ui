@@ -15,7 +15,7 @@ import {
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
 import { GlassCard, PremiumButton, FloatingParticles } from '../components/common';
-import { useMovie, useMovieAvailability, useMovieTheaters } from '../hooks/useMovies';
+import { useMovie, useMovieTheaters } from '../hooks/useMovies';
 import { useMovieTransform } from '../hooks/useMoviesTransform';
 import { useBooking } from '../hooks/useBooking';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -25,7 +25,6 @@ import { movieService } from '../services/api';
 import useAuth from '../hooks/useAuth';
 import { Alert, AlertTitle, AlertDescription } from '../components/ui/alert';
 import { Badge } from '../components/ui/badge';
-import { Progress } from '../components/ui/progress';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '../components/ui/tabs';
 
 const StarRating = ({ value, onChange = undefined, readonly = false, size = 'md' }: { value: any; onChange?: any; readonly?: boolean; size?: string }) => {
@@ -77,7 +76,6 @@ const MovieDetailPage = () => {
 
   // Hooks para datos
   const { movie: rawMovie, loading, error, refetch } = useMovie(id);
-  const { availability } = useMovieAvailability(id);
   const { theaters } = useMovieTheaters(id);
 
   // Transformar datos de la película usando el hook
@@ -410,11 +408,6 @@ const MovieDetailPage = () => {
                   Galería
                 </TabsTrigger>
               )}
-              {availability && (
-                <TabsTrigger value="disponibilidad" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
-                  Disponibilidad
-                </TabsTrigger>
-              )}
               <TabsTrigger value="calificaciones" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
                 Calificaciones
               </TabsTrigger>
@@ -441,31 +434,6 @@ const MovieDetailPage = () => {
                   <div className="w-full h-60 lg:h-72 overflow-hidden rounded-xl shadow-2xl">
                     <img src={movie.images.detail2} alt={`${movie.title} - Detalle 2`} className="w-full h-full object-cover" />
                   </div>
-                </div>
-              </TabsContent>
-            )}
-
-            {/* Disponibilidad */}
-            {availability && (
-              <TabsContent value="disponibilidad">
-                <div className="max-w-2xl mx-auto">
-                  <GlassCard className="p-8">
-                    <div className="grid grid-cols-2 gap-6 text-center mb-6">
-                      <div>
-                        <p className="text-3xl font-bold text-emerald-400 mb-1">{availability.total_available}</p>
-                        <p className="text-white/60 text-sm">Entradas disponibles</p>
-                      </div>
-                      <div>
-                        <p className="text-3xl font-bold text-blue-400 mb-1">{availability.total_capacity}</p>
-                        <p className="text-white/60 text-sm">Capacidad total</p>
-                      </div>
-                    </div>
-                    <Progress
-                      value={availability.occupancy_rate}
-                      className="h-2 bg-white/10 [&>div]:bg-gradient-to-r [&>div]:from-emerald-500 [&>div]:to-blue-500"
-                    />
-                    <p className="text-center text-white/50 text-sm mt-2">{availability.occupancy_rate}% ocupado</p>
-                  </GlassCard>
                 </div>
               </TabsContent>
             )}

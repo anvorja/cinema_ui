@@ -9,7 +9,7 @@ import useAuth from '../../hooks/useAuth';
 interface MobileProfileMenuProps {
     isOpen: boolean;
     onClose: () => void;
-    user: { name?: string; email?: string; avatar?: string } | null;
+    user: { name?: string; first_name?: string; last_name?: string; email?: string; avatar?: string } | null;
     onOpenProfile: () => void;
 }
 
@@ -18,9 +18,20 @@ const menuItems = [
     { label: 'Configuración', to: '/profile/settings',  icon: Settings, color: 'text-blue-400' },
 ];
 
-const getUserInitials = (name?: string) => {
-    if (!name) return 'U';
-    return name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+const getDisplayName = (user: MobileProfileMenuProps['user']) => {
+    if (user?.first_name || user?.last_name) {
+        return [user?.first_name, user?.last_name].filter(Boolean).join(' ');
+    }
+    return user?.name || '';
+};
+
+const getUserInitials = (user: MobileProfileMenuProps['user']) => {
+    if (user?.first_name && user?.last_name) {
+        return `${user.first_name[0]}${user.last_name[0]}`.toUpperCase();
+    }
+    if (user?.first_name) return user.first_name[0].toUpperCase();
+    if (user?.name) return user.name.split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
+    return 'U';
 };
 
 const MobileProfileMenu = ({ isOpen, onClose, user, onOpenProfile }: MobileProfileMenuProps) => {
@@ -60,12 +71,12 @@ const MobileProfileMenu = ({ isOpen, onClose, user, onOpenProfile }: MobileProfi
                     <Avatar className="h-12 w-12 ring-2 ring-white/15 shrink-0">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
                         <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-sm font-semibold">
-                            {getUserInitials(user?.name)}
+                            {getUserInitials(user)}
                         </AvatarFallback>
                     </Avatar>
                     <div className="flex-1 min-w-0">
                         <p className="text-white font-semibold text-base leading-tight truncate">
-                            {user?.name || 'Usuario'}
+                            {getDisplayName(user)}
                         </p>
                         <p className="text-white/45 text-sm leading-tight truncate mt-0.5">
                             {user?.email}
