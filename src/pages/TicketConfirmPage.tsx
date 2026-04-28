@@ -22,32 +22,34 @@ const SERVICE_FEE_PER    = 0; // no service fee line in PDF for this screen
 
 const CounterRow = ({ label, subtitle, price, count, max, onDecrement, onIncrement }) => (
   <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
-    <div>
-      <p className="font-medium text-gray-800">{label}</p>
-      <p className="text-xs text-gray-400 mt-0.5">{subtitle}</p>
+    <div className="min-w-0 flex-1 pr-2">
+      <p className="font-medium text-gray-800 text-sm sm:text-base">{label}</p>
+      <p className="text-xs text-gray-400 mt-0.5 leading-tight">{subtitle}</p>
     </div>
-    <div className="flex items-center gap-4">
-      <span className="text-gray-700 font-medium w-24 text-right">{formatCOP(price)}</span>
-      <div className="flex items-center gap-2">
+    <div className="flex items-center gap-1.5 sm:gap-4 shrink-0">
+      <span className="text-gray-700 font-medium w-14 sm:w-24 text-right text-sm sm:text-base">
+        {formatCOP(price)}
+      </span>
+      <div className="flex items-center gap-1 sm:gap-2">
         <button
           onClick={onDecrement}
           disabled={count <= 0}
-          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center
+          className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-gray-300 flex items-center justify-center
                      text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          <MinusIcon className="w-3.5 h-3.5" />
+          <MinusIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
         </button>
-        <span className="w-6 text-center font-semibold text-gray-800">{count}</span>
+        <span className="w-5 sm:w-6 text-center font-semibold text-gray-800 text-sm">{count}</span>
         <button
           onClick={onIncrement}
           disabled={count >= max}
-          className="w-7 h-7 rounded-full border border-gray-300 flex items-center justify-center
+          className="w-6 h-6 sm:w-7 sm:h-7 rounded-full border border-gray-300 flex items-center justify-center
                      text-gray-600 hover:bg-gray-100 disabled:opacity-30 disabled:cursor-not-allowed"
         >
-          <PlusIcon className="w-3.5 h-3.5" />
+          <PlusIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
         </button>
       </div>
-      <span className="text-gray-700 font-medium w-24 text-right">
+      <span className="text-gray-700 font-medium w-14 sm:w-24 text-right text-sm sm:text-base">
         {formatCOP(price * count)}
       </span>
     </div>
@@ -191,11 +193,11 @@ const TicketConfirmPage = () => {
           </div>
 
           {/* Table header */}
-          <div className="flex items-center justify-between text-xs text-gray-400 uppercase tracking-wide mb-2 px-0">
-            <span className="flex-1">Concepto</span>
-            <span className="w-24 text-right">Precio</span>
-            <span className="w-32 text-center px-2">Cantidad</span>
-            <span className="w-24 text-right">Subtotal</span>
+          <div className="flex items-center justify-between text-xs text-gray-400 uppercase tracking-wide mb-2">
+            <span className="flex-1 pr-2">Concepto</span>
+            <span className="w-14 sm:w-24 text-right">Precio</span>
+            <span className="w-20 sm:w-32 text-center">Cantidad</span>
+            <span className="w-14 sm:w-24 text-right">Subtotal</span>
           </div>
 
           {generalCount > 0 && (
