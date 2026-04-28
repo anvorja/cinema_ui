@@ -192,20 +192,13 @@ const Header = () => {
                             {/* ── Right: recharge + search + user ── */}
                             <div className="flex items-center gap-2">
                                 {/* Desktop: Recargar Cinema+ */}
-                                <Tooltip>
-                                    <TooltipTrigger asChild>
-                                        <Link
-                                            to="/recharge"
-                                            className="hidden lg:flex items-center gap-1.5 px-3 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-300/90 hover:bg-amber-500/25 hover:text-amber-200 hover:border-amber-400/40 transition-all duration-200 text-sm font-semibold tracking-wide"
-                                        >
-                                            <CreditCard className="w-3.5 h-3.5 shrink-0" />
-                                            <span>Recargar</span>
-                                        </Link>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="bottom" className="text-xs">
-                                        Recargar Tarjeta Cinema+
-                                    </TooltipContent>
-                                </Tooltip>
+                                <Link
+                                    to="/recharge"
+                                    className="hidden lg:flex items-center gap-1.5 px-3 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-300/90 hover:bg-amber-500/25 hover:text-amber-200 hover:border-amber-400/40 transition-all duration-200 text-sm font-semibold tracking-wide"
+                                >
+                                    <CreditCard className="w-3.5 h-3.5 shrink-0" />
+                                    <span>Recargar</span>
+                                </Link>
 
                                 {/* Desktop search */}
                                 <div className="hidden md:flex items-center relative search-container">
