@@ -77,46 +77,40 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
 
                     {/* ── Navigation ── */}
                     <ScrollArea className="flex-1">
-                        <nav className="px-3 py-5 space-y-5">
-                            {sections.map((section, idx) => (
-                                <div key={section.title}>
-                                    {idx > 0 && (
-                                        <Separator className="bg-white/[0.06] mb-5" />
-                                    )}
-                                    <p className="px-3 mb-1.5 text-[10px] font-bold text-white/30 uppercase tracking-[0.18em]">
-                                        {section.title}
-                                    </p>
-                                    <div className="space-y-0.5">
-                                        {section.items.map((item) => {
-                                            const Icon = item.icon;
-                                            const active = item.href ? isItemActive(item.href) : false;
+                        <nav className="px-3 py-5">
+                            <div className="space-y-0.5">
+                                {navItems.map((item, idx) => {
+                                    const Icon = item.icon;
+                                    const active = item.href ? isItemActive(item.href) : false;
+                                    const cls = [
+                                        'group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium',
+                                        'transition-all duration-200 border',
+                                        active
+                                            ? 'bg-gradient-to-r from-blue-500/[0.18] to-purple-500/[0.14] border-blue-500/25 text-white'
+                                            : 'border-transparent text-white/60 hover:text-white/90 hover:bg-white/[0.06]',
+                                    ].join(' ');
 
-                                            const cls = [
-                                                'group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium',
-                                                'transition-all duration-200 border',
-                                                active
-                                                    ? 'bg-gradient-to-r from-blue-500/[0.18] to-purple-500/[0.14] border-blue-500/25 text-white'
-                                                    : 'border-transparent text-white/60 hover:text-white/90 hover:bg-white/[0.06]',
-                                            ].join(' ');
-
-                                            return item.action ? (
-                                                <button key={item.name} onClick={item.action} className={cls}>
+                                    return (
+                                        <div key={item.name}>
+                                            {isAuthenticated && idx === navItems.length - 1 && (
+                                                <Separator className="bg-white/[0.06] my-3" />
+                                            )}
+                                            {item.action ? (
+                                                <button onClick={item.action} className={cls}>
                                                     <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${item.color}`} />
                                                     <span>{item.name}</span>
                                                 </button>
                                             ) : (
-                                                <Link key={item.name} to={item.href!} onClick={onClose} className={cls}>
+                                                <Link to={item.href!} onClick={onClose} className={cls}>
                                                     <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${item.color}`} />
                                                     <span className="flex-1">{item.name}</span>
-                                                    {active && (
-                                                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400/80 animate-pulse" />
-                                                    )}
+                                                    {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-400/80 animate-pulse" />}
                                                 </Link>
-                                            );
-                                        })}
-                                    </div>
-                                </div>
-                            ))}
+                                            )}
+                                        </div>
+                                    );
+                                })}
+                            </div>
 
                             {/* ── Cinema+ promo card ── */}
                             <div>
