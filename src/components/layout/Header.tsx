@@ -190,14 +190,15 @@ const Header = () => {
                             </nav>
 
                             {/* ── Right: recharge + search + user ── */}
-                            <div className="flex items-center gap-2">
-                                {/* Desktop: Recargar Cinema+ */}
+                            <div className="flex items-center gap-3">
+                                {/* Desktop: Recargar Cinema+ — icon only on lg, icon+text on xl+ */}
                                 <Link
                                     to="/recharge"
-                                    className="hidden lg:flex items-center gap-1.5 px-3 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-300/90 hover:bg-amber-500/25 hover:text-amber-200 hover:border-amber-400/40 transition-all duration-200 text-sm font-semibold tracking-wide"
+                                    className="hidden lg:flex items-center justify-center w-9 h-9 xl:w-auto xl:px-3 xl:gap-1.5 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-300/90 hover:bg-amber-500/25 hover:text-amber-200 hover:border-amber-400/40 transition-all duration-200 text-sm font-semibold"
+                                    title="Recargar Tarjeta Cinema+"
                                 >
                                     <CreditCard className="w-3.5 h-3.5 shrink-0" />
-                                    <span>Recargar</span>
+                                    <span className="hidden xl:inline">Recargar</span>
                                 </Link>
 
                                 {/* Desktop search */}
@@ -213,8 +214,7 @@ const Header = () => {
                                             background: isSearchFocused ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.08)',
                                             borderColor: isSearchFocused ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.12)',
                                         }}
-                                        className="w-44 lg:w-60 pl-9 pr-8 h-9 rounded-xl border text-sm text-white transition-all duration-200 outline-none
-                                                   placeholder:text-white/40"
+                                        className="w-40 xl:w-56 pl-9 pr-8 h-9 rounded-xl border text-sm text-white transition-all duration-200 outline-none placeholder:text-white/40"
                                     />
                                     <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
                                     {searchQuery && !isSearching && (
