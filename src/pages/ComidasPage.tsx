@@ -65,7 +65,7 @@ const ComidasPage = () => {
         {
           id: 4,
           name: 'Cinepolitan',
-          description: 'Comida italiana premim',
+          description: 'Comida italiana premium',
           image: 'https://tvpacifico.mx/recetas/intranet/images/recipes/343-362.jpg',
           itemCount: 15
         }
