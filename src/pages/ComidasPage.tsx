@@ -52,7 +52,7 @@ const ComidasPage = () => {
           id: 2,
           name: 'Juan Valdez',
           description: 'El mejor café colombiano',
-          image: '/api/placeholder/400/300',
+          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777365720/Nevado-chai-Juan-Valdez_aoro0w.jpg',
           itemCount: 18
         },
         {
@@ -66,7 +66,7 @@ const ComidasPage = () => {
           id: 4,
           name: 'Cinepolitan',
           description: 'Comida italiana premium',
-          image: '/api/placeholder/400/300',
+          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777366118/yakimeshi_ihbqao.png',
           itemCount: 15
         }
       ];
