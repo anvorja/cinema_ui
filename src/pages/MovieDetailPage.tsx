@@ -156,8 +156,16 @@ const MovieDetailPage = () => {
       await movieService.rate(id, userScore, userReview || null);
       setRatingMsg({ type: 'success', text: '¡Gracias por tu calificación!' });
       refetch();
-    } catch {
-      setRatingMsg({ type: 'error', text: 'No se pudo guardar tu calificación.' });
+    } catch (err: any) {
+      if (err?.response?.status === 403) {
+        setRatingMsg({
+          type: 'error',
+          text: err?.response?.data?.detail
+            ?? 'Solo puedes calificar películas a las que hayas asistido con tu QR escaneado.',
+        });
+      } else {
+        setRatingMsg({ type: 'error', text: 'No se pudo guardar tu calificación.' });
+      }
     } finally {
       setRatingSubmitting(false);
     }
