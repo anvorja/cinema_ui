@@ -20,7 +20,7 @@ const ComidasPage = () => {
           id: 1,
           name: 'Nevado Arequipe 300 ml',
           description: 'Delicioso helado de arequipe con topping especial',
-          image: '/api/placeholder/600/400',
+          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777367285/Nevado-chai-Juan-Valdez_ybbf6q.jpg',
           price: 8500
         },
         {
@@ -34,7 +34,7 @@ const ComidasPage = () => {
           id: 3,
           name: 'Kurashiki Combo',
           description: '½ Philadelphia Roll + ½ Salmón Teriyaki + ½ Spider Roll + ½ Cinema Roll',
-          image: '/api/placeholder/600/400',
+          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777367195/kurakashi_h1lmvi.png',
           price: 22000
         }
       ];
