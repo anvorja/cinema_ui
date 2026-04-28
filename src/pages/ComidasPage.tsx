@@ -59,7 +59,7 @@ const ComidasPage = () => {
           id: 3,
           name: 'Barras de Sushi',
           description: 'Sushi fresco y delicioso',
-          image: '/api/placeholder/400/300',
+          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777366442/sushi-barras_ob1bqb.png',
           itemCount: 32
         },
         {
