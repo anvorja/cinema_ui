@@ -26,8 +26,8 @@ const ComidasPage = () => {
         {
           id: 2,
           name: 'Okinawa Combo',
-          description: '1 Ceviche (a escoger) + ½ Cine Colombia Roll + ½ California Roll + ½ Philadelphia Roll + ½ Royal Tiger',
-          image: '/api/placeholder/600/400',
+          description: '1 Ceviche (a escoger) + ½ Cinema Roll + ½ California Roll + ½ Philadelphia Roll + ½ Royal Tiger',
+          image: 'https://cdn.inoutdelivery.com/cinecolombia.inoutdelivery.com/xl/1704904207746-011024_Boton-Ceviche-Cine%20Colombia_bajo%20peso.jpg',
           price: 24500
         },
         {
