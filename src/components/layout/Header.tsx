@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Menu, Search, X, User } from 'lucide-react';
 import { GlassCard } from '../common';
 import { UserProfileDropdown } from './UserProfileDropdown';
+import { MobileProfileMenu } from './MobileProfileMenu';
 import { Sidebar } from './Sidebar';
 import { LoginModal } from '../auth/LoginModal.jsx';
 import { RegisterModal } from '../auth/RegisterModal.jsx';
@@ -30,6 +31,7 @@ const Header = () => {
     const [showLoginModal, setShowLoginModal] = useState(false);
     const [showRegisterModal, setShowRegisterModal] = useState(false);
     const [showProfileModal, setShowProfileModal] = useState(false);
+    const [showMobileProfileMenu, setShowMobileProfileMenu] = useState(false);
     const [searchResults, setSearchResults] = useState([]);
     const [isSearching, setIsSearching] = useState(false);
     const [showSearchResults, setShowSearchResults] = useState(false);
@@ -230,11 +232,11 @@ const Header = () => {
                                                 onOpenProfile={() => setShowProfileModal(true)}
                                             />
                                         </span>
-                                        {/* Mobile: ícono de perfil */}
+                                        {/* Mobile: abre menú de perfil (bottom sheet) */}
                                         <Button
                                             variant="ghost"
                                             size="icon"
-                                            onClick={() => setShowProfileModal(true)}
+                                            onClick={() => setShowMobileProfileMenu(true)}
                                             className="sm:hidden text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
                                             aria-label="Mi perfil"
                                         >
@@ -347,6 +349,17 @@ const Header = () => {
                 {showProfileModal && (
                     <UserProfile onClose={() => setShowProfileModal(false)} />
                 )}
+
+                {/* Mobile profile bottom sheet */}
+                <MobileProfileMenu
+                    isOpen={showMobileProfileMenu}
+                    onClose={() => setShowMobileProfileMenu(false)}
+                    user={user}
+                    onOpenProfile={() => {
+                        setShowMobileProfileMenu(false);
+                        setShowProfileModal(true);
+                    }}
+                />
             </>
         </TooltipProvider>
     );
