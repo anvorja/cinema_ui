@@ -20,7 +20,7 @@ const ComidasPage = () => {
           id: 1,
           name: 'Nevado Arequipe 300 ml',
           description: 'Delicioso helado de arequipe con topping especial',
-          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777367285/Nevado-chai-Juan-Valdez_ybbf6q.jpg',
+          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777367384/nevado-arequipe_eweujt.png',
           price: 8500
         },
         {
