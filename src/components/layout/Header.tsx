@@ -1,8 +1,8 @@
 // src/components/layout/Header.tsx
 import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
 import { createPortal } from 'react-dom';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, Search, X, User } from 'lucide-react';
+import { Link, useLocation, useNavigate, NavLink } from 'react-router-dom';
+import { Menu, Search, X, User, CreditCard } from 'lucide-react';
 import { GlassCard } from '../common';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { MobileProfileMenu } from './MobileProfileMenu';
@@ -84,8 +84,8 @@ const Header = () => {
     }, []);
 
     const navigationItems = [
-        { name: 'Películas', href: '/', isActive: location.pathname === '/' },
-        { name: 'Comidas', href: '/comidas', isActive: location.pathname === '/comidas' },
+        { name: 'Películas', href: '/' },
+        { name: 'Comidas', href: '/comidas' },
     ];
 
     // Debounced search
@@ -150,13 +150,13 @@ const Header = () => {
                     >
                         <div className="flex items-center justify-between px-4 py-2.5">
 
-                            {/* ── Left: hamburger + logo ── */}
+                            {/* ── Left: hamburger (mobile only) + logo ── */}
                             <div className="flex items-center gap-3">
                                 <Button
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => setIsSidebarOpen(true)}
-                                    className="text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
+                                    className="lg:hidden text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
                                     aria-label="Abrir menú"
                                 >
                                     <Menu className="h-5 w-5" />
@@ -172,22 +172,41 @@ const Header = () => {
                             {/* ── Center: desktop navigation ── */}
                             <nav className="hidden lg:flex items-center gap-1">
                                 {navigationItems.map((item) => (
-                                    <Link
+                                    <NavLink
                                         key={item.name}
                                         to={item.href}
-                                        className={`px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                                            item.isActive
-                                                ? 'bg-white/20 text-white shadow-sm'
-                                                : 'text-white/70 hover:text-white hover:bg-white/[0.1]'
-                                        }`}
+                                        end={item.href === '/'}
+                                        className={({ isActive }) =>
+                                            `px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                                isActive
+                                                    ? 'bg-white/20 text-white shadow-sm'
+                                                    : 'text-white/70 hover:text-white hover:bg-white/[0.1]'
+                                            }`
+                                        }
                                     >
                                         {item.name}
-                                    </Link>
+                                    </NavLink>
                                 ))}
                             </nav>
 
-                            {/* ── Right: search + user ── */}
+                            {/* ── Right: recharge + search + user ── */}
                             <div className="flex items-center gap-2">
+                                {/* Desktop: Recargar Cinema+ */}
+                                <Tooltip>
+                                    <TooltipTrigger asChild>
+                                        <Link
+                                            to="/recharge"
+                                            className="hidden lg:flex items-center gap-1.5 px-3 h-9 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-300/90 hover:bg-amber-500/25 hover:text-amber-200 hover:border-amber-400/40 transition-all duration-200 text-sm font-semibold tracking-wide"
+                                        >
+                                            <CreditCard className="w-3.5 h-3.5 shrink-0" />
+                                            <span>Recargar</span>
+                                        </Link>
+                                    </TooltipTrigger>
+                                    <TooltipContent side="bottom" className="text-xs">
+                                        Recargar Tarjeta Cinema+
+                                    </TooltipContent>
+                                </Tooltip>
+
                                 {/* Desktop search */}
                                 <div className="hidden md:flex items-center relative search-container">
                                     <input
