@@ -1,5 +1,5 @@
 // src/App.jsx
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import './styles/globals.css';
 import CarteleraPage from "./pages/CarteleraPage.jsx";
 import HomePage from "./pages/HomePage.jsx";
@@ -38,8 +38,8 @@ function App() {
 
                             <Route path="/" element={<Layout />}>
                                 <Route index element={<HomePage />} />
-                                <Route path="cartelera" element={<CarteleraPage />} />
-                                <Route path="pronto" element={<ProntoPage />} />
+                                <Route path="cartelera" element={<Navigate to="/" replace />} />
+                                <Route path="pronto" element={<Navigate to="/" replace />} />
                                 <Route path="comidas" element={<ComidasPage />} />
 
                                 <Route path="movie/:id" element={<MovieDetailPage />} />

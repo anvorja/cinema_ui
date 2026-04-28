@@ -84,9 +84,7 @@ const Header = () => {
     }, []);
 
     const navigationItems = [
-        { name: 'Cartelera', href: '/cartelera', isActive: location.pathname === '/cartelera' },
-        { name: 'Pronto',    href: '/pronto',    isActive: location.pathname === '/pronto' },
-        { name: 'Comidas',   href: '/comidas',   isActive: location.pathname === '/comidas' },
+        { name: 'Comidas', href: '/comidas', isActive: location.pathname === '/comidas' },
     ];
 
     // Debounced search

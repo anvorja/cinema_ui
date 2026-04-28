@@ -1,7 +1,7 @@
 // src/components/layout/Sidebar.tsx
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Home, Film, Clock, User, CreditCard, LogOut, Utensils, Truck } from 'lucide-react';
+import { Home, User, CreditCard, LogOut, Utensils, Truck } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
 import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
@@ -33,9 +33,7 @@ const baseMenuSections: MenuSection[] = [
     {
         title: 'CINE',
         items: [
-            { name: 'Inicio',     href: '/',          icon: Home,    color: 'text-blue-400' },
-            { name: 'Cartelera',  href: '/cartelera', icon: Film,    color: 'text-purple-400' },
-            { name: 'Pronto',     href: '/pronto',    icon: Clock,   color: 'text-emerald-400' },
+            { name: 'Inicio', href: '/', icon: Home, color: 'text-blue-400' },
         ]
     },
     {
