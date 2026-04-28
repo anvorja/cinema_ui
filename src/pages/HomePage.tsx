@@ -107,7 +107,7 @@ const HomePage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar películas..."
-              className="w-full bg-white/8 border border-white/20 rounded-full py-2.5 md:py-3 pl-4 md:pl-5 pr-10 md:pr-11 text-white placeholder:text-white/40 text-sm outline-none focus:border-white/40 focus:bg-white/12 transition-all"
+              className="w-full bg-[rgba(0,0,0,0.3)] border border-white/20 rounded-full py-2.5 md:py-3 pl-4 md:pl-5 pr-10 md:pr-11 text-white placeholder:text-white/40 text-sm outline-none focus:border-white/40 focus:bg-[rgba(0,0,0,0.4)] transition-all [color-scheme:dark]"
             />
             <Search className="absolute right-3.5 md:right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
           </div>
