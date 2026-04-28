@@ -51,8 +51,8 @@ const SeatSelectionPage = () => {
     id: rawShowtime?.id || showtimeIdNum,
   };
 
-  // Selected seats: Set of seat IDs
-  const [selectedSeats, setSelectedSeats] = useState(new Set());
+  // Selected seats: Set of seat IDs — pre-populated if coming back from TicketConfirmPage
+  const [selectedSeats, setSelectedSeats] = useState(() => new Set(state.selectedSeats || []));
 
   // Occupied seats fetched from backend (already sold for this showtime)
   const [occupiedSeats, setOccupiedSeats] = useState(new Set());

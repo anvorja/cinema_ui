@@ -244,7 +244,12 @@ const TicketConfirmPage = () => {
         {/* ── Navigation ─────────────────────────────────────────────────────── */}
         <div className="flex justify-between">
           <button
-            onClick={() => navigate(-1)}
+            onClick={() => {
+              const showtimePart = showtime?.id ? `/${showtime.id}` : '';
+              navigate(`/booking/${movie?.id}/${theater?.id}${showtimePart}`, {
+                state: { movie, theater, showtime, selectedDate, selectedSeats },
+              });
+            }}
             className="flex items-center gap-2 px-5 py-2.5 border border-white/30 rounded-full
                        text-white/90 hover:bg-white/10 transition-colors font-medium text-sm backdrop-blur-sm"
           >
