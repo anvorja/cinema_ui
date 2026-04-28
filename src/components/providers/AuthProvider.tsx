@@ -256,11 +256,11 @@ const AuthProvider = ({ children }) => {
       const currentUser = state.user;
       const newUser = {
         ...currentUser,
-        firstName: updated.first_name,
-        first_name: updated.first_name,
-        lastName: updated.last_name,
-        last_name: updated.last_name,
-        phone: updated.phone,
+        firstName: updated.first_name ?? formData.firstName,
+        first_name: updated.first_name ?? formData.firstName,
+        lastName: updated.last_name ?? formData.lastName,
+        last_name: updated.last_name ?? formData.lastName,
+        phone: updated.phone ?? formData.phone,
       };
       localStorage.setItem('cinema_user', JSON.stringify(newUser));
       dispatch({
