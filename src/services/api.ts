@@ -260,6 +260,12 @@ export const movieService = {
     const response = await api.get(`/movies/${movieId}/ratings`, { params: { skip, limit } });
     return response.data;
   },
+
+  // Calificación del usuario autenticado para una película (null si no ha calificado)
+  getMyRating: async (movieId) => {
+    const response = await api.get(`/movies/${movieId}/my-rating`);
+    return response.data; // null | { score, review, author, created_at }
+  },
 };
 
 export const theaterService = {

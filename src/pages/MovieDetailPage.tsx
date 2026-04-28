@@ -73,6 +73,7 @@ const MovieDetailPage = () => {
   const [ratingMsg, setRatingMsg] = useState(null); // { type: 'success'|'error', text }
   const [reviews, setReviews] = useState<any[]>([]);
   const [reviewsLoading, setReviewsLoading] = useState(false);
+  const [myRating, setMyRating] = useState<any>(undefined); // undefined=no cargado, null=sin calificación
 
   // Hooks para datos
   const { movie: rawMovie, loading, error, refetch } = useMovie(id);
@@ -163,6 +164,16 @@ const MovieDetailPage = () => {
     }
   };
 
+  const loadMyRating = async () => {
+    if (!id || !isAuthenticated) return;
+    try {
+      const data = await movieService.getMyRating(id);
+      setMyRating(data ?? null);
+    } catch {
+      setMyRating(null);
+    }
+  };
+
   const handleRateMovie = async () => {
     if (!userScore) return;
     setRatingSubmitting(true);
@@ -172,6 +183,7 @@ const MovieDetailPage = () => {
       setRatingMsg({ type: 'success', text: '¡Gracias por tu calificación!' });
       refetch();
       loadReviews();
+      loadMyRating();
     } catch (err: any) {
       if (err?.response?.status === 403) {
         setRatingMsg({
@@ -382,7 +394,10 @@ const MovieDetailPage = () => {
             value={activeTab}
             onValueChange={(tab) => {
               setActiveTab(tab);
-              if (tab === 'calificaciones' && reviews.length === 0) loadReviews();
+              if (tab === 'calificaciones') {
+              if (reviews.length === 0) loadReviews();
+              if (isAuthenticated && myRating === undefined) loadMyRating();
+            }
             }}
             className="w-full"
           >
@@ -473,34 +488,53 @@ const MovieDetailPage = () => {
                   )}
                 </GlassCard>
 
-                {/* Formulario para el usuario autenticado */}
+                {/* Sección del usuario autenticado */}
                 {isAuthenticated ? (
-                  <GlassCard className="p-6">
-                    <h3 className="text-white font-semibold mb-4">Tu calificación</h3>
-                    <div className="space-y-4">
-                      <StarRating value={userScore} onChange={setUserScore} size="lg" />
-                      <textarea
-                        value={userReview}
-                        onChange={(e) => setUserReview(e.target.value)}
-                        placeholder="Escribe una reseña opcional... (máx. 500 caracteres)"
-                        maxLength={500}
-                        rows={3}
-                        className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-white/40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
-                      />
-                      {ratingMsg && (
-                        <p className={`text-sm ${ratingMsg.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
-                          {ratingMsg.text}
-                        </p>
+                  myRating ? (
+                    /* El usuario ya calificó — mostrar su reseña en modo lectura */
+                    <GlassCard className="p-6 border border-yellow-500/30">
+                      <h3 className="text-white font-semibold mb-3">Tu calificación</h3>
+                      <StarRating value={myRating.score} readonly size="lg" />
+                      {myRating.review && (
+                        <p className="text-white/80 text-sm mt-3 leading-relaxed">{myRating.review}</p>
                       )}
-                      <button
-                        onClick={handleRateMovie}
-                        disabled={!userScore || ratingSubmitting}
-                        className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors text-sm"
-                      >
-                        {ratingSubmitting ? 'Enviando...' : 'Enviar calificación'}
-                      </button>
-                    </div>
-                  </GlassCard>
+                      <p className="text-white/40 text-xs mt-3">
+                        Enviada el{' '}
+                        {new Date(myRating.created_at).toLocaleDateString('es-CO', {
+                          year: 'numeric', month: 'long', day: 'numeric',
+                        })}
+                      </p>
+                      <p className="text-white/30 text-xs mt-1">Solo se permite una calificación por película.</p>
+                    </GlassCard>
+                  ) : myRating === null ? (
+                    /* El usuario no ha calificado — mostrar formulario */
+                    <GlassCard className="p-6">
+                      <h3 className="text-white font-semibold mb-4">Tu calificación</h3>
+                      <div className="space-y-4">
+                        <StarRating value={userScore} onChange={setUserScore} size="lg" />
+                        <textarea
+                          value={userReview}
+                          onChange={(e) => setUserReview(e.target.value)}
+                          placeholder="Escribe una reseña opcional... (máx. 500 caracteres)"
+                          maxLength={500}
+                          rows={3}
+                          className="w-full bg-white/10 border border-white/20 rounded-lg p-3 text-white placeholder-white/40 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500/50 text-sm"
+                        />
+                        {ratingMsg && (
+                          <p className={`text-sm ${ratingMsg.type === 'success' ? 'text-emerald-400' : 'text-red-400'}`}>
+                            {ratingMsg.text}
+                          </p>
+                        )}
+                        <button
+                          onClick={handleRateMovie}
+                          disabled={!userScore || ratingSubmitting}
+                          className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors text-sm"
+                        >
+                          {ratingSubmitting ? 'Enviando...' : 'Enviar calificación'}
+                        </button>
+                      </div>
+                    </GlassCard>
+                  ) : null /* myRating === undefined: cargando, no renderizar nada */
                 ) : (
                   <GlassCard className="p-4 text-center">
                     <p className="text-white/60 text-sm">
