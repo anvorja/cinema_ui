@@ -84,6 +84,7 @@ const Header = () => {
     }, []);
 
     const navigationItems = [
+        { name: 'Películas', href: '/', isActive: location.pathname === '/' },
         { name: 'Comidas', href: '/comidas', isActive: location.pathname === '/comidas' },
     ];
 

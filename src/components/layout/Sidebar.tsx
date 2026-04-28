@@ -40,7 +40,6 @@ const baseMenuSections: MenuSection[] = [
         title: 'COMIDAS',
         items: [
             { name: 'Menú',       href: '/comidas',   icon: Utensils, color: 'text-orange-400' },
-            { name: 'Domicilios', href: '/domicilios',icon: Truck,    color: 'text-slate-400' },
         ]
     }
 ];
