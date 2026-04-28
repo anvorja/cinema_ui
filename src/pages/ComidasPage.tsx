@@ -45,7 +45,7 @@ const ComidasPage = () => {
           id: 1,
           name: 'Confitería',
           description: 'Dulces, palomitas y snacks',
-          image: '/api/placeholder/400/300',
+          image: 'https://res.cloudinary.com/dv2xu8dwr/image/upload/v1777366670/30597_jstnwi.png',
           itemCount: 25
         },
         {
