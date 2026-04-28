@@ -1,6 +1,6 @@
 // src/components/layout/Sidebar.tsx
 import { useState } from 'react';
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { Home, User, CreditCard, LogOut, Utensils, Truck } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
 import { Separator } from '../ui/separator';
@@ -49,6 +49,7 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
     const { isAuthenticated, logout } = useAuth();
     const [showUserProfile, setShowUserProfile] = useState(false);
     const location = useLocation();
+    const navigate = useNavigate();
 
     const isItemActive = (href: string) => {
         if (href === '/') return location.pathname === '/';
@@ -148,7 +149,10 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                             {/* ── Cinema+ promo card ── */}
                             <div>
                                 <Separator className="bg-white/[0.06] mb-5" />
-                                <button className="group w-full text-left">
+                                <button
+                                    className="group w-full text-left"
+                                    onClick={() => { onClose(); navigate('/recharge'); }}
+                                >
                                     <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-r from-amber-500/[0.12] to-orange-500/[0.12] border border-amber-500/20 hover:from-amber-500/[0.2] hover:to-orange-500/[0.2] hover:border-amber-400/35 transition-all duration-200">
                                         <CreditCard className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
                                         <span className="text-amber-200/80 font-semibold text-xs tracking-wide">

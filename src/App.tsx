@@ -19,6 +19,8 @@ import ProfilePage from "./pages/ProfilePage.jsx";
 import TransactionsPage from "./pages/TransactionsPage.jsx";
 import CardsPage from "./pages/CardsPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
+import CardRechargePage from "./pages/CardRechargePage";
+import CardRechargePaymentPage from "./pages/CardRechargePaymentPage";
 import AuthProvider from "./components/providers/AuthProvider.jsx";
 import ScrollToTop from "./components/layout/ScrollToTop.jsx";
 
@@ -54,6 +56,8 @@ function App() {
                                 <Route path="/profile/transactions" element={<TransactionsPage />} />
                                 <Route path="/profile/cards" element={<CardsPage />} />
                                 <Route path="/profile/settings" element={<SettingsPage />} />
+                                <Route path="/recharge" element={<CardRechargePage />} />
+                                <Route path="/recharge/payment" element={<CardRechargePaymentPage />} />
 
                                 <Route path="*" element={<NotFoundPage />} />
 
