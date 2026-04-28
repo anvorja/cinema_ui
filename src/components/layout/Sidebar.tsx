@@ -16,11 +16,6 @@ interface NavItem {
     action?: () => void;
 }
 
-interface MenuSection {
-    title: string;
-    items: NavItem[];
-}
-
 interface SidebarProps {
     isOpen: boolean;
     onClose: () => void;
@@ -29,19 +24,9 @@ interface SidebarProps {
     [key: string]: any;
 }
 
-const baseMenuSections: MenuSection[] = [
-    {
-        title: 'CINE',
-        items: [
-            { name: 'Películas', href: '/', icon: Home, color: 'text-blue-400' },
-        ]
-    },
-    {
-        title: 'COMIDAS',
-        items: [
-            { name: 'Menú',       href: '/comidas',   icon: Utensils, color: 'text-orange-400' },
-        ]
-    }
+const baseNavItems: NavItem[] = [
+    { name: 'Películas', href: '/',        icon: Home,     color: 'text-blue-400' },
+    { name: 'Comidas',   href: '/comidas', icon: Utensils, color: 'text-orange-400' },
 ];
 
 const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProps) => {
@@ -67,22 +52,12 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
         }
     };
 
-    const sections: MenuSection[] = isAuthenticated
+    const navItems: NavItem[] = isAuthenticated
         ? [
-            ...baseMenuSections,
-            {
-                title: 'MI CUENTA',
-                items: [
-                    {
-                        name: 'Mi Perfil',
-                        icon: User,
-                        color: 'text-cyan-400',
-                        action: () => setShowUserProfile(true),
-                    }
-                ]
-            }
+            ...baseNavItems,
+            { name: 'Mi Perfil', icon: User, color: 'text-cyan-400', action: () => setShowUserProfile(true) },
         ]
-        : baseMenuSections;
+        : baseNavItems;
 
     return (
         <>
