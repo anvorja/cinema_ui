@@ -1,4 +1,4 @@
-// src/pages/ProntoPage.jsx - CON BOTÓN "VER DETALLES" RESTAURADO
+// src/pages/ProntoPage.jsx
 import { useState, useEffect } from 'react';
 import { MovieGrid } from '../components/cinema/MovieGrid';
 import { FloatingParticles, GlassCard, PremiumButton } from "../components/common";

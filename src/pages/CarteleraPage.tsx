@@ -1,4 +1,4 @@
-// src/pages/Cartelera.jsx - PÁGINA ACTUALIZADA CON API REAL
+// src/pages/Cartelera.jsx
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowPathIcon } from '@heroicons/react/24/outline';

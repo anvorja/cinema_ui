@@ -1,4 +1,4 @@
-// src/pages/MovieDetailPage.jsx - CON LÓGICA DE BOTÓN CORREGIDA
+// src/pages/MovieDetailPage.jsx
 import { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {

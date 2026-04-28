@@ -237,7 +237,7 @@ const PaymentForm = ({ bookingData, onSubmit, isProcessing, formData, setFormDat
                     <p className="text-white/70 text-sm">
                       Obtén ayuda en{' '}
                       <button className="text-blue-400 hover:underline">
-                        supergerencia@cinecolombia.com
+                        supergerencia@cinemaplus.com
                       </button>
                     </p>
                   </div>

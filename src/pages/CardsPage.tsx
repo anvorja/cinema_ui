@@ -84,7 +84,7 @@ const CardsPage = () => {
           <div>
             <h1 className="text-2xl font-bold text-white flex items-center gap-2">
               <CreditCardIcon className="w-7 h-7 text-purple-400" />
-              Mis Tarjetas Cineco
+              Mis Tarjetas Cinema+
             </h1>
             <p className="text-white/50 text-sm mt-0.5">Métodos de pago utilizados en tus compras</p>
           </div>

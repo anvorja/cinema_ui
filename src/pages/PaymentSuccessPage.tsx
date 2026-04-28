@@ -493,7 +493,7 @@ const PaymentSuccessPage = () => {
                     📞 Llamar al (601) 307-0707
                   </button>
                   <button className="w-full py-2 px-4 glass rounded-lg text-white text-sm hover:glass-hover transition-all">
-                    📧 supergerencia@cinecolombia.com
+                    📧 supergerencia@cinemaplus.com
                   </button>
                 </div>
               </GlassCard>

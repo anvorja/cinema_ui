@@ -1,4 +1,4 @@
-// src/components/admin/analytics/AnalyticsTab.tsx — Shadcn-only version (Camino A)
+// src/components/admin/analytics/AnalyticsTab.tsx
 import { useState, useEffect, useCallback } from 'react';
 import { useApi } from '../hooks/useApi';
 import {
