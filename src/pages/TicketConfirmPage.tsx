@@ -6,6 +6,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import {
   MapPinIcon, ComputerDesktopIcon, CalendarDaysIcon,
   ClockIcon, TicketIcon, ArrowLeftIcon, MinusIcon, PlusIcon,
+  ExclamationTriangleIcon,
 } from '@heroicons/react/24/outline';
 
 const formatCOP = (n) => `$${Number(n).toLocaleString('es-CO')}`;
@@ -74,8 +75,9 @@ const TicketConfirmPage = () => {
   const subtotal      = genQty * GENERAL_PRICE + prefQty * PREFERENCIAL_PRICE;
   const total         = subtotal;
 
-  // badge: "Las boletas han sido elegidas X/Y"
+  // Desfase crítico: boletas confirmadas < sillas físicamente seleccionadas
   const maxSelected = generalCount + prefCount;
+  const mismatch    = totalSelected > 0 && totalSelected < maxSelected;
 
   const selectedSeatLabels = useMemo(
     () => selectedSeats.filter(id => !id.includes('wc')).sort().join(', '),
@@ -95,7 +97,7 @@ const TicketConfirmPage = () => {
   }
 
   const handleContinue = () => {
-    if (totalSelected === 0) return;
+    if (totalSelected === 0 || mismatch) return;
     navigate('/booking/food', {
       state: {
         movie, theater, showtime, selectedDate,
@@ -187,7 +189,11 @@ const TicketConfirmPage = () => {
         <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-6 mb-6">
           <div className="flex items-center justify-between mb-4">
             <h1 className="text-2xl font-bold text-gray-900">Seleccione sus boletas</h1>
-            <span className="text-xs bg-gray-100 text-gray-500 px-3 py-1 rounded-full">
+            <span className={`text-xs px-3 py-1 rounded-full font-medium ${
+              mismatch
+                ? 'bg-amber-100 text-amber-700 ring-1 ring-amber-300'
+                : 'bg-gray-100 text-gray-500'
+            }`}>
               Las boletas han sido elegidas {totalSelected}/{maxSelected}
             </span>
           </div>
@@ -222,6 +228,25 @@ const TicketConfirmPage = () => {
               onDecrement={() => setPrefQty(q => Math.max(0, q - 1))}
               onIncrement={() => setPrefQty(q => Math.min(prefCount, q + 1))}
             />
+          )}
+
+          {/* ── Mismatch warning ─────────────────────────────────────────────── */}
+          {mismatch && (
+            <div className="mt-4 flex items-start gap-3 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <ExclamationTriangleIcon className="w-5 h-5 text-amber-500 shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold text-amber-800 mb-1">
+                  La cantidad de boletas no coincide con las sillas seleccionadas
+                </p>
+                <ul className="text-xs text-amber-700 space-y-0.5 list-disc list-inside">
+                  <li>Su conteo de boletas seleccionadas es menor que el conteo de sillas.</li>
+                  <li>Sus boletas seleccionadas no coinciden con las sillas seleccionadas.</li>
+                </ul>
+                <p className="text-xs text-amber-600 mt-2">
+                  Vuelva al mapa de sillas y deseleccione la(s) silla(s) sobrante(s), o aumente la cantidad de boletas a <strong>{maxSelected}</strong>.
+                </p>
+              </div>
+            </div>
           )}
 
           {/* Totals */}
@@ -259,7 +284,7 @@ const TicketConfirmPage = () => {
 
           <button
             onClick={handleContinue}
-            disabled={totalSelected === 0}
+            disabled={totalSelected === 0 || mismatch}
             className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 text-white rounded-full
                        hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
                        transition-colors font-semibold text-sm"
