@@ -10,7 +10,7 @@ import MovieEditPage from './movies/MovieEditPage';
 import {ToastProvider} from "./providers/ToasProvider.jsx";
 
 const AppContent = () => {
-  const { user, loading, login, isAdmin } = useAuth();
+  const { user, loading, login, logout, isAdmin } = useAuth();
   const { toast } = useToast();
   const [loginError, setLoginError] = useState('');
   const [loginLoading, setLoginLoading] = useState(false);
@@ -25,13 +25,21 @@ const AppContent = () => {
       if (!result.success) {
         setLoginError(result.error);
 
-        // Toast de error para login fallido
         toast.error(result.error, {
           title: 'Error de autenticación',
           duration: 5000
         });
+      } else if (result.user?.role !== 'admin') {
+        const errorMsg = 'No tienes permisos para acceder al panel de administración.';
+        setLoginError(errorMsg);
+
+        toast.error(errorMsg, {
+          title: 'Acceso denegado',
+          duration: 5000
+        });
+
+        await logout();
       } else {
-        // Toast de éxito para login exitoso
         toast.success(`Bienvenido al panel de administración`, {
           title: 'Login exitoso',
           duration: 3000
