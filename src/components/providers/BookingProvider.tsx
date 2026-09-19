@@ -104,8 +104,15 @@ export const BookingProvider = ({ children }) => {
     setIsBookingActive(false);
   }, []);
 
-  // Espera a que la compra pase a CONFIRMED sondeando GET /purchases/{id}
-  const _pollUntilConfirmed = useCallback(async (purchaseId, { intervalMs = 2000, timeoutMs = 45000 } = {}) => {
+  // Espera a que la compra pase a CONFIRMED sondeando GET /purchases/{id}.
+  // timeoutMs a propósito por encima de INVENTORY_DECISION_TIMEOUT_SECONDS
+  // (120s, ver booking-service-cinema/app/core/config.py): así, si el
+  // backend cancela por timeout de inventario, el próximo poll alcanza a
+  // leer el estado real (cancelled + motivo) en vez de que el frontend se
+  // rinda primero con el mensaje genérico. 45s medía la latencia de saga en
+  // local (todo en localhost); en producción (Confluent Cloud + Render free
+  // tier) se midieron confirmaciones reales de 122-142s — ver HALLAZGOS.md.
+  const _pollUntilConfirmed = useCallback(async (purchaseId, { intervalMs = 3000, timeoutMs = 180000 } = {}) => {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
       await new Promise(r => setTimeout(r, intervalMs));
