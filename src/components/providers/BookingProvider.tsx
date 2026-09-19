@@ -14,6 +14,8 @@ export const BookingProvider = ({ children }) => {
     ticketCount: 0,
     selectedSeats: [],
     paymentMethod: null,
+    pseData: null,
+    cardData: null,
     totalAmount: 0,
     step: 1
   });
@@ -60,6 +62,8 @@ export const BookingProvider = ({ children }) => {
       ticketCount: 1,
       selectedSeats: [],
       paymentMethod: null,
+      pseData: null,
+      cardData: null,
       totalAmount: 0,
       step: 1
     });
@@ -115,6 +119,8 @@ export const BookingProvider = ({ children }) => {
       ticketCount: 0,
       selectedSeats: [],
       paymentMethod: null,
+      pseData: null,
+      cardData: null,
       totalAmount: 0,
       step: 1
     });
@@ -147,10 +153,25 @@ export const BookingProvider = ({ children }) => {
   }, []);
 
   // 🔥 FUNCIÓN CRÍTICA CORREGIDA - USA /purchases
-  const completeBooking = useCallback(async (transactionId) => {
+  //
+  // paymentOverride (opcional): { paymentMethod, pseData, cardData }. PaymentPage
+  // lo pasa directo desde su propio estado local en vez de depender de que
+  // updateBooking() (setState de contexto, asíncrono) ya se haya reflejado en
+  // bookingData para cuando esta función lee sus datos — de lo contrario esta
+  // función corre con el closure de bookingData de ANTES de esa actualización
+  // (React no re-renderiza entre updateBooking() y esta llamada, ambas
+  // síncronas en el mismo handler). Ese desfase + que purchasePayload nunca
+  // reenviaba pseData/cardData hacía que toda compra se mandara como tarjeta
+  // (con un número de relleno hardcodeado en bookingService.ts) sin importar
+  // el método elegido en la UI.
+  const completeBooking = useCallback(async (transactionId, paymentOverride = null) => {
     try {
       console.log('📝 Iniciando proceso de reserva...');
       console.log('📊 Datos de booking:', bookingData);
+
+      const paymentMethod = paymentOverride?.paymentMethod ?? bookingData.paymentMethod;
+      const pseData = paymentOverride?.pseData ?? bookingData.pseData;
+      const cardData = paymentOverride?.cardData ?? bookingData.cardData;
 
       // Paso 1: Crear la compra usando el endpoint correcto /purchases
       const purchasePayload = {
@@ -161,7 +182,9 @@ export const BookingProvider = ({ children }) => {
         ticketCount: bookingData.ticketCount,
         selectedSeats: bookingData.selectedSeats || [],
         totalAmount: bookingData.totalAmount,
-        paymentMethod: bookingData.paymentMethod,
+        paymentMethod,
+        pseData,
+        cardData,
         // Datos del usuario
         userEmail: user?.email,
         userPhone: user?.phone,

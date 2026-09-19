@@ -217,7 +217,15 @@ const PaymentPage = () => {
         updateBooking({ cardData, paymentMethod: 'card' });
       }
 
-      const completedBooking = await completeBooking(txnId);
+      // Se pasan pseData/cardData/selectedPaymentMethod directo (estado local,
+      // siempre fresco) en vez de depender de que el updateBooking() de arriba
+      // ya se haya reflejado en el contexto — ver comentario en
+      // BookingProvider.completeBooking.
+      const completedBooking = await completeBooking(txnId, {
+        paymentMethod: selectedPaymentMethod,
+        pseData,
+        cardData,
+      });
       setShowConfirmation(true);
 
       setTimeout(() => {
