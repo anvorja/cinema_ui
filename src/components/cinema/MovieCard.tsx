@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { GlassCard, PremiumButton, ShimmerEffect } from '../common';
 import { ClockIcon } from '@heroicons/react/24/outline';
 import { Badge } from '../ui/badge';
+import { optimizeCloudinaryUrl } from '../../utils/movieUtils';
 
 const MovieCard = ({ movie, showReleaseDate = false }) => {
   // Formatear duración
@@ -74,7 +75,7 @@ const MovieCard = ({ movie, showReleaseDate = false }) => {
 
             {/* IMAGEN USANDO POSTER_URL DEL BACKEND */}
             <img
-              src={movie.poster_url || '/placeholder-movie.jpg'}
+              src={movie.poster_url ? optimizeCloudinaryUrl(movie.poster_url, 500) : '/placeholder-movie.jpg'}
               alt={movie.title}
               className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
               onError={(e) => {

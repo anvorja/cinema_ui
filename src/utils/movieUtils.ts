@@ -133,6 +133,25 @@ export const getStatusBadge = (movie) => {
 };
 
 /**
+ * Inserta parámetros de transformación de Cloudinary (f_auto,q_auto,w_N) en
+ * la URL para servir la imagen ya redimensionada/comprimida al vuelo, sin
+ * volver a subir nada. Las URLs venían sin ningún parámetro — el navegador
+ * descargaba el poster a resolución original (varios MB) hasta para un
+ * thumbnail de card. Si la URL no es de Cloudinary, se devuelve intacta.
+ * @param {string} url - URL original de Cloudinary
+ * @param {number} width - Ancho objetivo en px
+ * @returns {string} - URL con transformación aplicada
+ */
+export const optimizeCloudinaryUrl = (url, width = 500) => {
+  if (!url || typeof url !== 'string') return url;
+  const marker = '/image/upload/';
+  const idx = url.indexOf(marker);
+  if (idx === -1) return url;
+  const insertAt = idx + marker.length;
+  return `${url.slice(0, insertAt)}f_auto,q_auto,w_${width}/${url.slice(insertAt)}`;
+};
+
+/**
  * Validar URL de imagen
  * @param {string} url - URL a validar
  * @returns {boolean} - True si es válida
@@ -155,6 +174,8 @@ export const validateImageUrl = (url) => {
  * @param {string} imageType - Tipo de imagen ('poster', 'backdrop', 'detail1', 'detail2')
  * @returns {string} - URL de la mejor imagen disponible
  */
+const _IMAGE_WIDTHS = { poster: 500, backdrop: 1200, detail1: 800, detail2: 800 };
+
 export const getBestImageUrl = (movie, imageType = 'poster') => {
   if (!movie) return '/placeholder-movie.jpg';
 
@@ -167,10 +188,10 @@ export const getBestImageUrl = (movie, imageType = 'poster') => {
 
   const urls = imageUrls[imageType] || imageUrls.poster;
 
-  // Retornar la primera URL válida
+  // Retornar la primera URL válida, ya optimizada para el ancho de este uso
   for (const url of urls) {
     if (validateImageUrl(url)) {
-      return url;
+      return optimizeCloudinaryUrl(url, _IMAGE_WIDTHS[imageType] || 500);
     }
   }
 

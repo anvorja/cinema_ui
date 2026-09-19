@@ -5,6 +5,7 @@ import { ChevronLeftIcon, ChevronRightIcon, PlayIcon } from '@heroicons/react/24
 import {FloatingParticles, GlassCard, PremiumButton, ShimmerEffect} from '../common';
 import { HoverCard, HoverCardTrigger, HoverCardContent } from '../ui/hover-card';
 import { Badge } from '../ui/badge';
+import { optimizeCloudinaryUrl } from '../../utils/movieUtils';
 
 const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -73,7 +74,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
             }`}
           >
             <img
-              src={movie.backdrop_url || movie.poster_url}
+              src={optimizeCloudinaryUrl(movie.backdrop_url || movie.poster_url, 1200)}
               alt={movie.title}
               className="w-full h-full object-cover scale-110"
               style={{ filter: 'blur(2px)' }}
@@ -99,7 +100,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
                   <ShimmerEffect className="w-64 sm:w-80 cursor-pointer">
                     <GlassCard variant="premium" className="p-2 premium-card">
                       <img
-                        src={currentMovie.poster_url}
+                        src={optimizeCloudinaryUrl(currentMovie.poster_url, 500)}
                         alt={currentMovie.title}
                         className="w-full rounded-lg shadow-2xl"
                       />
@@ -183,7 +184,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
                   <ShimmerEffect className="w-96 cursor-pointer">
                     <GlassCard variant="premium" className="p-3 premium-card transition-transform duration-300 hover:scale-[1.02]">
                       <img
-                        src={currentMovie.poster_url}
+                        src={optimizeCloudinaryUrl(currentMovie.poster_url, 500)}
                         alt={currentMovie.title}
                         className="w-full rounded-lg shadow-2xl"
                       />
@@ -312,7 +313,7 @@ const MovieSlide = ({ movie, isActive }) => {
       <GlassCard variant="premium" className="overflow-hidden premium-card">
         <div className="aspect-[2/3] relative">
           <img
-            src={movie.poster_url}
+            src={optimizeCloudinaryUrl(movie.poster_url, 400)}
             alt={movie.title}
             className="w-full h-full object-cover"
           />

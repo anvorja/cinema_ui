@@ -14,6 +14,7 @@ import useAuth from '../../hooks/useAuth';
 import { searchMovies } from '../../services/api';
 import { debounce } from 'lodash';
 import { Button } from '../ui/button';
+import { optimizeCloudinaryUrl } from '../../utils/movieUtils';
 
 import {
     Tooltip,
@@ -299,7 +300,7 @@ const Header = () => {
                                         >
                                             {movie.poster_url ? (
                                                 <img
-                                                    src={movie.poster_url}
+                                                    src={optimizeCloudinaryUrl(movie.poster_url, 100)}
                                                     alt={movie.title}
                                                     className="w-11 h-16 object-cover rounded-md border border-white/15 shrink-0"
                                                 />

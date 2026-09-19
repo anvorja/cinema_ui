@@ -13,6 +13,7 @@ import {
   FunnelIcon,
 } from '@heroicons/react/24/outline';
 import { purchaseService, getErrorMessage } from '../services/api';
+import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import useAuth from '../hooks/useAuth';
 
 const STATUS_CONFIG = {
@@ -194,7 +195,7 @@ const TransactionsPage = () => {
                     {/* Poster */}
                     {tx.movie?.poster_url ? (
                       <img
-                        src={tx.movie.poster_url}
+                        src={optimizeCloudinaryUrl(tx.movie.poster_url, 100)}
                         alt={tx.movie.title}
                         className="w-12 h-16 object-cover rounded-lg border border-white/10 flex-shrink-0"
                       />

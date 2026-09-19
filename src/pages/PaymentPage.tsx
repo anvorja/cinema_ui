@@ -10,6 +10,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { FloatingParticles, GlassCard, PremiumButton } from '../components/common';
 import { useBooking } from '../hooks/useBooking';
+import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import useAuth from "../hooks/useAuth.js";
 import { LoginModal } from '../components/auth/LoginModal';
 
@@ -563,7 +564,7 @@ const PaymentPage = () => {
                 <div className="mb-6">
                   <div className="flex gap-3 mb-3">
                     <img
-                      src={movie.images?.poster || movie.poster_url}
+                      src={optimizeCloudinaryUrl(movie.images?.poster || movie.poster_url, 150)}
                       alt={movie.title}
                       className="w-16 h-24 rounded object-cover"
                     />

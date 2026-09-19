@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
+import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 
 const formatCOP = (n) => `$${Number(n).toLocaleString('es-CO')}`;
 
@@ -90,7 +91,7 @@ const FoodSelectionPage = () => {
     .map(([id, qty]) => ({ item: allItems.find(i => i.id === id), qty }))
     .filter(({ item }) => !!item);
 
-  const poster = movie.images?.poster || movie.posterImage || '';
+  const poster = optimizeCloudinaryUrl(movie.images?.poster || movie.posterImage || '', 300);
   const title  = movie.title || '';
 
   const handleContinue = () => {

@@ -10,6 +10,7 @@ import CinemaSeatMap, { LAYOUT } from '../components/seats/CinemaSeatMap';
 import { useBooking } from '../hooks/useBooking';
 import { useMovieShowtimes } from '../hooks/useMovieShowtimes';
 import { Badge } from '../components/ui/badge';
+import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatDate = (dateStr) => {
@@ -150,7 +151,7 @@ const SeatSelectionPage = () => {
   };
 
   // ── Render ─────────────────────────────────────────────────────────────────
-  const poster = movie.images?.poster || movie.posterImage || '';
+  const poster = optimizeCloudinaryUrl(movie.images?.poster || movie.posterImage || '', 300);
   const title  = movie.title || '';
   const format = showtime.format || '2D Doblada';
   const time   = showtime.time   || '';

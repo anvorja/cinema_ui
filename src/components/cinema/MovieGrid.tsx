@@ -2,7 +2,7 @@
 import { Link } from 'react-router-dom';
 import { ClockIcon, CurrencyDollarIcon, TicketIcon } from '@heroicons/react/24/outline';
 import { GlassCard, PremiumButton } from '../common';
-import { transformMovieData } from '../../utils/movieUtils';
+import { transformMovieData, optimizeCloudinaryUrl } from '../../utils/movieUtils';
 import { Badge } from '../ui/badge';
 import { Skeleton } from '../ui/skeleton';
 
@@ -82,11 +82,11 @@ const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = t
         </div>
 
         <img
-          src={movie.poster_url || movie.images?.poster || '/placeholder-movie.jpg'}
+          src={optimizeCloudinaryUrl(movie.images?.poster || movie.poster_url, 500) || '/placeholder-movie.jpg'}
           alt={movie.title}
           className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
           onError={(e) => {
-            (e.target as HTMLImageElement).src = movie.backdrop_url || movie.images?.backdrop || '/placeholder-movie.jpg';
+            (e.target as HTMLImageElement).src = optimizeCloudinaryUrl(movie.images?.backdrop || movie.backdrop_url, 500) || '/placeholder-movie.jpg';
           }}
         />
 

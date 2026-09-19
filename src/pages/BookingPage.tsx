@@ -346,6 +346,7 @@ import {
   PlusIcon
 } from '@heroicons/react/24/outline';
 import { FloatingParticles, GlassCard, PremiumButton } from '../components/common';
+import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import { useBooking } from '../hooks/useBooking';
 import { useMovieShowtimes } from '../hooks/useMovieShowtimes';
 import { useBookingInitialization } from '../hooks/useBookingInitialization';
@@ -468,7 +469,7 @@ const BookingPage = () => {
               <GlassCard className="p-6">
                 <div className="flex gap-4">
                   <img
-                    src={currentMovie.images?.poster || currentMovie.poster_url}
+                    src={optimizeCloudinaryUrl(currentMovie.images?.poster || currentMovie.poster_url, 200)}
                     alt={currentMovie.title}
                     className="w-24 h-36 rounded-lg shadow-lg object-cover flex-shrink-0"
                   />

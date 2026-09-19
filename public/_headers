@@ -1,0 +1,6 @@
+# Vite le pone hash al nombre de cada archivo en /assets/ (ej. index-DdgUdMMl.js)
+# — un build nuevo genera un nombre nuevo. Por eso es seguro cachearlos para
+# siempre: sin esto, Netlify los servía con max-age=0 (revalida en cada carga,
+# aunque el contenido nunca cambie para ese nombre de archivo).
+/assets/*
+  Cache-Control: public, max-age=31536000, immutable

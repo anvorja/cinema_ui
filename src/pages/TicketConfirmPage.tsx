@@ -3,6 +3,7 @@
 // (can reduce from what was selected, but not exceed it)
 import { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import {
   MapPinIcon, ComputerDesktopIcon, CalendarDaysIcon,
   ClockIcon, TicketIcon, ArrowLeftIcon, MinusIcon, PlusIcon,
@@ -84,7 +85,7 @@ const TicketConfirmPage = () => {
     [selectedSeats]
   );
 
-  const poster      = movie?.images?.poster || movie?.posterImage || '';
+  const poster      = optimizeCloudinaryUrl(movie?.images?.poster || movie?.posterImage || '', 400);
   const title       = movie?.title || '';
   const format      = showtime?.format || '2D Doblada';
   const time        = showtime?.time || '';
