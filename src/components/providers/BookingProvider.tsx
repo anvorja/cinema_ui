@@ -21,6 +21,23 @@ export const BookingProvider = ({ children }) => {
   const [bookingHistory, setBookingHistory] = useState([]);
   const [isBookingActive, setIsBookingActive] = useState(false);
 
+  // Guarda el historial en localStorage sin romper el flujo de compra si falla.
+  // El historial se recorta a MAX_HISTORY_ITEMS porque nunca se limpiaba solo y
+  // en un proyecto demo reusado muchas veces terminaba excediendo la cuota del
+  // navegador (QuotaExceededError) — eso hacía que setItem() lanzara DESPUÉS de
+  // que el backend ya había confirmado la compra, y completeBooking lo trataba
+  // como si la compra hubiera fallado por completo.
+  const MAX_HISTORY_ITEMS = 30;
+  const _persistHistory = useCallback((history) => {
+    const trimmed = history.slice(0, MAX_HISTORY_ITEMS);
+    try {
+      localStorage.setItem('cinema_booking_history', JSON.stringify(trimmed));
+    } catch (error) {
+      console.error('No se pudo guardar el historial de compras localmente:', error);
+    }
+    return trimmed;
+  }, []);
+
   // Cargar historial desde localStorage al inicializar
   useEffect(() => {
     const savedHistory = localStorage.getItem('cinema_booking_history');
@@ -185,10 +202,9 @@ export const BookingProvider = ({ children }) => {
         qrCode: ticketCodes[0],
       };
 
-      // Paso 4: Actualizar historial local
-      const newHistory = [completedBooking, ...bookingHistory];
-      setBookingHistory(newHistory);
-      localStorage.setItem('cinema_booking_history', JSON.stringify(newHistory));
+      // Paso 4: Actualizar historial local (la compra ya está confirmada en el
+      // backend en este punto — si esto falla, no debe tumbar la compra)
+      setBookingHistory(prev => _persistHistory([completedBooking, ...prev]));
 
       // Paso 5: Limpiar datos de reserva actual
       clearBooking();
@@ -210,31 +226,26 @@ export const BookingProvider = ({ children }) => {
         bookingNumber: `BK-OFFLINE-${Date.now()}`
       };
 
-      const newHistory = [fallbackBooking, ...bookingHistory];
-      setBookingHistory(newHistory);
-      localStorage.setItem('cinema_booking_history', JSON.stringify(newHistory));
+      setBookingHistory(prev => _persistHistory([fallbackBooking, ...prev]));
 
       clearBooking();
 
       // Re-lanzar el error para que el componente lo maneje
       throw error;
     }
-  }, [bookingData, bookingHistory, clearBooking, generateSeatNumbers, user, _pollUntilConfirmed]);
+  }, [bookingData, clearBooking, generateSeatNumbers, user, _pollUntilConfirmed, _persistHistory]);
 
   const getBookingsByStatus = useCallback((status) => {
     return bookingHistory.filter(booking => booking.status === status);
   }, [bookingHistory]);
 
   const cancelBooking = useCallback((transactionId) => {
-    const updatedHistory = bookingHistory.map(booking =>
+    setBookingHistory(prev => _persistHistory(prev.map(booking =>
       booking.transactionId === transactionId
         ? { ...booking, status: 'cancelled', cancelledDate: new Date() }
         : booking
-    );
-
-    setBookingHistory(updatedHistory);
-    localStorage.setItem('cinema_booking_history', JSON.stringify(updatedHistory));
-  }, [bookingHistory]);
+    )));
+  }, [_persistHistory]);
 
   const value = {
     // Estados
