@@ -198,15 +198,24 @@ const MovieDetailPage = () => {
   };
 
   if (loading) {
-    return <LoadingSpinner message="Cargando información de la película..." />;
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <LoadingSpinner size="xl" centered message="Cargando información de la película..." />
+      </div>
+    );
   }
 
   if (error || !movie) {
-    return <ErrorMessage
-      title="Error al cargar la película"
-      message={error || "No se pudo encontrar la información de la película"}
-      onRetry={refetch}
-    />;
+    return (
+      <div className="min-h-screen flex items-center justify-center p-6">
+        <ErrorMessage
+          className="max-w-md"
+          title="Error al cargar la película"
+          message={error || "No se pudo encontrar la información de la película"}
+          onRetry={refetch}
+        />
+      </div>
+    );
   }
 
   return (
