@@ -307,6 +307,17 @@ const PaymentSuccessPage = () => {
 
                 {/* Payment Summary */}
                 <div className="border-t border-white/20 mt-6 pt-6">
+                  {/* Desglose cobrado (boletas, comida, valor por servicio), tal como lo calculó el backend */}
+                  {booking?.lines?.length > 0 && (
+                    <ul className="mb-4 space-y-1 text-sm">
+                      {booking.lines.map(line => (
+                        <li key={`${line.kind}-${line.code}`} className="flex justify-between gap-3 text-white/80">
+                          <span>{line.quantity} × {line.description}</span>
+                          <span className="shrink-0">${line.line_total.toLocaleString('es-CO')}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  )}
                   <div className="flex justify-between items-center">
                     <div>
                       <h4 className="text-white/70 text-sm mb-1">Total Pagado</h4>

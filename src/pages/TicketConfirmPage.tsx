@@ -4,6 +4,7 @@
 import { useState, useMemo } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { optimizeCloudinaryUrl } from '../utils/movieUtils';
+import { usePricing } from '../hooks/usePricing';
 import {
   MapPinIcon, ComputerDesktopIcon, CalendarDaysIcon,
   ClockIcon, TicketIcon, ArrowLeftIcon, MinusIcon, PlusIcon,
@@ -18,9 +19,6 @@ const formatDate = (dateStr) => {
   } catch { return dateStr; }
 };
 
-const GENERAL_PRICE     = 22_800;
-const PREFERENCIAL_PRICE = 28_500;
-const SERVICE_FEE_PER    = 0; // no service fee line in PDF for this screen
 
 const CounterRow = ({ label, subtitle, price, count, max, onDecrement, onIncrement }) => (
   <div className="flex items-center justify-between py-4 border-b border-gray-100 last:border-0">
@@ -71,6 +69,10 @@ const TicketConfirmPage = () => {
 
   const [genQty,  setGenQty]  = useState(generalCount);
   const [prefQty, setPrefQty] = useState(prefCount);
+  // Precios del backend: General = precio de la película, Preferencial = + recargo.
+  const { data: pricing } = usePricing(movie?.id);
+  const GENERAL_PRICE      = pricing?.ticket_prices.general ?? 0;
+  const PREFERENCIAL_PRICE = pricing?.ticket_prices.preferential ?? 0;
 
   const totalSelected = genQty + prefQty;
   const subtotal      = genQty * GENERAL_PRICE + prefQty * PREFERENCIAL_PRICE;
@@ -98,7 +100,7 @@ const TicketConfirmPage = () => {
   }
 
   const handleContinue = () => {
-    if (totalSelected === 0 || mismatch) return;
+    if (totalSelected === 0 || mismatch || !pricing) return;
     navigate('/booking/food', {
       state: {
         movie, theater, showtime, selectedDate,
@@ -285,7 +287,7 @@ const TicketConfirmPage = () => {
 
           <button
             onClick={handleContinue}
-            disabled={totalSelected === 0 || mismatch}
+            disabled={totalSelected === 0 || mismatch || !pricing}
             className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 text-white rounded-full
                        hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
                        transition-colors font-semibold text-sm"

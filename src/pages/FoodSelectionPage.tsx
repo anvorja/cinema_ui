@@ -4,47 +4,12 @@ import { useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
 import { optimizeCloudinaryUrl } from '../utils/movieUtils';
+import { usePricing } from '../hooks/usePricing';
 
 const formatCOP = (n) => `$${Number(n).toLocaleString('es-CO')}`;
 
-// ── Mock food catalogue ────────────────────────────────────────────────────────
-const CATEGORIES = ['Confitería', 'Sushi', 'Cinepolitana', 'Juan Valdez'];
-
-const FOOD_ITEMS = {
-  'Confitería': [
-    { id: 'f1', name: 'Combo Fan Junior',      price: 19_900, desc: '1 Caja crispetas de sal 55 g + 1 Gaseosa pequeña 640 ml' },
-    { id: 'f2', name: 'Combo Fan',             price: 24_900, desc: '1 Crispeta pequeña de sal 100 g + 1 Gaseosa mediana 960 ml' },
-    { id: 'f3', name: 'Combo Pro',             price: 39_900, desc: '1 Crispeta de sal 100 gr + 1 Gaseosa mediana 960 ml + 1 Perro caliente o sandwich' },
-    { id: 'f4', name: 'Combo Deli',            price: 29_900, desc: '1 Crispeta pequeña 100 g + 1 Gaseosa mediana 960 ml + 1 Queso cheddar + 1 galleta' },
-    { id: 'f5', name: 'Combo Fan Para Dos',    price: 43_900, desc: '1 Crispeta grande de sal 150 g + 2 Gaseosas medianas 960 ml' },
-    { id: 'f6', name: 'Combo Pro Para Dos',    price: 62_900, desc: '1 Crispeta mediana de sal 120 g + 2 Gaseosas medianas 960 ml + 2 Perros calientes o sandwich' },
-    { id: 'f7', name: 'Crispeta Sal Grande 150 g',  price: 26_900, desc: '' },
-    { id: 'f8', name: 'Crispeta Sal Mediana 120 g', price: 24_900, desc: '' },
-    { id: 'f9', name: 'Adición Completa Caramelo',  price: 4_700, desc: 'Esta adición no incluye las crispetas' },
-    { id: 'f10', name: 'Adición Media Caramelo',    price: 3_700, desc: 'Esta adición no incluye las crispetas' },
-    { id: 'f11', name: 'Porción Queso Cheddar 100 g', price: 9_500, desc: '' },
-    { id: 'f12', name: 'Nachos Con Queso Cheddar',  price: 17_900, desc: '' },
-  ],
-  'Sushi': [
-    { id: 's1', name: 'Roll California (8 piezas)',  price: 32_900, desc: 'Pepino, aguacate, cangrejo y sésamo' },
-    { id: 's2', name: 'Roll Spicy Tuna (8 piezas)',  price: 36_900, desc: 'Atún, espinaca, aguacate, salsa picante' },
-    { id: 's3', name: 'Sashimi Mix (12 piezas)',     price: 48_900, desc: 'Salmón, atún y pescado blanco' },
-    { id: 's4', name: 'Combo Sushi Dúo',             price: 64_900, desc: '2 rolls a elección + 2 gaseosas' },
-  ],
-  'Cinepolitana': [
-    { id: 'c1', name: 'Pizza Personal Queso',        price: 22_900, desc: 'Base de tomate, mozzarella' },
-    { id: 'c2', name: 'Pizza Personal Pepperoni',    price: 26_900, desc: 'Base de tomate, mozzarella, pepperoni' },
-    { id: 'c3', name: 'Perro Caliente',              price: 14_900, desc: 'Salchicha, papas de palillo, salsas' },
-    { id: 'c4', name: 'Sandwich Especial',           price: 18_900, desc: 'Jamón, queso, lechuga, tomate' },
-  ],
-  'Juan Valdez': [
-    { id: 'jv1', name: 'Café Americano',  price: 7_900, desc: 'Taza 250 ml' },
-    { id: 'jv2', name: 'Cappuccino',      price: 9_900, desc: 'Espresso + leche espumada' },
-    { id: 'jv3', name: 'Latte Vainilla',  price: 10_900, desc: 'Espresso + leche + sirope de vainilla' },
-    { id: 'jv4', name: 'Brownie Choco',   price: 8_500, desc: 'Con chips de chocolate' },
-  ],
-};
-
+// El menú y sus precios vienen de booking-service (GET /purchases/pricing):
+// son los mismos con que se calcula el cobro.
 const CATEGORY_EMOJI = { 'Confitería': '🍿', 'Sushi': '🍣', 'Cinepolitana': '🍕', 'Juan Valdez': '☕' };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -60,8 +25,9 @@ const FoodSelectionPage = () => {
     generalCount  = 0,
     prefCount     = 0,
     ticketCount   = 0,
-    totalAmount: ticketTotal = 0,
   } = state || {};
+
+  const { data: pricing, isError: pricingError } = usePricing(movie?.id);
 
   if (!movie || !theater) {
     navigate('/cartelera');
@@ -77,52 +43,54 @@ const FoodSelectionPage = () => {
     return n;
   });
 
-  const allItems  = Object.values(FOOD_ITEMS).flat();
-  const foodTotal = Object.entries(cart).reduce((acc, [id, qty]) => {
-    const item = allItems.find(i => i.id === id);
+  const allItems   = pricing?.concessions ?? [];
+  const categories = [...new Set(allItems.map(i => i.category))];
+  const category   = categories.includes(activeCategory) ? activeCategory : categories[0];
+
+  const generalPrice = pricing?.ticket_prices.general ?? 0;
+  const prefPrice    = pricing?.ticket_prices.preferential ?? 0;
+  const ticketTotal  = generalCount * generalPrice + prefCount * prefPrice;
+  const foodTotal = Object.entries(cart).reduce((acc, [code, qty]) => {
+    const item = allItems.find(i => i.code === code);
     return acc + (item ? item.price * qty : 0);
   }, 0);
 
-  const SERVICE_FEE  = foodTotal > 0 ? 4_800 : 0;
+  const SERVICE_FEE  = foodTotal > 0 ? (pricing?.service_fee_with_concessions ?? 0) : 0;
   const grandWithFee = ticketTotal + foodTotal + SERVICE_FEE;
 
   const cartItems = Object.entries(cart)
     .filter(([, qty]) => qty > 0)
-    .map(([id, qty]) => ({ item: allItems.find(i => i.id === id), qty }))
+    .map(([code, qty]) => ({ item: allItems.find(i => i.code === code), qty }))
     .filter(({ item }) => !!item);
+  // Lo único que viaja al backend: códigos y cantidades, nunca precios.
+  const concessions = cartItems.map(({ item, qty }) => ({ code: item!.code, quantity: qty }));
 
   const poster = optimizeCloudinaryUrl(movie.images?.poster || movie.posterImage || '', 300);
   const title  = movie.title || '';
 
   const handleContinue = () => {
+    if (!pricing) return;
     navigate('/payment', {
       state: {
         movie, theater, showtime, selectedDate,
         selectedSeats, generalCount, prefCount, ticketCount,
-        ticketPrice:  ticketTotal / (ticketCount || 1),
-        serviceFee:   SERVICE_FEE,
-        totalAmount:  grandWithFee,
-        foodItems:    cartItems.map(({ item, qty }) => ({ ...item, qty })),
-        foodTotal,
+        concessions,
       },
     });
   };
 
   const handleSkip = () => {
+    if (!pricing) return;
     navigate('/payment', {
       state: {
         movie, theater, showtime, selectedDate,
         selectedSeats, generalCount, prefCount, ticketCount,
-        ticketPrice:  ticketTotal / (ticketCount || 1),
-        serviceFee:   0,
-        totalAmount:  ticketTotal,
-        foodItems:    [],
-        foodTotal:    0,
+        concessions: [],
       },
     });
   };
 
-  const items = FOOD_ITEMS[activeCategory] || [];
+  const items = allItems.filter(i => i.category === category);
 
   // ── Shared order summary content ──────────────────────────────────────────
   const SummaryContent = () => (
@@ -139,17 +107,17 @@ const FoodSelectionPage = () => {
         {generalCount > 0 && (
           <div className="flex justify-between text-sm text-gray-600">
             <span>{generalCount} Silla{generalCount > 1 ? 's' : ''} General</span>
-            <span>{formatCOP(generalCount * 22_800)}</span>
+            <span>{formatCOP(generalCount * generalPrice)}</span>
           </div>
         )}
         {prefCount > 0 && (
           <div className="flex justify-between text-sm text-gray-600">
             <span>{prefCount} Silla{prefCount > 1 ? 's' : ''} Preferencial</span>
-            <span>{formatCOP(prefCount * 28_500)}</span>
+            <span>{formatCOP(prefCount * prefPrice)}</span>
           </div>
         )}
         {cartItems.map(({ item, qty }) => (
-          <div key={item!.id} className="flex justify-between text-sm text-gray-600">
+          <div key={item!.code} className="flex justify-between text-sm text-gray-600">
             <span className="truncate mr-2">{qty}× {item!.name}</span>
             <span className="flex-shrink-0">{formatCOP(item!.price * qty)}</span>
           </div>
@@ -173,13 +141,15 @@ const FoodSelectionPage = () => {
 
       <button
         onClick={handleContinue}
+        disabled={!pricing}
         className="w-full flex items-center justify-center gap-1 py-3 bg-blue-700 text-white
-                   rounded-full font-semibold text-sm hover:bg-blue-800 transition-colors"
+                   rounded-full font-semibold text-sm hover:bg-blue-800 transition-colors disabled:opacity-40"
       >
         Continuar con el pago <span className="text-blue-200 ml-1">›</span>
       </button>
       <button
         onClick={handleSkip}
+        disabled={!pricing}
         className="w-full mt-2 py-2 text-gray-400 text-xs hover:text-gray-600 transition-colors"
       >
         Saltar este paso
@@ -207,12 +177,12 @@ const FoodSelectionPage = () => {
 
             {/* Category tabs */}
             <div className="flex gap-0.5 border-b border-white/20 mb-5 overflow-x-auto">
-              {CATEGORIES.map(cat => (
+              {categories.map(cat => (
                 <button
                   key={cat}
                   onClick={() => setActiveCategory(cat)}
                   className={`flex items-center gap-1 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors
-                    ${activeCategory === cat
+                    ${category === cat
                       ? 'border-white text-white'
                       : 'border-transparent text-white/60 hover:text-white/90'}`}
                 >
@@ -221,16 +191,22 @@ const FoodSelectionPage = () => {
               ))}
             </div>
 
+            {!pricing && (
+              <p role={pricingError ? 'alert' : 'status'} className="text-sm text-white/70 py-6">
+                {pricingError ? 'No pudimos cargar el menú. Intenta de nuevo en un momento.' : 'Cargando menú…'}
+              </p>
+            )}
+
             {/* Food grid: 2 cols on mobile, 3 on desktop */}
             <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
               {items.map(item => {
-                const qty = getQty(item.id);
+                const qty = getQty(item.code);
                 return (
-                  <div key={item.id}
+                  <div key={item.code}
                     className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
 
                     <div className="h-24 sm:h-32 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center text-4xl sm:text-5xl flex-shrink-0">
-                      {CATEGORY_EMOJI[activeCategory]}
+                      {CATEGORY_EMOJI[category] || '🍽️'}
                     </div>
 
                     <div className="p-2.5 sm:p-3 flex flex-col flex-1">
@@ -240,14 +216,14 @@ const FoodSelectionPage = () => {
                       <p className="font-bold text-gray-900 text-sm mb-1">{formatCOP(item.price)}</p>
                       {/* Description hidden on mobile to save space */}
                       <p className="hidden sm:block text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2 flex-1">
-                        {item.desc || ' '}
+                        {item.description || ' '}
                       </p>
                       {/* Spacer on mobile so button stays at bottom */}
                       <div className="flex-1 sm:hidden" />
 
                       {qty === 0 ? (
                         <button
-                          onClick={() => addItem(item.id)}
+                          onClick={() => addItem(item.code)}
                           className="w-full flex items-center justify-center gap-1 py-1.5 bg-blue-700
                                      text-white rounded-lg text-xs sm:text-sm hover:bg-blue-800 transition-colors mt-2"
                         >
@@ -255,12 +231,12 @@ const FoodSelectionPage = () => {
                         </button>
                       ) : (
                         <div className="flex items-center justify-between mt-2">
-                          <button onClick={() => removeItem(item.id)}
+                          <button onClick={() => removeItem(item.code)}
                             className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
                             <MinusIcon className="w-3.5 h-3.5 text-gray-600" />
                           </button>
                           <span className="font-bold text-gray-800 text-sm">{qty}</span>
-                          <button onClick={() => addItem(item.id)}
+                          <button onClick={() => addItem(item.code)}
                             className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-700 flex items-center justify-center hover:bg-blue-800">
                             <PlusIcon className="w-3.5 h-3.5 text-white" />
                           </button>
