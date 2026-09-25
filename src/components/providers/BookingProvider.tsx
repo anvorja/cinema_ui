@@ -14,6 +14,7 @@ export const BookingProvider = ({ children }) => {
     selectedDate: null,
     ticketCount: 0,
     selectedSeats: [],
+    concessions: [],
     totalAmount: 0,
     step: 1
   });
@@ -59,6 +60,7 @@ export const BookingProvider = ({ children }) => {
       selectedDate,
       ticketCount: 1,
       selectedSeats: [],
+      concessions: [],
       totalAmount: 0,
       step: 1
     });
@@ -100,6 +102,7 @@ export const BookingProvider = ({ children }) => {
       selectedDate: null,
       ticketCount: 0,
       selectedSeats: [],
+      concessions: [],
       totalAmount: 0,
       step: 1
     });
@@ -147,6 +150,7 @@ export const BookingProvider = ({ children }) => {
       selectedDate: bookingData.selectedDate,
       ticketCount: bookingData.ticketCount,
       selectedSeats: bookingData.selectedSeats || [],
+      concessions: bookingData.concessions || [],
     });
     if (!bookingResponse.success) throw new Error(bookingResponse.message);
     const purchaseId = bookingResponse.data.id;
@@ -218,6 +222,8 @@ export const BookingProvider = ({ children }) => {
       status: 'confirmed',
       seats: confirmedPurchase.tickets.map(t => t.seat_number),
       bookingNumber: `BK-${purchaseId}`,
+      // Desglose cobrado (boletas, comida, valor por servicio).
+      lines: confirmedPurchase.lines || [],
       // ticket_codes reales del backend (CINE-XXXXXXX) — usados para generar QR
       ticket_codes: ticketCodes,
       qrCode: ticketCodes[0],

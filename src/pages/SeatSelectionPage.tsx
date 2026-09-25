@@ -11,6 +11,7 @@ import { useBooking } from '../hooks/useBooking';
 import { useMovieShowtimes } from '../hooks/useMovieShowtimes';
 import { Badge } from '../components/ui/badge';
 import { optimizeCloudinaryUrl } from '../utils/movieUtils';
+import { isPreferentialSeat, usePricing } from '../hooks/usePricing';
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 const formatDate = (dateStr) => {
@@ -24,12 +25,6 @@ const formatDate = (dateStr) => {
 
 const seatLabel = (id) => id;
 
-// Determine if a seat is general or preferencial from the layout
-const seatTypeFromId = (id) => {
-  const row = id[0];
-  const prefRows = ['K','L','M','N','O','P'];
-  return prefRows.includes(row) ? 'preferencial' : 'general';
-};
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const SeatSelectionPage = () => {
@@ -54,6 +49,8 @@ const SeatSelectionPage = () => {
 
   // Selected seats: Set of seat IDs — pre-populated if coming back from TicketConfirmPage
   const [selectedSeats, setSelectedSeats] = useState(() => new Set(state.selectedSeats || []));
+  // Qué filas son preferenciales lo decide el backend (PREFERENTIAL_ROWS).
+  const { data: pricing } = usePricing(movie?.id);
 
   // Occupied seats fetched from backend (already sold for this showtime)
   const [occupiedSeats, setOccupiedSeats] = useState(new Set());
@@ -131,15 +128,13 @@ const SeatSelectionPage = () => {
     .filter(Boolean)
     .sort();
 
-  const generalCount = [...selectedSeats].filter(
-    id => seatTypeFromId(id) === 'general'
-  ).length;
   const prefCount = [...selectedSeats].filter(
-    id => seatTypeFromId(id) === 'preferencial'
+    id => isPreferentialSeat(String(id), pricing?.preferential_rows)
   ).length;
+  const generalCount = selectedSeats.size - prefCount;
 
   const handleContinue = () => {
-    if (selectedSeats.size === 0) return;
+    if (selectedSeats.size === 0 || !pricing) return;
     navigate('/booking/tickets', {
       state: {
         movie, theater, showtime, selectedDate,
@@ -266,7 +261,7 @@ const SeatSelectionPage = () => {
 
           <button
             onClick={handleContinue}
-            disabled={selectedSeats.size === 0}
+            disabled={selectedSeats.size === 0 || !pricing}
             className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 text-white rounded-full
                        hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
                        transition-colors font-semibold text-sm"

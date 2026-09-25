@@ -129,6 +129,11 @@ class BookingService {
 
       // Sin datos de pago: la persona elige el medio (tarjeta, PSE, Nequi…)
       // en el Web Checkout de Wompi y esos datos nunca pasan por el backend.
+      // Solo códigos y cantidades de comida: el precio lo pone el backend.
+      const concessions = (bookingData.concessions || [])
+        .filter(c => c && typeof c.code === 'string' && Number.isInteger(c.quantity) && c.quantity > 0)
+        .map(c => ({ code: c.code, quantity: c.quantity }));
+
       purchasePayload = {
         movie_id: movieId,
         quantity,
@@ -136,6 +141,7 @@ class BookingService {
         show_time: showTime,
         showtime_id: showtimeId,
         selected_seats: selectedSeatsPayload,
+        concessions,
       };
 
       console.log('🚀 Payload CORRECTO enviado a /purchases:', purchasePayload);

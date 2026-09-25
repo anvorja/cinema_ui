@@ -321,6 +321,22 @@ export const purchaseService = {
   },
 };
 
+// Precios de la compra (booking-service). El backend es la única fuente: la
+// UI muestra estos valores y nunca envía montos, solo asientos y productos.
+export const pricingService = {
+  // Boleta General/Preferencial, filas preferenciales, menú y valor por servicio.
+  get: async (movieId) => {
+    const response = await api.get('/purchases/pricing', { params: { movie_id: movieId } });
+    return response.data;
+  },
+
+  // Desglose y total exactos de una compra antes de crearla (no reserva nada).
+  quote: async (payload) => {
+    const response = await api.post('/purchases/quote', payload);
+    return response.data;
+  },
+};
+
 // Pagos con Wompi (payment-service, /api/v1/payments). Referencias cinemaplus-<uuid>.
 export const paymentService = {
   // Cobro de una compra de boletas; 404 mientras booking aún no lo pidió.

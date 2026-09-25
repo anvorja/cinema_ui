@@ -20,6 +20,7 @@ import { useBooking } from '../hooks/useBooking';
 import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import useAuth from "../hooks/useAuth.js";
 import { LoginModal } from '../components/auth/LoginModal';
+import { useQuote } from '../hooks/usePricing';
 
 type Stage = 'idle' | 'reserving' | 'preparing' | 'redirecting';
 
@@ -46,11 +47,25 @@ const PaymentPage = () => {
   const { updateBooking, startCheckout } = useBooking();
 
   const paymentData = location.state || {};
-  const { movie, theater, showtime, selectedDate, ticketCount, selectedSeats } = paymentData;
+  const { movie, theater, showtime, selectedDate, ticketCount, selectedSeats, concessions = [] } = paymentData;
 
   const [stage, setStage] = useState<Stage>('idle');
   const [showLoginModal, setShowLoginModal] = useState(false);
   const [paymentError, setPaymentError] = useState<string | null>(null);
+
+  // El total lo calcula el backend (mismo cálculo con que se cobra en Wompi).
+  const seats = selectedSeats?.length ? selectedSeats : null;
+  const quote = useQuote(
+    movie?.id
+      ? {
+          movie_id: movie.id,
+          quantity: seats?.length || ticketCount || 1,
+          selected_seats: seats,
+          showtime_id: showtime?.id ?? null,
+          concessions,
+        }
+      : null
+  );
 
   useEffect(() => {
     if (!movie || !theater) {
@@ -65,6 +80,7 @@ const PaymentPage = () => {
       selectedDate,
       ticketCount: ticketCount || 1,
       selectedSeats: selectedSeats || [],
+      concessions,
       step: 3,
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -81,10 +97,7 @@ const PaymentPage = () => {
     );
   }
 
-  const quantity = (selectedSeats?.length || ticketCount || 1) as number;
-  const unitPrice = Number(movie.price) || 0;
-  // Lo que cobra el backend (booking-service): precio de la película × boletas.
-  const total = unitPrice * quantity;
+  const total = quote.data?.total ?? 0;
   const busy = stage !== 'idle';
 
   const handlePayment = async () => {
@@ -207,11 +220,21 @@ const PaymentPage = () => {
                     </div>
                   </div>
 
-                  <div className="space-y-3 mb-6">
-                    <div className="flex justify-between text-sm">
-                      <span className="text-white/80">{quantity} × {formatPrice(unitPrice)}</span>
-                      <span className="text-white">{formatPrice(total)}</span>
-                    </div>
+                  <div className="space-y-2 mb-6" aria-live="polite">
+                    {quote.isPending && <p className="text-white/60 text-sm">Calculando el total…</p>}
+                    {quote.isError && (
+                      <p role="alert" className="text-red-300 text-sm">
+                        No pudimos calcular el total. Vuelve atrás e intenta de nuevo.
+                      </p>
+                    )}
+                    {quote.data?.lines.map(line => (
+                      <div key={`${line.kind}-${line.code}`} className="flex justify-between gap-2 text-sm">
+                        <span className="text-white/80">
+                          {line.quantity} × {line.description}
+                        </span>
+                        <span className="text-white shrink-0">{formatPrice(line.line_total)}</span>
+                      </div>
+                    ))}
                     <hr className="border-white/20" />
                     <div className="flex justify-between">
                       <span className="text-white font-semibold">Total</span>
@@ -228,7 +251,7 @@ const PaymentPage = () => {
 
                   <PremiumButton
                     onClick={handlePayment}
-                    disabled={busy || total <= 0}
+                    disabled={busy || !quote.data}
                     className="w-full flex items-center justify-center gap-2"
                     size="lg"
                   >
