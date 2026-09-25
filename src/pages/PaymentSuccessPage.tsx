@@ -15,6 +15,21 @@ import {
 } from '@heroicons/react/24/outline';
 import {FloatingParticles, GlassCard, PremiumButton} from '../components/common';
 
+// Fecha de la función: llega como "YYYY-MM-DD" (del backend) o, en reservas
+// guardadas por versiones anteriores, como { dayName, dayNumber, monthName }.
+// "YYYY-MM-DD" se arma en hora local para que no se corra un día por UTC.
+const formatShowDate = (value) => {
+  if (!value) return '';
+  if (typeof value === 'string') {
+    const [y, m, d] = value.split('T')[0].split('-').map(Number);
+    if (!y || !m || !d) return value;
+    return new Date(y, m - 1, d).toLocaleDateString('es-CO', {
+      weekday: 'long', day: 'numeric', month: 'long', year: 'numeric',
+    });
+  }
+  return [value.dayName, value.dayNumber, value.monthName && `de ${value.monthName}`].filter(Boolean).join(' ');
+};
+
 const PaymentSuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
@@ -77,9 +92,7 @@ const PaymentSuccessPage = () => {
     setIsDownloading(true);
 
     const codes = ticketCodes.length > 0 ? ticketCodes : [ticketInfo.qrCode];
-    const showDate = selectedDate
-      ? `${selectedDate.dayName} ${selectedDate.dayNumber} de ${selectedDate.monthName} 2025`
-      : '';
+    const showDate = formatShowDate(selectedDate);
 
     // Serializar los SVG de QR que ya están renderizados en el DOM
     const qrNodes = document.querySelectorAll('[data-qr-print]');
@@ -267,7 +280,7 @@ const PaymentSuccessPage = () => {
                           <h4 className="text-white/70 font-medium mb-1">Fecha y Hora</h4>
                           <p className="text-white font-medium">{showtime.time}</p>
                           <p className="text-white/60 text-xs">
-                            {selectedDate?.dayName} {selectedDate?.dayNumber} de {selectedDate?.monthName} 2025
+                            {formatShowDate(selectedDate)}
                           </p>
                         </div>
                       </div>

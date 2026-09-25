@@ -21,6 +21,8 @@ import CardsPage from "./pages/CardsPage.jsx";
 import SettingsPage from "./pages/SettingsPage.jsx";
 import CardRechargePage from "./pages/CardRechargePage";
 import CardRechargePaymentPage from "./pages/CardRechargePaymentPage";
+import PaymentResultPage from "./pages/PaymentResultPage";
+import PaymentsHistoryPage from "./pages/PaymentsHistoryPage";
 import AuthProvider from "./components/providers/AuthProvider.jsx";
 import ScrollToTop from "./components/layout/ScrollToTop.jsx";
 
@@ -51,10 +53,13 @@ function App() {
                                 <Route path="booking/:movieId/:theaterId/:showtimeId?" element={<SeatSelectionPage />} />
                                 <Route path="payment" element={<PaymentPage />} />
                                 <Route path="payment-success" element={<PaymentSuccessPage />} />
+                                {/* Wompi devuelve aquí (PAYMENTS_REDIRECT_URL de payment-service) */}
+                                <Route path="pago/resultado" element={<PaymentResultPage />} />
                                 <Route path="/profile" element={<ProfilePage />} />
                                 <Route path="/profile/purchases" element={<TransactionsPage />} />
                                 <Route path="/profile/transactions" element={<TransactionsPage />} />
                                 <Route path="/profile/cards" element={<CardsPage />} />
+                                <Route path="/profile/payments" element={<PaymentsHistoryPage />} />
                                 <Route path="/profile/settings" element={<SettingsPage />} />
                                 <Route path="/recharge" element={<CardRechargePage />} />
                                 <Route path="/recharge/payment" element={<CardRechargePaymentPage />} />

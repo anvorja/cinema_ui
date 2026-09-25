@@ -1,11 +1,12 @@
 // src/providers/BookingProvider.jsx
 import { useState, useEffect, useCallback } from 'react';
 import { BookingContext } from '../contexts/BookingContext.js';
-import useAuth from "../../hooks/useAuth.js";
 import bookingService from "../../services/bookingService.js";
+import { paymentService } from "../../services/api";
+import { savePendingCheckout } from "../../utils/pendingCheckout";
+import { paymentMethodLabel } from "../../utils/payments";
 
 export const BookingProvider = ({ children }) => {
-  const { user } = useAuth();
   const [bookingData, setBookingData] = useState({
     movie: null,
     theater: null,
@@ -13,9 +14,6 @@ export const BookingProvider = ({ children }) => {
     selectedDate: null,
     ticketCount: 0,
     selectedSeats: [],
-    paymentMethod: null,
-    pseData: null,
-    cardData: null,
     totalAmount: 0,
     step: 1
   });
@@ -27,7 +25,7 @@ export const BookingProvider = ({ children }) => {
   // El historial se recorta a MAX_HISTORY_ITEMS porque nunca se limpiaba solo y
   // en un proyecto demo reusado muchas veces terminaba excediendo la cuota del
   // navegador (QuotaExceededError) — eso hacía que setItem() lanzara DESPUÉS de
-  // que el backend ya había confirmado la compra, y completeBooking lo trataba
+  // que el backend ya había confirmado la compra, y el cierre de la compra lo trataba
   // como si la compra hubiera fallado por completo.
   const MAX_HISTORY_ITEMS = 30;
   const _persistHistory = useCallback((history) => {
@@ -61,9 +59,6 @@ export const BookingProvider = ({ children }) => {
       selectedDate,
       ticketCount: 1,
       selectedSeats: [],
-      paymentMethod: null,
-      pseData: null,
-      cardData: null,
       totalAmount: 0,
       step: 1
     });
@@ -97,19 +92,6 @@ export const BookingProvider = ({ children }) => {
     return subtotal + totalServiceFees;
   }, []);
 
-  const generateSeatNumbers = useCallback((count) => {
-    const rows = ['J', 'K', 'L', 'M', 'N'];
-    const seats = [];
-    const startSeat = Math.floor(Math.random() * 15) + 1;
-
-    for (let i = 0; i < count; i++) {
-      const row = rows[Math.floor(Math.random() * rows.length)];
-      seats.push(`${row}${startSeat + i}`);
-    }
-
-    return seats.join(', ');
-  }, []);
-
   const clearBooking = useCallback(() => {
     setBookingData({
       movie: null,
@@ -118,145 +100,134 @@ export const BookingProvider = ({ children }) => {
       selectedDate: null,
       ticketCount: 0,
       selectedSeats: [],
-      paymentMethod: null,
-      pseData: null,
-      cardData: null,
       totalAmount: 0,
       step: 1
     });
     setIsBookingActive(false);
   }, []);
 
-  // Espera a que la compra pase a CONFIRMED sondeando GET /purchases/{id}.
-  // timeoutMs a propósito por encima de INVENTORY_DECISION_TIMEOUT_SECONDS
-  // (120s, ver booking-service-cinema/app/core/config.py): así, si el
-  // backend cancela por timeout de inventario, el próximo poll alcanza a
-  // leer el estado real (cancelled + motivo) en vez de que el frontend se
-  // rinda primero con el mensaje genérico. 45s medía la latencia de saga en
-  // local (todo en localhost); en producción (Confluent Cloud + Render free
-  // tier) se midieron confirmaciones reales de 122-142s — ver HALLAZGOS.md.
+  const _sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+  // Motivo de cancelación del backend, o uno genérico.
+  const _cancelReason = (purchase) =>
+    purchase?.payment_summary?.failure_reason
+    || 'La compra se canceló. Es posible que los asientos ya no estén disponibles.';
+
+  // Espera a que la compra pase a CONFIRMED (con sus tickets) sondeando
+  // GET /purchases/{id}. Se usa al volver de Wompi con el pago aprobado: la
+  // saga (payment.success → booking confirma y materializa tickets) tarda
+  // unos segundos en local y más en Render (ver HALLAZGOS.md).
   const _pollUntilConfirmed = useCallback(async (purchaseId, { intervalMs = 3000, timeoutMs = 180000 } = {}) => {
     const deadline = Date.now() + timeoutMs;
     while (Date.now() < deadline) {
-      await new Promise(r => setTimeout(r, intervalMs));
       const result = await bookingService.getBookingDetails(purchaseId);
-      if (!result.success) continue;
-      const { status, tickets, payment_summary } = result.data;
-      if (status === 'confirmed' && tickets?.length > 0) return result.data;
-      if (status === 'cancelled') {
-        const reason = payment_summary?.failure_reason
-          || 'Uno o más asientos seleccionados ya fueron adquiridos por otro usuario. Por favor elige otras sillas.';
-        throw new Error(reason);
+      if (result.success) {
+        const { status, tickets } = result.data;
+        if (status === 'confirmed' && tickets?.length > 0) return result.data;
+        if (status === 'cancelled') throw new Error(_cancelReason(result.data));
       }
+      await _sleep(intervalMs);
     }
-    throw new Error('El pago tardó demasiado en confirmarse. Revisa "Mis Compras" para ver el estado.');
+    throw new Error('El pago se aprobó pero la confirmación está tardando. Revisa "Mis compras" en unos minutos.');
   }, []);
 
-  // 🔥 FUNCIÓN CRÍTICA CORREGIDA - USA /purchases
+  // Crea la compra (sin datos de pago), espera a que el inventario reserve
+  // los asientos y a que payment-service prepare el cobro, y devuelve la URL
+  // del Web Checkout de Wompi. Deja guardado el resumen para el recibo.
   //
-  // paymentOverride (opcional): { paymentMethod, pseData, cardData }. PaymentPage
-  // lo pasa directo desde su propio estado local en vez de depender de que
-  // updateBooking() (setState de contexto, asíncrono) ya se haya reflejado en
-  // bookingData para cuando esta función lee sus datos — de lo contrario esta
-  // función corre con el closure de bookingData de ANTES de esa actualización
-  // (React no re-renderiza entre updateBooking() y esta llamada, ambas
-  // síncronas en el mismo handler). Ese desfase + que purchasePayload nunca
-  // reenviaba pseData/cardData hacía que toda compra se mandara como tarjeta
-  // (con un número de relleno hardcodeado en bookingService.ts) sin importar
-  // el método elegido en la UI.
-  const completeBooking = useCallback(async (transactionId, paymentOverride = null) => {
-    try {
-      console.log('📝 Iniciando proceso de reserva...');
-      console.log('📊 Datos de booking:', bookingData);
+  // timeoutMs por encima de INVENTORY_DECISION_TIMEOUT_SECONDS (120s en
+  // booking-service): si el backend cancela por inventario, el próximo poll
+  // alcanza a leer el motivo real.
+  const startCheckout = useCallback(async ({ onStage = (_stage) => {}, timeoutMs = 150000, intervalMs = 2000 } = {}) => {
+    onStage('reserving');
+    const bookingResponse = await bookingService.createBooking({
+      movie: bookingData.movie,
+      theater: bookingData.theater,
+      showtime: bookingData.showtime,
+      selectedDate: bookingData.selectedDate,
+      ticketCount: bookingData.ticketCount,
+      selectedSeats: bookingData.selectedSeats || [],
+    });
+    if (!bookingResponse.success) throw new Error(bookingResponse.message);
+    const purchaseId = bookingResponse.data.id;
 
-      const paymentMethod = paymentOverride?.paymentMethod ?? bookingData.paymentMethod;
-      const pseData = paymentOverride?.pseData ?? bookingData.pseData;
-      const cardData = paymentOverride?.cardData ?? bookingData.cardData;
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      await _sleep(intervalMs);
+      const result = await bookingService.getBookingDetails(purchaseId);
+      if (!result.success) continue;
+      const purchase = result.data;
+      if (purchase.status === 'cancelled') throw new Error(_cancelReason(purchase));
+      if (purchase.payment_summary?.status !== 'awaiting_payment_result') continue;
 
-      // Paso 1: Crear la compra usando el endpoint correcto /purchases
-      const purchasePayload = {
-        movie: bookingData.movie,
-        theater: bookingData.theater,
-        showtime: bookingData.showtime,
-        selectedDate: bookingData.selectedDate,
-        ticketCount: bookingData.ticketCount,
-        selectedSeats: bookingData.selectedSeats || [],
-        totalAmount: bookingData.totalAmount,
-        paymentMethod,
-        pseData,
-        cardData,
-        // Datos del usuario
-        userEmail: user?.email,
-        userPhone: user?.phone,
-        userName: user ? `${user.first_name} ${user.last_name}` : null
-      };
-
-      console.log('🚀 Enviando a /purchases:', purchasePayload);
-
-      const bookingResponse = await bookingService.createBooking(purchasePayload);
-
-      if (!bookingResponse.success) {
-        console.error('❌ Error en createBooking:', bookingResponse.message);
-        throw new Error(bookingResponse.message);
+      onStage('preparing');
+      try {
+        const payment = await paymentService.getOrderCheckout(purchaseId);
+        if (payment.checkout_url) {
+          savePendingCheckout({
+            kind: 'tickets',
+            purchaseId,
+            reference: payment.reference,
+            startedAt: new Date().toISOString(),
+            booking: {
+              movie: bookingData.movie,
+              theater: bookingData.theater,
+              showtime: bookingData.showtime,
+              selectedDate: bookingData.selectedDate,
+              ticketCount: bookingData.ticketCount,
+              totalAmount: payment.amount,
+            },
+          });
+          onStage('redirecting');
+          return payment.checkout_url;
+        }
+        if (payment.status !== 'pending') {
+          throw new Error('Este cobro ya no se puede pagar. Vuelve a elegir tus asientos.');
+        }
+      } catch (error) {
+        // 404: payment-service aún no creó el cobro — seguir esperando.
+        if (error?.response?.status !== 404) throw error;
       }
-
-      console.log('✅ Compra creada (PENDING):', bookingResponse.data);
-      const purchaseId = bookingResponse.data.id;
-
-      // Paso 2: Esperar a que el saga de Kafka confirme la compra y genere los tickets reales
-      console.log('⏳ Esperando confirmación del pago via saga...');
-      const confirmedPurchase = await _pollUntilConfirmed(purchaseId);
-      console.log('✅ Compra confirmada:', confirmedPurchase);
-
-      // Paso 3: Construir objeto de reserva completa con datos reales del backend
-      const ticketCodes = confirmedPurchase.tickets.map(t => t.ticket_code);
-      const backendSeats = confirmedPurchase.tickets.map(t => t.seat_number);
-      const completedBooking = {
-        id: purchaseId,
-        ...bookingData,
-        totalAmount: confirmedPurchase.total_amount ?? bookingData.totalAmount,
-        transactionId: confirmedPurchase.payment_summary?.transaction_id || transactionId,
-        bookingDate: new Date(),
-        status: 'confirmed',
-        seats: backendSeats,
-        bookingNumber: `BK-${purchaseId}`,
-        // ticket_codes reales del backend (CINE-XXXXXXX) — usados para generar QR
-        ticket_codes: ticketCodes,
-        qrCode: ticketCodes[0],
-      };
-
-      // Paso 4: Actualizar historial local (la compra ya está confirmada en el
-      // backend en este punto — si esto falla, no debe tumbar la compra)
-      setBookingHistory(prev => _persistHistory([completedBooking, ...prev]));
-
-      // Paso 5: Limpiar datos de reserva actual
-      clearBooking();
-
-      console.log('🎉 Reserva completada exitosamente:', completedBooking);
-      return completedBooking;
-
-    } catch (error) {
-      console.error('💥 Error completando reserva:', error);
-
-      // Fallback: Guardar localmente si el backend falla
-      const fallbackBooking = {
-        ...bookingData,
-        transactionId: transactionId || `FALLBACK-${Date.now()}`,
-        bookingDate: new Date(),
-        status: 'pending_sync',
-        seats: generateSeatNumbers(bookingData.ticketCount),
-        error: error.message,
-        bookingNumber: `BK-OFFLINE-${Date.now()}`
-      };
-
-      setBookingHistory(prev => _persistHistory([fallbackBooking, ...prev]));
-
-      clearBooking();
-
-      // Re-lanzar el error para que el componente lo maneje
-      throw error;
     }
-  }, [bookingData, clearBooking, generateSeatNumbers, user, _pollUntilConfirmed, _persistHistory]);
+    throw new Error('No pudimos preparar el pago a tiempo. Revisa "Mis compras" o intenta de nuevo.');
+  }, [bookingData]);
+
+  // Al volver de Wompi con el pago aprobado: espera los tickets reales y arma
+  // la reserva completa para el recibo con QR.
+  const finishBooking = useCallback(async (purchaseId, snapshot = {}, reference = null) => {
+    const confirmedPurchase = await _pollUntilConfirmed(purchaseId);
+    const ticketCodes = confirmedPurchase.tickets.map(t => t.ticket_code);
+    const summary = confirmedPurchase.payment_summary || {};
+    const completedBooking = {
+      id: purchaseId,
+      // Sin el resumen guardado (otra pestaña, almacenamiento borrado) el
+      // recibo se arma con lo que devuelve el backend.
+      movie: { title: confirmedPurchase.movie_title },
+      theater: { name: '' },
+      showtime: { time: confirmedPurchase.show_time, format: '' },
+      selectedDate: confirmedPurchase.show_date,
+      ticketCount: confirmedPurchase.quantity,
+      ...snapshot,
+      totalAmount: confirmedPurchase.total_amount,
+      transactionId: reference || summary.payment_reference,
+      paymentMethod: {
+        icon: summary.payment_method_type === 'CARD' ? '💳' : '🏦',
+        name: `Wompi · ${paymentMethodLabel(summary.payment_method_type, summary.last_four)}`,
+      },
+      bookingDate: new Date(),
+      status: 'confirmed',
+      seats: confirmedPurchase.tickets.map(t => t.seat_number),
+      bookingNumber: `BK-${purchaseId}`,
+      // ticket_codes reales del backend (CINE-XXXXXXX) — usados para generar QR
+      ticket_codes: ticketCodes,
+      qrCode: ticketCodes[0],
+    };
+    // La compra ya está confirmada en el backend: si guardar el historial
+    // local falla, no debe tumbar nada.
+    setBookingHistory(prev => _persistHistory([completedBooking, ...prev]));
+    clearBooking();
+    return completedBooking;
+  }, [_pollUntilConfirmed, _persistHistory, clearBooking]);
 
   const getBookingsByStatus = useCallback((status) => {
     return bookingHistory.filter(booking => booking.status === status);
@@ -279,7 +250,8 @@ export const BookingProvider = ({ children }) => {
     // Funciones principales
     startBooking,
     updateBookingData,
-    completeBooking,
+    startCheckout,
+    finishBooking,
     clearBooking,
 
     // Navegación de pasos
@@ -290,7 +262,6 @@ export const BookingProvider = ({ children }) => {
     calculateTotal,
     getBookingsByStatus,
     cancelBooking,
-    generateSeatNumbers
   };
 
   return (

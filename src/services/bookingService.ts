@@ -127,46 +127,16 @@ class BookingService {
       const selectedSeatsPayload = rawSeats.length > 0 ? rawSeats : null;
       const quantity = rawSeats.length > 0 ? rawSeats.length : ticketCount || 1;
 
-      if (bookingData.paymentMethod === 'pse' && bookingData.pseData) {
-        // PSE payload
-        const pse = bookingData.pseData;
-        purchasePayload = {
-          movie_id: movieId,
-          quantity,
-          show_date: showDate,
-          show_time: showTime,
-          showtime_id: showtimeId,
-          selected_seats: selectedSeatsPayload,
-          pse_info: {
-            bank_code: pse.bankCode,
-            bank_name: pse.bankName,
-            document_type: pse.documentType,
-            document_number: pse.documentNumber,
-            payer_email: pse.payerEmail,
-          }
-        };
-      } else {
-        // Card payload
-        const card = bookingData.cardData || {};
-        const [expiryMonth, expiryYear] = (card.expiry || '12/25').split('/');
-        const cardNumber = (card.number || '').replace(/\s/g, '') || '1234567812345678';
-
-        purchasePayload = {
-          movie_id: movieId,
-          quantity,
-          show_date: showDate,
-          show_time: showTime,
-          showtime_id: showtimeId,
-          selected_seats: selectedSeatsPayload,
-          payment_info: {
-            card_number: cardNumber,
-            card_holder: card.name || bookingData.userName || "Cliente Cinema",
-            expiry_month: parseInt(expiryMonth, 10) || 12,
-            expiry_year: parseInt(`20${expiryYear}`, 10) || 2025,
-            cvv: card.cvv || "123"
-          }
-        };
-      }
+      // Sin datos de pago: la persona elige el medio (tarjeta, PSE, Nequi…)
+      // en el Web Checkout de Wompi y esos datos nunca pasan por el backend.
+      purchasePayload = {
+        movie_id: movieId,
+        quantity,
+        show_date: showDate,
+        show_time: showTime,
+        showtime_id: showtimeId,
+        selected_seats: selectedSeatsPayload,
+      };
 
       console.log('🚀 Payload CORRECTO enviado a /purchases:', purchasePayload);
 

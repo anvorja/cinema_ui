@@ -293,16 +293,10 @@ export const theaterService = {
 
 export const purchaseService = {
   create: async (purchaseData) => {
+    // Sin datos de pago: se paga en Wompi (ver paymentService).
     const payload = {
       movie_id: purchaseData.movie_id,
       quantity: purchaseData.quantity,
-      payment_info: {
-        card_number: purchaseData.payment_info.card_number,
-        card_holder: purchaseData.payment_info.card_holder,
-        expiry_month: purchaseData.payment_info.expiry_month,
-        expiry_year: purchaseData.payment_info.expiry_year,
-        cvv: purchaseData.payment_info.cvv
-      }
     };
 
     console.log('purchaseService.create payload:', payload);
@@ -323,6 +317,34 @@ export const purchaseService = {
 
   cancel: async (id) => {
     const response = await api.post(`/purchases/${id}/cancel`);
+    return response.data;
+  },
+};
+
+// Pagos con Wompi (payment-service, /api/v1/payments). Referencias cinemaplus-<uuid>.
+export const paymentService = {
+  // Cobro de una compra de boletas; 404 mientras booking aún no lo pidió.
+  // checkout_url existe solo mientras se pueda pagar.
+  getOrderCheckout: async (orderId) => {
+    const response = await api.get(`/payments/orders/${orderId}`);
+    return response.data;
+  },
+
+  // Al volver de Wompi (?id=<transacción>): consulta y aplica el resultado.
+  verify: async (transactionId) => {
+    const response = await api.post('/payments/verify', { transaction_id: transactionId });
+    return response.data;
+  },
+
+  // Recarga de la tarjeta Cinema+: devuelve el pago con su checkout_url.
+  createRecharge: async (amount) => {
+    const response = await api.post('/payments/recharges', { amount });
+    return response.data;
+  },
+
+  // Historial de pagos (boletas y recargas), del más reciente al más antiguo.
+  getMine: async () => {
+    const response = await api.get('/payments/me');
     return response.data;
   },
 };
