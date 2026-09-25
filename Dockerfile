@@ -1,4 +1,5 @@
-FROM node:18-alpine AS builder
+# Vite 7 exige Node 20.19+ / 22.12+
+FROM node:22-alpine AS builder
 
 RUN npm install -g pnpm
 
@@ -10,10 +11,15 @@ RUN pnpm install --frozen-lockfile
 
 COPY . .
 
-# Allow overriding API URL at build time (docker-compose passes this)
-# Default preserves existing standalone behavior
-ARG VITE_API_BASE_URL=http://localhost:8000/api/v1
-ENV VITE_API_BASE_URL=$VITE_API_BASE_URL
+# Las VITE_* se fijan en el build (docker-compose las pasa como build args; el
+# .env no entra a la imagen). /api/v1 = mismo origen: la app y la API salen
+# del mismo host (Traefik), sea localhost, lvh.me o un túnel de ngrok.
+ARG VITE_API_BASE_URL=/api/v1
+ARG VITE_CLOUDINARY_CLOUD_NAME=
+ARG VITE_CLOUDINARY_UPLOAD_PRESET=
+ENV VITE_API_BASE_URL=$VITE_API_BASE_URL \
+    VITE_CLOUDINARY_CLOUD_NAME=$VITE_CLOUDINARY_CLOUD_NAME \
+    VITE_CLOUDINARY_UPLOAD_PRESET=$VITE_CLOUDINARY_UPLOAD_PRESET
 
 RUN pnpm run build
 
