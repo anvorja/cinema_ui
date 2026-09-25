@@ -572,6 +572,17 @@ const UserProfile = ({ onClose }) => {
               </div>
               <ChevronRight className="w-4 h-4 text-white/35 group-hover:text-white/65 transition-colors" />
             </Link>
+            <Link
+              to="/profile/payments"
+              onClick={onClose}
+              className="mt-3 flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 rounded-xl transition-all group"
+            >
+              <div>
+                <p className="text-white font-medium text-sm">Ver historial de pagos</p>
+                <p className="text-white/45 text-xs mt-0.5">Pagos con Wompi y sus referencias cinemaplus</p>
+              </div>
+              <ChevronRight className="w-4 h-4 text-white/35 group-hover:text-white/65 transition-colors" />
+            </Link>
           </div>
 
           {/* Zona de peligro */}
