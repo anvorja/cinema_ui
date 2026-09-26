@@ -1,5 +1,5 @@
 // src/components/layout/Header.tsx
-import { useState, useEffect, useCallback, useRef, useLayoutEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { Menu, Search, X, User, CreditCard } from 'lucide-react';

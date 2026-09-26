@@ -52,28 +52,6 @@ const AdminDashboardContent = () => {
   const loadStats     = async () => { try { const d = await adminApi.getSalesReport(); setStats(d || {}); } catch { setStats({}); } };
 
   // ── Handlers películas ────────────────────────────────────────────────────
-  const handleCreateMovie = async (movieData) => {
-    try {
-      await adminApi.createMovie(movieData);
-      await loadMovies();
-      toast.success(`"${movieData.title}" creada exitosamente`, { title: 'Película creada', duration: 5000 });
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al crear la película', { title: 'Error', duration: 7000 });
-      throw error;
-    }
-  };
-
-  const handleUpdateMovie = async (movieId, movieData) => {
-    try {
-      await adminApi.updateMovie(movieId, movieData);
-      await loadMovies();
-      toast.success(`"${movieData.title}" actualizada`, { title: 'Película actualizada' });
-    } catch (error) {
-      toast.error(error.response?.data?.detail || 'Error al actualizar', { title: 'Error', duration: 7000 });
-      throw error;
-    }
-  };
-
   const handleToggleMovie = async (movieId) => {
     try {
       await adminApi.toggleMovie(movieId);

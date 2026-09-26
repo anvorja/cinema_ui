@@ -55,7 +55,7 @@ const MovieCard = ({ movie, showStats = false, showDetailsButton = true }) => {
   );
 };
 
-const MovieCardContent = ({ movie, statusBadge, showStats, showDetailsButton = true }: { movie: any; statusBadge: any; showStats: any; showDetailsButton?: any }) => {
+const MovieCardContent = ({ movie, statusBadge, showDetailsButton = true }: { movie: any; statusBadge: any; showStats?: any; showDetailsButton?: any }) => {
   return (
     <>
       <div className="aspect-[2/3] relative">
