@@ -30,11 +30,14 @@ const STAGES: Array<{ id: Exclude<Stage, 'idle'>; label: string }> = [
   { id: 'redirecting', label: 'Llevándote a Wompi' },
 ];
 
+// Solo informativo: el medio se elige dentro de Wompi. Se muestra como una
+// línea discreta (sin borde ni fondo) para que no parezcan opciones que se
+// pueden seleccionar aquí; el único control de la página es "Pagar con Wompi".
 const WOMPI_METHODS = [
-  { icon: CreditCardIcon, name: 'Tarjeta', detail: 'Crédito o débito' },
-  { icon: BuildingLibraryIcon, name: 'PSE', detail: 'Débito desde tu banco' },
-  { icon: DevicePhoneMobileIcon, name: 'Nequi', detail: 'Desde tu celular' },
-  { icon: BuildingLibraryIcon, name: 'Bancolombia', detail: 'Botón o transferencia' },
+  { icon: CreditCardIcon, name: 'Tarjeta' },
+  { icon: BuildingLibraryIcon, name: 'PSE' },
+  { icon: DevicePhoneMobileIcon, name: 'Nequi' },
+  { icon: BuildingLibraryIcon, name: 'Bancolombia' },
 ];
 
 const formatPrice = (price) =>
@@ -144,20 +147,21 @@ const PaymentPage = () => {
                     <LockClosedIcon className="w-6 h-6 text-green-400" />
                     <h2 className="text-white font-semibold text-lg">Pago seguro con Wompi</h2>
                   </div>
-                  <p className="text-white/60 text-sm mb-5">
-                    Eliges el medio de pago en Wompi. Al terminar vuelves aquí y ves tus boletas con su código QR.
+                  <p className="text-white/70 text-sm">
+                    Pulsa <span className="text-white font-medium">Pagar con Wompi</span> y allí eliges cómo pagar.
+                    Al terminar vuelves aquí y ves tus boletas con su código QR.
                   </p>
-                  <ul className="grid grid-cols-2 gap-3">
-                    {WOMPI_METHODS.map(({ icon: Icon, name, detail }) => (
-                      <li key={name} className="flex items-center gap-3 rounded-lg border border-white/15 bg-white/5 p-3">
-                        <Icon className="w-6 h-6 text-blue-400 shrink-0" />
-                        <div>
-                          <p className="text-white text-sm font-medium">{name}</p>
-                          <p className="text-white/50 text-xs">{detail}</p>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
+                  <div className="mt-4 pt-4 border-t border-white/10">
+                    <p id="wompi-methods" className="text-white/50 text-xs mb-2">Medios que acepta Wompi</p>
+                    <ul aria-labelledby="wompi-methods" className="flex flex-wrap gap-x-5 gap-y-2">
+                      {WOMPI_METHODS.map(({ icon: Icon, name }) => (
+                        <li key={name} className="flex items-center gap-1.5 text-white/60 text-sm select-none">
+                          <Icon className="w-4 h-4 text-white/40 shrink-0" aria-hidden="true" />
+                          {name}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
                 </GlassCard>
 
                 {busy && (
