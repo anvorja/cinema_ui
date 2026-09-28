@@ -50,11 +50,52 @@ const MovieRow = ({ movie, index }: { movie: any; index: number }) => {
   );
 };
 
-const MovieGrid = ({ movies = [] }: { movies?: any[]; className?: string; showStats?: boolean; showDetailsButton?: boolean }) => {
+const MovieTile = ({ movie }: { movie: any }) => {
+  const tag = tagFor(movie);
+  return (
+    <li>
+      <Link to={`/movie/${movie.id}`} className="group block h-full border border-[#2c2c30] bg-[#151517] hover:border-[#f2b705]">
+        <div className="relative">
+          <img
+            src={movie.poster_url ? optimizeCloudinaryUrl(movie.poster_url, 400) : '/placeholder-movie.jpg'}
+            alt={`Póster de ${movie.title}`}
+            loading="lazy"
+            className="aspect-[2/3] w-full object-cover"
+            onError={(e) => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }}
+          />
+          <span className={`b-tag absolute left-2 top-2 ${tag.cls === 'b-tag--amber' ? '' : '!bg-[#0c0c0d]'} ${tag.cls}`}>{tag.text}</span>
+        </div>
+        <div className="border-t border-[#2c2c30] p-3">
+          <h3 className="line-clamp-2 font-board text-[22px] font-bold leading-[1.05] tracking-wide uppercase text-[#f4f1e8] group-hover:text-[#f2b705]">
+            {movie.title}
+          </h3>
+          <p className="mt-1 truncate text-sm text-[#8f8b80]">
+            {[movie.genre, movie.duration_formatted !== 'N/A' ? movie.duration_formatted : null].filter(Boolean).join(' · ')}
+          </p>
+          <p className="mt-2 font-data text-sm font-bold text-[#f4f1e8]">
+            {movie.status === 'coming_soon' && movie.release_date_short
+              ? <span className="text-[#c3bfb2]">Estreno {movie.release_date_short}</span>
+              : movie.price ? <><span className="mr-1.5 text-[10px] font-normal uppercase text-[#8f8b80]">desde</span>{movie.price_formatted}</> : null}
+          </p>
+        </div>
+      </Link>
+    </li>
+  );
+};
+
+const MovieGrid = ({ movies = [], view = 'lista' }: { movies?: any[]; view?: 'lista' | 'cuadricula'; className?: string; showStats?: boolean; showDetailsButton?: boolean }) => {
   const rows = movies.map(transformMovieData).filter(Boolean);
 
   if (rows.length === 0) {
     return <p className="py-12 text-center font-data text-sm text-[#8f8b80]">No hay películas disponibles</p>;
+  }
+
+  if (view === 'cuadricula') {
+    return (
+      <ul className="grid grid-cols-2 gap-3 border-t border-[#46464c] pt-4 sm:grid-cols-3 sm:gap-4 lg:grid-cols-4 xl:grid-cols-5">
+        {rows.map((movie) => <MovieTile key={movie.id} movie={movie} />)}
+      </ul>
+    );
   }
 
   return (

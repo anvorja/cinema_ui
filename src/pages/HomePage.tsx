@@ -1,6 +1,6 @@
 // src/pages/HomePage.jsx
 import { useState, useMemo } from 'react';
-import { Search } from 'lucide-react';
+import { Search, List, LayoutGrid } from 'lucide-react';
 import { MovieCarousel } from '../components/cinema/MovieCarousel';
 import { MovieGrid } from '../components/cinema/MovieGrid';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -21,6 +21,13 @@ const HomePage = () => {
 
   const [activeTab, setActiveTab] = useState<Tab>('cartelera');
   const [searchQuery, setSearchQuery] = useState('');
+  const [view, setView] = useState<'lista' | 'cuadricula'>(() => {
+    try { return localStorage.getItem('cinema-home-view') === 'cuadricula' ? 'cuadricula' : 'lista'; } catch { return 'lista'; }
+  });
+  const chooseView = (v: 'lista' | 'cuadricula') => {
+    setView(v);
+    try { localStorage.setItem('cinema-home-view', v); } catch { /* sin almacenamiento: solo esta sesión */ }
+  };
 
   const filteredMovies = useMemo(() => {
     const movies =
@@ -97,7 +104,25 @@ const HomePage = () => {
             })}
           </div>
 
-          <div className="relative md:w-72">
+          <div className="flex items-center gap-2">
+          <div role="group" aria-label="Vista de la cartelera" className="flex shrink-0">
+            {([['lista', List, 'Lista'], ['cuadricula', LayoutGrid, 'Cuadrícula']] as const).map(([key, Icon, label]) => (
+              <button
+                key={key}
+                type="button"
+                aria-pressed={view === key}
+                aria-label={label}
+                title={label}
+                onClick={() => chooseView(key)}
+                className={`flex h-12 w-12 items-center justify-center border first:rounded-l-[3px] last:rounded-r-[3px] ${
+                  view === key ? 'border-[#f2b705] bg-[#f2b705] text-[#0c0c0d]' : 'border-[#46464c] text-[#c3bfb2] hover:text-[#f4f1e8]'
+                }`}
+              >
+                <Icon className="h-5 w-5" />
+              </button>
+            ))}
+          </div>
+          <div className="relative min-w-0 flex-1 md:w-72 md:flex-none">
             <label htmlFor="home-search" className="sr-only">Buscar películas</label>
             <input
               id="home-search"
@@ -109,10 +134,11 @@ const HomePage = () => {
             />
             <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8f8b80]" />
           </div>
+          </div>
         </div>
 
         <div role="tabpanel">
-          <div className="hidden grid-cols-[40px_64px_minmax(0,1fr)_auto_auto] gap-x-6 border-t border-[#46464c] px-4 py-2 font-data text-[11px] uppercase text-[#8f8b80] sm:grid" aria-hidden="true">
+          <div className={`hidden grid-cols-[40px_64px_minmax(0,1fr)_auto_auto] gap-x-6 border-t border-[#46464c] px-4 py-2 font-data text-[11px] uppercase text-[#8f8b80] ${view === 'lista' ? 'sm:grid' : ''}`} aria-hidden="true">
             <span>N.º</span><span /><span>Película</span><span className="w-[92px]">Estado</span><span className="w-28 text-right">Boleta</span>
           </div>
 
@@ -129,7 +155,7 @@ const HomePage = () => {
               ))}
             </div>
           ) : filteredMovies.length > 0 ? (
-            <MovieGrid movies={filteredMovies} />
+            <MovieGrid movies={filteredMovies} view={view} />
           ) : (
             <div className="border-t border-[#46464c] py-14 text-center">
               <p className="font-board text-2xl font-bold tracking-wide text-[#c3bfb2] uppercase">
