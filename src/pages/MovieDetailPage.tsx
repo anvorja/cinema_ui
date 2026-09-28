@@ -14,7 +14,8 @@ import {
 } from '@heroicons/react/24/outline';
 import { StarIcon as StarSolid } from '@heroicons/react/24/solid';
 
-import { GlassCard, PremiumButton, FloatingParticles } from '../components/common';
+import { GlassCard, PremiumButton } from '../components/common';
+import FlapText from '../components/board/FlapText';
 import { useMovie, useMovieTheaters } from '../hooks/useMovies';
 import { useMovieTransform } from '../hooks/useMoviesTransform';
 import { useBooking } from '../hooks/useBooking';
@@ -46,7 +47,7 @@ const StarRating = ({ value, onChange = undefined, readonly = false, size = 'md'
             className={`transition-colors ${readonly ? 'cursor-default' : 'cursor-pointer'}`}
           >
             {filled
-              ? <StarSolid className={`${sizeClass} text-yellow-400`} />
+              ? <StarSolid className={`${sizeClass} text-board-amberink`} />
               : <StarIcon className={`${sizeClass} text-white/30`} />
             }
           </button>
@@ -199,8 +200,8 @@ const MovieDetailPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <LoadingSpinner size="xl" centered message="Cargando información de la película..." />
+      <div className="flex min-h-[70vh] items-center justify-center">
+        <LoadingSpinner size="xl" centered message="Cargando la película" />
       </div>
     );
   }
@@ -219,167 +220,100 @@ const MovieDetailPage = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      <FloatingParticles count={50} className="opacity-30" />
+    <div>
+      {/* Ficha de la salida */}
+      <section className="border-b border-board-line">
+        <div className="mx-auto grid max-w-[1400px] gap-8 px-4 py-8 sm:px-6 md:grid-cols-[minmax(200px,300px)_minmax(0,1fr)] lg:gap-14 lg:py-14">
+          {/* Póster */}
+          <div className="mx-auto w-full max-w-[200px] self-start md:mx-0 md:max-w-[300px]">
+            <div className="border border-board-line bg-board-panel p-1.5">
+              <img src={movie.images.poster} alt={`Póster de ${movie.title}`} className="aspect-[2/3] w-full object-cover" />
+            </div>
+            <span className={`b-tag mt-3 ${purchaseInfo.canPurchase ? 'b-tag--ok' : 'b-tag--alarm'}`}>{purchaseInfo.statusBadge}</span>
+          </div>
 
-      {/* Hero Section — imagen cubre desde top-0, detrás del header transparente */}
-      <section className="relative pt-28 pb-16">
-        <div
-          className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-          style={{ backgroundImage: `url(${movie.images.backdrop})` }}
-        >
-          <div className="absolute inset-0 bg-black/65"></div>
-        </div>
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
-          <div className="grid lg:grid-cols-3 gap-12 items-start">
-            {/* Poster */}
-            <div className="lg:col-span-1">
-              <div className="relative">
-                {/* Badge de estado */}
-                <div className="absolute top-3 left-3 z-10">
-                  <Badge className={`backdrop-blur-sm font-bold tracking-wide text-[10px] ${purchaseInfo.statusColor} text-white border-0`}>
-                    {purchaseInfo.statusBadge}
-                  </Badge>
-                </div>
-
-                <img
-                  src={movie.images.poster}
-                  alt={movie.title}
-                  className="w-full rounded-lg shadow-2xl"
-                />
-              </div>
+          {/* Contenido */}
+          <div className="min-w-0 space-y-7">
+            <div>
+              <h1 className="m-0">
+                <FlapText text={movie.title} size="clamp(2rem, 5.6vw, 4.25rem)" />
+              </h1>
+              <p className="mt-5 max-w-[65ch] text-[17px] leading-relaxed text-board-ink2">{movie.description}</p>
             </div>
 
-            {/* Content */}
-            <div className="lg:col-span-2 space-y-8">
-              <div>
-                <h1 className="text-4xl lg:text-6xl font-bold text-white mb-4">
-                  {movie.title}
-                </h1>
-                <p className="text-white/80 text-lg leading-relaxed max-w-3xl">
-                  {movie.description}
-                </p>
-              </div>
-
-              {/* Movie Stats Cards */}
-              <div className="flex gap-2">
-                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
-                  <ClockIcon className="w-5 h-5 text-blue-400 mx-auto mb-1" />
-                  <p className="text-white/60 text-[10px]">Duración</p>
-                  <p className="text-white font-semibold text-xs">{movie.duration_formatted}</p>
-                </GlassCard>
-
-                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
-                  <TagIcon className="w-5 h-5 text-purple-400 mx-auto mb-1" />
-                  <p className="text-white/60 text-[10px]">Género</p>
-                  <p className="text-white font-semibold text-xs leading-tight">{movie.genre}</p>
-                </GlassCard>
-
-                <GlassCard className="p-2.5 text-center w-28 flex-shrink-0">
-                  <UserIcon className="w-5 h-5 text-green-400 mx-auto mb-1" />
-                  <p className="text-white/60 text-[10px]">Clasificación</p>
-                  <p className="text-white font-semibold text-xs leading-tight">{movie.ageRating}</p>
-                </GlassCard>
-              </div>
-
-              {/* Additional Info */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <h3 className="text-white font-semibold mb-2">Director</h3>
-                  <p className="text-white/80">{movie.director}</p>
+            <dl className="grid max-w-2xl grid-cols-2 gap-x-6 gap-y-5 border-t border-board-line pt-5 sm:grid-cols-3">
+              {[
+                ['Duración', movie.duration_formatted],
+                ['Género', movie.genre],
+                ['Clasificación', movie.ageRating],
+                ['Director', movie.director],
+                ['País', movie.country],
+                ['Estreno', movie.release_date_formatted],
+              ].map(([label, value]) => (
+                <div key={label as string}>
+                  <dt className="font-data text-[11px] uppercase text-board-mute">{label}</dt>
+                  <dd className="mt-1 font-data text-sm font-bold text-board-ink">{value || '—'}</dd>
                 </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-2">País</h3>
-                  <p className="text-white/80">{movie.country}</p>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-2">Fecha de estreno</h3>
-                  <p className="text-white/80">{movie.release_date_formatted}</p>
-                </div>
-                <div>
-                  <h3 className="text-white font-semibold mb-2">Estado</h3>
-                  <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${
-                      purchaseInfo.canPurchase ? 'bg-green-400' : 'bg-red-400'
-                    }`}></div>
-                    <p className={`text-sm ${
-                      purchaseInfo.canPurchase ? 'text-green-400' : 'text-red-400'
-                    }`}>
-                      {purchaseInfo.message}
-                    </p>
-                  </div>
-                </div>
-              </div>
+              ))}
+            </dl>
 
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                {/* ✅ BOTÓN CON LÓGICA CORREGIDA */}
-                <PremiumButton
-                  size="lg"
-                  className="flex items-center gap-2"
-                  disabled={!purchaseInfo.canPurchase}
-                  onClick={handleQuickBuy}
-                >
-                  {purchaseInfo.canPurchase ? (
-                    <TicketIcon className="w-5 h-5" />
-                  ) : (
-                    <ExclamationCircleIcon className="w-5 h-5" />
-                  )}
-                  {purchaseInfo.buttonText}
-                </PremiumButton>
+            <p className={`flex items-center gap-2 font-data text-sm ${purchaseInfo.canPurchase ? 'text-board-okink' : 'text-board-alarmink'}`}>
+              <span className={`h-2 w-2 ${purchaseInfo.canPurchase ? 'bg-board-ok' : 'bg-board-alarm'}`} aria-hidden="true" />
+              {purchaseInfo.message}
+            </p>
 
-                {/* Botón de trailer */}
-                <button
-                  className="px-6 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl transition-colors duration-200 flex items-center gap-2 justify-center"
-                  onClick={() => setShowTrailer(true)}
-                >
-                  <PlayIcon className="w-5 h-5" />
-                  Ver Tráiler
-                </button>
-              </div>
-
-              {/* MENSAJE INFORMATIVO PARA PRÓXIMAMENTE */}
-              {rawMovie?.status === 'coming_soon' && !rawMovie?.is_presale && (
-                <Alert className="border-blue-500/30 bg-blue-500/10 text-white backdrop-blur-sm">
-                  <CalendarDaysIcon className="h-4 w-4 text-blue-400" />
-                  <AlertTitle className="text-white font-semibold">Próximamente en cines</AlertTitle>
-                  <AlertDescription className="text-white/70 text-sm">
-                    Esta película aún no está disponible para comprar. Se estrenará el {movie.release_date_formatted}.
-                    {theaters && theaters.length > 0 && ' Puedes ver los horarios programados en la pestaña Horarios.'}
-                  </AlertDescription>
-                </Alert>
-              )}
-
-              {/* MENSAJE INFORMATIVO PARA PREVENTA */}
-              {rawMovie?.status === 'coming_soon' && rawMovie?.is_presale && (
-                <Alert className="border-amber-500/30 bg-amber-500/10 text-white backdrop-blur-sm">
-                  <TicketIcon className="h-4 w-4 text-amber-400" />
-                  <AlertTitle className="text-white font-semibold">Preventa Disponible</AlertTitle>
-                  <AlertDescription className="text-white/70 text-sm">
-                    ¡Ya puedes comprar tus entradas! Esta película se estrena el {movie.release_date_formatted}.
-                  </AlertDescription>
-                </Alert>
-              )}
+            <div className="flex flex-col gap-3 sm:flex-row">
+              <PremiumButton size="lg" disabled={!purchaseInfo.canPurchase} onClick={handleQuickBuy}>
+                {purchaseInfo.canPurchase ? <TicketIcon className="h-5 w-5" /> : <ExclamationCircleIcon className="h-5 w-5" />}
+                {purchaseInfo.buttonText}
+              </PremiumButton>
+              <PremiumButton size="lg" variant="secondary" onClick={() => setShowTrailer(true)}>
+                <PlayIcon className="h-5 w-5" />
+                Ver tráiler
+              </PremiumButton>
             </div>
+
+            {rawMovie?.status === 'coming_soon' && !rawMovie?.is_presale && (
+              <div className="flex max-w-2xl gap-3 border border-board-line2 bg-board-panel p-4" role="note">
+                <CalendarDaysIcon className="mt-0.5 h-5 w-5 shrink-0 text-board-amberink" />
+                <div>
+                  <p className="font-board text-xl font-bold tracking-wide uppercase">Próximamente en cines</p>
+                  <p className="mt-1 text-[15px] text-board-ink2">
+                    Aún no puedes comprar boletas. Se estrena el {movie.release_date_formatted}.
+                    {theaters && theaters.length > 0 && ' Los horarios programados están en la pestaña Horarios.'}
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {rawMovie?.status === 'coming_soon' && rawMovie?.is_presale && (
+              <div className="flex max-w-2xl gap-3 border border-board-amber/50 bg-board-panel p-4" role="note">
+                <TicketIcon className="mt-0.5 h-5 w-5 shrink-0 text-board-amberink" />
+                <div>
+                  <p className="font-board text-xl font-bold tracking-wide uppercase">Preventa disponible</p>
+                  <p className="mt-1 text-[15px] text-board-ink2">Ya puedes comprar tus boletas. La película se estrena el {movie.release_date_formatted}.</p>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </section>
 
       {/* Modal de Tráiler */}
       {showTrailer && (
-        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+        <div role="dialog" aria-modal="true" aria-label={`Tráiler de ${movie.title}`} className="fixed inset-0 bg-board-ground/90 flex items-center justify-center z-[60] p-4">
           <div className="relative max-w-4xl w-full">
             <button
               onClick={() => setShowTrailer(false)}
-              className="absolute top-4 right-4 text-white hover:text-gray-300 z-10"
+              aria-label="Cerrar tráiler"
+              className="absolute top-2 right-2 z-10 flex h-11 w-11 items-center justify-center bg-board-ground text-board-ink hover:text-board-amberink"
             >
               <svg className="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
               </svg>
             </button>
 
-            <div className="bg-black rounded-lg overflow-hidden">
+            <div className="border border-board-line2 bg-board-ground overflow-hidden">
               <div className="aspect-video bg-gray-800 flex items-center justify-center">
                 <div className="text-center text-white">
                   <PlayIcon className="w-16 h-16 mx-auto mb-4" />
@@ -395,8 +329,8 @@ const MovieDetailPage = () => {
       )}
 
       {/* ── Tabs: Horarios / Galería / Disponibilidad / Calificaciones ── */}
-      <section id="movie-tabs" className="py-12">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+      <section id="movie-tabs" className="py-10">
+        <div className="mx-auto max-w-[1400px] px-4 sm:px-6">
           <Tabs
             value={activeTab}
             onValueChange={(tab) => {
@@ -408,16 +342,16 @@ const MovieDetailPage = () => {
             }}
             className="w-full"
           >
-            <TabsList className="bg-white/[0.08] border border-white/10 h-10 mb-8 w-full sm:w-auto">
-              <TabsTrigger value="horarios" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+            <TabsList className="mb-8 h-auto w-full !justify-start gap-1 rounded-none border-b border-board-line bg-transparent p-0 sm:w-auto">
+              <TabsTrigger value="horarios" className="min-h-[48px] flex-none rounded-none border-0 border-b-2 border-transparent px-5 font-board text-xl font-bold tracking-[0.08em] uppercase text-board-mute data-[state=active]:border-b-board-amber data-[state=active]:bg-transparent data-[state=active]:text-board-ink data-[state=active]:shadow-none">
                 Horarios
               </TabsTrigger>
               {(movie.images.detail1 !== movie.images.poster || movie.images.detail2 !== movie.images.backdrop) && (
-                <TabsTrigger value="galeria" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+                <TabsTrigger value="galeria" className="min-h-[48px] flex-none rounded-none border-0 border-b-2 border-transparent px-5 font-board text-xl font-bold tracking-[0.08em] uppercase text-board-mute data-[state=active]:border-b-board-amber data-[state=active]:bg-transparent data-[state=active]:text-board-ink data-[state=active]:shadow-none">
                   Galería
                 </TabsTrigger>
               )}
-              <TabsTrigger value="calificaciones" className="text-white/60 data-[state=active]:text-white data-[state=active]:bg-white/15">
+              <TabsTrigger value="calificaciones" className="min-h-[48px] flex-none rounded-none border-0 border-b-2 border-transparent px-5 font-board text-xl font-bold tracking-[0.08em] uppercase text-board-mute data-[state=active]:border-b-board-amber data-[state=active]:bg-transparent data-[state=active]:text-board-ink data-[state=active]:shadow-none">
                 Calificaciones
               </TabsTrigger>
             </TabsList>
@@ -454,7 +388,7 @@ const MovieDetailPage = () => {
                 <GlassCard className="p-6 text-center">
                   {rawMovie?.average_rating ? (
                     <>
-                      <p className="text-5xl font-bold text-yellow-400 mb-2">{rawMovie.average_rating.toFixed(1)}</p>
+                      <p className="text-5xl font-bold text-board-amberink mb-2">{rawMovie.average_rating.toFixed(1)}</p>
                       <StarRating value={Math.round(rawMovie.average_rating)} readonly size="lg" />
                       <p className="text-white/60 text-sm mt-2">
                         Basado en {rawMovie.rating_count} {rawMovie.rating_count === 1 ? 'calificación' : 'calificaciones'}
@@ -505,7 +439,7 @@ const MovieDetailPage = () => {
                         <button
                           onClick={handleRateMovie}
                           disabled={!userScore || ratingSubmitting}
-                          className="px-6 py-2 bg-yellow-500 hover:bg-yellow-400 disabled:opacity-40 disabled:cursor-not-allowed text-black font-semibold rounded-lg transition-colors text-sm"
+                          className="px-6 py-2 bg-board-amber hover:bg-board-amberpress disabled:opacity-40 disabled:cursor-not-allowed text-board-onamber font-board text-lg font-bold tracking-[0.08em] rounded-[3px] min-h-[44px]"
                         >
                           {ratingSubmitting ? 'Enviando...' : 'Enviar calificación'}
                         </button>

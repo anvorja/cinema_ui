@@ -4,16 +4,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import QRCode from 'react-qr-code';
 import {
   CheckCircleIcon,
-  TicketIcon,
-  CalendarDaysIcon,
-  MapPinIcon,
-  FilmIcon,
   ArrowDownTrayIcon,
   HomeIcon,
   UserIcon,
   ShareIcon
 } from '@heroicons/react/24/outline';
-import {FloatingParticles, GlassCard, PremiumButton} from '../components/common';
+import { PremiumButton } from '../components/common';
 
 // Fecha de la función: llega como "YYYY-MM-DD" (del backend) o, en reservas
 // guardadas por versiones anteriores, como { dayName, dayNumber, monthName }.
@@ -33,7 +29,6 @@ const formatShowDate = (value) => {
 const PaymentSuccessPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [showQRCode, setShowQRCode] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
 
   // Extraer datos del estado de navegación
@@ -130,52 +125,39 @@ const PaymentSuccessPage = () => {
 <html lang="es">
 <head>
   <meta charset="UTF-8">
-  <title>Boletas — ${movie?.title || 'Cinema'}</title>
+  <title>Boletas — ${movie?.title || 'CinemaPlus'}</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700&family=B612:wght@400;700&display=swap" rel="stylesheet">
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
-    body { font-family: 'Segoe UI', Arial, sans-serif; background: #fff; color: #1a1a1a; padding: 24px; }
-    h1 { font-size: 20px; font-weight: 700; text-align: center; margin-bottom: 6px; color: #1e3a5f; }
-    .subtitle { text-align: center; font-size: 12px; color: #666; margin-bottom: 24px; }
-    .ticket-block {
-      border: 2px solid #2575fc; border-radius: 12px;
-      margin-bottom: 20px; overflow: hidden; page-break-inside: avoid;
-    }
-    .ticket-header {
-      background: linear-gradient(135deg, #6a11cb, #2575fc);
-      color: white; padding: 12px 16px;
-      display: flex; justify-content: space-between; align-items: center;
-    }
-    .ticket-num { font-size: 11px; font-weight: 600; opacity: 0.85; }
-    .ticket-movie { font-size: 15px; font-weight: 700; }
-    .ticket-body { display: flex; gap: 0; }
-    .ticket-info { flex: 1; padding: 14px 16px; border-right: 1px dashed #c0caff; }
+    @page { margin: 12mm; }
+    body { font-family: 'B612', Arial, sans-serif; background: #0c0c0d; color: #f4f1e8; padding: 24px; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    h1 { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 30px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; margin-bottom: 4px; }
+    h1 span { color: #f2b705; }
+    .subtitle { font-size: 11px; color: #c3bfb2; margin-bottom: 22px; }
+    .ticket-block { border: 1px solid #46464c; background: #151517; margin-bottom: 18px; page-break-inside: avoid; }
+    .ticket-header { display: flex; justify-content: space-between; align-items: baseline; padding: 12px 16px; border-bottom: 2px dashed #46464c; }
+    .ticket-num { font-size: 10px; font-weight: 700; color: #f2b705; text-transform: uppercase; }
+    .ticket-movie { font-family: 'Barlow Condensed', 'Arial Narrow', sans-serif; font-size: 26px; font-weight: 700; text-transform: uppercase; letter-spacing: .03em; }
+    .ticket-body { display: flex; }
+    .ticket-info { flex: 1; padding: 14px 16px; border-right: 2px dashed #46464c; }
     .info-row { display: flex; gap: 8px; margin-bottom: 7px; font-size: 12px; align-items: flex-start; }
-    .label { font-weight: 600; color: #555; min-width: 90px; flex-shrink: 0; }
-    .code { font-family: 'Courier New', monospace; font-size: 13px; font-weight: 700; color: #2575fc; }
-    .small { font-size: 10px; color: #888; word-break: break-all; }
+    .label { font-size: 10px; text-transform: uppercase; color: #8f8b80; min-width: 90px; flex-shrink: 0; padding-top: 2px; }
+    .code { font-size: 13px; font-weight: 700; color: #f2b705; }
+    .small { font-size: 10px; color: #8f8b80; word-break: break-all; }
     .code-row { margin-top: 10px; }
-    .ticket-qr {
-      width: 180px; flex-shrink: 0;
-      display: flex; flex-direction: column; align-items: center;
-      justify-content: center; padding: 14px; background: #f8f9ff;
-    }
-    .ticket-qr svg { width: 160px !important; height: 160px !important; }
-    .ticket-qr img { border: none; }
-    .qr-label { font-size: 9px; color: #888; margin-top: 6px; text-align: center; }
-    @media print {
-      body { padding: 12px; }
-      .no-print { display: none; }
-    }
+    .ticket-qr { width: 190px; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 14px; }
+    .ticket-qr svg, .ticket-qr img { background: #f4f1e8; padding: 8px; width: 160px !important; height: 160px !important; }
+    .qr-label { font-size: 9px; color: #8f8b80; margin-top: 6px; text-align: center; }
+    .foot { text-align: center; font-size: 10px; color: #8f8b80; margin-top: 16px; }
   </style>
 </head>
 <body>
-  <h1>🎬 Cinema Tickets — Boletas Digitales</h1>
+  <h1>CINEMA<span>PLUS</span> · Tus boletas</h1>
   <p class="subtitle">Referencia: ${transactionId} · Total: $${totalAmount?.toLocaleString('es-CO')} COP</p>
   ${ticketBlocks}
-  <p style="text-align:center;font-size:10px;color:#aaa;margin-top:16px;">
-    Generado el ${new Date().toLocaleDateString('es-CO')} · Válido solo para la función indicada
-  </p>
-  <script>window.onload = () => { window.print(); }</script>
+  <p class="foot">Generado el ${new Date().toLocaleDateString('es-CO')} · Válido solo para la función indicada</p>
+  <script>window.onload = () => { (document.fonts && document.fonts.ready ? document.fonts.ready : Promise.resolve()).then(() => setTimeout(() => window.print(), 300)); }</script>
 </body>
 </html>`;
 
@@ -207,322 +189,116 @@ const PaymentSuccessPage = () => {
     }
   };
 
+  const codes = ticketCodes.length > 0 ? ticketCodes : [ticketInfo.qrCode];
+
   return (
-    <div className="min-h-screen pt-24">
-      <FloatingParticles count={30} className="opacity-30" />
+    <div>
+      <div className="border-b border-board-line bg-board-ground">
+        <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
+          <CheckCircleIcon className="h-6 w-6 text-board-okink" aria-hidden="true" />
+          <p className="font-data text-sm font-bold text-board-okink">PAGO CONFIRMADO · {ticketInfo.date}</p>
+        </div>
+      </div>
 
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="max-w-6xl mx-auto">
+      <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
+        <h1 className="font-board text-4xl font-bold tracking-[0.06em] uppercase sm:text-5xl">Tu salida está lista</h1>
+        <p className="mt-2 max-w-[65ch] text-[17px] text-board-ink2">
+          Presenta el código QR en la entrada del cine. También te enviamos las boletas por correo.
+        </p>
 
-          {/* Success Header */}
-          <div className="text-center mb-8">
-            <div className="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6 animate-pulse">
-              <CheckCircleIcon className="w-12 h-12 text-white" />
-            </div>
-            <h1 className="text-4xl font-bold text-white mb-4">¡Pago Exitoso!</h1>
-            <p className="text-white/80 text-lg max-w-2xl mx-auto">
-              Tu compra ha sido procesada correctamente. Recibirás un email con los detalles de tus boletas.
-            </p>
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_340px]">
+          <div className="space-y-6">
+            {/* Pases de abordaje */}
+            {codes.map((code, idx) => (
+              <article key={code} className="b-stub grid sm:grid-cols-[minmax(0,1fr)_240px]" style={{ ['--stub-cut' as any]: '50%' }} aria-label={`Boleta ${idx + 1} de ${codes.length}`}>
+                <div className="min-w-0 p-5 sm:p-6">
+                  <div className="flex gap-4">
+                    <img src={movie.posterImage} alt="" className="h-28 w-[76px] shrink-0 border border-board-line object-cover" />
+                    <div className="min-w-0">
+                      <h2 className="font-board text-3xl font-bold leading-none tracking-wide uppercase">{movie.title}</h2>
+                      <p className="mt-1 font-data text-xs text-board-mute">{[showtime.format, movie.ageRating].filter(Boolean).join(' · ')}</p>
+                    </div>
+                  </div>
+
+                  <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-dashed border-board-line2 pt-4">
+                    <div><dt className="font-data text-[10px] uppercase text-board-mute">Cine</dt><dd className="mt-1 font-data text-sm font-bold">{theater.name}</dd></div>
+                    <div><dt className="font-data text-[10px] uppercase text-board-mute">Hora</dt><dd className="mt-1 font-data text-2xl font-bold leading-none text-board-amberink">{showtime.time}</dd></div>
+                    <div className="col-span-2"><dt className="font-data text-[10px] uppercase text-board-mute">Fecha</dt><dd className="mt-1 font-data text-sm font-bold">{formatShowDate(selectedDate)}</dd></div>
+                    <div className="col-span-2"><dt className="font-data text-[10px] uppercase text-board-mute">Sillas de la compra</dt><dd className="mt-1 font-data text-sm font-bold">{ticketInfo.seats}</dd></div>
+                  </dl>
+                </div>
+
+                <div className="flex flex-col items-center justify-center gap-3 border-t-2 border-dashed border-board-line2 p-5 sm:border-l-2 sm:border-t-0">
+                  <div className="bg-[#f4f1e8] p-3" data-qr-print>
+                    <QRCode value={code} size={176} bgColor="#f4f1e8" fgColor="#0c0c0d" />
+                  </div>
+                  <p className="break-all text-center font-data text-[11px] text-board-mute">{code}</p>
+                  {codes.length > 1 && <span className="b-tag">Boleta {idx + 1} de {codes.length}</span>}
+                </div>
+              </article>
+            ))}
+
+            {/* Cobro */}
+            <section className="border border-board-line bg-board-panel p-5" aria-labelledby="cobro-titulo">
+              <h2 id="cobro-titulo" className="mb-3 font-board text-2xl font-bold tracking-wide uppercase">Lo que pagaste</h2>
+              {booking?.lines?.length > 0 && (
+                <ul className="mb-4 space-y-1 font-data text-sm">
+                  {booking.lines.map(line => (
+                    <li key={`${line.kind}-${line.code}`} className="flex justify-between gap-3 text-board-ink2">
+                      <span>{line.quantity} × {line.description}</span>
+                      <span className="shrink-0">${line.line_total.toLocaleString('es-CO')}</span>
+                    </li>
+                  ))}
+                </ul>
+              )}
+              <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-board-line pt-3">
+                <div>
+                  <p className="font-data text-[11px] uppercase text-board-mute">Total pagado</p>
+                  <p className="font-data text-2xl font-bold text-board-amberink">${totalAmount.toLocaleString('es-CO')} COP</p>
+                </div>
+                <div className="text-right">
+                  <p className="font-data text-[11px] uppercase text-board-mute">Referencia</p>
+                  <p className="font-data text-sm">{booking?.transactionId || transactionId}</p>
+                </div>
+              </div>
+              {paymentMethod?.name && <p className="mt-3 font-data text-xs text-board-mute">Medio de pago: {paymentMethod.name}</p>}
+            </section>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-8">
-
-            {/* Transaction Details - Main Content */}
-            <div className="xl:col-span-2 space-y-6">
-
-              {/* Movie and Booking Info */}
-              <GlassCard variant="premium" className="p-8">
-                <h2 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                  <TicketIcon className="w-6 h-6" />
-                  Detalles de tu Compra
-                </h2>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-
-                  {/* Movie Poster and Basic Info */}
-                  <div className="flex gap-4">
-                    <img
-                      src={movie.posterImage}
-                      alt={movie.title}
-                      className="w-24 sm:w-28 h-36 sm:h-42 object-cover rounded-lg shadow-lg"
-                    />
-                    <div className="flex-1">
-                      <h3 className="text-white font-bold text-xl mb-2">{movie.title}</h3>
-                      <p className="text-white/80 text-sm mb-2">{movie.originalTitle}</p>
-                      <p className="text-white/70 text-sm mb-3">{movie.ageRating}</p>
-
-                      <div className="flex flex-wrap gap-2">
-                        <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                          {movie.genre}
-                        </span>
-                        <span className="bg-orange-600 text-white text-xs px-2 py-1 rounded">
-                          {movie.duration}
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Booking Details */}
-                  <div className="space-y-4">
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-sm">
-                      <div className="flex items-start gap-3">
-                        <MapPinIcon className="w-5 h-5 text-white/70 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <h4 className="text-white/70 font-medium mb-1">Teatro</h4>
-                          <p className="text-white font-medium">{theater.name}</p>
-                          <p className="text-white/60 text-xs">{theater.location}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <CalendarDaysIcon className="w-5 h-5 text-white/70 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <h4 className="text-white/70 font-medium mb-1">Fecha y Hora</h4>
-                          <p className="text-white font-medium">{showtime.time}</p>
-                          <p className="text-white/60 text-xs">
-                            {formatShowDate(selectedDate)}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <FilmIcon className="w-5 h-5 text-white/70 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <h4 className="text-white/70 font-medium mb-1">Formato</h4>
-                          <p className="text-white font-medium">{showtime.format}</p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-start gap-3">
-                        <TicketIcon className="w-5 h-5 text-white/70 mt-0.5 flex-shrink-0" />
-                        <div>
-                          <h4 className="text-white/70 font-medium mb-1">Boletas</h4>
-                          <p className="text-white font-medium">{ticketCount} x General</p>
-                          <p className="text-white/60 text-xs">Asientos: {ticketInfo.seats}</p>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Payment Summary */}
-                <div className="border-t border-white/20 mt-6 pt-6">
-                  {/* Desglose cobrado (boletas, comida, valor por servicio), tal como lo calculó el backend */}
-                  {booking?.lines?.length > 0 && (
-                    <ul className="mb-4 space-y-1 text-sm">
-                      {booking.lines.map(line => (
-                        <li key={`${line.kind}-${line.code}`} className="flex justify-between gap-3 text-white/80">
-                          <span>{line.quantity} × {line.description}</span>
-                          <span className="shrink-0">${line.line_total.toLocaleString('es-CO')}</span>
-                        </li>
-                      ))}
-                    </ul>
-                  )}
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <h4 className="text-white/70 text-sm mb-1">Total Pagado</h4>
-                      <p className="text-2xl font-bold text-green-400">
-                        ${totalAmount.toLocaleString('es-CO')} COP
-                      </p>
-                    </div>
-                    <div className="text-right">
-                      <p className="text-white/70 text-sm">Referencia</p>
-                      <p className="text-white font-mono">{booking?.transactionId || transactionId}</p>
-                    </div>
-                  </div>
-                </div>
-              </GlassCard>
-
-              {/* QR Code Section */}
-              <GlassCard variant="premium" className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <h3 className="text-xl font-bold text-white">Código QR de Acceso</h3>
-                  <button
-                    onClick={() => setShowQRCode(!showQRCode)}
-                    className="text-blue-400 hover:text-blue-300 text-sm font-medium"
-                  >
-                    {showQRCode ? 'Ocultar' : 'Mostrar'} QR
-                  </button>
-                </div>
-
-                {showQRCode && (
-                  <div className="text-center py-6 space-y-4">
-                    {ticketCodes.length > 0 ? (
-                      ticketCodes.map((code, idx) => (
-                        <div key={code} className="flex flex-col items-center gap-2">
-                          {ticketCodes.length > 1 && (
-                            <p className="text-white/60 text-xs font-semibold uppercase tracking-wide">
-                              Boleta {idx + 1}
-                            </p>
-                          )}
-                          <div className="bg-white p-3 rounded-xl shadow-lg inline-block" data-qr-print>
-                            <QRCode value={code} size={180} />
-                          </div>
-                          <p className="text-white/50 font-mono text-xs">{code}</p>
-                        </div>
-                      ))
-                    ) : (
-                      /* Fallback si el backend no retornó ticket_codes todavía */
-                      <div className="flex flex-col items-center gap-2">
-                        <div className="bg-white p-3 rounded-xl shadow-lg inline-block" data-qr-print>
-                          <QRCode value={ticketInfo.qrCode} size={180} />
-                        </div>
-                        <p className="text-white/50 font-mono text-xs">{ticketInfo.qrCode}</p>
-                      </div>
-                    )}
-                    <p className="text-white/70 text-sm">
-                      Presenta este código QR en la entrada del cine
-                    </p>
-                  </div>
-                )}
-              </GlassCard>
-            </div>
-
-            {/* Sidebar - Actions and Payment Info */}
-            <div className="xl:col-span-1 space-y-6">
-
-              {/* Payment Method */}
-              <GlassCard variant="premium" className="p-6">
-                <h3 className="text-xl font-bold text-white mb-4">Método de Pago</h3>
-                <div className="flex items-center gap-3">
-                  <span className="text-3xl">{paymentMethod?.icon}</span>
-                  <div>
-                    <p className="text-white font-medium">{paymentMethod?.name}</p>
-                    <p className="text-white/70 text-sm">Transacción exitosa</p>
-                  </div>
-                </div>
-
-                <div className="mt-4 p-3 bg-green-500/20 border border-green-500/30 rounded-lg">
-                  <p className="text-green-300 text-sm font-medium">
-                    ✓ Pago confirmado el {ticketInfo.date}
-                  </p>
-                </div>
-              </GlassCard>
-
-              {/* Action Buttons */}
-              <div className="space-y-4">
-                <PremiumButton
-                  variant="premium"
-                  size="lg"
-                  className="w-full"
-                  onClick={handleDownloadPDF}
-                  disabled={isDownloading}
-                >
-                  <ArrowDownTrayIcon className="w-5 h-5 mr-2" />
-                  {isDownloading ? 'Descargando...' : 'Descargar Boletas PDF'}
+          {/* Acciones e indicaciones */}
+          <aside className="space-y-6" aria-label="Acciones">
+            <div className="space-y-3">
+              <PremiumButton size="lg" className="w-full" onClick={handleDownloadPDF} disabled={isDownloading}>
+                <ArrowDownTrayIcon className="h-5 w-5" />
+                {isDownloading ? 'Preparando…' : 'Descargar boletas en PDF'}
+              </PremiumButton>
+              <div className="grid grid-cols-2 gap-3">
+                <PremiumButton variant="secondary" onClick={() => navigate('/profile/purchases')}>
+                  <UserIcon className="h-4 w-4" /> Mis compras
                 </PremiumButton>
-
-                <div className="grid grid-cols-2 gap-3">
-                  <PremiumButton
-                    variant="secondary"
-                    size="default"
-                    className="flex-1"
-                    onClick={() => navigate('/profile/purchases')}
-                  >
-                    <UserIcon className="w-4 h-4 mr-2" />
-                    Mis Compras
-                  </PremiumButton>
-
-                  <PremiumButton
-                    variant="ghost"
-                    size="default"
-                    className="flex-1"
-                    onClick={handleShare}
-                  >
-                    <ShareIcon className="w-4 h-4 mr-2" />
-                    Compartir
-                  </PremiumButton>
-                </div>
-
-                <PremiumButton
-                  variant="secondary"
-                  size="lg"
-                  className="w-full"
-                  onClick={() => navigate('/')}
-                >
-                  <HomeIcon className="w-5 h-5 mr-2" />
-                  Volver al Inicio
+                <PremiumButton variant="secondary" onClick={handleShare}>
+                  <ShareIcon className="h-4 w-4" /> Compartir
                 </PremiumButton>
               </div>
-
-              {/* Instructions */}
-              <GlassCard variant="default" className="p-6">
-                <h3 className="text-lg font-bold text-white mb-4">Instrucciones Importantes</h3>
-                <div className="space-y-3 text-sm text-white/80">
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-400 text-lg flex-shrink-0">📧</span>
-                    <div>
-                      <p className="font-medium text-white mb-1">Email de confirmación</p>
-                      <p>Recibirás un correo con tus boletas digitales</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-400 text-lg flex-shrink-0">📱</span>
-                    <div>
-                      <p className="font-medium text-white mb-1">En el cine</p>
-                      <p>Presenta tu boleta digital o el código QR</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-400 text-lg flex-shrink-0">⏰</span>
-                    <div>
-                      <p className="font-medium text-white mb-1">Llega temprano</p>
-                      <p>Te recomendamos llegar 30 minutos antes</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="text-blue-400 text-lg flex-shrink-0">🎫</span>
-                    <div>
-                      <p className="font-medium text-white mb-1">Conserva tu boleta</p>
-                      <p>Mantenla visible durante toda la función</p>
-                    </div>
-                  </div>
-
-                  <div className="flex items-start gap-3">
-                    <span className="text-red-400 text-lg flex-shrink-0">📅</span>
-                    <div>
-                      <p className="font-medium text-white mb-1">Válida hasta</p>
-                      <p>{ticketInfo.validUntil}</p>
-                    </div>
-                  </div>
-                </div>
-              </GlassCard>
-
-              {/* Digital Wallet Options */}
-              <GlassCard variant="default" className="p-4">
-                <h4 className="text-white font-medium mb-3 text-center">Agregar a Wallet</h4>
-                <div className="flex gap-3">
-                  <button className="flex-1 py-3 px-4 bg-black text-white rounded-lg text-sm font-medium hover:bg-gray-800 transition-colors flex items-center justify-center gap-2">
-                    <span>🍎</span>
-                    Apple Wallet
-                  </button>
-                  <button className="flex-1 py-3 px-4 bg-green-600 text-white rounded-lg text-sm font-medium hover:bg-green-700 transition-colors flex items-center justify-center gap-2">
-                    <span>📱</span>
-                    Google Pay
-                  </button>
-                </div>
-              </GlassCard>
-
-              {/* Customer Service */}
-              <GlassCard variant="default" className="p-4">
-                <h4 className="text-white font-medium mb-2">¿Necesitas ayuda?</h4>
-                <p className="text-white/70 text-sm mb-3">
-                  Contáctanos si tienes algún problema con tu compra
-                </p>
-                <div className="space-y-2">
-                  <button className="w-full py-2 px-4 glass rounded-lg text-white text-sm hover:glass-hover transition-all">
-                    📞 Llamar al (601) 307-0707
-                  </button>
-                  <button className="w-full py-2 px-4 glass rounded-lg text-white text-sm hover:glass-hover transition-all">
-                    📧 supergerencia@cinemaplus.com
-                  </button>
-                </div>
-              </GlassCard>
+              <PremiumButton variant="ghost" className="w-full" onClick={() => navigate('/')}>
+                <HomeIcon className="h-5 w-5" /> Volver al inicio
+              </PremiumButton>
             </div>
-          </div>
+
+            <section className="border border-board-line p-5" aria-labelledby="indicaciones">
+              <h2 id="indicaciones" className="mb-3 font-board text-2xl font-bold tracking-wide uppercase">Antes de entrar</h2>
+              <ul className="space-y-3 text-[15px] text-board-ink2">
+                <li><strong className="block text-board-ink">En la puerta</strong>Muestra el código QR de cada boleta desde tu celular.</li>
+                <li><strong className="block text-board-ink">Llega con tiempo</strong>Te recomendamos llegar 30 minutos antes.</li>
+                <li><strong className="block text-board-ink">Válida hasta</strong>{ticketInfo.validUntil}</li>
+              </ul>
+            </section>
+
+            <section className="border border-board-line p-5" aria-labelledby="ayuda">
+              <h2 id="ayuda" className="mb-2 font-board text-2xl font-bold tracking-wide uppercase">¿Algún problema?</h2>
+              <p className="text-[15px] text-board-ink2">Escríbenos a <a className="text-board-amberink underline" href="mailto:supergerencia@cinemaplus.com">supergerencia@cinemaplus.com</a> o llama al <a className="text-board-amberink underline" href="tel:+576013070707">(601) 307-0707</a>.</p>
+            </section>
+          </aside>
         </div>
       </div>
     </div>

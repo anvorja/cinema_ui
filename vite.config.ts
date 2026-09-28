@@ -44,7 +44,8 @@ export default defineConfig(({ mode }) => {
     server: {
       port: appUrl ? Number(appUrl.port) || 5173 : 5173,
       host: true,
-      allowedHosts: appUrl ? [appUrl.hostname] : [],
+      // localhost: permite abrir la app desde un celular por USB (port forwarding de Chrome)
+      allowedHosts: appUrl ? [appUrl.hostname, 'localhost'] : [],
       open: appUrl ? appUrl.href : true
     },
 

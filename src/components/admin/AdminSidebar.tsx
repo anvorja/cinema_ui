@@ -13,7 +13,7 @@ import {
   SidebarMenuItem,
   SidebarSeparator,
 } from '../ui/sidebar';
-import { useTheme } from '../../hooks/useTheme';
+import { useBoardTheme } from '../board/useBoardTheme';
 
 const NAV_ITEMS = [
   { id: 'movies',    label: 'Películas',  icon: Film,         description: 'Catálogo' },
@@ -34,7 +34,7 @@ interface AdminSidebarProps {
 }
 
 const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loading }: AdminSidebarProps) => {
-  const { theme, toggleTheme } = useTheme();
+  const { theme, toggle: toggleTheme } = useBoardTheme();
   const isDark = theme === 'dark';
 
   return (
@@ -43,21 +43,18 @@ const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loadi
 
       {/* ── Logo / Branding ── */}
       <SidebarHeader className="px-4 py-5 bg-sidebar border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-blue-600 flex items-center justify-center shrink-0">
-            <Film className="w-4 h-4 text-white" />
-          </div>
-          <div className="min-w-0">
-            <p className="text-sm font-bold text-sidebar-foreground leading-none">Cinema Admin</p>
-            <p className="text-[11px] text-muted-foreground mt-0.5">Panel de control</p>
-          </div>
+        <div className="min-w-0">
+          <p className="font-board text-2xl font-bold leading-none tracking-[0.08em] text-sidebar-foreground">
+            CINEMA<span className="text-board-amberink">PLUS</span>
+          </p>
+          <p className="mt-1 font-data text-[10px] uppercase text-muted-foreground">Panel de administración</p>
         </div>
       </SidebarHeader>
 
       {/* ── Nav items ── */}
       <SidebarContent className="bg-sidebar px-2 py-3">
         <SidebarGroup>
-          <SidebarGroupLabel className="text-[10px] text-muted-foreground uppercase tracking-widest px-2 mb-1">
+          <SidebarGroupLabel className="font-data text-[10px] text-muted-foreground uppercase tracking-widest px-2 mb-1">
             Gestión
           </SidebarGroupLabel>
           <SidebarGroupContent>
@@ -71,18 +68,18 @@ const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loadi
                       onClick={() => onTabChange(item.id)}
                       isActive={isActive}
                       className={`
-                        group relative h-9 rounded-lg px-3 transition-all duration-150
+                        group relative h-11 rounded-[3px] px-3
                         ${isActive
-                          ? 'bg-blue-600/15 text-blue-500 hover:bg-blue-600/20'
-                          : 'text-sidebar-foreground/60 hover:text-sidebar-foreground hover:bg-sidebar-accent'
+                          ? 'bg-board-amber/15 text-board-amberink hover:bg-board-amber/20'
+                          : 'text-muted-foreground hover:text-sidebar-foreground hover:bg-sidebar-accent'
                         }
                       `}
                       tooltip={item.description}
                     >
-                      <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-blue-500' : ''}`} />
-                      <span className="text-sm font-medium">{item.label}</span>
+                      <Icon className={`w-4 h-4 shrink-0 transition-colors ${isActive ? 'text-board-amberink' : ''}`} />
+                      <span className="font-board text-lg font-semibold tracking-[0.06em] uppercase">{item.label}</span>
                       {isActive && (
-                        <span className="absolute left-0 top-1/2 -translate-y-1/2 w-0.5 h-4 bg-blue-500 rounded-r-full" />
+                        <span className="absolute right-3 top-1/2 h-2 w-2 -translate-y-1/2 bg-board-amber" />
                       )}
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -97,8 +94,8 @@ const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loadi
       <SidebarFooter className="bg-sidebar border-t border-sidebar-border px-3 py-3 space-y-1">
         {/* User info */}
         <div className="flex items-center gap-2.5 px-2 py-2 rounded-lg">
-          <div className="w-7 h-7 rounded-full bg-blue-600/20 border border-blue-500/30 flex items-center justify-center shrink-0">
-            <span className="text-blue-500 text-xs font-bold">
+          <div className="w-8 h-8 rounded-[3px] bg-board-amber text-board-onamber flex items-center justify-center shrink-0">
+            <span className="text-board-onamber text-xs font-bold">
               {user?.first_name?.[0]?.toUpperCase() ?? 'A'}
             </span>
           </div>
@@ -118,7 +115,7 @@ const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loadi
             <SidebarMenuButton
               onClick={onRefresh}
               disabled={loading}
-              className="h-8 rounded-lg px-3 text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
+              className="h-10 rounded-[3px] px-3 text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all disabled:opacity-40 disabled:cursor-not-allowed"
               tooltip="Actualizar datos"
             >
               <RefreshCw className={`w-3.5 h-3.5 ${loading ? 'animate-spin' : ''}`} />
@@ -130,7 +127,7 @@ const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loadi
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={toggleTheme}
-              className="h-8 rounded-lg px-3 text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all"
+              className="h-10 rounded-[3px] px-3 text-sidebar-foreground/50 hover:text-sidebar-foreground hover:bg-sidebar-accent transition-all"
               tooltip={isDark ? 'Cambiar a modo claro' : 'Cambiar a modo oscuro'}
             >
               {/* Animated icon swap */}
@@ -154,7 +151,7 @@ const AdminSidebar = ({ activeTab, onTabChange, user, onLogout, onRefresh, loadi
           <SidebarMenuItem>
             <SidebarMenuButton
               onClick={onLogout}
-              className="h-8 rounded-lg px-3 text-sidebar-foreground/50 hover:text-red-500 hover:bg-red-500/10 transition-all"
+              className="h-10 rounded-[3px] px-3 text-sidebar-foreground/50 hover:text-board-alarmink hover:bg-board-alarm/10 transition-all"
               tooltip="Cerrar sesión"
             >
               <LogOut className="w-3.5 h-3.5" />

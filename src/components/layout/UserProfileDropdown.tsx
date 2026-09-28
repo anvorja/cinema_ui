@@ -57,7 +57,7 @@ const UserProfileDropdown = ({ user, onOpenProfile }: UserProfileDropdownProps) 
                 <button className="flex items-center gap-2 px-1.5 py-1 rounded-xl transition-all duration-200 hover:bg-white/[0.08] outline-none focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white/20 group">
                     <Avatar className="h-8 w-8 ring-1 ring-white/20 group-hover:ring-white/35 transition-all">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold">
+                        <AvatarFallback className="bg-board-amber text-board-onamber text-xs font-semibold">
                             {getUserInitials()}
                         </AvatarFallback>
                     </Avatar>
@@ -70,13 +70,13 @@ const UserProfileDropdown = ({ user, onOpenProfile }: UserProfileDropdownProps) 
             <DropdownMenuContent
                 align="end"
                 sideOffset={8}
-                className="w-60 bg-slate-900/95 backdrop-blur-xl border-white/[0.12] text-white shadow-2xl shadow-black/50 rounded-xl p-0 overflow-hidden"
+                className="w-60 bg-board-panel border-board-line2 text-white shadow-2xl shadow-black/50 rounded-[3px] p-0 overflow-hidden"
             >
                 {/* ── User info header ── */}
                 <div className="flex items-center gap-3 px-4 py-3.5 border-b border-white/[0.08]">
                     <Avatar className="h-9 w-9 ring-1 ring-white/15 shrink-0">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
-                        <AvatarFallback className="bg-gradient-to-br from-blue-600 to-blue-700 text-white text-xs font-semibold">
+                        <AvatarFallback className="bg-board-amber text-board-onamber text-xs font-semibold">
                             {getUserInitials()}
                         </AvatarFallback>
                     </Avatar>

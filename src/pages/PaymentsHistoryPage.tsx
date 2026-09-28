@@ -49,7 +49,7 @@ const PaymentsHistoryPage = () => {
   const visible = showExpired ? payments : payments.filter(p => p.status !== 'expired');
 
   return (
-    <div className="min-h-screen pt-24">
+    <div className="pt-8 pb-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-4xl">
         <div className="flex items-center gap-4 mb-8">
           <Link to="/" className="p-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 transition-colors">

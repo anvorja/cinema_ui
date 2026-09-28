@@ -164,8 +164,13 @@ export const useLogout = (options: Record<string, any> = {}) => {
       console.log('🚨 useLogout: Ejecutando logout de emergencia...');
 
       // Limpiar todo el storage local inmediatamente
+      // (las preferencias de vista y tema no son datos de sesión: se conservan)
+      const prefs = ['cinema-board-theme', 'cinema-home-view']
+        .map(k => [k, localStorage.getItem(k)] as const)
+        .filter(([, v]) => v !== null);
       localStorage.clear();
       sessionStorage.clear();
+      prefs.forEach(([k, v]) => localStorage.setItem(k, v as string));
 
       // Limpiar cookies manualmente
       document.cookie.split(";").forEach(cookie => {

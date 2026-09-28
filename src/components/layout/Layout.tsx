@@ -1,30 +1,25 @@
-// src/components/layout/Layout.jsx
+// src/components/layout/Layout.tsx
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
-import {FloatingParticles} from '../common';
-import Footer from "./Footer.jsx";
+import Footer from './Footer';
+import useBoardWorld from '../board/useBoardWorld';
 
 const Layout = () => {
+  // El mundo "tablero" se aplica al <body> para que los portales de Radix hereden los tokens.
+  useBoardWorld();
+
   return (
-    <div className="min-h-screen">
-      {/* Cinema Background with animated effects */}
-      <div className="cinema-background fixed inset-0 -z-20" />
-
-      {/* Global floating particles */}
-      <FloatingParticles
-        count={50}
-        className="fixed inset-0 -z-10 opacity-20 pointer-events-none"
-      />
-
-      {/* Header - Fixed position */}
+    <div className="flex min-h-screen flex-col">
+      <a
+        href="#contenido"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[100] focus:bg-board-amber focus:px-4 focus:py-2 focus:font-board focus:font-bold focus:text-board-onamber"
+      >
+        IR AL CONTENIDO
+      </a>
       <Header />
-
-      {/* Main content area */}
-      <main className="relative">
+      <main id="contenido" className="relative flex-1 pt-14">
         <Outlet />
       </main>
-
-      {/* Footer */}
       <Footer />
     </div>
   );

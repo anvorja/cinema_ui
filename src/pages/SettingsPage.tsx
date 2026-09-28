@@ -103,7 +103,7 @@ const SettingsPage = () => {
 
   // ── Render ─────────────────────────────────────────────────────────────────
   return (
-    <div className="min-h-screen pt-24">
+    <div className="pt-8 pb-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-2xl">
 
         {/* Header */}

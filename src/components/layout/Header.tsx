@@ -3,7 +3,9 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { Menu, Search, X, User, CreditCard } from 'lucide-react';
-import { GlassCard } from '../common';
+import BoardClock from '../board/BoardClock';
+import BoardTip from '../board/BoardTip';
+import BoardThemeToggle from '../board/BoardThemeToggle';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { MobileProfileMenu } from './MobileProfileMenu';
 import { Sidebar } from './Sidebar';
@@ -13,7 +15,6 @@ import UserProfile from '../auth/UserProfile.jsx';
 import useAuth from '../../hooks/useAuth';
 import { searchMovies } from '../../services/api';
 import { debounce } from 'lodash';
-import { Button } from '../ui/button';
 import { optimizeCloudinaryUrl } from '../../utils/movieUtils';
 
 import {
@@ -24,7 +25,6 @@ import {
 } from '../ui/tooltip';
 
 const Header = () => {
-    const [isScrolled, setIsScrolled] = useState(false);
     const [isHeaderVisible, setIsHeaderVisible] = useState(true);
     const lastScrollYRef = useRef(0);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -46,7 +46,6 @@ const Header = () => {
     useEffect(() => {
         const handleScroll = () => {
             const currentY = window.scrollY;
-            setIsScrolled(currentY > 20);
             if (currentY > 80) {
                 setIsHeaderVisible(currentY < lastScrollYRef.current);
             } else {
@@ -142,177 +141,145 @@ const Header = () => {
     return (
         <TooltipProvider delayDuration={300}>
             <>
-                <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'} ${!isHeaderVisible ? '-translate-y-full' : 'translate-y-0'}`}>
-                    <GlassCard
-                        variant="premium"
-                        className={`mx-4 transition-all duration-300 ${
-                            isScrolled ? 'bg-black/30 backdrop-blur-xl' : 'bg-white/10 backdrop-blur-md'
-                        }`}
-                    >
-                        <div className="flex items-center justify-between px-4 py-2.5">
+                <header className={`fixed top-0 left-0 right-0 z-50 border-b border-board-line bg-board-ground transition-transform duration-200 ${!isHeaderVisible ? '-translate-y-full' : 'translate-y-0'}`}>
+                    <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-3 px-3 sm:px-6">
 
-                            {/* ── Left: hamburger (mobile only) + logo ── */}
-                            <div className="flex items-center gap-3">
-                                <Button
-                                    variant="ghost"
-                                    size="icon"
-                                    onClick={() => setIsSidebarOpen(true)}
-                                    className="lg:hidden text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
-                                    aria-label="Abrir menú"
-                                >
-                                    <Menu className="h-5 w-5" />
-                                </Button>
+                        {/* ── Izquierda: menú (móvil) + marca ── */}
+                        <div className="flex items-center gap-2">
+                            <button
+                                onClick={() => setIsSidebarOpen(true)}
+                                className="lg:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-board-ink2 hover:bg-board-panel2 hover:text-board-ink"
+                                aria-label="Abrir menú"
+                            >
+                                <Menu className="h-5 w-5" />
+                            </button>
 
-                                <Link to="/" className="flex items-center gap-2.5 group transition-all duration-200">
-                                    <span className="text-white font-bold text-lg tracking-widest">
-                                        CINEMAPLUS
-                                    </span>
-                                </Link>
-                            </div>
-
-                            {/* ── Center: desktop navigation ── */}
-                            <nav className="hidden lg:flex items-center gap-1">
-                                {navigationItems.map((item) => (
-                                    <NavLink
-                                        key={item.name}
-                                        to={item.href}
-                                        end={item.href === '/'}
-                                        className={({ isActive }) =>
-                                            `px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
-                                                isActive
-                                                    ? 'bg-white/20 text-white shadow-sm'
-                                                    : 'text-white/70 hover:text-white hover:bg-white/[0.1]'
-                                            }`
-                                        }
-                                    >
-                                        {item.name}
-                                    </NavLink>
-                                ))}
-                            </nav>
-
-                            {/* ── Right: recharge + search + user ── */}
-                            <div className="flex items-center gap-3">
-                                {/* Desktop: Recargar Cinema+ — icon only on lg, icon+text on xl+ */}
-                                <Link
-                                    to="/recharge"
-                                    className="hidden lg:flex items-center justify-center w-9 h-9 xl:w-auto xl:px-3 xl:gap-1.5 rounded-xl bg-amber-500/15 border border-amber-500/25 text-amber-300/90 hover:bg-amber-500/25 hover:text-amber-200 hover:border-amber-400/40 transition-all duration-200 text-sm font-semibold"
-                                    title="Recargar Tarjeta Cinema+"
-                                >
-                                    <CreditCard className="w-3.5 h-3.5 shrink-0" />
-                                    <span className="hidden xl:inline">Recargar</span>
-                                </Link>
-
-                                {/* Desktop search */}
-                                <div className="hidden md:flex items-center relative search-container">
-                                    <input
-                                        type="text"
-                                        value={searchQuery}
-                                        onChange={handleSearchChange}
-                                        onFocus={() => setIsSearchFocused(true)}
-                                        onBlur={() => setIsSearchFocused(false)}
-                                        placeholder="Buscar películas..."
-                                        style={{
-                                            background: isSearchFocused ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.08)',
-                                            borderColor: isSearchFocused ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.12)',
-                                        }}
-                                        className="w-40 xl:w-56 pl-9 pr-8 h-9 rounded-xl border text-sm text-white transition-all duration-200 outline-none placeholder:text-white/40"
-                                    />
-                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
-                                    {searchQuery && !isSearching && (
-                                        <button
-                                            type="button"
-                                            onClick={clearSearch}
-                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
-                                        >
-                                            <X className="w-3.5 h-3.5" />
-                                        </button>
-                                    )}
-                                    {isSearching && (
-                                        <div className="absolute right-2.5 top-1/2 -translate-y-1/2">
-                                            <div className="animate-spin rounded-full h-3.5 w-3.5 border-2 border-white/20 border-t-white/60" />
-                                        </div>
-                                    )}
-                                </div>
-
-                                {/* User area */}
-                                {isAuthenticated ? (
-                                    <>
-                                        {/* Desktop: dropdown completo */}
-                                        <span className="hidden sm:block">
-                                            <UserProfileDropdown
-                                                user={user}
-                                                onOpenProfile={() => setShowProfileModal(true)}
-                                            />
-                                        </span>
-                                        {/* Mobile: abre menú de perfil (bottom sheet) */}
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={() => setShowMobileProfileMenu(true)}
-                                            className="sm:hidden text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
-                                            aria-label="Mi perfil"
-                                        >
-                                            <User className="h-4 w-4" />
-                                        </Button>
-                                    </>
-                                ) : (
-                                    <>
-                                        {/* Desktop: botón de texto */}
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            onClick={handleLoginClick}
-                                            className="hidden sm:flex text-white/80 hover:text-white hover:bg-white/10 border border-white/20 hover:border-white/35 rounded-xl h-9 px-4 text-sm font-medium transition-all"
-                                        >
-                                            Iniciar Sesión
-                                        </Button>
-                                        {/* Mobile: ícono de persona */}
-                                        <Button
-                                            variant="ghost"
-                                            size="icon"
-                                            onClick={handleLoginClick}
-                                            className="sm:hidden text-white/70 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
-                                            aria-label="Iniciar sesión"
-                                        >
-                                            <User className="h-4 w-4" />
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
+                            <Link to="/" className="flex items-baseline gap-2" aria-label="CinemaPlus, inicio">
+                                <span className="font-board text-[26px] font-bold leading-none tracking-[0.08em] text-board-ink">
+                                    CINEMA<span className="text-board-amberink">PLUS</span>
+                                </span>
+                            </Link>
                         </div>
-                    </GlassCard>
+
+                        {/* ── Centro: navegación de escritorio ── */}
+                        <nav className="hidden lg:flex items-stretch self-stretch" aria-label="Principal">
+                            {navigationItems.map((item) => (
+                                <NavLink
+                                    key={item.name}
+                                    to={item.href}
+                                    end={item.href === '/'}
+                                    className={({ isActive }) =>
+                                        `flex items-center px-5 font-board text-[17px] font-semibold tracking-[0.08em] border-b-2 ${
+                                            isActive
+                                                ? 'border-board-amber text-board-ink'
+                                                : 'border-transparent text-board-mute hover:text-board-ink'
+                                        }`
+                                    }
+                                >
+                                    {item.name}
+                                </NavLink>
+                            ))}
+                        </nav>
+
+                        {/* ── Derecha: hora, recarga, búsqueda, usuario ── */}
+                        <div className="flex items-center gap-2 sm:gap-3">
+                            <BoardClock className="hidden sm:block text-[15px]" />
+                            <BoardThemeToggle />
+
+<BoardTip label="Recargar tarjeta Cinema+" side="bottom"><Link
+                                to="/recharge"
+                                className="hidden lg:flex h-10 items-center gap-2 rounded-[3px] border border-board-line2 px-3 font-board text-[15px] font-semibold tracking-[0.06em] text-board-ink hover:border-board-amber hover:text-board-amberink"
+                                aria-label="Recargar tarjeta Cinema+"
+                            >
+                                <CreditCard className="h-4 w-4 shrink-0" />
+                                <span className="hidden xl:inline">RECARGAR</span>
+                            </Link></BoardTip>
+
+                            {/* Búsqueda escritorio */}
+                            <div className="hidden md:flex items-center relative search-container">
+                                <label htmlFor="header-search" className="sr-only">Buscar películas</label>
+                                <input
+                                    id="header-search"
+                                    type="text"
+                                    value={searchQuery}
+                                    onChange={handleSearchChange}
+                                    onFocus={() => setIsSearchFocused(true)}
+                                    onBlur={() => setIsSearchFocused(false)}
+                                    placeholder="Buscar película"
+                                    className={`h-10 w-40 xl:w-56 rounded-[3px] border bg-board-panel pl-9 pr-8 text-[15px] text-board-ink outline-none placeholder:text-board-mute ${isSearchFocused ? 'border-board-amber' : 'border-board-line'}`}
+                                />
+                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-board-mute" />
+                                {searchQuery && !isSearching && (
+                                    <button type="button" onClick={clearSearch} aria-label="Limpiar búsqueda" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-board-mute hover:text-board-ink">
+                                        <X className="h-3.5 w-3.5" />
+                                    </button>
+                                )}
+                                {isSearching && <div className="absolute right-3 top-1/2 -translate-y-1/2"><span className="block h-3 w-2 bg-board-amber motion-safe:animate-pulse" /></div>}
+                            </div>
+
+                            {/* Usuario */}
+                            {isAuthenticated ? (
+                                <>
+                                    <span className="hidden sm:block">
+                                        <UserProfileDropdown user={user} onOpenProfile={() => setShowProfileModal(true)} />
+                                    </span>
+                                    <button
+                                        onClick={() => setShowMobileProfileMenu(true)}
+                                        className="sm:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-board-ink2 hover:bg-board-panel2 hover:text-board-ink"
+                                        aria-label="Mi perfil"
+                                    >
+                                        <User className="h-5 w-5" />
+                                    </button>
+                                </>
+                            ) : (
+                                <>
+                                    <button
+                                        onClick={handleLoginClick}
+                                        className="hidden sm:flex h-10 items-center rounded-[3px] border border-board-amber px-4 font-board text-[15px] font-bold tracking-[0.08em] text-board-amberink hover:bg-board-amber hover:text-board-onamber"
+                                    >
+                                        INGRESAR
+                                    </button>
+                                    <button
+                                        onClick={handleLoginClick}
+                                        className="sm:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-board-ink2 hover:bg-board-panel2 hover:text-board-ink"
+                                        aria-label="Iniciar sesión"
+                                    >
+                                        <User className="h-5 w-5" />
+                                    </button>
+                                </>
+                            )}
+                        </div>
+                    </div>
                 </header>
 
                 {/* Search results portal */}
                 {showSearchResults && createPortal(
                     <div
                         className="fixed w-80 search-results-portal"
-                        style={{ top: '76px', right: '120px', zIndex: 99999 }}
+                        style={{ top: '60px', right: '120px', zIndex: 99999 }}
                     >
-                        <GlassCard variant="premium" className="p-0 overflow-hidden shadow-2xl max-h-96 overflow-y-auto">
+                        <div className="max-h-96 overflow-y-auto border border-board-line2 bg-board-panel">
                             {searchResults.length > 0 ? (
-                                <div className="divide-y divide-white/[0.07]">
+                                <div className="divide-y divide-board-line">
                                     {searchResults.map((movie: any) => (
                                         <button
                                             key={movie.id}
                                             onClick={() => handleSearchResultClick(movie)}
-                                            className="w-full flex items-center gap-3 p-3 hover:bg-white/[0.05] transition-colors text-left"
+                                            className="flex w-full items-center gap-3 p-3 text-left hover:bg-board-panel2"
                                         >
                                             {movie.poster_url ? (
                                                 <img
                                                     src={optimizeCloudinaryUrl(movie.poster_url, 100)}
-                                                    alt={movie.title}
-                                                    className="w-11 h-16 object-cover rounded-md border border-white/15 shrink-0"
+                                                    alt=""
+                                                    className="h-16 w-11 shrink-0 object-cover"
                                                 />
                                             ) : (
-                                                <div className="w-11 h-16 bg-white/10 rounded-md flex items-center justify-center shrink-0">
-                                                    <span className="text-white/30 text-xs">img</span>
-                                                </div>
+                                                <div className="flex h-16 w-11 shrink-0 items-center justify-center bg-board-panel2 font-data text-xs text-board-mute">—</div>
                                             )}
-                                            <div className="flex-1 min-w-0">
-                                                <h3 className="text-white/90 font-medium text-sm truncate">{movie.title}</h3>
-                                                <p className="text-white/50 text-xs truncate mt-0.5">{movie.genre} · {movie.duration}min</p>
-                                                <p className="text-white/35 text-xs mt-0.5">
+                                            <div className="min-w-0 flex-1">
+                                                <h3 className="truncate font-board text-lg font-semibold leading-tight text-board-ink">{movie.title}</h3>
+                                                <p className="mt-0.5 truncate text-sm text-board-mute">{movie.genre} · {movie.duration} min</p>
+                                                <p className="mt-0.5 font-data text-[11px] uppercase text-board-amberink">
                                                     {movie.status === 'current' ? 'En cartelera' : 'Próximamente'}
                                                 </p>
                                             </div>
@@ -320,18 +287,18 @@ const Header = () => {
                                     ))}
                                     <button
                                         onClick={handleViewAllResults}
-                                        className="w-full p-3 text-center text-white/60 hover:text-white/90 hover:bg-white/[0.05] transition-colors text-sm font-medium"
+                                        className="w-full p-3 text-center font-board text-base font-semibold tracking-[0.06em] text-board-amberink hover:bg-board-panel2"
                                     >
-                                        Ver todos los resultados →
+                                        VER TODOS LOS RESULTADOS →
                                     </button>
                                 </div>
                             ) : (
-                                <div className="p-5 text-center text-white/40">
-                                    <Search className="w-6 h-6 mx-auto mb-2 opacity-50" />
+                                <div className="p-5 text-center text-board-mute">
+                                    <Search className="mx-auto mb-2 h-6 w-6" />
                                     <p className="text-sm">Sin resultados para "{searchQuery}"</p>
                                 </div>
                             )}
-                        </GlassCard>
+                        </div>
                     </div>,
                     document.body
                 )}

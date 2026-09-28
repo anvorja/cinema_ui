@@ -25,8 +25,8 @@ interface SidebarProps {
 }
 
 const baseNavItems: NavItem[] = [
-    { name: 'Películas', href: '/',        icon: Home,     color: 'text-blue-400' },
-    { name: 'Comidas',   href: '/comidas', icon: Utensils, color: 'text-orange-400' },
+    { name: 'Películas', href: '/',        icon: Home,     color: 'text-board-amberink' },
+    { name: 'Comidas',   href: '/comidas', icon: Utensils, color: 'text-board-amberink' },
 ];
 
 const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProps) => {
@@ -55,7 +55,7 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
     const navItems: NavItem[] = isAuthenticated
         ? [
             ...baseNavItems,
-            { name: 'Mi Perfil', icon: User, color: 'text-cyan-400', action: () => setShowUserProfile(true) },
+            { name: 'Mi Perfil', icon: User, color: 'text-board-amberink', action: () => setShowUserProfile(true) },
         ]
         : baseNavItems;
 
@@ -64,15 +64,14 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
             <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
                 <SheetContent
                     side="left"
-                    className="w-80 p-0 bg-slate-950 border-r border-white/[0.08] text-white flex flex-col [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:opacity-100"
+                    className="w-80 p-0 bg-board-ground border-r border-board-line text-board-ink flex flex-col [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:opacity-100"
                 >
                     {/* Accessible title (sr-only) */}
                     <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
 
                     {/* ── Logo header ── */}
-                    <div className="flex items-center gap-3 px-5 py-4 border-b border-white/[0.08] shrink-0">
-                        <img src="/icons8.png" alt="Cinemaplus" className="w-9 h-9 rounded-xl shrink-0" />
-                        <span className="text-white font-bold text-base tracking-widest">CINEMAPLUS</span>
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-board-line shrink-0">
+                        <span className="font-board text-2xl font-bold tracking-[0.08em]">CINEMA<span className="text-board-amberink">PLUS</span></span>
                     </div>
 
                     {/* ── Navigation ── */}
@@ -83,28 +82,28 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                                     const Icon = item.icon;
                                     const active = item.href ? isItemActive(item.href) : false;
                                     const cls = [
-                                        'group flex items-center gap-3 w-full px-3 py-2.5 rounded-xl text-sm font-medium',
-                                        'transition-all duration-200 border',
+                                        'group flex items-center gap-3 w-full min-h-[48px] px-3 rounded-[3px] font-board text-xl font-semibold tracking-[0.06em] uppercase',
+                                        'border',
                                         active
-                                            ? 'bg-gradient-to-r from-blue-500/[0.18] to-purple-500/[0.14] border-blue-500/25 text-white'
-                                            : 'border-transparent text-white/60 hover:text-white/90 hover:bg-white/[0.06]',
+                                            ? 'bg-board-panel2 border-board-amber text-board-ink'
+                                            : 'border-transparent text-board-ink2 hover:text-board-ink hover:bg-board-panel',
                                     ].join(' ');
 
                                     return (
                                         <div key={item.name}>
                                             {isAuthenticated && idx === navItems.length - 1 && (
-                                                <Separator className="bg-white/[0.06] my-3" />
+                                                <Separator className="bg-board-line my-3" />
                                             )}
                                             {item.action ? (
                                                 <button onClick={item.action} className={cls}>
-                                                    <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${item.color}`} />
+                                                    <Icon className={`w-4 h-4 shrink-0 transition-transform ${item.color}`} />
                                                     <span>{item.name}</span>
                                                 </button>
                                             ) : (
                                                 <Link to={item.href!} onClick={onClose} className={cls}>
-                                                    <Icon className={`w-4 h-4 shrink-0 transition-transform group-hover:scale-110 ${item.color}`} />
+                                                    <Icon className={`w-4 h-4 shrink-0 transition-transform ${item.color}`} />
                                                     <span className="flex-1">{item.name}</span>
-                                                    {active && <span className="w-1.5 h-1.5 rounded-full bg-blue-400/80 animate-pulse" />}
+                                                    {active && <span className="h-2 w-2 bg-board-amber" aria-hidden="true" />}
                                                 </Link>
                                             )}
                                         </div>
@@ -114,14 +113,14 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
 
                             {/* ── Cinema+ promo card ── */}
                             <div>
-                                <Separator className="bg-white/[0.06] mb-5" />
+                                <Separator className="bg-board-line mb-5" />
                                 <button
                                     className="group w-full text-left"
                                     onClick={() => { onClose(); navigate('/recharge'); }}
                                 >
-                                    <div className="flex items-center gap-3 px-3 py-3 rounded-xl bg-gradient-to-r from-amber-500/[0.12] to-orange-500/[0.12] border border-amber-500/20 hover:from-amber-500/[0.2] hover:to-orange-500/[0.2] hover:border-amber-400/35 transition-all duration-200">
-                                        <CreditCard className="w-4 h-4 text-amber-400 group-hover:scale-110 transition-transform shrink-0" />
-                                        <span className="text-amber-200/80 font-semibold text-xs tracking-wide">
+                                    <div className="flex items-center gap-3 px-3 min-h-[48px] rounded-[3px] border border-board-line2 hover:border-board-amber">
+                                        <CreditCard className="w-4 h-4 text-amber-400 transition-transform shrink-0" />
+                                        <span className="font-board text-lg font-semibold tracking-[0.06em] text-board-ink">
                                             RECARGAR TARJETA CINEMA+
                                         </span>
                                     </div>
@@ -131,26 +130,26 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                     </ScrollArea>
 
                     {/* ── Footer: auth actions ── */}
-                    <div className="px-3 pb-5 pt-4 border-t border-white/[0.08] shrink-0">
+                    <div className="px-3 pb-5 pt-4 border-t border-board-line shrink-0">
                         {isAuthenticated ? (
                             <button
                                 onClick={handleLogout}
-                                className="group w-full flex items-center justify-center gap-2.5 px-4 py-2.5 rounded-xl bg-red-500/[0.08] hover:bg-red-500/[0.15] border border-red-500/[0.18] hover:border-red-500/30 transition-all duration-200 text-red-400/80 hover:text-red-300"
+                                className="group w-full flex items-center justify-center gap-2.5 px-4 min-h-[48px] rounded-[3px] border border-board-line2 hover:border-board-alarm text-board-ink2 hover:text-board-alarmink"
                             >
-                                <LogOut className="w-4 h-4 group-hover:scale-110 transition-transform" />
+                                <LogOut className="w-4 h-4 transition-transform" />
                                 <span className="font-medium text-sm">Cerrar sesión</span>
                             </button>
                         ) : (
                             <div className="space-y-2">
                                 <button
                                     onClick={() => { onClose(); onLoginClick(); }}
-                                    className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold text-sm transition-all duration-200 shadow-lg shadow-blue-500/20 hover:shadow-blue-500/30"
+                                    className="w-full h-12 px-4 rounded-[3px] bg-board-amber hover:bg-board-amberpress text-board-onamber font-board text-lg font-bold tracking-[0.08em]"
                                 >
-                                    Iniciar Sesión
+                                    INICIAR SESIÓN
                                 </button>
                                 <button
                                     onClick={() => { onClose(); onRegisterClick(); }}
-                                    className="w-full py-2 px-4 rounded-xl border border-white/[0.12] hover:bg-white/[0.06] hover:border-white/20 text-white/55 hover:text-white/80 font-medium text-sm transition-all duration-200"
+                                    className="w-full min-h-[44px] px-4 rounded-[3px] border border-board-line2 hover:border-board-ink text-board-ink2 hover:text-board-ink text-[15px]"
                                 >
                                     ¿No tienes cuenta? Regístrate
                                 </button>

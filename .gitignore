@@ -63,3 +63,8 @@ coverage
 Hooks - manual.pdf
 revisar*.pdf
 revisa*.pdf
+
+# Impeccable (artefactos de trabajo)
+.impeccable/review/
+.impeccable/questions/
+.impeccable/direction-payload.json

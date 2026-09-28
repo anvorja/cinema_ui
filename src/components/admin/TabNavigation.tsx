@@ -43,7 +43,7 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
   ];
 
   return (
-    <div className="bg-gray-800 rounded-lg mb-6 overflow-hidden">
+    <div className="bg-board-panel2 rounded-lg mb-6 overflow-hidden">
       <nav className="flex flex-col sm:flex-row">
         {tabs.map((tab) => {
           const Icon = tab.icon;
@@ -53,10 +53,10 @@ const TabNavigation = ({ activeTab, onTabChange }) => {
             <button
               key={tab.id}
               onClick={() => onTabChange(tab.id)}
-              className={`flex items-center px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 sm:border-b-0 sm:border-r border-gray-700 last:border-r-0 ${
+              className={`flex items-center px-6 py-4 text-sm font-medium transition-all duration-200 border-b-2 sm:border-b-0 sm:border-r border-board-line2 last:border-r-0 ${
                 isActive
-                  ? 'bg-blue-600 text-white border-blue-500 sm:border-b-2 sm:border-b-blue-500'
-                  : 'text-gray-400 hover:text-white hover:bg-gray-700'
+                  ? 'bg-board-amber text-board-ink border-board-amber sm:border-b-2 sm:border-b-blue-500'
+                  : 'text-board-mute hover:text-board-ink hover:bg-board-panel2'
               }`}
             >
               <Icon className="h-5 w-5 mr-3" />

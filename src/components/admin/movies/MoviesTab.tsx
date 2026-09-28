@@ -8,27 +8,27 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Skeleton } from '../../ui/skeleton';
 import { Table, TableBody, TableHead, TableHeader, TableRow } from '../../ui/table';
 
-const selectCls = 'w-40 h-9 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm focus:ring-gray-300 dark:focus:ring-zinc-600';
-const contentCls = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
-const itemCls    = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
+const selectCls = 'w-40 h-9 bg-board-panel border-board-line2 text-board-ink text-sm focus:ring-board-line2';
+const contentCls = 'bg-board-panel border-board-line text-board-ink';
+const itemCls    = 'text-board-ink focus:bg-board-panel2 focus:text-board-ink cursor-pointer';
 
 // ── Skeleton ───────────────────────────────────────────────────────────────────
 const MoviesTabSkeleton = () => (
   <div className="space-y-5">
     <div className="flex gap-3">
-      <Skeleton className="h-9 w-64 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
-      <Skeleton className="h-9 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
-      <Skeleton className="h-9 w-20 bg-gray-200 dark:bg-zinc-800 rounded-lg ml-auto" />
-      <Skeleton className="h-9 w-32 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-64 bg-board-panel2 rounded-lg" />
+      <Skeleton className="h-9 w-40 bg-board-panel2 rounded-lg" />
+      <Skeleton className="h-9 w-20 bg-board-panel2 rounded-lg ml-auto" />
+      <Skeleton className="h-9 w-32 bg-board-panel2 rounded-lg" />
     </div>
     <div className="grid grid-cols-4 gap-3">
-      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 bg-gray-200 dark:bg-zinc-800 rounded-xl" />)}
+      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-16 bg-board-panel2 rounded-xl" />)}
     </div>
     <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4">
       {[...Array(10)].map((_, i) => (
         <div key={i} className="space-y-2">
-          <Skeleton className="w-full aspect-[2/3] bg-gray-200 dark:bg-zinc-800 rounded-xl" />
-          <Skeleton className="h-3 w-3/4 bg-gray-200 dark:bg-zinc-800 rounded" />
+          <Skeleton className="w-full aspect-[2/3] bg-board-panel2 rounded-xl" />
+          <Skeleton className="h-3 w-3/4 bg-board-panel2 rounded" />
         </div>
       ))}
     </div>
@@ -64,13 +64,13 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
         <div className="flex items-center gap-2 flex-wrap flex-1">
           {/* Search */}
           <div className="relative w-full sm:max-w-xs">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 dark:text-zinc-500" />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-board-mute" />
             <input
               type="text"
               placeholder="Buscar por título, género o director..."
               value={searchTerm}
               onChange={e => onSearchChange(e.target.value)}
-              className="w-full pl-9 pr-4 h-9 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-zinc-600"
+              className="w-full pl-9 pr-4 h-9 bg-board-panel border border-board-line2 rounded-lg text-sm text-board-ink placeholder-board-mute focus:outline-none focus:ring-1 focus:ring-board-line2"
             />
           </div>
 
@@ -86,11 +86,11 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
           </Select>
 
           {/* View toggle */}
-          <div className="flex items-center bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-700 rounded-lg p-0.5 ml-auto sm:ml-0">
+          <div className="flex items-center bg-board-panel border border-board-line rounded-lg p-0.5 ml-auto sm:ml-0">
             <button
               onClick={() => setViewMode('grid')}
               className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'grid' ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-white' : 'text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300'
+                viewMode === 'grid' ? 'bg-board-panel2 text-board-ink' : 'text-board-mute hover:text-board-ink'
               }`}
             >
               <Grid className="h-4 w-4" />
@@ -98,7 +98,7 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
             <button
               onClick={() => setViewMode('list')}
               className={`p-1.5 rounded-md transition-colors ${
-                viewMode === 'list' ? 'bg-gray-200 dark:bg-zinc-700 text-gray-900 dark:text-white' : 'text-gray-400 dark:text-zinc-500 hover:text-gray-700 dark:hover:text-zinc-300'
+                viewMode === 'list' ? 'bg-board-panel2 text-board-ink' : 'text-board-mute hover:text-board-ink'
               }`}
             >
               <List className="h-4 w-4" />
@@ -109,7 +109,7 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
         {/* Nueva Película */}
         <button
           onClick={() => navigate('/admin/peliculas/nueva')}
-          className="flex items-center gap-1.5 h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors shrink-0"
+          className="flex items-center gap-1.5 h-9 px-4 bg-board-amber hover:bg-board-amberpress text-board-onamber text-sm font-medium rounded-lg transition-colors shrink-0"
         >
           <Plus className="h-4 w-4" />
           <span>Nueva Película</span>
@@ -119,16 +119,16 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
       {/* Mini stats */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
         {[
-          { label: 'Total',     value: movies.length,                               color: 'text-gray-900 dark:text-white', icon: Film },
-          { label: 'Activas',   value: movies.filter(m => m.is_active).length,      color: 'text-emerald-400', icon: Eye },
-          { label: 'Inactivas', value: movies.filter(m => !m.is_active).length,     color: 'text-red-400',     icon: EyeOff },
-          { label: 'Preventa',  value: movies.filter(m => m.is_presale).length,     color: 'text-amber-400',   icon: Clapperboard },
+          { label: 'Total',     value: movies.length,                               color: 'text-board-ink', icon: Film },
+          { label: 'Activas',   value: movies.filter(m => m.is_active).length,      color: 'text-board-okink', icon: Eye },
+          { label: 'Inactivas', value: movies.filter(m => !m.is_active).length,     color: 'text-board-alarmink',     icon: EyeOff },
+          { label: 'Preventa',  value: movies.filter(m => m.is_presale).length,     color: 'text-board-amberink',   icon: Clapperboard },
         ].map(s => (
-          <Card key={s.label} className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+          <Card key={s.label} className="bg-board-panel border-board-line">
             <CardContent className="p-3 flex items-center gap-3">
               <s.icon className={`h-4 w-4 ${s.color} shrink-0`} />
               <div>
-                <p className="text-xs text-gray-500 dark:text-zinc-600">{s.label}</p>
+                <p className="text-xs text-board-mute">{s.label}</p>
                 <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
               </div>
             </CardContent>
@@ -138,9 +138,9 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
 
       {/* Content */}
       {filtered.length === 0 ? (
-        <div className="rounded-xl border border-gray-200 dark:border-zinc-800 py-20 text-center">
-          <Film className="h-10 w-10 text-gray-300 dark:text-zinc-700 mx-auto mb-3" />
-          <p className="text-gray-400 dark:text-zinc-600 text-sm">
+        <div className="rounded-xl border border-board-line py-20 text-center">
+          <Film className="h-10 w-10 text-board-ink2 mx-auto mb-3" />
+          <p className="text-board-mute text-sm">
             {searchTerm || filterStatus !== 'all'
               ? 'Sin películas que coincidan con los filtros'
               : 'No hay películas registradas'}
@@ -148,7 +148,7 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
           {!searchTerm && filterStatus === 'all' && (
             <button
               onClick={() => navigate('/admin/peliculas/nueva')}
-              className="mt-4 flex items-center gap-1.5 h-9 px-4 bg-blue-600 hover:bg-blue-500 text-white text-sm font-medium rounded-lg transition-colors mx-auto"
+              className="mt-4 flex items-center gap-1.5 h-9 px-4 bg-board-amber hover:bg-board-amberpress text-board-onamber text-sm font-medium rounded-lg transition-colors mx-auto"
             >
               <Plus className="h-4 w-4" />
               Crear primera película
@@ -168,12 +168,12 @@ const MoviesTab = ({ movies, loading, onToggleMovie, searchTerm, onSearchChange 
           ))}
         </div>
       ) : (
-        <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+        <div className="rounded-xl border border-board-line overflow-hidden">
           <Table className="">
             <TableHeader className="">
-              <TableRow className="border-gray-200 dark:border-zinc-800 hover:bg-transparent bg-gray-50 dark:bg-zinc-900/60">
+              <TableRow className="border-board-line hover:bg-transparent bg-board-ground">
                 {['Película', 'Género', 'Clasif.', 'Duración', 'Precio', 'Estado', 'Estreno', 'Activo'].map(h => (
-                  <TableHead key={h} className="text-[10px] text-gray-500 dark:text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
+                  <TableHead key={h} className="text-[10px] text-board-mute uppercase tracking-widest py-3">{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

@@ -1,5 +1,8 @@
-// src/components/seats/CinemaSeatMap.jsx
-import React, { useState, useRef, useEffect } from 'react';
+// src/components/seats/CinemaSeatMap.tsx
+import { useState } from 'react';
+import { Check, X as XIcon } from 'lucide-react';
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
+import BoardTip from '../board/BoardTip';
 
 const X  = 'x';   // unavailable
 
@@ -43,92 +46,87 @@ const LAYOUT = [
 const seatId = (row, section, index, val) => `${row}${val}`;
 
 const WheelchairSVG = () => (
-  <svg viewBox="0 0 24 24" fill="currentColor" className="w-3 h-3">
+  <svg viewBox="0 0 24 24" fill="currentColor" className="h-4 w-4" aria-hidden="true">
     <path d="M12 3a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM9 8v5l2 2v4h2v-5l-2-2V8H9zm6 7v3a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-3l2 2v1h2v-1l2-2z"/>
   </svg>
 );
 
-const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
-  if (value === null) return <div className="w-6 h-6 flex-shrink-0" />;
+// Estados de silla: cada uno se distingue por forma/glifo además del color.
+const SEAT_BASE = 'flex h-8 w-8 flex-shrink-0 select-none items-center justify-center rounded-[2px] font-data text-[10px] font-bold leading-none';
+
+const Seat = ({ id, value, rowType, selected, occupied, onToggle, onRequestWheelchair }) => {
+  if (value === null) return <div className="h-8 w-8 flex-shrink-0" />;
 
   const isBlocked   = value === X;
   const isWC        = WC_SEAT_IDS.has(id);
   const unavailable = isBlocked || occupied;
 
-  let bg, cursor, text;
-  if (occupied) {
-    bg = 'bg-red-400/70';   cursor = 'cursor-not-allowed';  text = '';
-  } else if (isBlocked) {
-    bg = 'bg-gray-500/40';  cursor = 'cursor-not-allowed';  text = '';
-  } else if (selected) {
-    bg = 'bg-green-500';    cursor = 'cursor-pointer';
-    text = isWC ? null : <span className="text-[9px] leading-none font-bold">✓</span>;
-  } else if (isWC) {
-    bg = 'bg-blue-600';     cursor = 'cursor-pointer';      text = null;
-  } else if (rowType === 'preferencial') {
-    bg = 'bg-gray-700 hover:bg-gray-600'; cursor = 'cursor-pointer';
-    text = <span className="text-[9px] leading-none">{value}</span>;
-  } else {
-    bg = 'bg-blue-700 hover:bg-blue-600'; cursor = 'cursor-pointer';
-    text = <span className="text-[9px] leading-none">{value}</span>;
+  if (isBlocked) {
+    return <div className={`${SEAT_BASE} border border-dashed border-board-line`} aria-hidden="true" />;
   }
+  if (occupied) {
+    return (
+      <BoardTip label={`${id} · Vendida`}>
+        <div className={`${SEAT_BASE} bg-board-sold text-board-alarmink`} role="img" aria-label={`Silla ${id}, vendida`} tabIndex={0}>
+          <XIcon className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+        </div>
+      </BoardTip>
+    );
+  }
+
+  let tone;
+  if (selected) tone = 'bg-board-amber text-board-onamber';
+  else if (isWC) tone = 'border border-board-ink2 text-board-ink hover:bg-board-line';
+  else if (rowType === 'preferencial') tone = 'bg-board-line text-board-ink shadow-[inset_0_2px_0_rgb(var(--b-amber))] hover:bg-board-line2';
+  else tone = 'bg-board-line text-board-ink hover:bg-board-line2';
 
   const handleClick = () => {
     if (unavailable) return;
-    if (isWC && !window.confirm('Este es un espacio para sillas de ruedas. Al aceptar, está confirmando que entiende esto.')) return;
+    // Elegir un espacio de silla de ruedas pide confirmación; quitarlo no.
+    if (isWC && !selected) { onRequestWheelchair(id); return; }
     onToggle(id);
   };
 
+  const kind = isWC ? 'espacio para silla de ruedas' : rowType === 'preferencial' ? 'preferencial' : 'general';
+
+  const tip = `${id} · ${isWC ? 'Silla de ruedas' : rowType === 'preferencial' ? 'Preferencial' : 'General'}${selected ? ' · Tuya' : ''}`;
+
   return (
-    <button
-      className={`w-6 h-6 rounded-[3px] flex-shrink-0 flex items-center justify-center
-                  text-white transition-colors select-none ${bg} ${cursor}`}
-      disabled={unavailable}
-      onClick={handleClick}
-      title={occupied ? 'Silla ya vendida' : isBlocked ? 'No disponible' : `${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
-    >
-      {isWC ? <WheelchairSVG /> : text}
-    </button>
+    <BoardTip label={tip}>
+      <button
+        type="button"
+        className={`${SEAT_BASE} ${tone}`}
+        onClick={handleClick}
+        aria-pressed={selected}
+        aria-label={`Silla ${id}, ${kind}${selected ? ', seleccionada' : ''}`}
+      >
+        {isWC ? <WheelchairSVG /> : selected ? <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" /> : value}
+      </button>
+    </BoardTip>
   );
 };
 
+const LegendItem = ({ swatch, label }) => (
+  <span className="flex items-center gap-2">{swatch}{label}</span>
+);
+
 const Legend = () => (
-  <div className="flex flex-wrap items-center gap-x-3 sm:gap-x-5 gap-y-1.5 text-[10px] sm:text-xs text-white/90 mb-3">
-    <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-green-500 inline-block" /> Seleccionada
-    </span>
-    <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-red-400/70 inline-block" /> Vendida
-    </span>
-    <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-gray-500/40 border border-white/20 inline-block" /> No disponible
-    </span>
-    <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-blue-700 inline-block" /> General
-    </span>
-    <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-blue-700 flex items-center justify-center inline-flex text-white">
-        <WheelchairSVG />
-      </span> Silla de Ruedas
-    </span>
-    <span className="flex items-center gap-1.5">
-      <span className="w-4 h-4 rounded-[3px] bg-gray-600 inline-block" /> Preferencial
-    </span>
+  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-data text-xs text-board-ink2">
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-amber text-board-onamber`}><Check className="h-3.5 w-3.5" strokeWidth={3} /></span>} label="Tuya" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-line`} />} label="General" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-line shadow-[inset_0_2px_0_rgb(var(--b-amber))]`} />} label="Preferencial" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 border border-board-ink2`}><WheelchairSVG /></span>} label="Silla de ruedas" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-sold text-board-alarmink`}><XIcon className="h-3.5 w-3.5" strokeWidth={3} /></span>} label="Vendida" />
   </div>
 );
 
 // ── Main component ─────────────────────────────────────────────────────────────
 const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) => {
-  const [zoom, setZoom] = useState(1);
-  const containerRef = useRef(null);
-
-  // Zoom inicial más pequeño en mobile para que el mapa entre sin scroll horizontal
-  useEffect(() => {
-    if (window.innerWidth < 640) setZoom(0.5);
-  }, []);
+  const [pendingWC, setPendingWC] = useState<string | null>(null);
+  const [zoom, setZoom] = useState(() => (typeof window !== 'undefined' && window.innerWidth >= 900 ? 0.85 : 1));
 
   const changeZoom = (delta) =>
-    setZoom(prev => Math.min(1.5, Math.max(0.6, +(prev + delta).toFixed(1))));
+    setZoom(prev => Math.min(1.4, Math.max(0.6, +(prev + delta).toFixed(1))));
 
   const renderSection = (seats, row, rowType, section) =>
     seats.map((val, idx) => {
@@ -142,82 +140,82 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
           selected={selectedSeats.has(id)}
           occupied={val !== X && val !== null && occupiedSeats.has(id)}
           onToggle={onToggle}
+          onRequestWheelchair={setPendingWC}
         />
       );
     });
 
+  const zoomBtn = 'flex h-11 w-11 items-center justify-center border border-board-line2 bg-board-panel font-data text-lg font-bold text-board-ink hover:border-board-amber';
+
   return (
-    <div className="flex flex-col gap-3">
-      <Legend />
-
-      <div className="relative bg-white border border-gray-200 rounded-xl overflow-hidden">
-        {/* Zoom controls */}
-        <div className="absolute right-3 bottom-3 z-10 flex flex-col gap-1">
-          <button
-            onClick={() => setZoom(1)}
-            className="w-8 h-8 bg-white border border-gray-300 rounded-full shadow text-gray-500 text-xs flex items-center justify-center hover:bg-gray-50"
-            title="Reset zoom"
-          >↺</button>
-          <button
-            onClick={() => changeZoom(0.1)}
-            className="w-8 h-8 bg-white border border-gray-300 rounded-full shadow text-gray-700 text-lg flex items-center justify-center hover:bg-gray-50 font-bold"
-          >+</button>
-          <button
-            onClick={() => changeZoom(-0.1)}
-            className="w-8 h-8 bg-white border border-gray-300 rounded-full shadow text-gray-700 text-lg flex items-center justify-center hover:bg-gray-50 font-bold"
-          >−</button>
+    <div className="flex flex-col">
+      <div className="mb-3 flex flex-wrap items-start justify-between gap-3">
+        <Legend />
+        <div className="flex gap-1" role="group" aria-label="Zoom del mapa">
+          <button type="button" onClick={() => changeZoom(-0.1)} className={zoomBtn} aria-label="Alejar">−</button>
+          <button type="button" onClick={() => changeZoom(0.1)} className={zoomBtn} aria-label="Acercar">+</button>
         </div>
+      </div>
 
-        {/* Scrollable seat area */}
-        <div className="overflow-auto" ref={containerRef}>
+      <div className="relative overflow-hidden border border-board-line bg-board-map">
+        <div className="flex overflow-auto">
           <div
-            className="transition-transform origin-top-left p-6"
-            style={{ transform: `scale(${zoom})`, transformOrigin: 'top center',
-                     minWidth: zoom < 1 ? `${100/zoom}%` : undefined }}
+            className="m-auto w-max p-4 pt-6"
+            style={{ zoom }}
           >
-            {/* Screen */}
-            <div className="flex flex-col items-center mb-6">
-              <div className="w-64 h-2 bg-gray-300 rounded-sm" />
-              <span className="text-gray-400 text-xs mt-1">Pantalla</span>
+            {/* Pantalla */}
+            <div className="mb-8 flex flex-col items-center">
+              <div className="h-2 w-full bg-board-amber" style={{ clipPath: 'polygon(2% 0, 98% 0, 100% 100%, 0 100%)' }} />
+              <span className="mt-2 font-data text-[11px] uppercase tracking-[0.3em] text-board-mute">Pantalla</span>
             </div>
 
-            {/* Rows */}
             <div className="flex flex-col gap-1">
               {LAYOUT.map(({ row, type, left, center, right }) => (
                 <div key={row} className="flex items-center gap-1">
-                  {/* Row label */}
-                  <span className="w-5 text-[10px] text-gray-400 text-right flex-shrink-0 font-medium">
-                    {row}
-                  </span>
-
-                  {/* Left section (may be empty for A-D rows) */}
-                  <div className="flex gap-0.5" style={{ minWidth: left.length ? undefined : '56px' }}>
-                    {left.length > 0
-                      ? renderSection(left, row, type, 'L')
-                      : null}
+                  <span className="w-5 flex-shrink-0 text-right font-data text-[11px] font-bold text-board-mute">{row}</span>
+                  <div className="flex gap-0.5" style={{ minWidth: left.length ? undefined : '60px' }}>
+                    {left.length > 0 ? renderSection(left, row, type, 'L') : null}
                   </div>
-
-                  {/* Gap */}
                   <div className="w-3 flex-shrink-0" />
-
-                  {/* Center section */}
-                  <div className="flex gap-0.5">
-                    {renderSection(center, row, type, 'C')}
-                  </div>
-
-                  {/* Gap */}
+                  <div className="flex gap-0.5">{renderSection(center, row, type, 'C')}</div>
                   <div className="w-3 flex-shrink-0" />
-
-                  {/* Right section */}
-                  <div className="flex gap-0.5">
-                    {renderSection(right, row, type, 'R')}
-                  </div>
+                  <div className="flex gap-0.5">{renderSection(right, row, type, 'R')}</div>
+                  <span className="w-5 flex-shrink-0 font-data text-[11px] font-bold text-board-mute">{row}</span>
                 </div>
               ))}
             </div>
           </div>
         </div>
       </div>
+
+      <AlertDialog.Root open={pendingWC !== null} onOpenChange={(open) => { if (!open) setPendingWC(null); }}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-[90] bg-board-ground/85" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[91] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 border border-board-line2 bg-board-panel p-6 text-board-ink">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-board-ink2"><WheelchairSVG /></span>
+              <AlertDialog.Title className="font-board text-3xl font-bold leading-none tracking-wide uppercase">
+                Espacio para silla de ruedas
+              </AlertDialog.Title>
+            </div>
+            <AlertDialog.Description className="mt-4 text-[17px] leading-relaxed text-board-ink2">
+              Este es un espacio para sillas de ruedas. Al aceptar, está confirmando que entiende esto.
+              {pendingWC && <span className="mt-2 block font-data text-sm text-board-mute">Espacio {pendingWC}</span>}
+            </AlertDialog.Description>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <AlertDialog.Cancel className="h-12 rounded-[3px] border border-board-line2 px-5 font-board text-lg font-bold tracking-[0.08em] uppercase text-board-ink2 hover:border-board-ink hover:text-board-ink">
+                Cancelar
+              </AlertDialog.Cancel>
+              <AlertDialog.Action
+                onClick={() => { if (pendingWC) onToggle(pendingWC); setPendingWC(null); }}
+                className="min-h-12 rounded-[3px] bg-board-amber px-5 py-2 font-board text-lg font-bold tracking-[0.08em] uppercase text-board-onamber hover:bg-board-amberpress"
+              >
+                Entiendo, elegir
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </div>
   );
 };
