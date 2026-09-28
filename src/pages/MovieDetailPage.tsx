@@ -342,7 +342,7 @@ const MovieDetailPage = () => {
             }}
             className="w-full"
           >
-            <TabsList className="mb-8 h-auto w-full justify-start gap-1 rounded-none border-b border-[#2c2c30] bg-transparent p-0 sm:w-auto">
+            <TabsList className="mb-8 h-auto w-full !justify-start gap-1 rounded-none border-b border-[#2c2c30] bg-transparent p-0 sm:w-auto">
               <TabsTrigger value="horarios" className="min-h-[48px] flex-none rounded-none border-0 border-b-2 border-transparent px-5 font-board text-xl font-bold tracking-[0.08em] uppercase text-[#8f8b80] data-[state=active]:border-b-[#f2b705] data-[state=active]:bg-transparent data-[state=active]:text-[#f4f1e8] data-[state=active]:shadow-none">
                 Horarios
               </TabsTrigger>

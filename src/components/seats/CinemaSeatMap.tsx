@@ -1,6 +1,7 @@
 // src/components/seats/CinemaSeatMap.tsx
 import { useState } from 'react';
 import { Check, X as XIcon } from 'lucide-react';
+import * as AlertDialog from '@radix-ui/react-alert-dialog';
 import BoardTip from '../board/BoardTip';
 
 const X  = 'x';   // unavailable
@@ -53,7 +54,7 @@ const WheelchairSVG = () => (
 // Estados de silla: cada uno se distingue por forma/glifo además del color.
 const SEAT_BASE = 'flex h-8 w-8 flex-shrink-0 select-none items-center justify-center rounded-[2px] font-data text-[10px] font-bold leading-none';
 
-const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
+const Seat = ({ id, value, rowType, selected, occupied, onToggle, onRequestWheelchair }) => {
   if (value === null) return <div className="h-8 w-8 flex-shrink-0" />;
 
   const isBlocked   = value === X;
@@ -81,7 +82,8 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
 
   const handleClick = () => {
     if (unavailable) return;
-    if (isWC && !selected && !window.confirm('Este es un espacio para sillas de ruedas. Al aceptar, está confirmando que entiende esto.')) return;
+    // Elegir un espacio de silla de ruedas pide confirmación; quitarlo no.
+    if (isWC && !selected) { onRequestWheelchair(id); return; }
     onToggle(id);
   };
 
@@ -120,6 +122,7 @@ const Legend = () => (
 
 // ── Main component ─────────────────────────────────────────────────────────────
 const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) => {
+  const [pendingWC, setPendingWC] = useState<string | null>(null);
   const [zoom, setZoom] = useState(() => (typeof window !== 'undefined' && window.innerWidth >= 900 ? 0.85 : 1));
 
   const changeZoom = (delta) =>
@@ -137,6 +140,7 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
           selected={selectedSeats.has(id)}
           occupied={val !== X && val !== null && occupiedSeats.has(id)}
           onToggle={onToggle}
+          onRequestWheelchair={setPendingWC}
         />
       );
     });
@@ -183,6 +187,35 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
           </div>
         </div>
       </div>
+
+      <AlertDialog.Root open={pendingWC !== null} onOpenChange={(open) => { if (!open) setPendingWC(null); }}>
+        <AlertDialog.Portal>
+          <AlertDialog.Overlay className="fixed inset-0 z-[90] bg-[#0c0c0d]/85" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[91] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 border border-[#46464c] bg-[#151517] p-6 text-[#f4f1e8]">
+            <div className="flex items-center gap-3">
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#c3bfb2]"><WheelchairSVG /></span>
+              <AlertDialog.Title className="font-board text-3xl font-bold leading-none tracking-wide uppercase">
+                Espacio para silla de ruedas
+              </AlertDialog.Title>
+            </div>
+            <AlertDialog.Description className="mt-4 text-[17px] leading-relaxed text-[#c3bfb2]">
+              Este es un espacio para sillas de ruedas. Al aceptar, está confirmando que entiende esto.
+              {pendingWC && <span className="mt-2 block font-data text-sm text-[#8f8b80]">Espacio {pendingWC}</span>}
+            </AlertDialog.Description>
+            <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
+              <AlertDialog.Cancel className="h-12 rounded-[3px] border border-[#46464c] px-5 font-board text-lg font-bold tracking-[0.08em] uppercase text-[#c3bfb2] hover:border-[#f4f1e8] hover:text-[#f4f1e8]">
+                Cancelar
+              </AlertDialog.Cancel>
+              <AlertDialog.Action
+                onClick={() => { if (pendingWC) onToggle(pendingWC); setPendingWC(null); }}
+                className="min-h-12 rounded-[3px] bg-[#f2b705] px-5 py-2 font-board text-lg font-bold tracking-[0.08em] uppercase text-[#0c0c0d] hover:bg-[#d9a304]"
+              >
+                Entiendo, elegir
+              </AlertDialog.Action>
+            </div>
+          </AlertDialog.Content>
+        </AlertDialog.Portal>
+      </AlertDialog.Root>
     </div>
   );
 };
