@@ -62,12 +62,12 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle, onRequestWheel
   const unavailable = isBlocked || occupied;
 
   if (isBlocked) {
-    return <div className={`${SEAT_BASE} border border-dashed border-[#2c2c30]`} aria-hidden="true" />;
+    return <div className={`${SEAT_BASE} border border-dashed border-board-line`} aria-hidden="true" />;
   }
   if (occupied) {
     return (
       <BoardTip label={`${id} · Vendida`}>
-        <div className={`${SEAT_BASE} bg-[#3a1a15] text-[#f0644d]`} role="img" aria-label={`Silla ${id}, vendida`} tabIndex={0}>
+        <div className={`${SEAT_BASE} bg-board-sold text-board-alarmink`} role="img" aria-label={`Silla ${id}, vendida`} tabIndex={0}>
           <XIcon className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
         </div>
       </BoardTip>
@@ -75,10 +75,10 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle, onRequestWheel
   }
 
   let tone;
-  if (selected) tone = 'bg-[#f2b705] text-[#0c0c0d]';
-  else if (isWC) tone = 'border border-[#c3bfb2] text-[#f4f1e8] hover:bg-[#2c2c30]';
-  else if (rowType === 'preferencial') tone = 'bg-[#2c2c30] text-[#f4f1e8] shadow-[inset_0_2px_0_#f2b705] hover:bg-[#3a3a40]';
-  else tone = 'bg-[#2c2c30] text-[#f4f1e8] hover:bg-[#46464c]';
+  if (selected) tone = 'bg-board-amber text-board-onamber';
+  else if (isWC) tone = 'border border-board-ink2 text-board-ink hover:bg-board-line';
+  else if (rowType === 'preferencial') tone = 'bg-board-line text-board-ink shadow-[inset_0_2px_0_rgb(var(--b-amber))] hover:bg-board-line2';
+  else tone = 'bg-board-line text-board-ink hover:bg-board-line2';
 
   const handleClick = () => {
     if (unavailable) return;
@@ -111,12 +111,12 @@ const LegendItem = ({ swatch, label }) => (
 );
 
 const Legend = () => (
-  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-data text-xs text-[#c3bfb2]">
-    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-[#f2b705] text-[#0c0c0d]`}><Check className="h-3.5 w-3.5" strokeWidth={3} /></span>} label="Tuya" />
-    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-[#2c2c30]`} />} label="General" />
-    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-[#2c2c30] shadow-[inset_0_2px_0_#f2b705]`} />} label="Preferencial" />
-    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 border border-[#c3bfb2]`}><WheelchairSVG /></span>} label="Silla de ruedas" />
-    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-[#3a1a15] text-[#f0644d]`}><XIcon className="h-3.5 w-3.5" strokeWidth={3} /></span>} label="Vendida" />
+  <div className="flex flex-wrap items-center gap-x-5 gap-y-2 font-data text-xs text-board-ink2">
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-amber text-board-onamber`}><Check className="h-3.5 w-3.5" strokeWidth={3} /></span>} label="Tuya" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-line`} />} label="General" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-line shadow-[inset_0_2px_0_rgb(var(--b-amber))]`} />} label="Preferencial" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 border border-board-ink2`}><WheelchairSVG /></span>} label="Silla de ruedas" />
+    <LegendItem swatch={<span className={`${SEAT_BASE} !h-5 !w-5 bg-board-sold text-board-alarmink`}><XIcon className="h-3.5 w-3.5" strokeWidth={3} /></span>} label="Vendida" />
   </div>
 );
 
@@ -145,7 +145,7 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
       );
     });
 
-  const zoomBtn = 'flex h-11 w-11 items-center justify-center border border-[#46464c] bg-[#151517] font-data text-lg font-bold text-[#f4f1e8] hover:border-[#f2b705]';
+  const zoomBtn = 'flex h-11 w-11 items-center justify-center border border-board-line2 bg-board-panel font-data text-lg font-bold text-board-ink hover:border-board-amber';
 
   return (
     <div className="flex flex-col">
@@ -157,7 +157,7 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
         </div>
       </div>
 
-      <div className="relative overflow-hidden border border-[#2c2c30] bg-[#101011]">
+      <div className="relative overflow-hidden border border-board-line bg-board-map">
         <div className="flex overflow-auto">
           <div
             className="m-auto w-max p-4 pt-6"
@@ -165,14 +165,14 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
           >
             {/* Pantalla */}
             <div className="mb-8 flex flex-col items-center">
-              <div className="h-2 w-full bg-[#f2b705]" style={{ clipPath: 'polygon(2% 0, 98% 0, 100% 100%, 0 100%)' }} />
-              <span className="mt-2 font-data text-[11px] uppercase tracking-[0.3em] text-[#8f8b80]">Pantalla</span>
+              <div className="h-2 w-full bg-board-amber" style={{ clipPath: 'polygon(2% 0, 98% 0, 100% 100%, 0 100%)' }} />
+              <span className="mt-2 font-data text-[11px] uppercase tracking-[0.3em] text-board-mute">Pantalla</span>
             </div>
 
             <div className="flex flex-col gap-1">
               {LAYOUT.map(({ row, type, left, center, right }) => (
                 <div key={row} className="flex items-center gap-1">
-                  <span className="w-5 flex-shrink-0 text-right font-data text-[11px] font-bold text-[#8f8b80]">{row}</span>
+                  <span className="w-5 flex-shrink-0 text-right font-data text-[11px] font-bold text-board-mute">{row}</span>
                   <div className="flex gap-0.5" style={{ minWidth: left.length ? undefined : '60px' }}>
                     {left.length > 0 ? renderSection(left, row, type, 'L') : null}
                   </div>
@@ -180,7 +180,7 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
                   <div className="flex gap-0.5">{renderSection(center, row, type, 'C')}</div>
                   <div className="w-3 flex-shrink-0" />
                   <div className="flex gap-0.5">{renderSection(right, row, type, 'R')}</div>
-                  <span className="w-5 flex-shrink-0 font-data text-[11px] font-bold text-[#8f8b80]">{row}</span>
+                  <span className="w-5 flex-shrink-0 font-data text-[11px] font-bold text-board-mute">{row}</span>
                 </div>
               ))}
             </div>
@@ -190,25 +190,25 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
 
       <AlertDialog.Root open={pendingWC !== null} onOpenChange={(open) => { if (!open) setPendingWC(null); }}>
         <AlertDialog.Portal>
-          <AlertDialog.Overlay className="fixed inset-0 z-[90] bg-[#0c0c0d]/85" />
-          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[91] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 border border-[#46464c] bg-[#151517] p-6 text-[#f4f1e8]">
+          <AlertDialog.Overlay className="fixed inset-0 z-[90] bg-board-ground/85" />
+          <AlertDialog.Content className="fixed left-1/2 top-1/2 z-[91] w-[calc(100%-2rem)] max-w-md -translate-x-1/2 -translate-y-1/2 border border-board-line2 bg-board-panel p-6 text-board-ink">
             <div className="flex items-center gap-3">
-              <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-[#c3bfb2]"><WheelchairSVG /></span>
+              <span className="flex h-11 w-11 shrink-0 items-center justify-center border border-board-ink2"><WheelchairSVG /></span>
               <AlertDialog.Title className="font-board text-3xl font-bold leading-none tracking-wide uppercase">
                 Espacio para silla de ruedas
               </AlertDialog.Title>
             </div>
-            <AlertDialog.Description className="mt-4 text-[17px] leading-relaxed text-[#c3bfb2]">
+            <AlertDialog.Description className="mt-4 text-[17px] leading-relaxed text-board-ink2">
               Este es un espacio para sillas de ruedas. Al aceptar, está confirmando que entiende esto.
-              {pendingWC && <span className="mt-2 block font-data text-sm text-[#8f8b80]">Espacio {pendingWC}</span>}
+              {pendingWC && <span className="mt-2 block font-data text-sm text-board-mute">Espacio {pendingWC}</span>}
             </AlertDialog.Description>
             <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
-              <AlertDialog.Cancel className="h-12 rounded-[3px] border border-[#46464c] px-5 font-board text-lg font-bold tracking-[0.08em] uppercase text-[#c3bfb2] hover:border-[#f4f1e8] hover:text-[#f4f1e8]">
+              <AlertDialog.Cancel className="h-12 rounded-[3px] border border-board-line2 px-5 font-board text-lg font-bold tracking-[0.08em] uppercase text-board-ink2 hover:border-board-ink hover:text-board-ink">
                 Cancelar
               </AlertDialog.Cancel>
               <AlertDialog.Action
                 onClick={() => { if (pendingWC) onToggle(pendingWC); setPendingWC(null); }}
-                className="min-h-12 rounded-[3px] bg-[#f2b705] px-5 py-2 font-board text-lg font-bold tracking-[0.08em] uppercase text-[#0c0c0d] hover:bg-[#d9a304]"
+                className="min-h-12 rounded-[3px] bg-board-amber px-5 py-2 font-board text-lg font-bold tracking-[0.08em] uppercase text-board-onamber hover:bg-board-amberpress"
               >
                 Entiendo, elegir
               </AlertDialog.Action>

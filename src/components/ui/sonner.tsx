@@ -28,7 +28,7 @@ const Toaster = ({ ...props }: ToasterProps) => {
       toastOptions={{
         classNames: {
           toast:
-            "group toast !bg-[#151517] !text-[#f4f1e8] !border-[#46464c] !rounded-[3px]",
+            "group toast !bg-board-panel !text-board-ink !border-board-line2 !rounded-[3px]",
           title: "!text-white/90 !font-medium",
           description: "!text-white/55",
           success: "!border-l-4 !border-l-emerald-500/70",

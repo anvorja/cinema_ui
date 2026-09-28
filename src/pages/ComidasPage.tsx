@@ -93,15 +93,15 @@ const ComidasPage = () => {
 
       <section className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
         <h2 className="font-board text-4xl font-bold tracking-[0.06em] uppercase">Menú</h2>
-        <p className="mt-3 max-w-[65ch] text-[17px] leading-relaxed text-[#c3bfb2]">
-          Esta sección es informativa. <strong className="text-[#f2b705]">Agrega tu comida durante la compra de boletas.</strong>
+        <p className="mt-3 max-w-[65ch] text-[17px] leading-relaxed text-board-ink2">
+          Esta sección es informativa. <strong className="text-board-amberink">Agrega tu comida durante la compra de boletas.</strong>
         </p>
 
         <div className="mt-8">
           <FoodCategoryGrid categories={categories} />
         </div>
 
-        <ul className="mt-10 max-w-3xl space-y-1 font-data text-xs text-[#8f8b80]">
+        <ul className="mt-10 max-w-3xl space-y-1 font-data text-xs text-board-mute">
           <li>* Productos sujetos a disponibilidad del punto de venta.</li>
           <li>** Los precios de lista para algunos productos son diferentes en los multiplex Bío Cauca, Mercurio y Ventura Terreros.</li>
           <li>*** Imágenes de referencia.</li>

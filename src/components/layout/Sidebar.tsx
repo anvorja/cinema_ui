@@ -25,8 +25,8 @@ interface SidebarProps {
 }
 
 const baseNavItems: NavItem[] = [
-    { name: 'Películas', href: '/',        icon: Home,     color: 'text-[#f2b705]' },
-    { name: 'Comidas',   href: '/comidas', icon: Utensils, color: 'text-[#f2b705]' },
+    { name: 'Películas', href: '/',        icon: Home,     color: 'text-board-amberink' },
+    { name: 'Comidas',   href: '/comidas', icon: Utensils, color: 'text-board-amberink' },
 ];
 
 const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProps) => {
@@ -55,7 +55,7 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
     const navItems: NavItem[] = isAuthenticated
         ? [
             ...baseNavItems,
-            { name: 'Mi Perfil', icon: User, color: 'text-[#f2b705]', action: () => setShowUserProfile(true) },
+            { name: 'Mi Perfil', icon: User, color: 'text-board-amberink', action: () => setShowUserProfile(true) },
         ]
         : baseNavItems;
 
@@ -64,14 +64,14 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
             <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
                 <SheetContent
                     side="left"
-                    className="w-80 p-0 bg-[#0c0c0d] border-r border-[#2c2c30] text-[#f4f1e8] flex flex-col [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:opacity-100"
+                    className="w-80 p-0 bg-board-ground border-r border-board-line text-board-ink flex flex-col [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:hover:opacity-100"
                 >
                     {/* Accessible title (sr-only) */}
                     <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
 
                     {/* ── Logo header ── */}
-                    <div className="flex items-center gap-3 px-5 py-4 border-b border-[#2c2c30] shrink-0">
-                        <span className="font-board text-2xl font-bold tracking-[0.08em]">CINEMA<span className="text-[#f2b705]">PLUS</span></span>
+                    <div className="flex items-center gap-3 px-5 py-4 border-b border-board-line shrink-0">
+                        <span className="font-board text-2xl font-bold tracking-[0.08em]">CINEMA<span className="text-board-amberink">PLUS</span></span>
                     </div>
 
                     {/* ── Navigation ── */}
@@ -85,14 +85,14 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                                         'group flex items-center gap-3 w-full min-h-[48px] px-3 rounded-[3px] font-board text-xl font-semibold tracking-[0.06em] uppercase',
                                         'border',
                                         active
-                                            ? 'bg-[#1d1d20] border-[#f2b705] text-[#f4f1e8]'
-                                            : 'border-transparent text-[#c3bfb2] hover:text-[#f4f1e8] hover:bg-[#151517]',
+                                            ? 'bg-board-panel2 border-board-amber text-board-ink'
+                                            : 'border-transparent text-board-ink2 hover:text-board-ink hover:bg-board-panel',
                                     ].join(' ');
 
                                     return (
                                         <div key={item.name}>
                                             {isAuthenticated && idx === navItems.length - 1 && (
-                                                <Separator className="bg-[#2c2c30] my-3" />
+                                                <Separator className="bg-board-line my-3" />
                                             )}
                                             {item.action ? (
                                                 <button onClick={item.action} className={cls}>
@@ -103,7 +103,7 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                                                 <Link to={item.href!} onClick={onClose} className={cls}>
                                                     <Icon className={`w-4 h-4 shrink-0 transition-transform ${item.color}`} />
                                                     <span className="flex-1">{item.name}</span>
-                                                    {active && <span className="h-2 w-2 bg-[#f2b705]" aria-hidden="true" />}
+                                                    {active && <span className="h-2 w-2 bg-board-amber" aria-hidden="true" />}
                                                 </Link>
                                             )}
                                         </div>
@@ -113,14 +113,14 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
 
                             {/* ── Cinema+ promo card ── */}
                             <div>
-                                <Separator className="bg-[#2c2c30] mb-5" />
+                                <Separator className="bg-board-line mb-5" />
                                 <button
                                     className="group w-full text-left"
                                     onClick={() => { onClose(); navigate('/recharge'); }}
                                 >
-                                    <div className="flex items-center gap-3 px-3 min-h-[48px] rounded-[3px] border border-[#46464c] hover:border-[#f2b705]">
+                                    <div className="flex items-center gap-3 px-3 min-h-[48px] rounded-[3px] border border-board-line2 hover:border-board-amber">
                                         <CreditCard className="w-4 h-4 text-amber-400 transition-transform shrink-0" />
-                                        <span className="font-board text-lg font-semibold tracking-[0.06em] text-[#f4f1e8]">
+                                        <span className="font-board text-lg font-semibold tracking-[0.06em] text-board-ink">
                                             RECARGAR TARJETA CINEMA+
                                         </span>
                                     </div>
@@ -130,11 +130,11 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                     </ScrollArea>
 
                     {/* ── Footer: auth actions ── */}
-                    <div className="px-3 pb-5 pt-4 border-t border-[#2c2c30] shrink-0">
+                    <div className="px-3 pb-5 pt-4 border-t border-board-line shrink-0">
                         {isAuthenticated ? (
                             <button
                                 onClick={handleLogout}
-                                className="group w-full flex items-center justify-center gap-2.5 px-4 min-h-[48px] rounded-[3px] border border-[#46464c] hover:border-[#d9412b] text-[#c3bfb2] hover:text-[#f0644d]"
+                                className="group w-full flex items-center justify-center gap-2.5 px-4 min-h-[48px] rounded-[3px] border border-board-line2 hover:border-board-alarm text-board-ink2 hover:text-board-alarmink"
                             >
                                 <LogOut className="w-4 h-4 transition-transform" />
                                 <span className="font-medium text-sm">Cerrar sesión</span>
@@ -143,13 +143,13 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                             <div className="space-y-2">
                                 <button
                                     onClick={() => { onClose(); onLoginClick(); }}
-                                    className="w-full h-12 px-4 rounded-[3px] bg-[#f2b705] hover:bg-[#d9a304] text-[#0c0c0d] font-board text-lg font-bold tracking-[0.08em]"
+                                    className="w-full h-12 px-4 rounded-[3px] bg-board-amber hover:bg-board-amberpress text-board-onamber font-board text-lg font-bold tracking-[0.08em]"
                                 >
                                     INICIAR SESIÓN
                                 </button>
                                 <button
                                     onClick={() => { onClose(); onRegisterClick(); }}
-                                    className="w-full min-h-[44px] px-4 rounded-[3px] border border-[#46464c] hover:border-[#f4f1e8] text-[#c3bfb2] hover:text-[#f4f1e8] text-[15px]"
+                                    className="w-full min-h-[44px] px-4 rounded-[3px] border border-board-line2 hover:border-board-ink text-board-ink2 hover:text-board-ink text-[15px]"
                                 >
                                     ¿No tienes cuenta? Regístrate
                                 </button>

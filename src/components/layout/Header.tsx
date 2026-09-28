@@ -5,6 +5,7 @@ import { Link, useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { Menu, Search, X, User, CreditCard } from 'lucide-react';
 import BoardClock from '../board/BoardClock';
 import BoardTip from '../board/BoardTip';
+import BoardThemeToggle from '../board/BoardThemeToggle';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { MobileProfileMenu } from './MobileProfileMenu';
 import { Sidebar } from './Sidebar';
@@ -140,22 +141,22 @@ const Header = () => {
     return (
         <TooltipProvider delayDuration={300}>
             <>
-                <header className={`fixed top-0 left-0 right-0 z-50 border-b border-[#2c2c30] bg-[#0c0c0d] transition-transform duration-200 ${!isHeaderVisible ? '-translate-y-full' : 'translate-y-0'}`}>
+                <header className={`fixed top-0 left-0 right-0 z-50 border-b border-board-line bg-board-ground transition-transform duration-200 ${!isHeaderVisible ? '-translate-y-full' : 'translate-y-0'}`}>
                     <div className="mx-auto flex h-14 max-w-[1400px] items-center justify-between gap-3 px-3 sm:px-6">
 
                         {/* ── Izquierda: menú (móvil) + marca ── */}
                         <div className="flex items-center gap-2">
                             <button
                                 onClick={() => setIsSidebarOpen(true)}
-                                className="lg:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-[#c3bfb2] hover:bg-[#1d1d20] hover:text-[#f4f1e8]"
+                                className="lg:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-board-ink2 hover:bg-board-panel2 hover:text-board-ink"
                                 aria-label="Abrir menú"
                             >
                                 <Menu className="h-5 w-5" />
                             </button>
 
                             <Link to="/" className="flex items-baseline gap-2" aria-label="CinemaPlus, inicio">
-                                <span className="font-board text-[26px] font-bold leading-none tracking-[0.08em] text-[#f4f1e8]">
-                                    CINEMA<span className="text-[#f2b705]">PLUS</span>
+                                <span className="font-board text-[26px] font-bold leading-none tracking-[0.08em] text-board-ink">
+                                    CINEMA<span className="text-board-amberink">PLUS</span>
                                 </span>
                             </Link>
                         </div>
@@ -170,8 +171,8 @@ const Header = () => {
                                     className={({ isActive }) =>
                                         `flex items-center px-5 font-board text-[17px] font-semibold tracking-[0.08em] border-b-2 ${
                                             isActive
-                                                ? 'border-[#f2b705] text-[#f4f1e8]'
-                                                : 'border-transparent text-[#8f8b80] hover:text-[#f4f1e8]'
+                                                ? 'border-board-amber text-board-ink'
+                                                : 'border-transparent text-board-mute hover:text-board-ink'
                                         }`
                                     }
                                 >
@@ -183,10 +184,11 @@ const Header = () => {
                         {/* ── Derecha: hora, recarga, búsqueda, usuario ── */}
                         <div className="flex items-center gap-2 sm:gap-3">
                             <BoardClock className="hidden sm:block text-[15px]" />
+                            <BoardThemeToggle />
 
 <BoardTip label="Recargar tarjeta Cinema+" side="bottom"><Link
                                 to="/recharge"
-                                className="hidden lg:flex h-10 items-center gap-2 rounded-[3px] border border-[#46464c] px-3 font-board text-[15px] font-semibold tracking-[0.06em] text-[#f4f1e8] hover:border-[#f2b705] hover:text-[#f2b705]"
+                                className="hidden lg:flex h-10 items-center gap-2 rounded-[3px] border border-board-line2 px-3 font-board text-[15px] font-semibold tracking-[0.06em] text-board-ink hover:border-board-amber hover:text-board-amberink"
                                 aria-label="Recargar tarjeta Cinema+"
                             >
                                 <CreditCard className="h-4 w-4 shrink-0" />
@@ -204,15 +206,15 @@ const Header = () => {
                                     onFocus={() => setIsSearchFocused(true)}
                                     onBlur={() => setIsSearchFocused(false)}
                                     placeholder="Buscar película"
-                                    className={`h-10 w-40 xl:w-56 rounded-[3px] border bg-[#151517] pl-9 pr-8 text-[15px] text-[#f4f1e8] outline-none placeholder:text-[#8f8b80] ${isSearchFocused ? 'border-[#f2b705]' : 'border-[#2c2c30]'}`}
+                                    className={`h-10 w-40 xl:w-56 rounded-[3px] border bg-board-panel pl-9 pr-8 text-[15px] text-board-ink outline-none placeholder:text-board-mute ${isSearchFocused ? 'border-board-amber' : 'border-board-line'}`}
                                 />
-                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8f8b80]" />
+                                <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-board-mute" />
                                 {searchQuery && !isSearching && (
-                                    <button type="button" onClick={clearSearch} aria-label="Limpiar búsqueda" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-[#8f8b80] hover:text-[#f4f1e8]">
+                                    <button type="button" onClick={clearSearch} aria-label="Limpiar búsqueda" className="absolute right-2 top-1/2 -translate-y-1/2 p-1 text-board-mute hover:text-board-ink">
                                         <X className="h-3.5 w-3.5" />
                                     </button>
                                 )}
-                                {isSearching && <div className="absolute right-3 top-1/2 -translate-y-1/2"><span className="block h-3 w-2 bg-[#f2b705] motion-safe:animate-pulse" /></div>}
+                                {isSearching && <div className="absolute right-3 top-1/2 -translate-y-1/2"><span className="block h-3 w-2 bg-board-amber motion-safe:animate-pulse" /></div>}
                             </div>
 
                             {/* Usuario */}
@@ -223,7 +225,7 @@ const Header = () => {
                                     </span>
                                     <button
                                         onClick={() => setShowMobileProfileMenu(true)}
-                                        className="sm:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-[#c3bfb2] hover:bg-[#1d1d20] hover:text-[#f4f1e8]"
+                                        className="sm:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-board-ink2 hover:bg-board-panel2 hover:text-board-ink"
                                         aria-label="Mi perfil"
                                     >
                                         <User className="h-5 w-5" />
@@ -233,13 +235,13 @@ const Header = () => {
                                 <>
                                     <button
                                         onClick={handleLoginClick}
-                                        className="hidden sm:flex h-10 items-center rounded-[3px] border border-[#f2b705] px-4 font-board text-[15px] font-bold tracking-[0.08em] text-[#f2b705] hover:bg-[#f2b705] hover:text-[#0c0c0d]"
+                                        className="hidden sm:flex h-10 items-center rounded-[3px] border border-board-amber px-4 font-board text-[15px] font-bold tracking-[0.08em] text-board-amberink hover:bg-board-amber hover:text-board-onamber"
                                     >
                                         INGRESAR
                                     </button>
                                     <button
                                         onClick={handleLoginClick}
-                                        className="sm:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-[#c3bfb2] hover:bg-[#1d1d20] hover:text-[#f4f1e8]"
+                                        className="sm:hidden flex h-11 w-11 items-center justify-center rounded-[3px] text-board-ink2 hover:bg-board-panel2 hover:text-board-ink"
                                         aria-label="Iniciar sesión"
                                     >
                                         <User className="h-5 w-5" />
@@ -253,17 +255,17 @@ const Header = () => {
                 {/* Search results portal */}
                 {showSearchResults && createPortal(
                     <div
-                        className="board fixed w-80 search-results-portal"
+                        className="fixed w-80 search-results-portal"
                         style={{ top: '60px', right: '120px', zIndex: 99999 }}
                     >
-                        <div className="max-h-96 overflow-y-auto border border-[#46464c] bg-[#151517]">
+                        <div className="max-h-96 overflow-y-auto border border-board-line2 bg-board-panel">
                             {searchResults.length > 0 ? (
-                                <div className="divide-y divide-[#2c2c30]">
+                                <div className="divide-y divide-board-line">
                                     {searchResults.map((movie: any) => (
                                         <button
                                             key={movie.id}
                                             onClick={() => handleSearchResultClick(movie)}
-                                            className="flex w-full items-center gap-3 p-3 text-left hover:bg-[#1d1d20]"
+                                            className="flex w-full items-center gap-3 p-3 text-left hover:bg-board-panel2"
                                         >
                                             {movie.poster_url ? (
                                                 <img
@@ -272,12 +274,12 @@ const Header = () => {
                                                     className="h-16 w-11 shrink-0 object-cover"
                                                 />
                                             ) : (
-                                                <div className="flex h-16 w-11 shrink-0 items-center justify-center bg-[#1d1d20] font-data text-xs text-[#8f8b80]">—</div>
+                                                <div className="flex h-16 w-11 shrink-0 items-center justify-center bg-board-panel2 font-data text-xs text-board-mute">—</div>
                                             )}
                                             <div className="min-w-0 flex-1">
-                                                <h3 className="truncate font-board text-lg font-semibold leading-tight text-[#f4f1e8]">{movie.title}</h3>
-                                                <p className="mt-0.5 truncate text-sm text-[#8f8b80]">{movie.genre} · {movie.duration} min</p>
-                                                <p className="mt-0.5 font-data text-[11px] uppercase text-[#f2b705]">
+                                                <h3 className="truncate font-board text-lg font-semibold leading-tight text-board-ink">{movie.title}</h3>
+                                                <p className="mt-0.5 truncate text-sm text-board-mute">{movie.genre} · {movie.duration} min</p>
+                                                <p className="mt-0.5 font-data text-[11px] uppercase text-board-amberink">
                                                     {movie.status === 'current' ? 'En cartelera' : 'Próximamente'}
                                                 </p>
                                             </div>
@@ -285,13 +287,13 @@ const Header = () => {
                                     ))}
                                     <button
                                         onClick={handleViewAllResults}
-                                        className="w-full p-3 text-center font-board text-base font-semibold tracking-[0.06em] text-[#f2b705] hover:bg-[#1d1d20]"
+                                        className="w-full p-3 text-center font-board text-base font-semibold tracking-[0.06em] text-board-amberink hover:bg-board-panel2"
                                     >
                                         VER TODOS LOS RESULTADOS →
                                     </button>
                                 </div>
                             ) : (
-                                <div className="p-5 text-center text-[#8f8b80]">
+                                <div className="p-5 text-center text-board-mute">
                                     <Search className="mx-auto mb-2 h-6 w-6" />
                                     <p className="text-sm">Sin resultados para "{searchQuery}"</p>
                                 </div>

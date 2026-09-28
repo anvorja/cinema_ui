@@ -10,10 +10,10 @@ type GlassCardProps = React.ComponentPropsWithoutRef<'div'> & {
 };
 
 const variants = {
-  default: 'bg-[#151517] border-[#2c2c30]',
-  dark: 'bg-[#0c0c0d] border-[#2c2c30]',
-  primary: 'bg-[#1d1d20] border-[#f2b705]/40',
-  premium: 'bg-[#151517] border-[#2c2c30]',
+  default: 'bg-board-panel border-board-line',
+  dark: 'bg-board-ground border-board-line',
+  primary: 'bg-board-panel2 border-board-amber/40',
+  premium: 'bg-board-panel border-board-line',
 };
 
 const GlassCard = forwardRef<HTMLDivElement, GlassCardProps>(

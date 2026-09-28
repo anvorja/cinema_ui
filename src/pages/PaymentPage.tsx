@@ -128,32 +128,32 @@ const PaymentPage = () => {
         <button
           onClick={() => navigate(-1)}
           disabled={busy}
-          className="mb-4 flex min-h-[44px] items-center gap-2 text-[#c3bfb2] hover:text-[#f4f1e8] disabled:opacity-40"
+          className="mb-4 flex min-h-[44px] items-center gap-2 text-board-ink2 hover:text-board-ink disabled:opacity-40"
         >
           <ArrowLeftIcon className="h-5 w-5" />
           <span className="font-board text-lg font-bold tracking-[0.08em]">VOLVER</span>
         </button>
         <h1 className="font-board text-4xl font-bold tracking-[0.06em] uppercase">Pagar tu compra</h1>
-        <p className="mt-2 max-w-[65ch] text-[17px] text-[#c3bfb2]">
+        <p className="mt-2 max-w-[65ch] text-[17px] text-board-ink2">
           Pagas en Wompi, la pasarela de Bancolombia. Los datos de tu tarjeta nunca pasan por CinemaPlus.
         </p>
 
         <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
           <div className="space-y-5">
-            <section className="border border-[#2c2c30] bg-[#151517] p-5" aria-labelledby="wompi-title">
+            <section className="border border-board-line bg-board-panel p-5" aria-labelledby="wompi-title">
               <div className="mb-2 flex items-center gap-3">
-                <LockClosedIcon className="h-6 w-6 text-[#7bd88f]" />
+                <LockClosedIcon className="h-6 w-6 text-board-okink" />
                 <h2 id="wompi-title" className="font-board text-2xl font-bold tracking-wide uppercase">Pago seguro con Wompi</h2>
               </div>
-              <p className="text-[15px] leading-relaxed text-[#c3bfb2]">
-                Pulsa <strong className="text-[#f4f1e8]">Pagar con Wompi</strong> y allí eliges cómo pagar. Al terminar vuelves aquí y ves tus boletas con su código QR.
+              <p className="text-[15px] leading-relaxed text-board-ink2">
+                Pulsa <strong className="text-board-ink">Pagar con Wompi</strong> y allí eliges cómo pagar. Al terminar vuelves aquí y ves tus boletas con su código QR.
               </p>
-              <div className="mt-4 border-t border-[#2c2c30] pt-4">
-                <p id="wompi-methods" className="mb-2 font-data text-[11px] uppercase text-[#8f8b80]">Medios que acepta Wompi</p>
+              <div className="mt-4 border-t border-board-line pt-4">
+                <p id="wompi-methods" className="mb-2 font-data text-[11px] uppercase text-board-mute">Medios que acepta Wompi</p>
                 <ul aria-labelledby="wompi-methods" className="flex flex-wrap gap-x-5 gap-y-2">
                   {WOMPI_METHODS.map(({ icon: Icon, name }) => (
-                    <li key={name} className="flex select-none items-center gap-1.5 text-[15px] text-[#c3bfb2]">
-                      <Icon className="h-4 w-4 shrink-0 text-[#8f8b80]" aria-hidden="true" />
+                    <li key={name} className="flex select-none items-center gap-1.5 text-[15px] text-board-ink2">
+                      <Icon className="h-4 w-4 shrink-0 text-board-mute" aria-hidden="true" />
                       {name}
                     </li>
                   ))}
@@ -162,7 +162,7 @@ const PaymentPage = () => {
             </section>
 
             {busy && (
-              <section className="border border-[#f2b705]/50 bg-[#151517] p-5" aria-live="polite">
+              <section className="border border-board-amber/50 bg-board-panel p-5" aria-live="polite">
                 <ol className="space-y-3">
                   {STAGES.map(({ id, label }, index) => {
                     const current = STAGES.findIndex(s => s.id === stage);
@@ -171,25 +171,25 @@ const PaymentPage = () => {
                       <li key={id} className="flex items-center gap-3">
                         <span
                           className={`flex h-7 w-7 items-center justify-center rounded-[2px] font-data text-xs font-bold ${
-                            state === 'done' ? 'bg-[#7bd88f] text-[#0c0c0d]' : state === 'active' ? 'bg-[#f2b705] text-[#0c0c0d] motion-safe:animate-pulse' : 'border border-[#46464c] text-[#8f8b80]'
+                            state === 'done' ? 'bg-board-ok text-board-onamber' : state === 'active' ? 'bg-board-amber text-board-onamber motion-safe:animate-pulse' : 'border border-board-line2 text-board-mute'
                           }`}
                         >
                           {state === 'done' ? '✓' : index + 1}
                         </span>
-                        <span className={`font-board text-xl font-semibold tracking-wide uppercase ${state === 'todo' ? 'text-[#8f8b80]' : 'text-[#f4f1e8]'}`}>{label}</span>
+                        <span className={`font-board text-xl font-semibold tracking-wide uppercase ${state === 'todo' ? 'text-board-mute' : 'text-board-ink'}`}>{label}</span>
                       </li>
                     );
                   })}
                 </ol>
-                <p className="mt-4 font-data text-xs text-[#8f8b80]">No cierres esta ventana.</p>
+                <p className="mt-4 font-data text-xs text-board-mute">No cierres esta ventana.</p>
               </section>
             )}
 
-            <div className="flex items-start gap-3 border border-[#2c2c30] p-4">
-              <ShieldCheckIcon className="mt-0.5 h-6 w-6 shrink-0 text-[#7bd88f]" />
+            <div className="flex items-start gap-3 border border-board-line p-4">
+              <ShieldCheckIcon className="mt-0.5 h-6 w-6 shrink-0 text-board-okink" />
               <div>
                 <p className="font-medium">Tus sillas quedan apartadas mientras pagas</p>
-                <p className="mt-0.5 text-sm text-[#8f8b80]">Si no completas el pago a tiempo, se liberan y no se cobra nada.</p>
+                <p className="mt-0.5 text-sm text-board-mute">Si no completas el pago a tiempo, se liberan y no se cobra nada.</p>
               </div>
             </div>
           </div>
@@ -201,40 +201,40 @@ const PaymentPage = () => {
                 <img
                   src={optimizeCloudinaryUrl(movie.images?.poster || movie.poster_url, 150)}
                   alt=""
-                  className="h-24 w-16 border border-[#2c2c30] object-cover"
+                  className="h-24 w-16 border border-board-line object-cover"
                 />
                 <div className="min-w-0 flex-1">
                   <h3 className="font-board text-2xl font-bold leading-none tracking-wide uppercase">{movie.title}</h3>
-                  <div className="mt-2 space-y-0.5 font-data text-xs text-[#c3bfb2]">
+                  <div className="mt-2 space-y-0.5 font-data text-xs text-board-ink2">
                     <p>{theater.name}</p>
                     <p>{showtime.time} · {showtime.format}</p>
                     <p>{new Date(selectedDate).toLocaleDateString('es-CO')}</p>
-                    {selectedSeats?.length > 0 && <p className="text-[#f4f1e8]">Sillas {selectedSeats.join(', ')}</p>}
+                    {selectedSeats?.length > 0 && <p className="text-board-ink">Sillas {selectedSeats.join(', ')}</p>}
                   </div>
                 </div>
               </div>
 
-              <div className="mt-5 space-y-2 border-t border-dashed border-[#46464c] pt-4 font-data text-sm" aria-live="polite">
-                {quote.isPending && <p className="text-[#8f8b80]">Calculando el total…</p>}
+              <div className="mt-5 space-y-2 border-t border-dashed border-board-line2 pt-4 font-data text-sm" aria-live="polite">
+                {quote.isPending && <p className="text-board-mute">Calculando el total…</p>}
                 {quote.isError && (
-                  <p role="alert" className="text-[#f0644d]">No pudimos calcular el total. Vuelve atrás e intenta de nuevo.</p>
+                  <p role="alert" className="text-board-alarmink">No pudimos calcular el total. Vuelve atrás e intenta de nuevo.</p>
                 )}
                 {quote.data?.lines.map(line => (
                   <div key={`${line.kind}-${line.code}`} className="flex justify-between gap-3">
-                    <span className="text-[#c3bfb2]">{line.quantity} × {line.description}</span>
+                    <span className="text-board-ink2">{line.quantity} × {line.description}</span>
                     <span className="shrink-0">{formatPrice(line.line_total)}</span>
                   </div>
                 ))}
-                <div className="flex items-baseline justify-between border-t border-dashed border-[#46464c] pt-3">
+                <div className="flex items-baseline justify-between border-t border-dashed border-board-line2 pt-3">
                   <span className="text-base font-bold">Total</span>
-                  <span className="text-2xl font-bold text-[#f2b705]">{formatPrice(total)}</span>
+                  <span className="text-2xl font-bold text-board-amberink">{formatPrice(total)}</span>
                 </div>
               </div>
 
               {paymentError && (
-                <div role="alert" className="mt-4 border border-[#d9412b] bg-[#1d1210] p-3 text-sm">
-                  <p className="font-board text-lg font-bold tracking-wide uppercase text-[#f0644d]">No se pudo iniciar el pago</p>
-                  <p className="mt-1 text-[#c3bfb2]">{paymentError}</p>
+                <div role="alert" className="mt-4 border border-board-alarm bg-board-alarmbg p-3 text-sm">
+                  <p className="font-board text-lg font-bold tracking-wide uppercase text-board-alarmink">No se pudo iniciar el pago</p>
+                  <p className="mt-1 text-board-ink2">{paymentError}</p>
                 </div>
               )}
 
@@ -244,10 +244,10 @@ const PaymentPage = () => {
               </PremiumButton>
 
               {!isAuthenticated && (
-                <p className="mt-3 text-center font-data text-xs text-[#f2b705]">Inicia sesión primero para completar el pago</p>
+                <p className="mt-3 text-center font-data text-xs text-board-amberink">Inicia sesión primero para completar el pago</p>
               )}
 
-              <ul className="mt-4 space-y-1 text-xs text-[#8f8b80]">
+              <ul className="mt-4 space-y-1 text-xs text-board-mute">
                 <li>Al continuar aceptas nuestros términos y condiciones.</li>
                 <li>Válido solo para la función seleccionada.</li>
               </ul>

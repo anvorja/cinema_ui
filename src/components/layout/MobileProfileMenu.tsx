@@ -58,7 +58,7 @@ const MobileProfileMenu = ({ isOpen, onClose, user, onOpenProfile }: MobileProfi
         <Sheet open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
             <SheetContent
                 side="bottom"
-                className="p-0 bg-[#0c0c0d] border-t border-[#2c2c30] text-[#f4f1e8] rounded-t-[3px] max-h-[85vh] flex flex-col [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:top-3 [&>button]:right-4"
+                className="p-0 bg-board-ground border-t border-board-line text-board-ink rounded-t-[3px] max-h-[85vh] flex flex-col [&>button]:text-white/50 [&>button]:hover:text-white [&>button]:top-3 [&>button]:right-4"
             >
                 <SheetTitle className="sr-only">Menú de perfil</SheetTitle>
 
@@ -71,7 +71,7 @@ const MobileProfileMenu = ({ isOpen, onClose, user, onOpenProfile }: MobileProfi
                 <div className="flex items-center gap-3.5 px-5 py-4 border-b border-white/[0.08] shrink-0">
                     <Avatar className="h-12 w-12 ring-2 ring-white/15 shrink-0">
                         <AvatarImage src={user?.avatar} alt={user?.name} />
-                        <AvatarFallback className="bg-[#f2b705] text-[#0c0c0d] text-sm font-semibold">
+                        <AvatarFallback className="bg-board-amber text-board-onamber text-sm font-semibold">
                             {getUserInitials(user)}
                         </AvatarFallback>
                     </Avatar>

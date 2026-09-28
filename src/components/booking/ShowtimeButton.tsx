@@ -8,9 +8,9 @@ const formatLabel = (format) => {
 };
 
 const seatState = (n) =>
-  n === 0 ? { text: 'AGOTADO', cls: 'text-[#f0644d]' }
-  : n <= 15 ? { text: `${n} SILLAS`, cls: 'text-[#f2b705]' }
-  : { text: `${n} SILLAS`, cls: 'text-[#7bd88f]' };
+  n === 0 ? { text: 'AGOTADO', cls: 'text-board-alarmink' }
+  : n <= 15 ? { text: `${n} SILLAS`, cls: 'text-board-amberink' }
+  : { text: `${n} SILLAS`, cls: 'text-board-okink' };
 
 const ShowtimeButton = ({ showtime, onSelect, isSelected = false, disabled = false }) => {
   const sold = !showtime.available;
@@ -25,15 +25,15 @@ const ShowtimeButton = ({ showtime, onSelect, isSelected = false, disabled = fal
       aria-pressed={isSelected}
       aria-label={`${showtime.time}, ${formatLabel(showtime.format)}, sala ${showtime.hall_number ?? 1}, ${sold ? 'agotada' : `${showtime.availableSeats} sillas`}, ${formatPrice(showtime.price)}`}
       className={`grid min-h-[60px] w-full grid-cols-[76px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-0.5 px-3 py-2 text-left sm:grid-cols-[96px_110px_80px_130px_minmax(0,1fr)_auto] sm:gap-x-5 sm:px-4
-        ${sold ? 'cursor-not-allowed opacity-45' : isSelected ? 'bg-[#f2b705] text-[#0c0c0d]' : 'hover:bg-[#1d1d20]'}`}
+        ${sold ? 'cursor-not-allowed opacity-45' : isSelected ? 'bg-board-amber text-board-onamber' : 'hover:bg-board-panel2'}`}
     >
       <span className={`font-data text-[26px] font-bold leading-none sm:text-[30px] ${sold ? 'line-through' : ''}`}>
         {showtime.time}
       </span>
 
       <span className="min-w-0 sm:contents">
-        <span className={`block font-board text-lg font-bold tracking-wide sm:text-xl ${isSelected ? '' : 'text-[#f4f1e8]'}`}>{formatLabel(showtime.format)}</span>
-        <span className={`block font-data text-xs sm:text-sm ${isSelected ? '' : 'text-[#c3bfb2]'}`}>SALA {showtime.hall_number ?? 1}</span>
+        <span className={`block font-board text-lg font-bold tracking-wide sm:text-xl ${isSelected ? '' : 'text-board-ink'}`}>{formatLabel(showtime.format)}</span>
+        <span className={`block font-data text-xs sm:text-sm ${isSelected ? '' : 'text-board-ink2'}`}>SALA {showtime.hall_number ?? 1}</span>
       </span>
 
       <span className={`hidden font-data text-sm font-bold sm:block ${isSelected ? '' : seats.cls}`}>{seats.text}</span>

@@ -193,16 +193,16 @@ const PaymentSuccessPage = () => {
 
   return (
     <div>
-      <div className="border-b border-[#2c2c30] bg-[#0c0c0d]">
+      <div className="border-b border-board-line bg-board-ground">
         <div className="mx-auto flex max-w-6xl items-center gap-3 px-4 py-3 sm:px-6">
-          <CheckCircleIcon className="h-6 w-6 text-[#7bd88f]" aria-hidden="true" />
-          <p className="font-data text-sm font-bold text-[#7bd88f]">PAGO CONFIRMADO · {ticketInfo.date}</p>
+          <CheckCircleIcon className="h-6 w-6 text-board-okink" aria-hidden="true" />
+          <p className="font-data text-sm font-bold text-board-okink">PAGO CONFIRMADO · {ticketInfo.date}</p>
         </div>
       </div>
 
       <div className="mx-auto max-w-6xl px-4 py-8 sm:px-6">
         <h1 className="font-board text-4xl font-bold tracking-[0.06em] uppercase sm:text-5xl">Tu salida está lista</h1>
-        <p className="mt-2 max-w-[65ch] text-[17px] text-[#c3bfb2]">
+        <p className="mt-2 max-w-[65ch] text-[17px] text-board-ink2">
           Presenta el código QR en la entrada del cine. También te enviamos las boletas por correo.
         </p>
 
@@ -213,55 +213,55 @@ const PaymentSuccessPage = () => {
               <article key={code} className="b-stub grid sm:grid-cols-[minmax(0,1fr)_240px]" style={{ ['--stub-cut' as any]: '50%' }} aria-label={`Boleta ${idx + 1} de ${codes.length}`}>
                 <div className="min-w-0 p-5 sm:p-6">
                   <div className="flex gap-4">
-                    <img src={movie.posterImage} alt="" className="h-28 w-[76px] shrink-0 border border-[#2c2c30] object-cover" />
+                    <img src={movie.posterImage} alt="" className="h-28 w-[76px] shrink-0 border border-board-line object-cover" />
                     <div className="min-w-0">
                       <h2 className="font-board text-3xl font-bold leading-none tracking-wide uppercase">{movie.title}</h2>
-                      <p className="mt-1 font-data text-xs text-[#8f8b80]">{[showtime.format, movie.ageRating].filter(Boolean).join(' · ')}</p>
+                      <p className="mt-1 font-data text-xs text-board-mute">{[showtime.format, movie.ageRating].filter(Boolean).join(' · ')}</p>
                     </div>
                   </div>
 
-                  <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-dashed border-[#46464c] pt-4">
-                    <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Cine</dt><dd className="mt-1 font-data text-sm font-bold">{theater.name}</dd></div>
-                    <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Hora</dt><dd className="mt-1 font-data text-2xl font-bold leading-none text-[#f2b705]">{showtime.time}</dd></div>
-                    <div className="col-span-2"><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Fecha</dt><dd className="mt-1 font-data text-sm font-bold">{formatShowDate(selectedDate)}</dd></div>
-                    <div className="col-span-2"><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Sillas de la compra</dt><dd className="mt-1 font-data text-sm font-bold">{ticketInfo.seats}</dd></div>
+                  <dl className="mt-5 grid grid-cols-2 gap-x-5 gap-y-4 border-t border-dashed border-board-line2 pt-4">
+                    <div><dt className="font-data text-[10px] uppercase text-board-mute">Cine</dt><dd className="mt-1 font-data text-sm font-bold">{theater.name}</dd></div>
+                    <div><dt className="font-data text-[10px] uppercase text-board-mute">Hora</dt><dd className="mt-1 font-data text-2xl font-bold leading-none text-board-amberink">{showtime.time}</dd></div>
+                    <div className="col-span-2"><dt className="font-data text-[10px] uppercase text-board-mute">Fecha</dt><dd className="mt-1 font-data text-sm font-bold">{formatShowDate(selectedDate)}</dd></div>
+                    <div className="col-span-2"><dt className="font-data text-[10px] uppercase text-board-mute">Sillas de la compra</dt><dd className="mt-1 font-data text-sm font-bold">{ticketInfo.seats}</dd></div>
                   </dl>
                 </div>
 
-                <div className="flex flex-col items-center justify-center gap-3 border-t-2 border-dashed border-[#46464c] p-5 sm:border-l-2 sm:border-t-0">
+                <div className="flex flex-col items-center justify-center gap-3 border-t-2 border-dashed border-board-line2 p-5 sm:border-l-2 sm:border-t-0">
                   <div className="bg-[#f4f1e8] p-3" data-qr-print>
                     <QRCode value={code} size={176} bgColor="#f4f1e8" fgColor="#0c0c0d" />
                   </div>
-                  <p className="break-all text-center font-data text-[11px] text-[#8f8b80]">{code}</p>
+                  <p className="break-all text-center font-data text-[11px] text-board-mute">{code}</p>
                   {codes.length > 1 && <span className="b-tag">Boleta {idx + 1} de {codes.length}</span>}
                 </div>
               </article>
             ))}
 
             {/* Cobro */}
-            <section className="border border-[#2c2c30] bg-[#151517] p-5" aria-labelledby="cobro-titulo">
+            <section className="border border-board-line bg-board-panel p-5" aria-labelledby="cobro-titulo">
               <h2 id="cobro-titulo" className="mb-3 font-board text-2xl font-bold tracking-wide uppercase">Lo que pagaste</h2>
               {booking?.lines?.length > 0 && (
                 <ul className="mb-4 space-y-1 font-data text-sm">
                   {booking.lines.map(line => (
-                    <li key={`${line.kind}-${line.code}`} className="flex justify-between gap-3 text-[#c3bfb2]">
+                    <li key={`${line.kind}-${line.code}`} className="flex justify-between gap-3 text-board-ink2">
                       <span>{line.quantity} × {line.description}</span>
                       <span className="shrink-0">${line.line_total.toLocaleString('es-CO')}</span>
                     </li>
                   ))}
                 </ul>
               )}
-              <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-[#2c2c30] pt-3">
+              <div className="flex flex-wrap items-baseline justify-between gap-3 border-t border-board-line pt-3">
                 <div>
-                  <p className="font-data text-[11px] uppercase text-[#8f8b80]">Total pagado</p>
-                  <p className="font-data text-2xl font-bold text-[#f2b705]">${totalAmount.toLocaleString('es-CO')} COP</p>
+                  <p className="font-data text-[11px] uppercase text-board-mute">Total pagado</p>
+                  <p className="font-data text-2xl font-bold text-board-amberink">${totalAmount.toLocaleString('es-CO')} COP</p>
                 </div>
                 <div className="text-right">
-                  <p className="font-data text-[11px] uppercase text-[#8f8b80]">Referencia</p>
+                  <p className="font-data text-[11px] uppercase text-board-mute">Referencia</p>
                   <p className="font-data text-sm">{booking?.transactionId || transactionId}</p>
                 </div>
               </div>
-              {paymentMethod?.name && <p className="mt-3 font-data text-xs text-[#8f8b80]">Medio de pago: {paymentMethod.name}</p>}
+              {paymentMethod?.name && <p className="mt-3 font-data text-xs text-board-mute">Medio de pago: {paymentMethod.name}</p>}
             </section>
           </div>
 
@@ -285,18 +285,18 @@ const PaymentSuccessPage = () => {
               </PremiumButton>
             </div>
 
-            <section className="border border-[#2c2c30] p-5" aria-labelledby="indicaciones">
+            <section className="border border-board-line p-5" aria-labelledby="indicaciones">
               <h2 id="indicaciones" className="mb-3 font-board text-2xl font-bold tracking-wide uppercase">Antes de entrar</h2>
-              <ul className="space-y-3 text-[15px] text-[#c3bfb2]">
-                <li><strong className="block text-[#f4f1e8]">En la puerta</strong>Muestra el código QR de cada boleta desde tu celular.</li>
-                <li><strong className="block text-[#f4f1e8]">Llega con tiempo</strong>Te recomendamos llegar 30 minutos antes.</li>
-                <li><strong className="block text-[#f4f1e8]">Válida hasta</strong>{ticketInfo.validUntil}</li>
+              <ul className="space-y-3 text-[15px] text-board-ink2">
+                <li><strong className="block text-board-ink">En la puerta</strong>Muestra el código QR de cada boleta desde tu celular.</li>
+                <li><strong className="block text-board-ink">Llega con tiempo</strong>Te recomendamos llegar 30 minutos antes.</li>
+                <li><strong className="block text-board-ink">Válida hasta</strong>{ticketInfo.validUntil}</li>
               </ul>
             </section>
 
-            <section className="border border-[#2c2c30] p-5" aria-labelledby="ayuda">
+            <section className="border border-board-line p-5" aria-labelledby="ayuda">
               <h2 id="ayuda" className="mb-2 font-board text-2xl font-bold tracking-wide uppercase">¿Algún problema?</h2>
-              <p className="text-[15px] text-[#c3bfb2]">Escríbenos a <a className="text-[#f2b705] underline" href="mailto:supergerencia@cinemaplus.com">supergerencia@cinemaplus.com</a> o llama al <a className="text-[#f2b705] underline" href="tel:+576013070707">(601) 307-0707</a>.</p>
+              <p className="text-[15px] text-board-ink2">Escríbenos a <a className="text-board-amberink underline" href="mailto:supergerencia@cinemaplus.com">supergerencia@cinemaplus.com</a> o llama al <a className="text-board-amberink underline" href="tel:+576013070707">(601) 307-0707</a>.</p>
             </section>
           </aside>
         </div>

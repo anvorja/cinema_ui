@@ -13,8 +13,8 @@ import { purchaseService } from '../services/api';
 import useAuth from '../hooks/useAuth';
 
 const CARD_GRADIENTS = [
-  'bg-[#1d1d20] border border-[#46464c]',
-  'bg-[#1d1d20] border border-[#f2b705]/50',
+  'bg-board-panel2 border border-board-line2',
+  'bg-board-panel2 border border-board-amber/50',
   'from-slate-600 to-blue-700',
   'from-emerald-600 to-teal-700',
 ];
@@ -182,7 +182,7 @@ const CardsPage = () => {
                   // PSE
                   <div
                     key={idx}
-                    className="relative bg-[#1d1d20] border border-[#7bd88f]/50 rounded-[3px] p-5 overflow-hidden"
+                    className="relative bg-board-panel2 border border-board-ok/50 rounded-[3px] p-5 overflow-hidden"
                   >
                     <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
                     <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/5" />

@@ -22,13 +22,13 @@ const NextDeparture = ({ movieId, upcoming }: { movieId: number | string; upcomi
   ).filter((x: any) => x.available).sort((a: any, b: any) => String(a.time).localeCompare(String(b.time)));
   const next = all.find((x: any) => String(x.time) >= nowKey) || all[0];
   if (loading && !next) return <div className="h-[72px]" aria-hidden="true" />;
-  if (!next) return <p className="font-data text-sm text-[#8f8b80]">Hoy no hay funciones con sillas.</p>;
+  if (!next) return <p className="font-data text-sm text-board-mute">Hoy no hay funciones con sillas.</p>;
   return (
-    <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 border border-[#46464c] bg-[#151517] px-4 py-3" aria-live="polite">
-      <span className="font-data text-[11px] uppercase text-[#8f8b80]">Próxima función</span>
-      <span className="font-data text-4xl font-bold leading-none text-[#f2b705]">{next.time}</span>
+    <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 border border-board-line2 bg-board-panel px-4 py-3" aria-live="polite">
+      <span className="font-data text-[11px] uppercase text-board-mute">Próxima función</span>
+      <span className="font-data text-4xl font-bold leading-none text-board-amberink">{next.time}</span>
       <span className="font-data text-sm font-bold">{next.hall_number ? `SALA ${next.hall_number}` : ''}</span>
-      <span className="font-data text-sm text-[#c3bfb2]">{next.theaterName}</span>
+      <span className="font-data text-sm text-board-ink2">{next.theaterName}</span>
     </div>
   );
 };
@@ -55,7 +55,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 7000 }: { movi
   return (
     <section
       aria-label="Próximas salidas"
-      className="border-b border-[#2c2c30]"
+      className="border-b border-board-line"
       onMouseEnter={() => setHovering(true)}
       onMouseLeave={() => setHovering(false)}
       onFocus={() => setHovering(true)}
@@ -68,26 +68,26 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 7000 }: { movi
             <h1 className="m-0">
               <FlapText text={movie.title} size="clamp(2rem, 5vw, 4rem)" />
             </h1>
-            {movie.subtitle && <p className="mt-3 font-board text-xl tracking-wide text-[#c3bfb2] uppercase">{movie.subtitle}</p>}
+            {movie.subtitle && <p className="mt-3 font-board text-xl tracking-wide text-board-ink2 uppercase">{movie.subtitle}</p>}
 
-            <dl className="mt-6 grid max-w-xl grid-cols-2 gap-x-6 gap-y-3 border-t border-[#2c2c30] pt-4 font-data text-sm sm:grid-cols-4">
-              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Estado</dt><dd className="mt-1 font-bold text-[#f2b705]">{statusOf(movie)}</dd></div>
-              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Duración</dt><dd className="mt-1 font-bold">{movie.duration_formatted || '—'}</dd></div>
-              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Género</dt><dd className="mt-1 font-bold">{movie.genre || '—'}</dd></div>
-              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Desde</dt><dd className="mt-1 font-bold">{movie.price ? movie.price_formatted : '—'}</dd></div>
+            <dl className="mt-6 grid max-w-xl grid-cols-2 gap-x-6 gap-y-3 border-t border-board-line pt-4 font-data text-sm sm:grid-cols-4">
+              <div><dt className="text-[11px] uppercase text-board-mute">Estado</dt><dd className="mt-1 font-bold text-board-amberink">{statusOf(movie)}</dd></div>
+              <div><dt className="text-[11px] uppercase text-board-mute">Duración</dt><dd className="mt-1 font-bold">{movie.duration_formatted || '—'}</dd></div>
+              <div><dt className="text-[11px] uppercase text-board-mute">Género</dt><dd className="mt-1 font-bold">{movie.genre || '—'}</dd></div>
+              <div><dt className="text-[11px] uppercase text-board-mute">Desde</dt><dd className="mt-1 font-bold">{movie.price ? movie.price_formatted : '—'}</dd></div>
             </dl>
 
             <div className="mt-5"><NextDeparture movieId={movie.id} upcoming={movie.status === 'coming_soon' && !movie.is_presale} /></div>
 
             {movie.description && (
-              <p className="mt-5 hidden line-clamp-2 max-w-[62ch] sm:block text-[17px] leading-relaxed text-[#c3bfb2]">{movie.description}</p>
+              <p className="mt-5 hidden line-clamp-2 max-w-[62ch] sm:block text-[17px] leading-relaxed text-board-ink2">{movie.description}</p>
             )}
           </div>
 
           <div className="flex flex-wrap items-center gap-3">
             <Link
               to={`/movie/${movie.id}`}
-              className="inline-flex h-14 items-center rounded-[3px] bg-[#f2b705] px-8 font-board text-xl font-bold tracking-[0.08em] text-[#0c0c0d] hover:bg-[#d9a304] active:translate-y-px"
+              className="inline-flex h-14 items-center rounded-[3px] bg-board-amber px-8 font-board text-xl font-bold tracking-[0.08em] text-board-onamber hover:bg-board-amberpress active:translate-y-px"
             >
               {movie.is_presale ? 'COMPRAR EN PREVENTA' : 'VER HORARIOS Y COMPRAR'}
             </Link>
@@ -96,7 +96,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 7000 }: { movi
                 type="button"
                 onClick={() => setPlaying(p => !p)}
                 aria-label={playing ? 'Pausar rotación' : 'Reanudar rotación'}
-                className="flex h-14 w-14 items-center justify-center rounded-[3px] border border-[#46464c] text-[#c3bfb2] hover:border-[#f4f1e8] hover:text-[#f4f1e8]"
+                className="flex h-14 w-14 items-center justify-center rounded-[3px] border border-board-line2 text-board-ink2 hover:border-board-ink hover:text-board-ink"
               >
                 {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
               </button>
@@ -106,7 +106,7 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 7000 }: { movi
 
         {/* Póster + lista de salidas */}
         <div className="order-1 grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:order-2 lg:grid-cols-1 lg:gap-4">
-          <Link to={`/movie/${movie.id}`} className="block self-start border border-[#2c2c30] bg-[#151517] p-1.5" aria-label={`Ver ${movie.title}`}>
+          <Link to={`/movie/${movie.id}`} className="block self-start border border-board-line bg-board-panel p-1.5" aria-label={`Ver ${movie.title}`}>
             <img
               key={movie.id}
               src={optimizeCloudinaryUrl(movie.poster_url, 600)}
@@ -115,18 +115,18 @@ const MovieCarousel = ({ movies = [], autoPlay = true, interval = 7000 }: { movi
             />
           </Link>
 
-          <ol className="self-end border-t border-[#2c2c30]" aria-label="Otras salidas">
+          <ol className="self-end border-t border-board-line" aria-label="Otras salidas">
             {movies.map((m, i) => {
               const active = i === index;
               return (
-                <li key={m.id} className="border-b border-[#2c2c30]">
+                <li key={m.id} className="border-b border-board-line">
                   <button
                     type="button"
                     onClick={() => setIndex(i)}
                     aria-current={active ? 'true' : undefined}
-                    className={`flex min-h-[44px] w-full items-center gap-3 px-2 text-left ${active ? 'bg-[#1d1d20] text-[#f4f1e8]' : 'text-[#8f8b80] hover:text-[#f4f1e8]'}`}
+                    className={`flex min-h-[44px] w-full items-center gap-3 px-2 text-left ${active ? 'bg-board-panel2 text-board-ink' : 'text-board-mute hover:text-board-ink'}`}
                   >
-                    <span className={`font-data text-xs font-bold ${active ? 'text-[#f2b705]' : ''}`}>{pad(i + 1)}</span>
+                    <span className={`font-data text-xs font-bold ${active ? 'text-board-amberink' : ''}`}>{pad(i + 1)}</span>
                     <span className="truncate font-board text-lg font-semibold tracking-wide uppercase">{m.title}</span>
                   </button>
                 </li>

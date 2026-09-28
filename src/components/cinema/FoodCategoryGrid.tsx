@@ -10,12 +10,12 @@ const FoodCategoryGrid = ({ categories = [] }: { categories?: any[] }) => (
 );
 
 const FoodCategoryCard = ({ category }: { category: any }) => (
-  <article className="h-full border border-[#2c2c30] bg-[#151517]">
+  <article className="h-full border border-board-line bg-board-panel">
     <img src={category.image} alt="" loading="lazy" className="aspect-square w-full object-cover" />
-    <div className="border-t border-[#2c2c30] p-3 sm:p-4">
+    <div className="border-t border-board-line p-3 sm:p-4">
       <h3 className="font-board text-2xl font-bold leading-none tracking-wide uppercase">{category.name}</h3>
-      <p className="mt-1 text-sm text-[#8f8b80]">{category.description}</p>
-      {category.itemCount && <p className="mt-2 font-data text-xs font-bold text-[#f2b705]">{category.itemCount} productos</p>}
+      <p className="mt-1 text-sm text-board-mute">{category.description}</p>
+      {category.itemCount && <p className="mt-2 font-data text-xs font-bold text-board-amberink">{category.itemCount} productos</p>}
     </div>
   </article>
 );

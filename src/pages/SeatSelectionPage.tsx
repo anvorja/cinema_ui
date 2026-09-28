@@ -110,10 +110,10 @@ const SeatSelectionPage = () => {
     return (
       <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="text-center">
-          <p className="mb-4 text-[#c3bfb2]">No encontramos la información de tu reserva.</p>
+          <p className="mb-4 text-board-ink2">No encontramos la información de tu reserva.</p>
           <button
             onClick={() => navigate('/')}
-            className="h-12 rounded-[3px] bg-[#f2b705] px-6 font-board text-lg font-bold tracking-[0.08em] text-[#0c0c0d]"
+            className="h-12 rounded-[3px] bg-board-amber px-6 font-board text-lg font-bold tracking-[0.08em] text-board-onamber"
           >
             VOLVER A LA CARTELERA
           </button>
@@ -167,16 +167,16 @@ const SeatSelectionPage = () => {
       <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
         {/* Tiquete de la función */}
         <div className="b-stub mb-8 grid grid-cols-[72px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[88px_minmax(0,1fr)] sm:p-5">
-          {poster && <img src={poster} alt={`Póster de ${title}`} className="aspect-[2/3] w-full border border-[#2c2c30] object-cover" />}
+          {poster && <img src={poster} alt={`Póster de ${title}`} className="aspect-[2/3] w-full border border-board-line object-cover" />}
           <div className="min-w-0">
-            <h2 className="font-board text-3xl font-bold leading-none tracking-wide uppercase text-[#f4f1e8] sm:text-4xl">{title}</h2>
-            <p className="mt-1 font-data text-xs text-[#8f8b80]">{[format, ageRating].filter(Boolean).join(' · ')}</p>
+            <h2 className="font-board text-3xl font-bold leading-none tracking-wide uppercase text-board-ink sm:text-4xl">{title}</h2>
+            <p className="mt-1 font-data text-xs text-board-mute">{[format, ageRating].filter(Boolean).join(' · ')}</p>
 
-            <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-dashed border-[#46464c] pt-3 sm:grid-cols-4">
-              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Cine</dt><dd className="mt-1 font-data text-sm font-bold">{theaterName}</dd></div>
-              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Sala</dt><dd className="mt-1 font-data text-sm font-bold">{showtime?.hall_number || 1}</dd></div>
-              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Fecha</dt><dd className="mt-1 font-data text-sm font-bold">{dateLabel || 'Hoy'}</dd></div>
-              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Hora</dt><dd className="mt-1 font-data text-sm font-bold text-[#f2b705]">{time || '—'}</dd></div>
+            <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-dashed border-board-line2 pt-3 sm:grid-cols-4">
+              <div><dt className="font-data text-[10px] uppercase text-board-mute">Cine</dt><dd className="mt-1 font-data text-sm font-bold">{theaterName}</dd></div>
+              <div><dt className="font-data text-[10px] uppercase text-board-mute">Sala</dt><dd className="mt-1 font-data text-sm font-bold">{showtime?.hall_number || 1}</dd></div>
+              <div><dt className="font-data text-[10px] uppercase text-board-mute">Fecha</dt><dd className="mt-1 font-data text-sm font-bold">{dateLabel || 'Hoy'}</dd></div>
+              <div><dt className="font-data text-[10px] uppercase text-board-mute">Hora</dt><dd className="mt-1 font-data text-sm font-bold text-board-amberink">{time || '—'}</dd></div>
             </dl>
           </div>
         </div>
@@ -191,12 +191,12 @@ const SeatSelectionPage = () => {
       </div>
 
       {/* Tiquete en construcción */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#46464c] bg-[#0c0c0d]">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-board-line2 bg-board-ground">
         <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
           <button
             type="button"
             onClick={() => navigate(-1)}
-            className="flex h-14 w-12 shrink-0 items-center justify-center rounded-[3px] border border-[#46464c] text-[#c3bfb2] hover:border-[#f4f1e8] hover:text-[#f4f1e8] sm:w-auto sm:gap-2 sm:px-4"
+            className="flex h-14 w-12 shrink-0 items-center justify-center rounded-[3px] border border-board-line2 text-board-ink2 hover:border-board-ink hover:text-board-ink sm:w-auto sm:gap-2 sm:px-4"
             aria-label="Volver"
           >
             <ArrowLeftIcon className="h-5 w-5" />
@@ -206,13 +206,13 @@ const SeatSelectionPage = () => {
           <div className="min-w-0 flex-1" aria-live="polite">
             {selectedList.length > 0 ? (
               <>
-                <p className="truncate font-data text-sm font-bold text-[#f4f1e8]">{selectedList.join(' · ')}</p>
-                <p className="font-data text-xs text-[#8f8b80]">
+                <p className="truncate font-data text-sm font-bold text-board-ink">{selectedList.join(' · ')}</p>
+                <p className="font-data text-xs text-board-mute">
                   {selectedList.length} {selectedList.length === 1 ? 'silla' : 'sillas'}{ticketsTotal !== null ? ` · ${money(ticketsTotal)}` : ''}
                 </p>
               </>
             ) : (
-              <p className="font-data text-sm text-[#8f8b80]">Toca una silla libre para empezar</p>
+              <p className="font-data text-sm text-board-mute">Toca una silla libre para empezar</p>
             )}
           </div>
 
@@ -220,7 +220,7 @@ const SeatSelectionPage = () => {
             type="button"
             onClick={handleContinue}
             disabled={selectedSeats.size === 0 || !pricing}
-            className="flex h-14 shrink-0 items-center gap-2 rounded-[3px] bg-[#f2b705] px-5 font-board text-lg font-bold tracking-[0.08em] text-[#0c0c0d] hover:bg-[#d9a304] disabled:cursor-not-allowed disabled:opacity-40 sm:px-8"
+            className="flex h-14 shrink-0 items-center gap-2 rounded-[3px] bg-board-amber px-5 font-board text-lg font-bold tracking-[0.08em] text-board-onamber hover:bg-board-amberpress disabled:cursor-not-allowed disabled:opacity-40 sm:px-8"
           >
             CONTINUAR
           </button>

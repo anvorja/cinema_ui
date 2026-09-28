@@ -136,7 +136,7 @@ const PaymentResultPage = () => {
   );
 
   const reference = (payment: Payment) => (
-    <p className="mt-4 text-[#8f8b80] text-xs break-all">
+    <p className="mt-4 text-board-mute text-xs break-all">
       Referencia: <span className="font-mono">{payment.reference}</span>
     </p>
   );
@@ -144,9 +144,9 @@ const PaymentResultPage = () => {
   if (!transactionId) {
     return shell(
       <>
-        <ExclamationTriangleIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+        <ExclamationTriangleIcon className="w-16 h-16 text-board-amberink mx-auto mb-4" />
         <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">No hay pago para mostrar</h1>
-        <p className="text-[#c3bfb2] mb-6">Esta página se abre sola al volver de Wompi.</p>
+        <p className="text-board-ink2 mb-6">Esta página se abre sola al volver de Wompi.</p>
         <PremiumButton onClick={() => navigate('/')}>Ir a la cartelera</PremiumButton>
       </>
     );
@@ -157,9 +157,9 @@ const PaymentResultPage = () => {
       <>
         {shell(
           <>
-            <ClockIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+            <ClockIcon className="w-16 h-16 text-board-amberink mx-auto mb-4" />
             <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">Inicia sesión para ver tu pago</h1>
-            <p className="text-[#c3bfb2]">Usa la misma cuenta con la que pagaste.</p>
+            <p className="text-board-ink2">Usa la misma cuenta con la que pagaste.</p>
           </>
         )}
         <LoginModal isOpen onClose={() => navigate('/')} onSwitchToRegister={() => {}} />
@@ -176,38 +176,38 @@ const PaymentResultPage = () => {
           <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">
             {phase.kind === 'verifying' ? 'Confirmando tu pago con Wompi' : '¡Pago aprobado! Generando tus boletas'}
           </h1>
-          <p className="text-[#8f8b80] text-sm">No cierres esta ventana.</p>
+          <p className="text-board-mute text-sm">No cierres esta ventana.</p>
         </>
       );
     case 'pending':
       return shell(
         <>
-          <ClockIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+          <ClockIcon className="w-16 h-16 text-board-amberink mx-auto mb-4" />
           <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">Tu pago está en proceso</h1>
-          <p className="text-[#c3bfb2]">
+          <p className="text-board-ink2">
             Algunos medios (como PSE) tardan unos minutos. Te avisaremos por correo cuando se confirme; también puedes
             revisarlo en tu historial de pagos.
           </p>
           {reference(phase.payment)}
           <div className="mt-6 flex justify-center">
-            <Link to="/profile/payments" className="text-[#f2b705] hover:text-[#f4f1e8] underline">Ver mis pagos</Link>
+            <Link to="/profile/payments" className="text-board-amberink hover:text-board-ink underline">Ver mis pagos</Link>
           </div>
         </>
       );
     case 'recharged':
       return shell(
         <>
-          <CheckCircleIcon className="w-16 h-16 text-[#7bd88f] mx-auto mb-4" />
+          <CheckCircleIcon className="w-16 h-16 text-board-okink mx-auto mb-4" />
           <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">¡Recarga exitosa!</h1>
-          <p className="text-[#c3bfb2] mb-1">Tu tarjeta Cinema+ se recargó con</p>
-          <p className="text-3xl font-bold text-[#7bd88f] mb-2">{formatCOP(phase.payment.amount)}</p>
-          <p className="text-[#8f8b80] text-sm">
+          <p className="text-board-ink2 mb-1">Tu tarjeta Cinema+ se recargó con</p>
+          <p className="text-3xl font-bold text-board-okink mb-2">{formatCOP(phase.payment.amount)}</p>
+          <p className="text-board-mute text-sm">
             {paymentMethodLabel(phase.payment.payment_method_type, phase.payment.last_four)}
           </p>
           {reference(phase.payment)}
           <div className="mt-6 flex flex-col gap-3">
             <PremiumButton onClick={() => navigate('/')}>Ir a la cartelera</PremiumButton>
-            <Link to="/profile/payments" className="text-[#f2b705] hover:text-[#f4f1e8] underline text-sm">Ver mis pagos</Link>
+            <Link to="/profile/payments" className="text-board-amberink hover:text-board-ink underline text-sm">Ver mis pagos</Link>
           </div>
         </>
       );
@@ -216,11 +216,11 @@ const PaymentResultPage = () => {
       const retryTo = phase.payment.kind === 'recharge' ? '/recharge' : '/';
       return shell(
         <>
-          <XCircleIcon className="w-16 h-16 text-[#f0644d] mx-auto mb-4" />
+          <XCircleIcon className="w-16 h-16 text-board-alarmink mx-auto mb-4" />
           <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">{copy.title}</h1>
-          <p className="text-[#c3bfb2]">{copy.message}</p>
+          <p className="text-board-ink2">{copy.message}</p>
           {phase.payment.kind === 'tickets' && (
-            <p className="text-[#8f8b80] text-sm mt-2">Tus asientos se liberaron. Puedes elegirlos de nuevo.</p>
+            <p className="text-board-mute text-sm mt-2">Tus asientos se liberaron. Puedes elegirlos de nuevo.</p>
           )}
           {reference(phase.payment)}
           <div className="mt-6">
@@ -232,12 +232,12 @@ const PaymentResultPage = () => {
     case 'error':
       return shell(
         <>
-          <ExclamationTriangleIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+          <ExclamationTriangleIcon className="w-16 h-16 text-board-amberink mx-auto mb-4" />
           <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">Algo no salió como esperábamos</h1>
-          <p className="text-[#c3bfb2]">{phase.message}</p>
+          <p className="text-board-ink2">{phase.message}</p>
           <div className="mt-6 flex flex-col gap-3">
             <PremiumButton onClick={() => navigate('/profile/payments')}>Ver mis pagos</PremiumButton>
-            <Link to="/profile/purchases" className="text-[#f2b705] hover:text-[#f4f1e8] underline text-sm">Mis compras</Link>
+            <Link to="/profile/purchases" className="text-board-amberink hover:text-board-ink underline text-sm">Mis compras</Link>
           </div>
         </>
       );

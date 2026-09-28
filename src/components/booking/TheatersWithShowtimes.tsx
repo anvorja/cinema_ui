@@ -95,21 +95,21 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
           const panelId = `theater-${theater.id}`;
 
           return (
-            <div key={theater.id} className="border border-[#2c2c30] bg-[#151517]">
+            <div key={theater.id} className="border border-board-line bg-board-panel">
               <button
                 type="button"
                 aria-expanded={isExpanded}
                 aria-controls={panelId}
                 onClick={() => setExpandedTheater(isExpanded ? -1 : theater.id)}
-                className="flex min-h-[64px] w-full items-center justify-between gap-4 px-4 py-3 text-left hover:bg-[#1d1d20]"
+                className="flex min-h-[64px] w-full items-center justify-between gap-4 px-4 py-3 text-left hover:bg-board-panel2"
               >
                 <span className="min-w-0">
-                  <span className="block truncate font-board text-2xl font-bold tracking-wide uppercase text-[#f4f1e8]">
+                  <span className="block truncate font-board text-2xl font-bold tracking-wide uppercase text-board-ink">
                     {theater.name || theaterShowtimes?.theaterName || `Teatro ${theater.id}`}
                   </span>
-                  {theater.location && <span className="mt-0.5 block truncate text-sm text-[#8f8b80]">{theater.location}</span>}
+                  {theater.location && <span className="mt-0.5 block truncate text-sm text-board-mute">{theater.location}</span>}
                 </span>
-                <span className="flex shrink-0 items-center gap-3 font-data text-xs text-[#c3bfb2]">
+                <span className="flex shrink-0 items-center gap-3 font-data text-xs text-board-ink2">
                   {showtimesLoading ? (
                     <LoadingSpinner size="sm" />
                   ) : (
@@ -122,8 +122,8 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
               </button>
 
               {isExpanded && (
-                <div id={panelId} className="border-t border-[#46464c]">
-                  <div className="flex items-center justify-between px-4 py-2 font-data text-xs text-[#8f8b80]">
+                <div id={panelId} className="border-t border-board-line2">
+                  <div className="flex items-center justify-between px-4 py-2 font-data text-xs text-board-mute">
                     <span className="uppercase">
                       Hoy · {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
                     </span>
@@ -136,10 +136,10 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
                     </div>
                   ) : hasShowtimes ? (
                     <>
-                      <div className="hidden grid-cols-[96px_110px_80px_130px_minmax(0,1fr)_auto] gap-x-5 border-y border-[#2c2c30] px-4 py-1.5 font-data text-[11px] uppercase text-[#8f8b80] sm:grid" aria-hidden="true">
+                      <div className="hidden grid-cols-[96px_110px_80px_130px_minmax(0,1fr)_auto] gap-x-5 border-y border-board-line px-4 py-1.5 font-data text-[11px] uppercase text-board-mute sm:grid" aria-hidden="true">
                         <span>Hora</span><span>Formato</span><span>Sala</span><span>Sillas</span><span /><span className="text-right">Boleta</span>
                       </div>
-                      <ul className="max-h-[420px] divide-y divide-[#2c2c30] overflow-y-auto">
+                      <ul className="max-h-[420px] divide-y divide-board-line overflow-y-auto">
                         {theaterShowtimes.times.map((showtime) => (
                           <li key={showtime.id}>
                             <ShowtimeButton
@@ -153,8 +153,8 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
                     </>
                   ) : (
                     <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
-                      <TicketIcon className="h-8 w-8 text-[#8f8b80]" />
-                      <p className="font-board text-xl font-semibold tracking-wide uppercase text-[#c3bfb2]">Sin funciones hoy</p>
+                      <TicketIcon className="h-8 w-8 text-board-mute" />
+                      <p className="font-board text-xl font-semibold tracking-wide uppercase text-board-ink2">Sin funciones hoy</p>
                     </div>
                   )}
                 </div>
@@ -164,7 +164,7 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
         })}
       </div>
 
-      <p className="mt-6 max-w-5xl text-sm text-[#8f8b80]">
+      <p className="mt-6 max-w-5xl text-sm text-board-mute">
         Los horarios se actualizan en tiempo real. El precio puede variar según el formato (IMAX, 3D). Elige una función para escoger tus sillas.
       </p>
     </section>

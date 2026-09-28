@@ -70,7 +70,7 @@ const HomePage = () => {
       {homeData.featured.length > 0 ? (
         <MovieCarousel movies={homeData.featured} />
       ) : (
-        <div className="flex min-h-[40vh] items-center justify-center border-b border-[#2c2c30]">
+        <div className="flex min-h-[40vh] items-center justify-center border-b border-board-line">
           {homeData.loading ? (
             <LoadingSpinner size="large" text="Cargando la cartelera" />
           ) : (
@@ -86,7 +86,7 @@ const HomePage = () => {
       {/* Tablero */}
       <section className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 md:py-12" aria-label="Cartelera">
         <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
-          <div role="tablist" aria-label="Secciones de la cartelera" className="flex gap-1 border-b border-[#2c2c30] md:border-b-0">
+          <div role="tablist" aria-label="Secciones de la cartelera" className="flex gap-1 border-b border-board-line md:border-b-0">
             {TABS.map((tab) => {
               const active = activeTab === tab;
               return (
@@ -96,7 +96,7 @@ const HomePage = () => {
                   aria-selected={active}
                   onClick={() => { setActiveTab(tab); setSearchQuery(''); }}
                   className={`min-h-[48px] flex-1 whitespace-nowrap border-b-2 px-2 font-board text-lg sm:text-xl font-bold tracking-[0.08em] uppercase md:flex-none md:px-6 ${
-                    active ? 'border-[#f2b705] text-[#f4f1e8]' : 'border-transparent text-[#8f8b80] hover:text-[#f4f1e8]'
+                    active ? 'border-board-amber text-board-ink' : 'border-transparent text-board-mute hover:text-board-ink'
                   }`}
                 >
                   {tab === 'cartelera' ? 'En cartelera' : tabLabel(tab)}
@@ -114,7 +114,7 @@ const HomePage = () => {
                 aria-label={label}
                 onClick={() => chooseView(key)}
                 className={`flex h-12 w-12 items-center justify-center border first:rounded-l-[3px] last:rounded-r-[3px] ${
-                  view === key ? 'border-[#f2b705] bg-[#f2b705] text-[#0c0c0d]' : 'border-[#46464c] text-[#c3bfb2] hover:text-[#f4f1e8]'
+                  view === key ? 'border-board-amber bg-board-amber text-board-onamber' : 'border-board-line2 text-board-ink2 hover:text-board-ink'
                 }`}
               >
                 <Icon className="h-5 w-5" />
@@ -129,26 +129,26 @@ const HomePage = () => {
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Buscar película"
-              className="h-12 w-full rounded-[3px] border border-[#2c2c30] bg-[#151517] pl-10 pr-3 text-base text-[#f4f1e8] outline-none placeholder:text-[#8f8b80] focus:border-[#f2b705]"
+              className="h-12 w-full rounded-[3px] border border-board-line bg-board-panel pl-10 pr-3 text-base text-board-ink outline-none placeholder:text-board-mute focus:border-board-amber"
             />
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8f8b80]" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-board-mute" />
           </div>
           </div>
         </div>
 
         <div role="tabpanel">
-          <div className={`hidden grid-cols-[40px_64px_minmax(0,1fr)_auto_auto] gap-x-6 border-t border-[#46464c] px-4 py-2 font-data text-[11px] uppercase text-[#8f8b80] ${view === 'lista' ? 'sm:grid' : ''}`} aria-hidden="true">
+          <div className={`hidden grid-cols-[40px_64px_minmax(0,1fr)_auto_auto] gap-x-6 border-t border-board-line2 px-4 py-2 font-data text-[11px] uppercase text-board-mute ${view === 'lista' ? 'sm:grid' : ''}`} aria-hidden="true">
             <span>N.º</span><span /><span>Película</span><span className="w-[92px]">Estado</span><span className="w-28 text-right">Boleta</span>
           </div>
 
           {isTabLoading ? (
-            <div className="border-t border-[#46464c]" aria-busy="true">
+            <div className="border-t border-board-line2" aria-busy="true">
               {[...Array(6)].map((_, i) => (
-                <div key={i} className="flex items-center gap-4 border-b border-[#2c2c30] px-2 py-3 sm:px-4">
-                  <div className="h-[84px] w-14 bg-[#151517] motion-safe:animate-pulse sm:h-24 sm:w-16" />
+                <div key={i} className="flex items-center gap-4 border-b border-board-line px-2 py-3 sm:px-4">
+                  <div className="h-[84px] w-14 bg-board-panel motion-safe:animate-pulse sm:h-24 sm:w-16" />
                   <div className="flex-1 space-y-2">
-                    <div className="h-6 w-2/3 bg-[#151517] motion-safe:animate-pulse" />
-                    <div className="h-3 w-1/3 bg-[#151517] motion-safe:animate-pulse" />
+                    <div className="h-6 w-2/3 bg-board-panel motion-safe:animate-pulse" />
+                    <div className="h-3 w-1/3 bg-board-panel motion-safe:animate-pulse" />
                   </div>
                 </div>
               ))}
@@ -156,12 +156,12 @@ const HomePage = () => {
           ) : filteredMovies.length > 0 ? (
             <MovieGrid movies={filteredMovies} view={view} />
           ) : (
-            <div className="border-t border-[#46464c] py-14 text-center">
-              <p className="font-board text-2xl font-bold tracking-wide text-[#c3bfb2] uppercase">
+            <div className="border-t border-board-line2 py-14 text-center">
+              <p className="font-board text-2xl font-bold tracking-wide text-board-ink2 uppercase">
                 {searchQuery ? `Sin resultados para «${searchQuery}»` : 'Sin películas en esta sección'}
               </p>
               {searchQuery && (
-                <button onClick={() => setSearchQuery('')} className="mt-3 min-h-[44px] px-4 font-data text-sm text-[#f2b705] underline">
+                <button onClick={() => setSearchQuery('')} className="mt-3 min-h-[44px] px-4 font-data text-sm text-board-amberink underline">
                   Limpiar búsqueda
                 </button>
               )}

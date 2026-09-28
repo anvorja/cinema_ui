@@ -12,10 +12,10 @@ type PremiumButtonProps = React.ComponentPropsWithoutRef<'button'> & {
 
 // Acción principal = ámbar de aleta. Todo lo demás, filete y tinta.
 const variants = {
-  default: 'bg-[#f2b705] text-[#0c0c0d] hover:bg-[#d9a304] active:bg-[#c29403] border border-[#f2b705]',
-  premium: 'bg-[#f2b705] text-[#0c0c0d] hover:bg-[#d9a304] active:bg-[#c29403] border border-[#f2b705]',
-  secondary: 'bg-transparent text-[#f4f1e8] border border-[#46464c] hover:border-[#f4f1e8] hover:bg-[#1d1d20]',
-  ghost: 'bg-transparent text-[#c3bfb2] border border-transparent hover:text-[#f4f1e8] hover:bg-[#1d1d20]',
+  default: 'bg-board-amber text-board-onamber hover:bg-board-amberpress active:bg-board-amberpress border border-board-amber',
+  premium: 'bg-board-amber text-board-onamber hover:bg-board-amberpress active:bg-board-amberpress border border-board-amber',
+  secondary: 'bg-transparent text-board-ink border border-board-line2 hover:border-board-ink hover:bg-board-panel2',
+  ghost: 'bg-transparent text-board-ink2 border border-transparent hover:text-board-ink hover:bg-board-panel2',
 };
 
 const sizes = {

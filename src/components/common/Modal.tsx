@@ -47,7 +47,7 @@ const Modal = ({
               <Dialog.Panel
                 className={`
                   w-full ${sizeClasses[size]} transform overflow-hidden rounded-2xl 
-                  bg-[#151517] border border-[#46464c] p-6 text-left align-middle shadow-2xl 
+                  bg-board-panel border border-board-line2 p-6 text-left align-middle shadow-2xl 
                   border border-gray-200 dark:border-slate-700 transition-all duration-200
                 `}
               >
@@ -55,7 +55,7 @@ const Modal = ({
                 <div className="flex items-center justify-between mb-6">
                   <Dialog.Title
                     as="h3"
-                    className="text-xl font-bold leading-6 text-[#f4f1e8] transition-colors duration-200"
+                    className="text-xl font-bold leading-6 text-board-ink transition-colors duration-200"
                   >
                     {title}
                   </Dialog.Title>
@@ -72,7 +72,7 @@ const Modal = ({
                 </div>
 
                 {/* Contenido */}
-                <div className="text-[#c3bfb2] transition-colors duration-200">
+                <div className="text-board-ink2 transition-colors duration-200">
                   {children}
                 </div>
               </Dialog.Panel>
