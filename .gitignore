@@ -47,6 +47,8 @@ yarn-error.log*
 !ionic.config.json
 !tsconfig.json
 !tsconfig.node.json
+# Rulesets de GitHub (ver README, CI/CD)
+!.github/rulesets/*.json
 *.log
 *.txt
 *.mjs

@@ -21,11 +21,6 @@ import {
 const fmtCOP = (v: number) =>
   new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', maximumFractionDigits: 0 }).format(v);
 
-const fmtShort = (v: number) =>
-  v >= 1_000_000 ? `$${(v / 1_000_000).toFixed(1)}M`
-  : v >= 1_000   ? `$${(v / 1_000).toFixed(0)}K`
-  : `$${v}`;
-
 const fmtPeriodLabel = (iso: string, period: string) => {
   const d = new Date(iso);
   if (period === 'monthly') return d.toLocaleDateString('es-CO', { month: 'short', year: '2-digit' });
