@@ -1,6 +1,7 @@
 ---
-name: CinemaPlus (tablero del comprador)
-description: Tablero de salidas de terminal en hollín y ámbar, con el tiquete de abordaje como resumen de la compra.
+name: CinemaPlus - Tablero de Salidas
+system: tablero-v1
+description: Tablero de salidas de terminal en hollín y ámbar (oscuro por defecto, claro opcional), con el tiquete de abordaje como resumen de la compra. Un solo sistema para el comprador, el panel admin y el escáner.
 colors:
   ground: "#0c0c0d"
   panel: "#151517"
@@ -15,6 +16,18 @@ colors:
   alarm: "#d9412b"
   alarm-text: "#f0644d"
   ok: "#7bd88f"
+  light:
+    ground: "#f2f1ec"
+    panel: "#ffffff"
+    panel-raised: "#e9e7e0"
+    hairline: "#d6d3ca"
+    hairline-strong: "#8c8879"
+    ink: "#141416"
+    ink-soft: "#3d3c40"
+    ink-mute: "#66645c"
+    amber-text: "#8a6400"
+    alarm-text: "#b3321d"
+    ok-text: "#1d7a38"
 typography:
   board:
     fontFamily: "Barlow Condensed, Arial Narrow, sans-serif"
@@ -94,9 +107,42 @@ components:
     textColor: "{colors.ground}"
 ---
 
-# Design System: CinemaPlus (tablero del comprador)
+# Design System: CinemaPlus - Tablero de Salidas (`tablero-v1`)
 
-Alcance: solo el flujo del comprador, es decir todo lo que vive bajo la clase `board` en `<body>` (`/`, `/movie/:id`, `/booking/*`, `/payment*`, `/pago/resultado`, `/comidas`, `/profile*`, `/recharge*`). El panel `/admin` conserva los tokens legados shadcn/Inter del mismo `src/index.css` y queda fuera de este sistema. Fuente de verdad: el bloque "TABLERO DE SALIDAS" al final de `src/index.css` y `src/components/board/*`.
+**Código del sistema: `tablero-v1`.** Es el identificador común de todo lo que comparte este estilo. Se usa en los nombres de rama (`feature/rediseno-tablero-*`), en la etiqueta git `diseno-tablero-v1` de ambos repositorios y en este archivo. Si un módulo cambia tokens o componentes de forma que ya no coincida con el resto, el código sube a `tablero-v2` en todos.
+
+## Alcance
+
+| Módulo | Repositorio | Rama | Qué cubre |
+|---|---|---|---|
+| Comprador | `cinema_ui` | `feature/rediseno-tablero-comprador` | `/`, `/movie/:id`, `/booking/*`, `/payment*`, `/pago/resultado`, `/comidas`, `/profile*`, `/recharge*` |
+| Administración | `cinema_ui` | `feature/rediseno-tablero-comprador` | `/admin/*` (mismo repositorio, mismo sistema, más densidad) |
+| Escáner de entrada | `cinema-scanner-ui` | `feature/rediseno-tablero-escaner` | login y validación de boletas del staff |
+
+Fuente de verdad en `cinema_ui`: el bloque "TABLERO DE SALIDAS" de `src/index.css`, `tailwind.config.js` (colores `board-*`) y `src/components/board/*`. `cinema-scanner-ui` replica los mismos tokens (`src/index.css`, `tailwind.config.js`) y `FlapText`; cualquier cambio de tokens se hace en ambos. El mundo se activa con la clase `board` en `<body>` (comprador y admin); el escáner aplica los tokens de forma global.
+
+## Temas
+
+Oscuro es el tema por defecto y el de referencia; el claro es opcional y lo elige cada persona con el botón sol/luna (cabecera del comprador, sidebar del admin, cabecera del escáner). La preferencia se guarda en `localStorage` con la clave `cinema-board-theme` y se activa con la clase `board-light` en `<body>`. Si la app y el escáner se sirven bajo el mismo origen, comparten la preferencia.
+
+Los colores viven como canales RGB (`--b-ground: 12 12 13`) y se consumen con Tailwind como `bg-board-panel`, `text-board-ink`, `border-board-line`, etc., que admiten opacidad (`bg-board-amber/10`).
+
+| Token | Oscuro | Claro | Uso |
+|---|---|---|---|
+| `ground` | #0c0c0d | #f2f1ec | fondo de página |
+| `panel` / `panel2` | #151517 / #1d1d20 | #ffffff / #e9e7e0 | superficies, hover |
+| `line` / `line2` | #2c2c30 / #46464c | #d6d3ca / #8c8879 | filetes, bordes de control |
+| `ink` / `ink2` / `mute` | #f4f1e8 / #c3bfb2 / #8f8b80 | #141416 / #3d3c40 / #66645c | texto |
+| `amber` | #f2b705 | #f2b705 | relleno de acción (igual en ambos) |
+| `amberink` | #f2b705 | #8a6400 | texto y trazos ámbar |
+| `onamber` | #0c0c0d | #0c0c0d | texto sobre relleno ámbar u ok (siempre oscuro) |
+| `alarm` / `alarmink` | #d9412b / #f0644d | #d9412b / #b3321d | relleno / texto de error |
+| `ok` / `okink` | #7bd88f / #7bd88f | #7bd88f / #1d7a38 | relleno / texto de éxito |
+| `sold`, `alarmbg`, `okbg`, `map` | tonos oscuros | tonos claros | fondos de estado y del mapa de sillas |
+
+### Named Rules
+**The Dual-Ink Rule.** El ámbar tiene dos tintas: `amber` para rellenos (idéntico en ambos temas, con texto `onamber`) y `amberink` para texto y trazos (más oscuro en claro para cumplir contraste). Nunca uses `amber` como color de texto.
+**The Fixed-Dark Scope Rule.** Lo que se apoya sobre una imagen (póster, cartel, capa de tarjeta) debe leerse igual en ambos temas: envuélvelo en `.b-dark`, que fija los tokens oscuros. Las aletas del título (`FlapText`) son piezas físicas y siguen oscuras en los dos temas. El QR va siempre sobre fondo hueso claro con trazo oscuro.
 
 ## Overview
 
@@ -208,6 +254,18 @@ Póster 72 a 88px a la izquierda; a la derecha título en condensada y una lista
 ### Signature: Mapa de sillas
 Sillas cuadradas de tono #2c2c30 (general), con marca ámbar interior superior para preferencial, ámbar sólido con check para la tuya y #3a1a15 con X en #f0644d para vendida. Leyenda visible; controles de zoom de 44px.
 
+### Signature: Diálogos y tooltips
+Los diálogos (`AlertDialog`) son un panel plano con filete fuerte, título en condensada, foco inicial en Cancelar y Escape que cancela; el `window.confirm` nativo no se usa. Los tooltips (`BoardTip`) son un panel #0c0c0d con filete fuerte, flecha del mismo tono y texto B612 700 de 12px; reemplazan al `title` nativo.
+
+### Admin
+Misma piel con más densidad: cabecera de 56px con el nombre de la sección en condensada, sidebar con `CINEMAPLUS` y navegación en condensada mayúsculas (indicador cuadrado ámbar a la derecha en la sección activa), tarjetas de cifras con el número en B612, tablas con filete y encabezados de columna en B612 de 11px, gráfica de ingresos con trazo ámbar sobre relleno ámbar al 12% (sin degradado). Los botones sólidos de acción (ámbar, ok, alarma) toman siempre la voz de tablero.
+
+### Escáner
+Pensado para staff de pie, con prisa y luz variable: objetivos de 48 a 56px, un solo botón primario ámbar por pantalla y el veredicto como panel de color con ícono, título en condensada de 48px y datos clave (película, función, sala, asiento, código) en B612 de 20px. Cada veredicto lleva color **y** texto **y** ícono: Boleta válida (verde), Ya utilizada (ámbar), No encontrada / Error (alarma), Sin permiso (neutro). Contadores ✓ / ✗ de la sesión en el encabezado.
+
+### Pie de página
+Marca CINEMAPLUS, descripción, cuatro botones de red social de 44px (Facebook, Instagram, YouTube, TikTok; hasta tener las URL oficiales apuntan a la página principal) y columnas de enlaces con objetivos de 36px o más.
+
 ## Do's and Don'ts
 
 ### Do:
@@ -216,12 +274,13 @@ Sillas cuadradas de tono #2c2c30 (general), con marca ámbar interior superior p
 - **Do** dar a cada estado de silla y función un símbolo o texto además del color (tachado en agotado, X en vendida).
 - **Do** mantener superficies planas: relleno opaco y filete de 1px, radio 2 a 4px.
 - **Do** respetar `prefers-reduced-motion` en cualquier animación nueva y limitar las transiciones a 140ms con `cubic-bezier(0.22, 1, 0.36, 1)`.
-- **Do** usar el color ámbar con texto hollín, nunca texto blanco sobre ámbar.
+- **Do** usar el color ámbar con texto hollín (`onamber`), nunca texto blanco sobre ámbar.
 
 ### Don't:
 - **Don't** volver al vidrio azul-púrpura: nada de `backdrop-blur`, degradados morados ni resplandores.
 - **Don't** armar la cartelera como cuadrícula de pósters oscura con acento rojo; el rojo es solo estado.
 - **Don't** usar la condensada en mayúsculas para cifras ni B612 para títulos de película.
-- **Don't** aplicar estos tokens al panel `/admin`; conserva el sistema legado y no debe heredar `board`.
+- **Don't** escribir colores como hex fijo en componentes: usa los tokens `board-*` para que el tema claro y el módulo hermano no se rompan.
+- **Don't** crear un módulo nuevo con otros tokens: toma `tablero-v1` (o súbelo a `tablero-v2` en todos los repositorios a la vez).
 - **Don't** inventar pósters ni datos comerciales; los pósters vienen del backend.
 - **Don't** depender solo del color para distinguir disponible, agotado y seleccionado.
