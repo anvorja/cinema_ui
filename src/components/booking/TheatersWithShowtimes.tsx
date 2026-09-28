@@ -55,12 +55,6 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
     });
   };
 
-  const handleTheaterClick = (theater) => {
-    const isExpanded = expandedTheater === theater.id;
-    setExpandedTheater(isExpanded ? null : theater.id);
-    if (!isExpanded) setSelectedTheater(theater);
-  };
-
   const handleShowtimeSelect = (theater, showtime) => {
     setSelectedShowtime(showtime);
     setSelectedTheater(theater);
