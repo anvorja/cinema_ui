@@ -101,8 +101,8 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
   };
 
   return (
-    <div className="bg-gray-800 p-6 rounded-lg">
-      <h2 className="text-xl font-bold text-white mb-6">
+    <div className="bg-board-panel2 p-6 rounded-lg">
+      <h2 className="text-xl font-bold text-board-ink mb-6">
         {movie ? 'Editar Película' : 'Nueva Película'}
       </h2>
 
@@ -110,7 +110,7 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
         {/* Información básica */}
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-board-ink2 mb-2">
               Título *
             </label>
             <input
@@ -118,16 +118,16 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
               name="title"
               value={formData.title}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-board-panel2 border border-board-line2 rounded-md text-board-ink focus:outline-none focus:ring-2 focus:ring-board-amber"
               placeholder="Ingresa el título de la película"
             />
             {errors.title && (
-              <p className="text-red-400 text-sm mt-1">{errors.title}</p>
+              <p className="text-board-alarmink text-sm mt-1">{errors.title}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-board-ink2 mb-2">
               Género *
             </label>
             <input
@@ -135,17 +135,17 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
               name="genre"
               value={formData.genre}
               onChange={handleInputChange}
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-board-panel2 border border-board-line2 rounded-md text-board-ink focus:outline-none focus:ring-2 focus:ring-board-amber"
               placeholder="Ej: Acción, Drama, Comedia"
             />
             {errors.genre && (
-              <p className="text-red-400 text-sm mt-1">{errors.genre}</p>
+              <p className="text-board-alarmink text-sm mt-1">{errors.genre}</p>
             )}
           </div>
         </div>
 
         <div>
-          <label className="block text-sm font-medium text-gray-300 mb-2">
+          <label className="block text-sm font-medium text-board-ink2 mb-2">
             Descripción *
           </label>
           <textarea
@@ -153,17 +153,17 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
             value={formData.description}
             onChange={handleInputChange}
             rows={4}
-            className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+            className="w-full px-3 py-2 bg-board-panel2 border border-board-line2 rounded-md text-board-ink focus:outline-none focus:ring-2 focus:ring-board-amber"
             placeholder="Describe la película..."
           />
           {errors.description && (
-            <p className="text-red-400 text-sm mt-1">{errors.description}</p>
+            <p className="text-board-alarmink text-sm mt-1">{errors.description}</p>
           )}
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-board-ink2 mb-2">
               Duración (min) *
             </label>
             <input
@@ -172,15 +172,15 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
               value={formData.duration}
               onChange={handleInputChange}
               min="1"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-board-panel2 border border-board-line2 rounded-md text-board-ink focus:outline-none focus:ring-2 focus:ring-board-amber"
             />
             {errors.duration && (
-              <p className="text-red-400 text-sm mt-1">{errors.duration}</p>
+              <p className="text-board-alarmink text-sm mt-1">{errors.duration}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-board-ink2 mb-2">
               Calificación *
             </label>
             <input
@@ -191,15 +191,15 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
               min="0"
               max="10"
               step="0.1"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-board-panel2 border border-board-line2 rounded-md text-board-ink focus:outline-none focus:ring-2 focus:ring-board-amber"
             />
             {errors.rating && (
-              <p className="text-red-400 text-sm mt-1">{errors.rating}</p>
+              <p className="text-board-alarmink text-sm mt-1">{errors.rating}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-board-ink2 mb-2">
               Precio *
             </label>
             <input
@@ -209,15 +209,15 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
               onChange={handleInputChange}
               min="0"
               step="0.01"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-board-panel2 border border-board-line2 rounded-md text-board-ink focus:outline-none focus:ring-2 focus:ring-board-amber"
             />
             {errors.price && (
-              <p className="text-red-400 text-sm mt-1">{errors.price}</p>
+              <p className="text-board-alarmink text-sm mt-1">{errors.price}</p>
             )}
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-board-ink2 mb-2">
               Capacidad máxima *
             </label>
             <input
@@ -226,10 +226,10 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
               value={formData.max_capacity}
               onChange={handleInputChange}
               min="1"
-              className="w-full px-3 py-2 bg-gray-700 border border-gray-600 rounded-md text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
+              className="w-full px-3 py-2 bg-board-panel2 border border-board-line2 rounded-md text-board-ink focus:outline-none focus:ring-2 focus:ring-board-amber"
             />
             {errors.max_capacity && (
-              <p className="text-red-400 text-sm mt-1">{errors.max_capacity}</p>
+              <p className="text-board-alarmink text-sm mt-1">{errors.max_capacity}</p>
             )}
           </div>
         </div>
@@ -240,26 +240,26 @@ const MovieForm = ({ movie = null, onSubmit, onCancel }) => {
           currentImages={formData.images}
         />
         {errors.images && (
-          <p className="text-red-400 text-sm">{errors.images}</p>
+          <p className="text-board-alarmink text-sm">{errors.images}</p>
         )}
 
         {/* Botones */}
-        <div className="flex justify-end space-x-3 pt-6 border-t border-gray-700">
+        <div className="flex justify-end space-x-3 pt-6 border-t border-board-line2">
           <button
             type="button"
             onClick={onCancel}
-            className="px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+            className="px-4 py-2 bg-board-panel2 text-board-ink rounded-md hover:bg-board-panel2 transition-colors"
           >
             Cancelar
           </button>
           <button
             type="submit"
             disabled={loading}
-            className="px-6 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+            className="px-6 py-2 bg-board-amber text-board-onamber rounded-md hover:bg-board-amberpress transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
           >
             {loading ? (
               <>
-                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" fill="none" viewBox="0 0 24 24">
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-board-ink" fill="none" viewBox="0 0 24 24">
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>

@@ -76,15 +76,15 @@ const ImageUpload = ({
 
   return (
     <div className={`mb-4 ${className}`}>
-      <label className="block text-sm font-medium text-gray-300 mb-2">
+      <label className="block text-sm font-medium text-board-ink2 mb-2">
         Imagen de la película
       </label>
 
       <div
         className={`relative border-2 border-dashed rounded-lg p-6 transition-all duration-200 ${
           dragActive 
-            ? 'border-blue-400 bg-blue-900/20' 
-            : 'border-gray-600 hover:border-gray-500'
+            ? 'border-board-amber bg-board-amber/20' 
+            : 'border-board-line2 hover:border-board-line2'
         } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
         onDragEnter={handleDrag}
         onDragLeave={handleDrag}
@@ -110,7 +110,7 @@ const ImageUpload = ({
               {!uploading && (
                 <button
                   onClick={removeImage}
-                  className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors"
+                  className="absolute -top-2 -right-2 bg-board-alarm text-board-ink rounded-full p-1 hover:bg-board-alarm transition-colors"
                   title="Eliminar imagen"
                 >
                   <X className="h-4 w-4" />
@@ -121,7 +121,7 @@ const ImageUpload = ({
             {!uploading && (
               <button
                 onClick={onButtonClick}
-                className="text-blue-400 hover:text-blue-300 flex items-center justify-center mx-auto transition-colors"
+                className="text-board-amberink hover:text-board-amberink flex items-center justify-center mx-auto transition-colors"
               >
                 <Edit2 className="h-4 w-4 mr-2" />
                 Cambiar imagen
@@ -130,39 +130,39 @@ const ImageUpload = ({
           </div>
         ) : (
           <div className="text-center">
-            <Upload className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-            <div className="text-gray-400 mb-2">
+            <Upload className="h-12 w-12 text-board-mute mx-auto mb-4" />
+            <div className="text-board-mute mb-2">
               Arrastra y suelta una imagen aquí, o{' '}
               <button
                 onClick={onButtonClick}
-                className="text-blue-400 hover:text-blue-300 underline transition-colors"
+                className="text-board-amberink hover:text-board-amberink underline transition-colors"
               >
                 selecciona un archivo
               </button>
             </div>
-            <p className="text-sm text-gray-500">
+            <p className="text-sm text-board-mute">
               PNG, JPG, GIF hasta 10MB
             </p>
           </div>
         )}
 
         {uploading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-lg">
+          <div className="absolute inset-0 flex items-center justify-center bg-board-panel/50 rounded-lg">
             <div className="text-center">
-              <Loader className="h-6 w-6 animate-spin text-blue-400 mx-auto mb-2" />
-              <p className="text-sm text-gray-300">Subiendo imagen...</p>
+              <Loader className="h-6 w-6 animate-spin text-board-amberink mx-auto mb-2" />
+              <p className="text-sm text-board-ink2">Subiendo imagen...</p>
             </div>
           </div>
         )}
       </div>
 
       {error && (
-        <div className="mt-2 p-3 bg-red-900/50 border border-red-500 rounded-md flex items-center">
-          <AlertCircle className="h-4 w-4 text-red-400 mr-2" />
-          <span className="text-red-200 text-sm">{error}</span>
+        <div className="mt-2 p-3 bg-board-alarm/50 border border-board-alarm rounded-md flex items-center">
+          <AlertCircle className="h-4 w-4 text-board-alarmink mr-2" />
+          <span className="text-board-alarmink text-sm">{error}</span>
           <button
             onClick={clearError}
-            className="ml-auto text-red-400 hover:text-red-300"
+            className="ml-auto text-board-alarmink hover:text-board-alarmink"
           >
             <X className="h-4 w-4" />
           </button>

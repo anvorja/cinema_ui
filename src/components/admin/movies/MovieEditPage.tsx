@@ -15,12 +15,12 @@ import { Badge }    from '../../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const inputCls    = 'bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-gray-300 dark:focus-visible:ring-zinc-600 h-9';
-const inputErrCls = 'bg-white dark:bg-zinc-800 border-red-500/60 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-red-500/40 h-9';
-const selCls      = 'bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white h-9 focus:ring-gray-300 dark:focus:ring-zinc-600';
-const contentCls  = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
-const itemCls     = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
-const labelCls    = 'text-xs text-gray-500 dark:text-zinc-400 mb-1.5';
+const inputCls    = 'bg-board-panel border-board-line2 text-board-ink placeholder-board-mute focus-visible:ring-board-line2 h-9';
+const inputErrCls = 'bg-board-panel border-board-alarm/60 text-board-ink placeholder-board-mute focus-visible:ring-board-alarm/40 h-9';
+const selCls      = 'bg-board-panel border-board-line2 text-board-ink h-9 focus:ring-board-line2';
+const contentCls  = 'bg-board-panel border-board-line text-board-ink';
+const itemCls     = 'text-board-ink focus:bg-board-panel2 focus:text-board-ink cursor-pointer';
+const labelCls    = 'text-xs text-board-mute mb-1.5';
 
 const genres = [
   'Acción','Aventura','Animación','Biografía','Comedia','Crimen',
@@ -55,11 +55,11 @@ const EMPTY_FORM = {
 // ── Section header ─────────────────────────────────────────────────────────────
 const Section = ({ icon: Icon, title, children }: any) => (
   <div className="space-y-5">
-    <div className="flex items-center gap-2 pb-1 border-b border-gray-100 dark:border-zinc-800">
-      <div className="p-1.5 bg-gray-100 dark:bg-zinc-800 rounded-md">
-        <Icon className="h-3.5 w-3.5 text-gray-400 dark:text-zinc-400" />
+    <div className="flex items-center gap-2 pb-1 border-b border-board-line">
+      <div className="p-1.5 bg-board-panel2 rounded-md">
+        <Icon className="h-3.5 w-3.5 text-board-mute" />
       </div>
-      <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-widest">{title}</p>
+      <p className="text-xs font-semibold text-board-mute uppercase tracking-widest">{title}</p>
     </div>
     {children}
   </div>
@@ -68,11 +68,11 @@ const Section = ({ icon: Icon, title, children }: any) => (
 // ── Field wrapper ──────────────────────────────────────────────────────────────
 const Field = ({ label, error, required = false, children }: any) => (
   <div className="space-y-1.5">
-    <Label className={`${labelCls} ${error ? 'text-red-400' : ''}`}>
-      {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+    <Label className={`${labelCls} ${error ? 'text-board-alarmink' : ''}`}>
+      {label}{required && <span className="text-board-alarmink ml-0.5">*</span>}
     </Label>
     {children}
-    {error && <p className="text-[11px] text-red-400">{error}</p>}
+    {error && <p className="text-[11px] text-board-alarmink">{error}</p>}
   </div>
 );
 
@@ -226,39 +226,39 @@ const MovieEditPage = () => {
   // ── Render ───────────────────────────────────────────────────────────────────
   if (pageLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-zinc-950 flex items-center justify-center">
+      <div className="min-h-screen bg-board-ground flex items-center justify-center">
         <div className="text-center">
-          <Loader className="h-8 w-8 animate-spin text-blue-500 mx-auto mb-3" />
-          <p className="text-sm text-gray-400 dark:text-zinc-500">Cargando película...</p>
+          <Loader className="h-8 w-8 animate-spin text-board-amberink mx-auto mb-3" />
+          <p className="text-sm text-board-mute">Cargando película...</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-zinc-950">
+    <div className="min-h-screen bg-board-ground">
 
       {/* ── Top bar ────────────────────────────────────────────────────────────── */}
-      <header className="sticky top-0 z-20 bg-white dark:bg-zinc-900 border-b border-gray-200 dark:border-zinc-800 px-6 py-3">
+      <header className="sticky top-0 z-20 bg-board-panel border-b border-board-line px-6 py-3">
         <div className="max-w-5xl mx-auto flex items-center gap-4">
           {/* Back */}
           <button
             type="button"
             onClick={() => navigate('/admin')}
-            className="flex items-center gap-1.5 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white transition-colors shrink-0"
+            className="flex items-center gap-1.5 text-sm text-board-mute hover:text-board-ink transition-colors shrink-0"
           >
             <ArrowLeft className="h-4 w-4" />
             <span className="hidden sm:inline">Películas</span>
           </button>
 
-          <div className="w-px h-4 bg-gray-200 dark:bg-zinc-700 shrink-0" />
+          <div className="w-px h-4 bg-board-panel2 shrink-0" />
 
           {/* Title */}
           <div className="flex items-center gap-2 flex-1 min-w-0">
-            <div className="p-1.5 bg-blue-500/10 ring-1 ring-blue-500/20 rounded-md shrink-0">
-              <Film className="h-3.5 w-3.5 text-blue-400" />
+            <div className="p-1.5 bg-board-amber/10 ring-1 ring-board-amber/20 rounded-md shrink-0">
+              <Film className="h-3.5 w-3.5 text-board-amberink" />
             </div>
-            <h1 className="text-sm font-medium text-gray-900 dark:text-white truncate">
+            <h1 className="text-sm font-medium text-board-ink truncate">
               {isEdit
                 ? (movieTitle ? `Editar: ${movieTitle}` : 'Editar película')
                 : 'Nueva película'}
@@ -268,13 +268,13 @@ const MovieEditPage = () => {
           {/* Progress + actions */}
           <div className="flex items-center gap-3 shrink-0">
             <div className="hidden sm:flex items-center gap-2">
-              <div className="w-20 h-1.5 bg-gray-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div className="w-20 h-1.5 bg-board-panel2 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-300 ${pct === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
+                  className={`h-full rounded-full transition-all duration-300 ${pct === 100 ? 'bg-board-ok' : 'bg-board-amber'}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className={`text-[11px] font-medium tabular-nums ${pct === 100 ? 'text-emerald-400' : 'text-gray-400 dark:text-zinc-500'}`}>
+              <span className={`text-[11px] font-medium tabular-nums ${pct === 100 ? 'text-board-okink' : 'text-board-mute'}`}>
                 {pct}%
               </span>
             </div>
@@ -282,7 +282,7 @@ const MovieEditPage = () => {
             <button
               type="button"
               onClick={() => navigate('/admin')}
-              className="h-8 px-3 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 rounded-lg transition-colors"
+              className="h-8 px-3 text-sm text-board-mute hover:text-board-ink bg-board-panel2 hover:bg-board-panel2 border border-board-line rounded-lg transition-colors"
             >
               Cancelar
             </button>
@@ -290,7 +290,7 @@ const MovieEditPage = () => {
               type="submit"
               form="movie-edit-form"
               disabled={saving}
-              className="h-8 px-4 text-sm font-medium bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2"
+              className="h-8 px-4 text-sm font-medium bg-board-amber hover:bg-board-amberpress disabled:opacity-50 disabled:cursor-not-allowed text-board-onamber rounded-lg transition-colors flex items-center gap-2"
             >
               {saving && <Loader className="h-3.5 w-3.5 animate-spin" />}
               {isEdit ? 'Guardar cambios' : 'Crear película'}
@@ -308,7 +308,7 @@ const MovieEditPage = () => {
             <div className="space-y-8">
 
               {/* Identidad */}
-              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+              <div className="bg-board-panel border border-board-line rounded-xl p-6">
                 <Section icon={Tag} title="Identidad">
                   <Field label="Título" required error={errors.title}>
                     <Input
@@ -323,7 +323,7 @@ const MovieEditPage = () => {
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Field label="Género" required error={errors.genre}>
                       <Select value={formData.genre} onValueChange={v => handleSelect('genre', v)}>
-                        <SelectTrigger className={`${selCls} ${errors.genre ? 'border-red-500/60' : ''}`}>
+                        <SelectTrigger className={`${selCls} ${errors.genre ? 'border-board-alarm/60' : ''}`}>
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
                         <SelectContent className={contentCls}>
@@ -362,11 +362,11 @@ const MovieEditPage = () => {
                         placeholder="Sinopsis de la película..."
                         rows={5}
                         maxLength={1000}
-                        className={`resize-none bg-white dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-gray-300 dark:focus-visible:ring-zinc-600 ${errors.description ? 'border-red-500/60' : ''}`}
+                        className={`resize-none bg-board-panel border-board-line2 text-board-ink placeholder-board-mute focus-visible:ring-board-line2 ${errors.description ? 'border-board-alarm/60' : ''}`}
                       />
                       <span className={`absolute bottom-2 right-2.5 text-[10px] ${
-                        formData.description.length > 950 ? 'text-red-400' :
-                        formData.description.length > 800 ? 'text-amber-400' : 'text-gray-300 dark:text-zinc-700'
+                        formData.description.length > 950 ? 'text-board-alarmink' :
+                        formData.description.length > 800 ? 'text-board-amberink' : 'text-board-ink2'
                       }`}>
                         {formData.description.length}/1000
                       </span>
@@ -376,12 +376,12 @@ const MovieEditPage = () => {
               </div>
 
               {/* Clasificación y tiempo */}
-              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+              <div className="bg-board-panel border border-board-line rounded-xl p-6">
                 <Section icon={Star} title="Clasificación y tiempo">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Field label="Clasificación" required error={errors.rating}>
                       <Select value={formData.rating} onValueChange={v => handleSelect('rating', v)}>
-                        <SelectTrigger className={`${selCls} ${errors.rating ? 'border-red-500/60' : ''}`}>
+                        <SelectTrigger className={`${selCls} ${errors.rating ? 'border-board-alarm/60' : ''}`}>
                           <SelectValue placeholder="Seleccionar" />
                         </SelectTrigger>
                         <SelectContent className={contentCls}>
@@ -408,7 +408,7 @@ const MovieEditPage = () => {
                         type="date"
                         value={formData.release_date}
                         onChange={handleChange}
-                        className={`${errors.release_date ? inputErrCls : inputCls} dark:[color-scheme:dark]`}
+                        className={`${errors.release_date ? inputErrCls : inputCls} `}
                       />
                     </Field>
 
@@ -427,12 +427,12 @@ const MovieEditPage = () => {
               </div>
 
               {/* Disponibilidad */}
-              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+              <div className="bg-board-panel border border-board-line rounded-xl p-6">
                 <Section icon={Ticket} title="Disponibilidad">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <Field label="Precio (COP)" required error={errors.price}>
                       <div className="relative">
-                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-zinc-500">$</span>
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-board-mute">$</span>
                         <Input
                           name="price"
                           type="number"
@@ -472,21 +472,21 @@ const MovieEditPage = () => {
                   </div>
 
                   {/* Presale toggle */}
-                  <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-zinc-800/60 border border-gray-200 dark:border-zinc-700 rounded-lg mt-2">
+                  <div className="flex items-center justify-between p-4 bg-board-ground border border-board-line rounded-lg mt-2">
                     <div>
-                      <p className="text-sm font-medium text-gray-900 dark:text-white">Preventa activa</p>
-                      <p className="text-[11px] text-gray-400 dark:text-zinc-500 mt-0.5">La película se mostrará como preventa</p>
+                      <p className="text-sm font-medium text-board-ink">Preventa activa</p>
+                      <p className="text-[11px] text-board-mute mt-0.5">La película se mostrará como preventa</p>
                     </div>
                     <div className="flex items-center gap-2">
                       {formData.is_presale && (
-                        <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400 bg-amber-500/10">
+                        <Badge variant="outline" className="text-[10px] border-board-amber/30 text-board-amberink bg-board-amber/10">
                           Preventa
                         </Badge>
                       )}
                       <Switch
                         checked={formData.is_presale}
                         onCheckedChange={v => setFormData(prev => ({ ...prev, is_presale: v }))}
-                        className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
+                        className="data-[state=checked]:bg-board-amber data-[state=unchecked]:bg-board-line"
                       />
                     </div>
                   </div>
@@ -495,16 +495,16 @@ const MovieEditPage = () => {
 
               {/* API error */}
               {apiError && (
-                <div className="flex items-start gap-2 p-4 bg-red-500/10 border border-red-500/40 rounded-xl">
-                  <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
-                  <p className="text-red-500 dark:text-red-300 text-sm">{apiError}</p>
+                <div className="flex items-start gap-2 p-4 bg-board-alarm/10 border border-board-alarm/40 rounded-xl">
+                  <AlertCircle className="h-4 w-4 text-board-alarmink mt-0.5 shrink-0" />
+                  <p className="text-board-alarmink text-sm">{apiError}</p>
                 </div>
               )}
             </div>
 
             {/* ── Right column: images (sticky) ───────────────────────────────── */}
             <div className="lg:sticky lg:top-[65px]">
-              <div className="bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-xl p-6">
+              <div className="bg-board-panel border border-board-line rounded-xl p-6">
                 <Section icon={Film} title="Imágenes">
                   <MultipleImageUpload
                     onImagesChange={imgs => {
@@ -515,7 +515,7 @@ const MovieEditPage = () => {
                     movieTitle={formData.title}
                   />
                   {errors.images && (
-                    <p className="text-[11px] text-red-400">{errors.images}</p>
+                    <p className="text-[11px] text-board-alarmink">{errors.images}</p>
                   )}
                 </Section>
               </div>

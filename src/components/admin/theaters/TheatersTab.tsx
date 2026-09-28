@@ -7,31 +7,31 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { Skeleton } from '../../ui/skeleton';
 import { Card, CardContent } from '../../ui/card';
 
-const selectCls = 'w-40 h-9 bg-white dark:bg-zinc-900 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white text-sm focus:ring-gray-300 dark:focus:ring-zinc-600';
-const contentCls = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
-const itemCls    = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
+const selectCls = 'w-40 h-9 bg-board-panel border-board-line2 text-board-ink text-sm focus:ring-board-line2';
+const contentCls = 'bg-board-panel border-board-line text-board-ink';
+const itemCls    = 'text-board-ink focus:bg-board-panel2 focus:text-board-ink cursor-pointer';
 
 const TheatersTabSkeleton = () => (
   <div className="space-y-5">
     <div className="flex gap-3">
-      <Skeleton className="h-9 w-64 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
-      <Skeleton className="h-9 w-40 bg-gray-200 dark:bg-zinc-800 rounded-lg" />
+      <Skeleton className="h-9 w-64 bg-board-panel2 rounded-lg" />
+      <Skeleton className="h-9 w-40 bg-board-panel2 rounded-lg" />
     </div>
     <div className="grid grid-cols-3 gap-3">
-      {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 bg-gray-200 dark:bg-zinc-800 rounded-xl" />)}
+      {[...Array(3)].map((_, i) => <Skeleton key={i} className="h-16 bg-board-panel2 rounded-xl" />)}
     </div>
-    <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+    <div className="rounded-xl border border-board-line overflow-hidden">
       {[...Array(5)].map((_, i) => (
-        <div key={i} className="flex items-center gap-4 px-6 py-3.5 border-b border-gray-100 dark:border-zinc-800/60">
-          <Skeleton className="h-8 w-8 rounded-full bg-gray-200 dark:bg-zinc-800 shrink-0" />
+        <div key={i} className="flex items-center gap-4 px-6 py-3.5 border-b border-board-line">
+          <Skeleton className="h-8 w-8 rounded-full bg-board-panel2 shrink-0" />
           <div className="flex-1 space-y-1.5">
-            <Skeleton className="h-3.5 w-32 bg-gray-200 dark:bg-zinc-800" />
-            <Skeleton className="h-2.5 w-16 bg-gray-200 dark:bg-zinc-800" />
+            <Skeleton className="h-3.5 w-32 bg-board-panel2" />
+            <Skeleton className="h-2.5 w-16 bg-board-panel2" />
           </div>
-          <Skeleton className="h-3 w-40 bg-gray-200 dark:bg-zinc-800" />
-          <Skeleton className="h-3 w-28 bg-gray-200 dark:bg-zinc-800" />
-          <Skeleton className="h-5 w-14 bg-gray-200 dark:bg-zinc-800 rounded-full" />
-          <Skeleton className="h-5 w-9  bg-gray-200 dark:bg-zinc-800 rounded-full" />
+          <Skeleton className="h-3 w-40 bg-board-panel2" />
+          <Skeleton className="h-3 w-28 bg-board-panel2" />
+          <Skeleton className="h-5 w-14 bg-board-panel2 rounded-full" />
+          <Skeleton className="h-5 w-9 bg-board-panel2 rounded-full" />
         </div>
       ))}
     </div>
@@ -57,13 +57,13 @@ const TheatersTab = ({ theaters, loading, onToggleTheater, searchTerm, onSearchC
       {/* Toolbar */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
         <div className="relative max-w-xs w-full">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-board-mute" />
           <input
             type="text"
             placeholder="Buscar teatros..."
             value={searchTerm}
             onChange={e => onSearchChange(e.target.value)}
-            className="w-full pl-9 pr-4 h-9 bg-white dark:bg-zinc-900 border border-gray-300 dark:border-zinc-700 rounded-lg text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus:outline-none focus:ring-1 focus:ring-gray-400 dark:focus:ring-zinc-600"
+            className="w-full pl-9 pr-4 h-9 bg-board-panel border border-board-line2 rounded-lg text-sm text-board-ink placeholder-board-mute focus:outline-none focus:ring-1 focus:ring-board-line2"
           />
         </div>
 
@@ -80,13 +80,13 @@ const TheatersTab = ({ theaters, loading, onToggleTheater, searchTerm, onSearchC
       {/* Mini stats */}
       <div className="grid grid-cols-3 gap-3">
         {[
-          { label: 'Total',    value: theaters.length,                          color: 'text-gray-900 dark:text-white' },
-          { label: 'Activos',  value: theaters.filter(t => t.is_active).length,  color: 'text-emerald-400' },
-          { label: 'Inactivos',value: theaters.filter(t => !t.is_active).length, color: 'text-red-400' },
+          { label: 'Total',    value: theaters.length,                          color: 'text-board-ink' },
+          { label: 'Activos',  value: theaters.filter(t => t.is_active).length,  color: 'text-board-okink' },
+          { label: 'Inactivos',value: theaters.filter(t => !t.is_active).length, color: 'text-board-alarmink' },
         ].map(s => (
-          <Card key={s.label} className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+          <Card key={s.label} className="bg-board-panel border-board-line">
             <CardContent className="p-3">
-              <p className="text-xs text-gray-500 dark:text-zinc-600 mb-1">{s.label}</p>
+              <p className="text-xs text-board-mute mb-1">{s.label}</p>
               <p className={`text-xl font-bold ${s.color}`}>{s.value}</p>
             </CardContent>
           </Card>
@@ -94,9 +94,9 @@ const TheatersTab = ({ theaters, loading, onToggleTheater, searchTerm, onSearchC
       </div>
 
       {/* Tabla */}
-      <div className="rounded-xl border border-gray-200 dark:border-zinc-800 overflow-hidden">
+      <div className="rounded-xl border border-board-line overflow-hidden">
         {filtered.length === 0 ? (
-          <div className="py-16 text-center text-gray-400 dark:text-zinc-600 text-sm">
+          <div className="py-16 text-center text-board-mute text-sm">
             {searchTerm || filterStatus !== 'all'
               ? 'Sin teatros que coincidan con los filtros'
               : 'No hay teatros registrados'}
@@ -104,9 +104,9 @@ const TheatersTab = ({ theaters, loading, onToggleTheater, searchTerm, onSearchC
         ) : (
           <Table className="">
             <TableHeader className="">
-              <TableRow className="border-gray-200 dark:border-zinc-800 hover:bg-transparent bg-gray-50 dark:bg-zinc-900/60">
+              <TableRow className="border-board-line hover:bg-transparent bg-board-ground">
                 {['Teatro','Ubicación','Descripción','Estado','Creado','Activo'].map(h => (
-                  <TableHead key={h} className="text-[10px] text-gray-500 dark:text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
+                  <TableHead key={h} className="text-[10px] text-board-mute uppercase tracking-widest py-3">{h}</TableHead>
                 ))}
               </TableRow>
             </TableHeader>

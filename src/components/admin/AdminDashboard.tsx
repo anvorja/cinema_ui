@@ -115,7 +115,7 @@ const AdminDashboardContent = () => {
 
   return (
     <SidebarProvider defaultOpen={true}>
-      <div className="flex min-h-screen w-full bg-gray-50 dark:bg-zinc-950">
+      <div className="flex min-h-screen w-full bg-board-ground">
         <AdminSidebar
           activeTab={activeTab}
           onTabChange={handleTabChange}
@@ -125,7 +125,7 @@ const AdminDashboardContent = () => {
           loading={loading}
         />
 
-        <SidebarInset className="flex flex-col min-w-0 bg-gray-50 dark:bg-zinc-950">
+        <SidebarInset className="flex flex-col min-w-0 bg-board-ground">
           <DashboardHeader
             activeTab={activeTab}
             onRefresh={loadInitialData}
@@ -135,11 +135,11 @@ const AdminDashboardContent = () => {
           <main className="flex-1 px-6 py-6 overflow-auto">
             {/* Banner cold-start */}
             {allEmpty && (
-              <div className="mb-6 flex items-start gap-3 bg-amber-500/10 border border-amber-500/20 rounded-xl px-5 py-4">
-                <AlertCircle className="h-4 w-4 text-amber-400 mt-0.5 shrink-0" />
+              <div className="mb-6 flex items-start gap-3 bg-board-amber/10 border border-board-amber/20 rounded-xl px-5 py-4">
+                <AlertCircle className="h-4 w-4 text-board-amberink mt-0.5 shrink-0" />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-amber-300">Los servicios están iniciando</p>
-                  <p className="text-xs text-amber-400/70 mt-0.5">
+                  <p className="text-sm font-medium text-board-amberink">Los servicios están iniciando</p>
+                  <p className="text-xs text-board-amberink/70 mt-0.5">
                     En el plan gratuito de Render los servicios se duermen tras 15 min de inactividad.
                     Espera unos segundos y pulsa <strong>Actualizar</strong>.
                   </p>

@@ -8,6 +8,7 @@ import LoginForm from './LoginForm';
 import AdminDashboard from './AdminDashboard';
 import MovieEditPage from './movies/MovieEditPage';
 import {ToastProvider} from "./providers/ToasProvider.jsx";
+import useBoardWorld from '../board/useBoardWorld';
 
 const AppContent = () => {
   const { user, loading, login, logout, isAdmin } = useAuth();
@@ -60,10 +61,10 @@ const AppContent = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-900 flex items-center justify-center">
+      <div className="min-h-screen bg-board-panel flex items-center justify-center">
         <div className="text-center">
-          <Loader className="h-12 w-12 animate-spin text-blue-500 mx-auto mb-4" />
-          <p className="text-gray-400">Verificando autenticación...</p>
+          <Loader className="h-12 w-12 animate-spin text-board-amberink mx-auto mb-4" />
+          <p className="text-board-mute">Verificando autenticación...</p>
         </div>
       </div>
     );
@@ -89,6 +90,7 @@ const AppContent = () => {
 };
 
 const App = () => {
+  useBoardWorld();
   return (
     <ToastProvider>
       <AppContent />

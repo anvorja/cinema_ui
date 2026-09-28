@@ -30,20 +30,20 @@ const fmtPeriodLabel = (iso: string, period: string) => {
 
 // ── KPI Card ──────────────────────────────────────────────────────────────────
 const KpiCard = ({ title, value, subtitle, icon: Icon, accent, ring, trend }: any) => (
-  <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800 hover:border-gray-300 dark:hover:border-zinc-700 transition-colors">
+  <Card className="bg-board-panel border-board-line hover:border-board-line2 transition-colors">
     <CardContent className="p-5">
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0 flex-1">
-          <p className="text-[10px] font-medium text-gray-500 dark:text-zinc-500 uppercase tracking-widest mb-2">{title}</p>
-          <p className="text-2xl font-bold text-gray-900 dark:text-white leading-none truncate">{value}</p>
-          {subtitle && <p className="text-xs text-gray-400 dark:text-zinc-600 mt-1.5">{subtitle}</p>}
+          <p className="text-[10px] font-medium text-board-mute uppercase tracking-widest mb-2">{title}</p>
+          <p className="text-2xl font-bold text-board-ink leading-none truncate">{value}</p>
+          {subtitle && <p className="text-xs text-board-mute mt-1.5">{subtitle}</p>}
         </div>
         <div className={`p-2.5 rounded-lg ring-1 ${ring} shrink-0`}>
           <Icon className={`h-5 w-5 ${accent}`} />
         </div>
       </div>
       {trend != null && (
-        <div className={`mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800 flex items-center gap-1 text-xs ${trend >= 0 ? 'text-emerald-400' : 'text-red-400'}`}>
+        <div className={`mt-3 pt-3 border-t border-board-line flex items-center gap-1 text-xs ${trend >= 0 ? 'text-board-okink' : 'text-board-alarmink'}`}>
           {trend >= 0 ? <TrendingUp className="h-3 w-3" /> : <TrendingDown className="h-3 w-3" />}
           {Math.abs(trend)}% vs periodo anterior
         </div>
@@ -56,14 +56,14 @@ const KpiCard = ({ title, value, subtitle, icon: Icon, accent, ring, trend }: an
 const RankingChart = ({ data, labelKey, valueKey, title, accent, formatValue }: any) => {
   const max = data.length > 0 ? Math.max(...data.map((d: any) => d[valueKey])) : 1;
   return (
-    <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+    <Card className="bg-board-panel border-board-line">
       <CardHeader className="pb-2 pt-5 px-6">
-        <p className="text-sm font-semibold text-gray-900 dark:text-white">{title}</p>
-        <p className="text-xs text-gray-400 dark:text-zinc-600">Top {data.length}</p>
+        <p className="text-sm font-semibold text-board-ink">{title}</p>
+        <p className="text-xs text-board-mute">Top {data.length}</p>
       </CardHeader>
       <CardContent className="px-6 pb-5">
         {data.length === 0 ? (
-          <p className="text-gray-400 dark:text-zinc-600 text-sm text-center py-10">Sin datos</p>
+          <p className="text-board-mute text-sm text-center py-10">Sin datos</p>
         ) : (
           <div className="space-y-3.5">
             {data.map((item: any, i: number) => {
@@ -75,8 +75,8 @@ const RankingChart = ({ data, labelKey, valueKey, title, accent, formatValue }: 
                       <div className="group cursor-default">
                         <div className="flex justify-between items-center mb-1.5">
                           <div className="flex items-center gap-2 min-w-0">
-                            <span className="text-[10px] text-gray-300 dark:text-zinc-700 font-mono w-4 shrink-0">#{i + 1}</span>
-                            <span className="text-xs text-gray-600 dark:text-zinc-400 truncate max-w-[160px] group-hover:text-gray-900 dark:group-hover:text-white transition-colors">
+                            <span className="text-[10px] text-board-ink2 font-mono w-4 shrink-0">#{i + 1}</span>
+                            <span className="text-xs text-board-ink2 truncate max-w-[160px] group-hover:text-board-ink transition-colors">
                               {item[labelKey]}
                             </span>
                           </div>
@@ -86,17 +86,17 @@ const RankingChart = ({ data, labelKey, valueKey, title, accent, formatValue }: 
                         </div>
                         <Progress
                           value={pct}
-                          className={`h-1.5 bg-gray-200 dark:bg-zinc-800 transition-all ${
-                            accent.includes('blue')   ? '[&>div]:bg-blue-500'   :
-                            accent.includes('violet') ? '[&>div]:bg-violet-500' :
-                            '[&>div]:bg-emerald-500'
+                          className={`h-1.5 bg-board-panel2 transition-all ${
+                            accent.includes('blue')   ? '[&>div]:bg-board-amber'   :
+                            accent.includes('violet') ? '[&>div]:bg-board-amber' :
+                            '[&>div]:bg-board-ok'
                           }`}
                         />
                       </div>
                     </TooltipTrigger>
                     <TooltipContent
                       side="top"
-                      className="bg-zinc-900 border-zinc-700 text-white text-xs max-w-[200px]"
+                      className="bg-board-panel border-board-line2 text-board-ink text-xs max-w-[200px]"
                     >
                       <p className="font-medium mb-0.5">{item[labelKey]}</p>
                       <p className={accent}>{formatValue ? formatValue(item[valueKey]) : item[valueKey].toLocaleString()}</p>
@@ -120,7 +120,7 @@ const LineChartSVG = ({ data, period }: { data: any[]; period: string }) => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   if (data.length === 0) {
-    return <p className="text-gray-400 dark:text-zinc-600 text-sm text-center py-16">Sin datos para el período seleccionado</p>;
+    return <p className="text-board-mute text-sm text-center py-16">Sin datos para el período seleccionado</p>;
   }
 
   const W = 100; const H = 100;
@@ -153,31 +153,29 @@ const LineChartSVG = ({ data, period }: { data: any[]; period: string }) => {
         preserveAspectRatio="none"
       >
         <defs>
-          <linearGradient id="areaGradA" x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%"   stopColor="#3b82f6" stopOpacity="0.2" />
-            <stop offset="100%" stopColor="#3b82f6" stopOpacity="0" />
-          </linearGradient>
         </defs>
 
         {/* Grid lines */}
         {[25, 50, 75].map(y => (
           <line key={y} x1="0" y1={y} x2="100" y2={y}
-            stroke="#27272a" strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
+            style={{ stroke: 'rgb(var(--b-line))' }} strokeWidth="0.5" vectorEffect="non-scaling-stroke" />
         ))}
 
-        <path d={areaD} fill="url(#areaGradA)" />
-        <path d={pathD} fill="none" stroke="#3b82f6" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+        <path d={areaD} style={{ fill: 'rgb(var(--b-amber) / 0.12)' }} />
+        <path d={pathD} fill="none" style={{ stroke: 'rgb(var(--b-amber))' }} strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
 
         {/* Puntos — solo eventos de mouse, sin Radix Tooltip */}
         {pts.map((p, i) => (
           <circle
             key={i}
             cx={p.x} cy={p.y} r={hovered === i ? 3 : 2}
-            fill={hovered === i ? '#60a5fa' : '#3b82f6'}
-            stroke={hovered === i ? '#93c5fd' : 'transparent'}
             strokeWidth="1.5"
             vectorEffect="non-scaling-stroke"
-            style={{ cursor: 'pointer' }}
+            style={{
+              cursor: 'pointer',
+              fill: hovered === i ? 'rgb(var(--b-amberpress))' : 'rgb(var(--b-amber))',
+              stroke: hovered === i ? 'rgb(var(--b-ink))' : 'transparent',
+            }}
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
           />
@@ -193,22 +191,22 @@ const LineChartSVG = ({ data, period }: { data: any[]; period: string }) => {
             top:  `${(hp.y / H) * SVG_H_PX - 8}px`,
           }}
         >
-          <div className="bg-zinc-900 border border-zinc-700 rounded-lg px-3 py-2 shadow-xl text-xs whitespace-nowrap">
-            <p className="text-zinc-400 mb-0.5">{fmtPeriodLabel(hp.period, period)}</p>
-            <p className="font-bold text-white">{fmtCOP(hp.revenue)}</p>
+          <div className="bg-board-panel border border-board-line2 rounded-lg px-3 py-2 shadow-xl text-xs whitespace-nowrap">
+            <p className="text-board-mute mb-0.5">{fmtPeriodLabel(hp.period, period)}</p>
+            <p className="font-bold text-board-ink">{fmtCOP(hp.revenue)}</p>
             {hp.tickets_sold != null && (
-              <p className="text-zinc-500 mt-0.5">{hp.tickets_sold} boletos</p>
+              <p className="text-board-mute mt-0.5">{hp.tickets_sold} boletos</p>
             )}
           </div>
           {/* Flecha apuntando hacia abajo */}
-          <div className="mx-auto w-2 h-2 bg-zinc-900 border-b border-r border-zinc-700 rotate-45 -mt-1" />
+          <div className="mx-auto w-2 h-2 bg-board-panel border-b border-r border-board-line2 rotate-45 -mt-1" />
         </div>
       )}
 
       {/* Eje X con labels */}
       <div className="flex justify-between mt-1">
         {labelIndices.map(i => (
-          <span key={i} className="text-[10px] text-gray-400 dark:text-zinc-600">
+          <span key={i} className="text-[10px] text-board-mute">
             {fmtPeriodLabel(data[i].period, period)}
           </span>
         ))}
@@ -221,14 +219,14 @@ const LineChartSVG = ({ data, period }: { data: any[]; period: string }) => {
 const AnalyticsSkeleton = () => (
   <div className="space-y-6">
     <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 bg-gray-200 dark:bg-zinc-800 rounded-xl" />)}
+      {[...Array(4)].map((_, i) => <Skeleton key={i} className="h-28 bg-board-panel2 rounded-xl" />)}
     </div>
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Skeleton className="h-72 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
-      <Skeleton className="h-72 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+      <Skeleton className="h-72 bg-board-panel2 rounded-xl" />
+      <Skeleton className="h-72 bg-board-panel2 rounded-xl" />
     </div>
-    <Skeleton className="h-72 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
-    <Skeleton className="h-64 bg-gray-200 dark:bg-zinc-800 rounded-xl" />
+    <Skeleton className="h-72 bg-board-panel2 rounded-xl" />
+    <Skeleton className="h-64 bg-board-panel2 rounded-xl" />
   </div>
 );
 
@@ -269,7 +267,7 @@ const AnalyticsTab = () => {
 
   if (loading) return <AnalyticsSkeleton />;
   if (error) return (
-    <div className="flex items-center justify-center py-20 gap-2 text-red-400">
+    <div className="flex items-center justify-center py-20 gap-2 text-board-alarmink">
       <AlertCircle className="h-5 w-5" /> {error}
     </div>
   );
@@ -284,12 +282,12 @@ const AnalyticsTab = () => {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-base font-semibold text-gray-900 dark:text-white">Analítica</h2>
-          <p className="text-xs text-gray-400 dark:text-zinc-600 mt-0.5">Ventas, ingresos y reembolsos</p>
+          <h2 className="text-base font-semibold text-board-ink">Analítica</h2>
+          <p className="text-xs text-board-mute mt-0.5">Ventas, ingresos y reembolsos</p>
         </div>
         <button
           onClick={() => loadData(period)}
-          className="flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white rounded-lg text-xs transition-colors"
+          className="flex items-center gap-1.5 px-3 py-1.5 bg-board-panel2 hover:bg-board-panel2 text-board-mute hover:text-board-ink rounded-lg text-xs transition-colors"
         >
           <RefreshCw className="h-3.5 w-3.5" /> Actualizar
         </button>
@@ -299,16 +297,16 @@ const AnalyticsTab = () => {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <KpiCard title="Ingresos totales"  value={fmtCOP(salesReport?.total_revenue || 0)}
           subtitle={`${salesReport?.total_purchases || 0} compras confirmadas`}
-          icon={DollarSign} accent="text-emerald-400" ring="ring-emerald-500/20 bg-emerald-500/10" />
+          icon={DollarSign} accent="text-board-okink" ring="ring-board-ok/20 bg-board-ok/10" />
         <KpiCard title="Boletos vendidos"  value={(salesReport?.total_tickets_sold || 0).toLocaleString()}
           subtitle={`Prom. ${fmtCOP(salesReport?.average_purchase_amount || 0)} / compra`}
-          icon={Ticket} accent="text-blue-400" ring="ring-blue-500/20 bg-blue-500/10" />
+          icon={Ticket} accent="text-board-amberink" ring="ring-board-amber/20 bg-board-amber/10" />
         <KpiCard title="Reembolsos"        value={salesReport?.total_refunds || 0}
           subtitle={fmtCOP(salesReport?.total_refunded_amount || 0)}
-          icon={TrendingDown} accent="text-red-400" ring="ring-red-500/20 bg-red-500/10" />
+          icon={TrendingDown} accent="text-board-alarmink" ring="ring-board-alarm/20 bg-board-alarm/10" />
         <KpiCard title="Cancelaciones"     value={salesReport?.total_cancelled || 0}
           subtitle="Órdenes canceladas"
-          icon={AlertCircle} accent="text-amber-400" ring="ring-amber-500/20 bg-amber-500/10" />
+          icon={AlertCircle} accent="text-board-amberink" ring="ring-board-amber/20 bg-board-amber/10" />
       </div>
 
       {/* Rankings */}
@@ -316,30 +314,30 @@ const AnalyticsTab = () => {
         <RankingChart
           data={topMovies} labelKey="movie_title" valueKey="net_revenue"
           title="Ingresos netos por película"
-          accent="text-blue-400"
+          accent="text-board-amberink"
           formatValue={fmtCOP}
         />
         <RankingChart
           data={topMovies} labelKey="movie_title" valueKey="tickets_sold"
           title="Boletos vendidos por película"
-          accent="text-violet-400"
+          accent="text-board-amberink"
           formatValue={(v: number) => `${v.toLocaleString()} boletos`}
         />
       </div>
 
       {/* Evolución temporal */}
-      <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
+      <Card className="bg-board-panel border-board-line">
         <CardHeader className="pb-0 pt-5 px-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <p className="text-sm font-semibold text-gray-900 dark:text-white">Evolución de ingresos</p>
-              <p className="text-xs text-gray-400 dark:text-zinc-600 mt-0.5">{periodLabels[period]}</p>
+              <p className="text-sm font-semibold text-board-ink">Evolución de ingresos</p>
+              <p className="text-xs text-board-mute mt-0.5">{periodLabels[period]}</p>
             </div>
             <Tabs value={period} onValueChange={handlePeriod} className="w-auto">
-              <TabsList className="bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 h-8">
+              <TabsList className="bg-board-panel2 border border-board-line h-8">
                 {Object.entries(periodLabels).map(([val, label]) => (
                   <TabsTrigger key={val} value={val}
-                    className="text-xs text-gray-500 dark:text-zinc-500 data-[state=active]:text-gray-900 dark:data-[state=active]:text-white data-[state=active]:bg-white dark:data-[state=active]:bg-zinc-700 h-6 px-3">
+                    className="text-xs text-board-mute data-[state=active]:text-board-ink data-[state=active]:bg-board-panel h-6 px-3">
                     {label}
                   </TabsTrigger>
                 ))}
@@ -351,15 +349,15 @@ const AnalyticsTab = () => {
           <LineChartSVG data={timeData} period={period} />
 
           {timeData.length > 0 && (
-            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-gray-100 dark:border-zinc-800">
+            <div className="grid grid-cols-3 gap-4 mt-4 pt-4 border-t border-board-line">
               {[
                 { label: 'Periodos',   value: timeData.length },
                 { label: 'Mayor',      value: fmtCOP(Math.max(...timeData.map((d: any) => d.revenue))) },
                 { label: 'Promedio',   value: fmtCOP(timeData.reduce((s: number, d: any) => s + d.revenue, 0) / timeData.length) },
               ].map(s => (
                 <div key={s.label} className="text-center">
-                  <p className="text-[10px] text-gray-400 dark:text-zinc-600 uppercase tracking-wide">{s.label}</p>
-                  <p className="text-sm font-semibold text-gray-900 dark:text-white mt-1">{s.value}</p>
+                  <p className="text-[10px] text-board-mute uppercase tracking-wide">{s.label}</p>
+                  <p className="text-sm font-semibold text-board-ink mt-1">{s.value}</p>
                 </div>
               ))}
             </div>
@@ -368,25 +366,25 @@ const AnalyticsTab = () => {
       </Card>
 
       {/* Tabla detallada */}
-      <Card className="bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-800">
-        <CardHeader className="pb-0 pt-5 px-6 border-b border-gray-100 dark:border-zinc-800">
+      <Card className="bg-board-panel border-board-line">
+        <CardHeader className="pb-0 pt-5 px-6 border-b border-board-line">
           <div className="flex items-center gap-2 pb-4">
-            <Film className="h-4 w-4 text-gray-400 dark:text-zinc-500" />
-            <p className="text-sm font-semibold text-gray-900 dark:text-white">Detalle por película</p>
-            <Badge className="bg-gray-100 dark:bg-zinc-800 text-gray-500 dark:text-zinc-400 border-gray-200 dark:border-zinc-700 text-[10px] ml-auto">
+            <Film className="h-4 w-4 text-board-mute" />
+            <p className="text-sm font-semibold text-board-ink">Detalle por película</p>
+            <Badge className="bg-board-panel2 text-board-mute border-board-line text-[10px] ml-auto">
               {topMovies.length} películas
             </Badge>
           </div>
         </CardHeader>
         <CardContent className="p-0">
           {topMovies.length === 0 ? (
-            <p className="text-gray-400 dark:text-zinc-600 text-sm text-center py-12">Sin ventas registradas</p>
+            <p className="text-board-mute text-sm text-center py-12">Sin ventas registradas</p>
           ) : (
             <Table className="">
               <TableHeader className="">
-                <TableRow className="border-gray-100 dark:border-zinc-800 hover:bg-transparent bg-gray-50 dark:bg-zinc-900/60">
+                <TableRow className="border-board-line hover:bg-transparent bg-board-ground">
                   {['Película','Cuota','Compras','Boletos','Bruto','Reembolso','Neto'].map(h => (
-                    <TableHead key={h} className="text-[10px] text-gray-500 dark:text-zinc-600 uppercase tracking-widest py-3">{h}</TableHead>
+                    <TableHead key={h} className="text-[10px] text-board-mute uppercase tracking-widest py-3">{h}</TableHead>
                   ))}
                 </TableRow>
               </TableHeader>
@@ -394,28 +392,28 @@ const AnalyticsTab = () => {
                 {topMovies.map((m: any, i: number) => {
                   const pct = maxRevenue > 0 ? Math.round((m.net_revenue / maxRevenue) * 100) : 0;
                   return (
-                    <TableRow key={m.movie_id} className="border-gray-100 dark:border-zinc-800 hover:bg-gray-50 dark:hover:bg-gray-200 dark:bg-zinc-800/40 transition-colors">
+                    <TableRow key={m.movie_id} className="border-board-line hover:bg-board-ground transition-colors">
                       <TableCell className="py-3">
                         <div className="flex items-center gap-2">
-                          <span className="text-[10px] text-gray-300 dark:text-zinc-700 font-mono w-4">#{i + 1}</span>
-                          <span className="text-sm font-medium text-gray-900 dark:text-white">{m.movie_title}</span>
+                          <span className="text-[10px] text-board-ink2 font-mono w-4">#{i + 1}</span>
+                          <span className="text-sm font-medium text-board-ink">{m.movie_title}</span>
                         </div>
                       </TableCell>
                       <TableCell className="py-3 w-32">
                         <div className="flex items-center gap-2">
-                          <Progress value={pct} className="h-1.5 w-20 bg-gray-200 dark:bg-zinc-800 [&>div]:bg-blue-500" />
-                          <span className="text-[11px] text-gray-400 dark:text-zinc-600 w-7">{pct}%</span>
+                          <Progress value={pct} className="h-1.5 w-20 bg-board-panel2 [&>div]:bg-board-amber" />
+                          <span className="text-[11px] text-board-mute w-7">{pct}%</span>
                         </div>
                       </TableCell>
-                      <TableCell className="py-3 text-sm text-gray-600 dark:text-zinc-400">{m.purchases_count}</TableCell>
-                      <TableCell className="py-3 text-sm text-gray-600 dark:text-zinc-400">{m.tickets_sold.toLocaleString()}</TableCell>
-                      <TableCell className="py-3 text-sm text-gray-600 dark:text-zinc-400">{fmtCOP(m.revenue)}</TableCell>
+                      <TableCell className="py-3 text-sm text-board-ink2">{m.purchases_count}</TableCell>
+                      <TableCell className="py-3 text-sm text-board-ink2">{m.tickets_sold.toLocaleString()}</TableCell>
+                      <TableCell className="py-3 text-sm text-board-ink2">{fmtCOP(m.revenue)}</TableCell>
                       <TableCell className="py-3">
                         {m.refunded_amount > 0
-                          ? <span className="text-sm text-red-400">{fmtCOP(m.refunded_amount)}</span>
-                          : <span className="text-sm text-gray-300 dark:text-zinc-700">—</span>}
+                          ? <span className="text-sm text-board-alarmink">{fmtCOP(m.refunded_amount)}</span>
+                          : <span className="text-sm text-board-ink2">—</span>}
                       </TableCell>
-                      <TableCell className="py-3 text-sm font-semibold text-emerald-400">
+                      <TableCell className="py-3 text-sm font-semibold text-board-okink">
                         {fmtCOP(m.net_revenue)}
                       </TableCell>
                     </TableRow>

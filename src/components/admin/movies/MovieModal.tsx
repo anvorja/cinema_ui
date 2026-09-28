@@ -14,12 +14,12 @@ import { Badge }    from '../../ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '../../ui/select';
 
 // ── Constants ──────────────────────────────────────────────────────────────────
-const inputCls    = 'bg-gray-50 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-gray-300 dark:focus-visible:ring-zinc-600 h-9';
-const inputErrCls = 'bg-gray-50 dark:bg-zinc-800 border-red-500/60 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-red-500/40 h-9';
-const selCls      = 'bg-gray-50 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white h-9 focus:ring-gray-300 dark:focus:ring-zinc-600';
-const contentCls  = 'bg-white dark:bg-zinc-900 border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white';
-const itemCls     = 'text-gray-700 dark:text-zinc-300 focus:bg-gray-100 dark:focus:bg-zinc-800 focus:text-gray-900 dark:focus:text-white cursor-pointer';
-const labelCls    = 'text-xs text-gray-500 dark:text-zinc-400 mb-1.5';
+const inputCls    = 'bg-board-ground border-board-line2 text-board-ink placeholder-board-mute focus-visible:ring-board-line2 h-9';
+const inputErrCls = 'bg-board-ground border-board-alarm/60 text-board-ink placeholder-board-mute focus-visible:ring-board-alarm/40 h-9';
+const selCls      = 'bg-board-ground border-board-line2 text-board-ink h-9 focus:ring-board-line2';
+const contentCls  = 'bg-board-panel border-board-line text-board-ink';
+const itemCls     = 'text-board-ink focus:bg-board-panel2 focus:text-board-ink cursor-pointer';
+const labelCls    = 'text-xs text-board-mute mb-1.5';
 
 const genres = [
   'Acción','Aventura','Animación','Biografía','Comedia','Crimen',
@@ -55,10 +55,10 @@ const EMPTY_FORM = {
 const Section = ({ icon: Icon, title, children }: any) => (
   <div className="space-y-4">
     <div className="flex items-center gap-2">
-      <div className="p-1.5 bg-gray-100 dark:bg-zinc-800 rounded-md">
-        <Icon className="h-3.5 w-3.5 text-gray-400 dark:text-zinc-400" />
+      <div className="p-1.5 bg-board-panel2 rounded-md">
+        <Icon className="h-3.5 w-3.5 text-board-mute" />
       </div>
-      <p className="text-xs font-semibold text-gray-500 dark:text-zinc-400 uppercase tracking-widest">{title}</p>
+      <p className="text-xs font-semibold text-board-mute uppercase tracking-widest">{title}</p>
     </div>
     {children}
   </div>
@@ -67,11 +67,11 @@ const Section = ({ icon: Icon, title, children }: any) => (
 // ── Field wrapper ──────────────────────────────────────────────────────────────
 const Field = ({ label, error, required = false, children }: any) => (
   <div className="space-y-1.5">
-    <Label className={`${labelCls} ${error ? 'text-red-400' : ''}`}>
-      {label}{required && <span className="text-red-400 ml-0.5">*</span>}
+    <Label className={`${labelCls} ${error ? 'text-board-alarmink' : ''}`}>
+      {label}{required && <span className="text-board-alarmink ml-0.5">*</span>}
     </Label>
     {children}
-    {error && <p className="text-[11px] text-red-400">{error}</p>}
+    {error && <p className="text-[11px] text-board-alarmink">{error}</p>}
   </div>
 );
 
@@ -192,31 +192,31 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
     <Sheet open={isOpen} onOpenChange={open => !open && onClose()}>
       <SheetContent
         side="right"
-        className="w-full sm:max-w-[680px] bg-white dark:bg-zinc-950 border-gray-200 dark:border-zinc-800 p-0 flex flex-col"
+        className="w-full sm:max-w-[680px] bg-board-panel border-board-line p-0 flex flex-col"
       >
         {/* Header */}
-        <SheetHeader className="px-6 pt-6 pb-4 border-b border-gray-100 dark:border-zinc-800 shrink-0">
+        <SheetHeader className="px-6 pt-6 pb-4 border-b border-board-line shrink-0">
           <div className="flex items-center gap-3">
-            <div className="p-2 bg-blue-500/10 ring-1 ring-blue-500/20 rounded-lg">
-              <Film className="h-4 w-4 text-blue-400" />
+            <div className="p-2 bg-board-amber/10 ring-1 ring-board-amber/20 rounded-lg">
+              <Film className="h-4 w-4 text-board-amberink" />
             </div>
             <div className="flex-1 min-w-0">
-              <SheetTitle className="text-gray-900 dark:text-white text-base">
+              <SheetTitle className="text-board-ink text-base">
                 {movie ? 'Editar película' : 'Nueva película'}
               </SheetTitle>
-              <SheetDescription className="text-gray-400 dark:text-zinc-500 text-xs mt-0.5">
+              <SheetDescription className="text-board-mute text-xs mt-0.5">
                 {movie ? movie.title : 'Completa los campos para agregar una película a la cartelera'}
               </SheetDescription>
             </div>
             {/* Completion pill */}
             <div className="flex items-center gap-1.5 shrink-0">
-              <div className="w-16 h-1.5 bg-gray-200 dark:bg-zinc-800 rounded-full overflow-hidden">
+              <div className="w-16 h-1.5 bg-board-panel2 rounded-full overflow-hidden">
                 <div
-                  className={`h-full rounded-full transition-all duration-300 ${pct === 100 ? 'bg-emerald-500' : 'bg-blue-500'}`}
+                  className={`h-full rounded-full transition-all duration-300 ${pct === 100 ? 'bg-board-ok' : 'bg-board-amber'}`}
                   style={{ width: `${pct}%` }}
                 />
               </div>
-              <span className={`text-[10px] font-medium ${pct === 100 ? 'text-emerald-400' : 'text-gray-400 dark:text-zinc-500'}`}>
+              <span className={`text-[10px] font-medium ${pct === 100 ? 'text-board-okink' : 'text-board-mute'}`}>
                 {pct}%
               </span>
             </div>
@@ -238,11 +238,11 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                 movieTitle={formData.title}
               />
               {errors.images && (
-                <p className="text-[11px] text-red-400 -mt-2">{errors.images}</p>
+                <p className="text-[11px] text-board-alarmink -mt-2">{errors.images}</p>
               )}
             </Section>
 
-            <div className="border-t border-gray-100 dark:border-zinc-800" />
+            <div className="border-t border-board-line" />
 
             {/* ── Sección 2: Identidad ─────────────────────────────── */}
             <Section icon={Tag} title="Identidad">
@@ -259,7 +259,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Género" required error={errors.genre}>
                   <Select value={formData.genre} onValueChange={v => handleSelect('genre', v)}>
-                    <SelectTrigger className={`${selCls} ${errors.genre ? 'border-red-500/60' : ''}`}>
+                    <SelectTrigger className={`${selCls} ${errors.genre ? 'border-board-alarm/60' : ''}`}>
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
                     <SelectContent className={contentCls}>
@@ -298,11 +298,11 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                     placeholder="Sinopsis de la película..."
                     rows={4}
                     maxLength={1000}
-                    className={`resize-none bg-gray-50 dark:bg-zinc-800 border-gray-300 dark:border-zinc-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-zinc-600 focus-visible:ring-gray-300 dark:focus-visible:ring-zinc-600 ${errors.description ? 'border-red-500/60' : ''}`}
+                    className={`resize-none bg-board-ground border-board-line2 text-board-ink placeholder-board-mute focus-visible:ring-board-line2 ${errors.description ? 'border-board-alarm/60' : ''}`}
                   />
                   <span className={`absolute bottom-2 right-2.5 text-[10px] ${
-                    formData.description.length > 950 ? 'text-red-400' :
-                    formData.description.length > 800 ? 'text-amber-400' : 'text-gray-300 dark:text-zinc-700'
+                    formData.description.length > 950 ? 'text-board-alarmink' :
+                    formData.description.length > 800 ? 'text-board-amberink' : 'text-board-ink2'
                   }`}>
                     {formData.description.length}/1000
                   </span>
@@ -310,14 +310,14 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               </Field>
             </Section>
 
-            <div className="border-t border-gray-100 dark:border-zinc-800" />
+            <div className="border-t border-board-line" />
 
             {/* ── Sección 3: Clasificación y tiempo ───────────────── */}
             <Section icon={Star} title="Clasificación y tiempo">
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Clasificación" required error={errors.rating}>
                   <Select value={formData.rating} onValueChange={v => handleSelect('rating', v)}>
-                    <SelectTrigger className={`${selCls} ${errors.rating ? 'border-red-500/60' : ''}`}>
+                    <SelectTrigger className={`${selCls} ${errors.rating ? 'border-board-alarm/60' : ''}`}>
                       <SelectValue placeholder="Seleccionar" />
                     </SelectTrigger>
                     <SelectContent className={contentCls}>
@@ -344,7 +344,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                     type="date"
                     value={formData.release_date}
                     onChange={handleChange}
-                    className={`${errors.release_date ? inputErrCls : inputCls} dark:[color-scheme:dark]`}
+                    className={`${errors.release_date ? inputErrCls : inputCls} `}
                   />
                 </Field>
 
@@ -361,14 +361,14 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
               </div>
             </Section>
 
-            <div className="border-t border-gray-100 dark:border-zinc-800" />
+            <div className="border-t border-board-line" />
 
             {/* ── Sección 4: Disponibilidad ────────────────────────── */}
             <Section icon={Ticket} title="Disponibilidad">
               <div className="grid grid-cols-2 gap-4">
                 <Field label="Precio (COP)" required error={errors.price}>
                   <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-gray-400 dark:text-zinc-500">$</span>
+                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-board-mute">$</span>
                     <Input
                       name="price"
                       type="number"
@@ -407,21 +407,21 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
                 </Field>
 
                 {/* Presale toggle */}
-                <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 rounded-lg col-span-2">
+                <div className="flex items-center justify-between p-3 bg-board-ground border border-board-line rounded-lg col-span-2">
                   <div>
-                    <p className="text-sm text-gray-900 dark:text-white">Preventa activa</p>
-                    <p className="text-[11px] text-gray-400 dark:text-zinc-600 mt-0.5">La película se mostrará como preventa</p>
+                    <p className="text-sm text-board-ink">Preventa activa</p>
+                    <p className="text-[11px] text-board-mute mt-0.5">La película se mostrará como preventa</p>
                   </div>
                   <div className="flex items-center gap-2">
                     {formData.is_presale && (
-                      <Badge variant="outline" className="text-[10px] border-amber-500/30 text-amber-400 bg-amber-500/10">
+                      <Badge variant="outline" className="text-[10px] border-board-amber/30 text-board-amberink bg-board-amber/10">
                         Preventa
                       </Badge>
                     )}
                     <Switch
                       checked={formData.is_presale}
                       onCheckedChange={v => setFormData(prev => ({ ...prev, is_presale: v }))}
-                      className="data-[state=checked]:bg-amber-500 data-[state=unchecked]:bg-gray-300 dark:data-[state=unchecked]:bg-zinc-700"
+                      className="data-[state=checked]:bg-board-amber data-[state=unchecked]:bg-board-line"
                     />
                   </div>
                 </div>
@@ -430,9 +430,9 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
 
             {/* API Error */}
             {apiError && (
-              <div className="flex items-start gap-2 p-3 bg-red-500/10 border border-red-500/40 rounded-lg">
-                <AlertCircle className="h-4 w-4 text-red-400 mt-0.5 shrink-0" />
-                <p className="text-red-500 dark:text-red-300 text-sm">{apiError}</p>
+              <div className="flex items-start gap-2 p-3 bg-board-alarm/10 border border-board-alarm/40 rounded-lg">
+                <AlertCircle className="h-4 w-4 text-board-alarmink mt-0.5 shrink-0" />
+                <p className="text-board-alarmink text-sm">{apiError}</p>
               </div>
             )}
 
@@ -442,11 +442,11 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
         </form>
 
         {/* Sticky footer */}
-        <div className="shrink-0 px-6 py-4 border-t border-gray-100 dark:border-zinc-800 bg-white dark:bg-zinc-950 flex items-center justify-between gap-3">
+        <div className="shrink-0 px-6 py-4 border-t border-board-line bg-board-panel flex items-center justify-between gap-3">
           <button
             type="button"
             onClick={onClose}
-            className="h-9 px-4 text-sm text-gray-500 dark:text-zinc-400 hover:text-gray-900 dark:hover:text-white bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 border border-gray-200 dark:border-zinc-700 rounded-lg transition-colors"
+            className="h-9 px-4 text-sm text-board-mute hover:text-board-ink bg-board-panel2 hover:bg-board-panel2 border border-board-line rounded-lg transition-colors"
           >
             Cancelar
           </button>
@@ -455,7 +455,7 @@ const MovieModal = ({ movie, isOpen, onClose, onSave }) => {
             form="movie-form"
             onClick={handleSubmit}
             disabled={loading}
-            className="h-9 px-6 text-sm font-medium bg-blue-600 hover:bg-blue-500 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-lg transition-colors flex items-center gap-2"
+            className="h-9 px-6 text-sm font-medium bg-board-amber hover:bg-board-amberpress disabled:opacity-50 disabled:cursor-not-allowed text-board-onamber rounded-lg transition-colors flex items-center gap-2"
           >
             {loading && <Loader className="h-3.5 w-3.5 animate-spin" />}
             {movie ? 'Guardar cambios' : 'Crear película'}

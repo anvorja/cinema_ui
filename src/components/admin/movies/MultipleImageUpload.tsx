@@ -181,7 +181,7 @@ const MultipleImageUpload = ({
 
   return (
     <div className={`mb-6 ${className}`}>
-      <label className="block text-sm font-medium text-gray-300 mb-4">
+      <label className="block text-sm font-medium text-board-ink2 mb-4">
         Imágenes de la película (4 imágenes requeridas)
       </label>
 
@@ -189,25 +189,25 @@ const MultipleImageUpload = ({
         {imageTypes.map((imageType) => (
           <div key={imageType.key} className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-medium text-gray-300">
+              <h3 className="text-sm font-medium text-board-ink2">
                 {imageType.label}
               </h3>
-              <span className="text-xs text-gray-400">
+              <span className="text-xs text-board-mute">
                 {imageType.position}
               </span>
             </div>
 
-            <p className="text-xs text-gray-500 mb-2">
+            <p className="text-xs text-board-mute mb-2">
               {imageType.description}
             </p>
 
             <div
               className={`relative border-2 border-dashed rounded-lg p-4 transition-all duration-200 ${
                 draggedSlot && draggedSlot !== imageType.key && dragActive[imageType.key]
-                  ? 'border-green-400 bg-green-900/20 scale-[1.02]'
+                  ? 'border-board-ok bg-board-ok/20 scale-[1.02]'
                   : dragActive[imageType.key]
-                  ? 'border-blue-400 bg-blue-900/20'
-                  : 'border-gray-600 hover:border-gray-500'
+                  ? 'border-board-amber bg-board-amber/20'
+                  : 'border-board-line2 hover:border-board-line2'
               } ${uploading ? 'opacity-50 pointer-events-none' : ''}`}
               onDragEnter={(e) => handleDrag(e, imageType.key)}
               onDragLeave={(e) => handleDrag(e, imageType.key)}
@@ -231,18 +231,18 @@ const MultipleImageUpload = ({
                       draggable={!uploading}
                       onDragStart={() => setDraggedSlot(imageType.key)}
                       onDragEnd={() => setDraggedSlot(null)}
-                      className={`mx-auto h-24 w-32 object-cover rounded-lg mb-2 ${!uploading ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedSlot === imageType.key ? 'opacity-50 ring-2 ring-blue-400' : ''}`}
+                      className={`mx-auto h-24 w-32 object-cover rounded-lg mb-2 ${!uploading ? 'cursor-grab active:cursor-grabbing' : ''} ${draggedSlot === imageType.key ? 'opacity-50 ring-2 ring-board-amber' : ''}`}
                       title="Arrastra para intercambiar con otra imagen"
                     />
                     {draggedSlot && draggedSlot !== imageType.key && dragActive[imageType.key] && (
-                      <div className="absolute inset-0 flex items-center justify-center bg-green-900/60 rounded-lg">
-                        <span className="text-green-300 text-xs font-medium">Intercambiar</span>
+                      <div className="absolute inset-0 flex items-center justify-center bg-board-ok/60 rounded-lg">
+                        <span className="text-board-okink text-xs font-medium">Intercambiar</span>
                       </div>
                     )}
                     {!uploading && (
                       <button
                         onClick={() => removeImage(imageType.key)}
-                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full p-1 hover:bg-red-700 transition-colors"
+                        className="absolute -top-1 -right-1 bg-board-alarm text-board-ink rounded-full p-1 hover:bg-board-alarm transition-colors"
                         title="Eliminar imagen"
                       >
                         <X className="h-3 w-3" />
@@ -254,7 +254,7 @@ const MultipleImageUpload = ({
                     <button
                       type="button"
                       onClick={() => onButtonClick(imageType.key)}
-                      className="text-blue-400 hover:text-blue-300 flex items-center justify-center mx-auto transition-colors text-sm"
+                      className="text-board-amberink hover:text-board-amberink flex items-center justify-center mx-auto transition-colors text-sm"
                     >
                       <Edit2 className="h-3 w-3 mr-1" />
                       Cambiar
@@ -263,26 +263,26 @@ const MultipleImageUpload = ({
                 </div>
               ) : (
                 <div className="text-center">
-                  <ImageIcon className="h-8 w-8 text-gray-400 mx-auto mb-2" />
-                  <div className="text-gray-400 mb-1 text-sm">
+                  <ImageIcon className="h-8 w-8 text-board-mute mx-auto mb-2" />
+                  <div className="text-board-mute mb-1 text-sm">
                     <button
                       onClick={() => onButtonClick(imageType.key)}
-                      className="text-blue-400 hover:text-blue-300 underline transition-colors"
+                      className="text-board-amberink hover:text-board-amberink underline transition-colors"
                     >
                       Seleccionar archivo
                     </button>
                   </div>
-                  <p className="text-xs text-gray-500">
+                  <p className="text-xs text-board-mute">
                     PNG, JPG, GIF hasta 10MB
                   </p>
                 </div>
               )}
 
               {uploading && (
-                <div className="absolute inset-0 flex items-center justify-center bg-gray-900/50 rounded-lg">
+                <div className="absolute inset-0 flex items-center justify-center bg-board-panel/50 rounded-lg">
                   <div className="text-center">
-                    <Loader className="h-4 w-4 animate-spin text-blue-400 mx-auto mb-1" />
-                    <p className="text-xs text-gray-300">Subiendo...</p>
+                    <Loader className="h-4 w-4 animate-spin text-board-amberink mx-auto mb-1" />
+                    <p className="text-xs text-board-ink2">Subiendo...</p>
                   </div>
                 </div>
               )}
@@ -292,12 +292,12 @@ const MultipleImageUpload = ({
       </div>
 
       {error && (
-        <div className="mt-4 p-3 bg-red-900/50 border border-red-500 rounded-md flex items-center">
-          <AlertCircle className="h-4 w-4 text-red-400 mr-2" />
-          <span className="text-red-200 text-sm">{error}</span>
+        <div className="mt-4 p-3 bg-board-alarm/50 border border-board-alarm rounded-md flex items-center">
+          <AlertCircle className="h-4 w-4 text-board-alarmink mr-2" />
+          <span className="text-board-alarmink text-sm">{error}</span>
           <button
             onClick={clearError}
-            className="ml-auto text-red-400 hover:text-red-300"
+            className="ml-auto text-board-alarmink hover:text-board-alarmink"
           >
             <X className="h-4 w-4" />
           </button>
@@ -307,7 +307,7 @@ const MultipleImageUpload = ({
       {/* Indicador de progreso */}
       <div className="mt-4">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-gray-400">
+          <span className="text-board-mute">
             Imágenes subidas: {Object.values(images).filter(Boolean).length}/4
           </span>
           <div className="flex space-x-1">
@@ -315,7 +315,7 @@ const MultipleImageUpload = ({
               <div
                 key={key}
                 className={`w-3 h-3 rounded-full ${
-                  value ? 'bg-green-500' : 'bg-gray-600'
+                  value ? 'bg-board-ok' : 'bg-board-panel2'
                 }`}
                 title={imageTypes.find(t => t.key === key)?.label}
               />

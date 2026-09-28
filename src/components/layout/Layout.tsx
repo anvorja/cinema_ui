@@ -1,18 +1,12 @@
 // src/components/layout/Layout.tsx
-import { useEffect } from 'react';
 import { Outlet } from 'react-router-dom';
 import { Header } from './Header';
 import Footer from './Footer';
-import { applyBoardTheme, readBoardTheme } from '../board/useBoardTheme';
+import useBoardWorld from '../board/useBoardWorld';
 
 const Layout = () => {
-  // El mundo "tablero" se aplica al <body> para que los portales de Radix
-  // (menús, hojas, diálogos) hereden los mismos tokens. El admin queda fuera.
-  useEffect(() => {
-    document.body.classList.add('board');
-    applyBoardTheme(readBoardTheme());
-    return () => document.body.classList.remove('board', 'board-light');
-  }, []);
+  // El mundo "tablero" se aplica al <body> para que los portales de Radix hereden los tokens.
+  useBoardWorld();
 
   return (
     <div className="flex min-h-screen flex-col">

@@ -827,6 +827,18 @@
   --accent-foreground: 240 5% 8%;
   --border: 45 10% 78%;
   --input: 45 10% 78%;
+  --sidebar-background: 0 0% 100%;
+  --sidebar-foreground: 240 5% 8%;
+  --sidebar-accent: 45 15% 92%;
+  --sidebar-accent-foreground: 240 5% 8%;
+  --sidebar-border: 45 10% 82%;
+}
+
+.b-dark, .board .b-dark {
+  --b-ground: 12 12 13; --b-panel: 21 21 23; --b-panel2: 29 29 32; --b-line: 44 44 48; --b-line2: 70 70 76;
+  --b-ink: 244 241 232; --b-ink2: 195 191 178; --b-mute: 143 139 128;
+  --b-amberink: 242 183 5; --b-alarmink: 240 100 77; --b-okink: 123 216 143;
+  --b-sold: 58 26 21; --b-alarmbg: 29 18 16; --b-okbg: 16 26 19;
 }
 
 .board {
@@ -856,6 +868,14 @@
   --input: 240 4% 18%;
   --ring: 44 96% 48%;
   --radius: 0.25rem;
+  --sidebar-background: 240 4% 8%;
+  --sidebar-foreground: 45 33% 94%;
+  --sidebar-primary: 44 96% 48%;
+  --sidebar-primary-foreground: 240 4% 5%;
+  --sidebar-accent: 240 4% 13%;
+  --sidebar-accent-foreground: 45 33% 94%;
+  --sidebar-border: 240 4% 18%;
+  --sidebar-ring: 44 96% 48%;
 
   min-height: 100vh;
   background: rgb(var(--b-ground));
@@ -1033,3 +1053,10 @@ body.board { background: rgb(var(--b-ground)); color: rgb(var(--b-ink)); }
 .board-light .bg-black\/50 { background-color: rgb(var(--b-ground) / 0.7); }
 .board-light .text-black { color: rgb(var(--b-ink)); }
 .board-light input, .board-light textarea, .board-light select { background-color: rgb(var(--b-panel)); color: rgb(var(--b-ink)); border-color: rgb(var(--b-line2)); }
+
+/* Botones de acción sólidos (ámbar / ok / alarma) hablan con la voz del tablero */
+.board button.bg-board-amber, .board a.bg-board-amber,
+.board button.bg-board-ok, .board button.bg-board-alarm {
+  font-family: var(--font-board); text-transform: uppercase; letter-spacing: 0.06em;
+  font-size: 1.0625rem; font-weight: 700; min-height: 40px; border-radius: 3px;
+}
