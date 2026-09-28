@@ -4,6 +4,7 @@ import { createPortal } from 'react-dom';
 import { Link, useLocation, useNavigate, NavLink } from 'react-router-dom';
 import { Menu, Search, X, User, CreditCard } from 'lucide-react';
 import BoardClock from '../board/BoardClock';
+import BoardTip from '../board/BoardTip';
 import { UserProfileDropdown } from './UserProfileDropdown';
 import { MobileProfileMenu } from './MobileProfileMenu';
 import { Sidebar } from './Sidebar';
@@ -183,14 +184,14 @@ const Header = () => {
                         <div className="flex items-center gap-2 sm:gap-3">
                             <BoardClock className="hidden sm:block text-[15px]" />
 
-                            <Link
+<BoardTip label="Recargar tarjeta Cinema+" side="bottom"><Link
                                 to="/recharge"
                                 className="hidden lg:flex h-10 items-center gap-2 rounded-[3px] border border-[#46464c] px-3 font-board text-[15px] font-semibold tracking-[0.06em] text-[#f4f1e8] hover:border-[#f2b705] hover:text-[#f2b705]"
-                                title="Recargar Tarjeta Cinema+"
+                                aria-label="Recargar tarjeta Cinema+"
                             >
                                 <CreditCard className="h-4 w-4 shrink-0" />
                                 <span className="hidden xl:inline">RECARGAR</span>
-                            </Link>
+                            </Link></BoardTip>
 
                             {/* Búsqueda escritorio */}
                             <div className="hidden md:flex items-center relative search-container">

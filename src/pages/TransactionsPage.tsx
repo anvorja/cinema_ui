@@ -1,4 +1,5 @@
 // src/pages/TransactionsPage.jsx
+import BoardTip from '../components/board/BoardTip';
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import {
@@ -256,13 +257,14 @@ const TransactionsPage = () => {
                       {tx.tickets?.length > 0 && (
                         <div className="mt-2 flex flex-wrap gap-1">
                           {tx.tickets.map(ticket => (
-                            <span
-                              key={ticket.id}
-                              className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-xs text-white/50 font-mono"
-                              title={`Asiento: ${ticket.seat_number}`}
-                            >
-                              {ticket.ticket_code} · {ticket.seat_number}
-                            </span>
+                            <BoardTip key={ticket.id} label={`Asiento ${ticket.seat_number}`}>
+                              <span
+                                tabIndex={0}
+                                className="px-2 py-0.5 bg-white/5 border border-white/10 rounded text-xs text-white/50 font-mono"
+                              >
+                                {ticket.ticket_code} · {ticket.seat_number}
+                              </span>
+                            </BoardTip>
                           ))}
                         </div>
                       )}

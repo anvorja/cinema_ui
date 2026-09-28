@@ -1,6 +1,7 @@
 // src/pages/HomePage.jsx
 import { useState, useMemo } from 'react';
 import { Search, List, LayoutGrid } from 'lucide-react';
+import BoardTip from '../components/board/BoardTip';
 import { MovieCarousel } from '../components/cinema/MovieCarousel';
 import { MovieGrid } from '../components/cinema/MovieGrid';
 import LoadingSpinner from '../components/common/LoadingSpinner';
@@ -107,19 +108,17 @@ const HomePage = () => {
           <div className="flex items-center gap-2">
           <div role="group" aria-label="Vista de la cartelera" className="flex shrink-0">
             {([['lista', List, 'Lista'], ['cuadricula', LayoutGrid, 'Cuadrícula']] as const).map(([key, Icon, label]) => (
-              <button
-                key={key}
+              <BoardTip key={key} label={label}><button
                 type="button"
                 aria-pressed={view === key}
                 aria-label={label}
-                title={label}
                 onClick={() => chooseView(key)}
                 className={`flex h-12 w-12 items-center justify-center border first:rounded-l-[3px] last:rounded-r-[3px] ${
                   view === key ? 'border-[#f2b705] bg-[#f2b705] text-[#0c0c0d]' : 'border-[#46464c] text-[#c3bfb2] hover:text-[#f4f1e8]'
                 }`}
               >
                 <Icon className="h-5 w-5" />
-              </button>
+              </button></BoardTip>
             ))}
           </div>
           <div className="relative min-w-0 flex-1 md:w-72 md:flex-none">

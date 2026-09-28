@@ -1,6 +1,7 @@
 // src/components/seats/CinemaSeatMap.tsx
 import { useState } from 'react';
 import { Check, X as XIcon } from 'lucide-react';
+import BoardTip from '../board/BoardTip';
 
 const X  = 'x';   // unavailable
 
@@ -64,9 +65,11 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
   }
   if (occupied) {
     return (
-      <div className={`${SEAT_BASE} bg-[#3a1a15] text-[#f0644d]`} role="img" aria-label={`Silla ${id}, vendida`} title="Silla ya vendida">
-        <XIcon className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
-      </div>
+      <BoardTip label={`${id} · Vendida`}>
+        <div className={`${SEAT_BASE} bg-[#3a1a15] text-[#f0644d]`} role="img" aria-label={`Silla ${id}, vendida`} tabIndex={0}>
+          <XIcon className="h-4 w-4" strokeWidth={3} aria-hidden="true" />
+        </div>
+      </BoardTip>
     );
   }
 
@@ -84,17 +87,20 @@ const Seat = ({ id, value, rowType, selected, occupied, onToggle }) => {
 
   const kind = isWC ? 'espacio para silla de ruedas' : rowType === 'preferencial' ? 'preferencial' : 'general';
 
+  const tip = `${id} · ${isWC ? 'Silla de ruedas' : rowType === 'preferencial' ? 'Preferencial' : 'General'}${selected ? ' · Tuya' : ''}`;
+
   return (
-    <button
-      type="button"
-      className={`${SEAT_BASE} ${tone}`}
-      onClick={handleClick}
-      aria-pressed={selected}
-      aria-label={`Silla ${id}, ${kind}${selected ? ', seleccionada' : ''}`}
-      title={`${id}${rowType === 'preferencial' ? ' (Preferencial)' : ''}`}
-    >
-      {isWC ? <WheelchairSVG /> : selected ? <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" /> : value}
-    </button>
+    <BoardTip label={tip}>
+      <button
+        type="button"
+        className={`${SEAT_BASE} ${tone}`}
+        onClick={handleClick}
+        aria-pressed={selected}
+        aria-label={`Silla ${id}, ${kind}${selected ? ', seleccionada' : ''}`}
+      >
+        {isWC ? <WheelchairSVG /> : selected ? <Check className="h-4 w-4" strokeWidth={3} aria-hidden="true" /> : value}
+      </button>
+    </BoardTip>
   );
 };
 
@@ -155,8 +161,8 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
           >
             {/* Pantalla */}
             <div className="mb-8 flex flex-col items-center">
-              <div className="h-1 w-72 bg-[#f2b705]" />
-              <span className="mt-2 font-data text-[11px] uppercase text-[#8f8b80]">Pantalla</span>
+              <div className="h-2 w-full bg-[#f2b705]" style={{ clipPath: 'polygon(2% 0, 98% 0, 100% 100%, 0 100%)' }} />
+              <span className="mt-2 font-data text-[11px] uppercase tracking-[0.3em] text-[#8f8b80]">Pantalla</span>
             </div>
 
             <div className="flex flex-col gap-1">
