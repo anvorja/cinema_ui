@@ -1,9 +1,8 @@
 // src/components/booking/TheatersWithShowtimes.jsx
 import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { MapPinIcon, ChevronDownIcon, TicketIcon } from '@heroicons/react/24/outline';
+import { ChevronDownIcon, TicketIcon } from '@heroicons/react/24/outline';
 
-import { GlassCard } from '../common';
 import { useMovieShowtimes } from '../../hooks/useMovieShowtimes';
 import { useBooking } from '../../hooks/useBooking';
 import useAuth from '../../hooks/useAuth';
@@ -81,142 +80,93 @@ const TheatersWithShowtimes = ({ theaters, movieId, movie, canPurchase: _canPurc
 
   return (
     <>
-    <section className="py-16">
-      <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-bold text-white mb-8 text-center">
-          Teatros y Horarios Disponibles
-        </h2>
-
-        {showtimesLoading && effectiveTheaters.length === 0 && (
-          <div className="flex justify-center py-12">
-            <LoadingSpinner size="lg" />
-          </div>
-        )}
-
-        <div className="max-w-4xl mx-auto space-y-6">
-          {effectiveTheaters.map((theater) => {
-            const theaterShowtimes = showtimes[theater.id];
-            const isExpanded = expandedTheater === theater.id;
-            const hasShowtimes = theaterShowtimes?.times?.length > 0;
-
-            return (
-              <GlassCard key={theater.id} className="overflow-hidden">
-                <div
-                  className="p-6 cursor-pointer hover:bg-white/5 transition-colors duration-200"
-                  onClick={() => handleTheaterClick(theater)}
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-start gap-4">
-                      <MapPinIcon className="w-8 h-8 text-blue-400 mt-1 flex-shrink-0" />
-                      <div>
-                        <h3 className="text-white font-semibold text-xl mb-1">
-                          {theater.name || theaterShowtimes?.theaterName || `Teatro ${theater.id}`}
-                        </h3>
-                        <p className="text-white/70 text-sm mb-2">
-                          {theater.location}
-                        </p>
-                        <div className="flex items-center gap-4 text-sm">
-                          <span className="text-green-400">
-                            Capacidad: {theater.capacity}
-                          </span>
-                          <span className="text-blue-400">
-                            {theaterShowtimes?.times?.length || 0} horarios
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center gap-3">
-                      {showtimesLoading ? (
-                        <LoadingSpinner size="sm" />
-                      ) : (
-                        <>
-                          <span className="text-white/60 text-sm">
-                            {isExpanded ? 'Ocultar' : 'Ver'} horarios
-                          </span>
-                          <ChevronDownIcon className={`
-                            w-5 h-5 text-white/60 transform transition-transform duration-200
-                            ${isExpanded ? 'rotate-180' : ''}
-                          `} />
-                        </>
-                      )}
-                    </div>
-                  </div>
-                </div>
-
-                {/* Sección expandible de horarios */}
-                <div className={`
-                  transition-all duration-300 overflow-hidden
-                  ${isExpanded ? 'max-h-[420px] opacity-100' : 'max-h-0 opacity-0'}
-                `}>
-                  <div className="px-6 pb-5 border-t border-white/10">
-                    <div className="pt-4">
-                      <div className="flex items-center justify-between mb-3">
-                        <h4 className="text-white/90 text-sm font-semibold flex items-center gap-2">
-                          Hoy ·
-                          <span className="text-white/50 font-normal">
-                            {new Date().toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
-                          </span>
-                        </h4>
-                        {hasShowtimes && (
-                          <span className="text-xs text-white/40">
-                            {theaterShowtimes.times.filter(t => t.available).length} funciones disponibles
-                          </span>
-                        )}
-                      </div>
-
-                      {showtimesLoading ? (
-                        <div className="flex items-center gap-3 py-6">
-                          <LoadingSpinner size="sm" />
-                          <p className="text-white/50 text-sm">Cargando horarios...</p>
-                        </div>
-                      ) : hasShowtimes ? (
-                        <div
-                          className="overflow-y-auto pr-1"
-                          style={{ maxHeight: '280px', scrollbarWidth: 'thin', scrollbarColor: 'rgba(255,255,255,0.15) transparent' }}
-                        >
-                          <div className="grid grid-cols-3 sm:grid-cols-4 lg:grid-cols-5 gap-2">
-                            {theaterShowtimes.times.map((showtime) => (
-                              <ShowtimeButton
-                                key={showtime.id}
-                                showtime={showtime}
-                                onSelect={(st) => handleShowtimeSelect(theater, st)}
-                                isSelected={
-                                  selectedShowtime?.id === showtime.id &&
-                                  selectedTheater?.id === theater.id
-                                }
-                              />
-                            ))}
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="flex flex-col items-center gap-2 py-8 text-center">
-                          <TicketIcon className="w-10 h-10 text-white/20" />
-                          <p className="text-white/50 text-sm">Sin funciones disponibles hoy</p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              </GlassCard>
-            );
-          })}
+    <section className="pb-6" aria-label="Horarios por cine">
+      {showtimesLoading && effectiveTheaters.length === 0 && (
+        <div className="flex justify-center py-12">
+          <LoadingSpinner size="lg" text="Consultando funciones" />
         </div>
+      )}
 
-        {/* Información general */}
-        <div className="max-w-2xl mx-auto mt-8">
-          <GlassCard className="p-6 text-center">
-            <h3 className="text-white font-semibold mb-2">
-              Información sobre horarios
-            </h3>
-            <div className="text-sm text-white/70 space-y-1">
-              <p>• Los horarios se actualizan en tiempo real</p>
-              <p>• Precios pueden variar según formato (IMAX, 3D, etc.)</p>
-              <p>• Selecciona un horario para continuar con tu reserva</p>
+      <div className="max-w-5xl space-y-5">
+        {effectiveTheaters.map((theater) => {
+          const theaterShowtimes = showtimes[theater.id];
+          const isExpanded = expandedTheater === theater.id || (expandedTheater === null && effectiveTheaters[0]?.id === theater.id);
+          const hasShowtimes = theaterShowtimes?.times?.length > 0;
+          const panelId = `theater-${theater.id}`;
+
+          return (
+            <div key={theater.id} className="border border-[#2c2c30] bg-[#151517]">
+              <button
+                type="button"
+                aria-expanded={isExpanded}
+                aria-controls={panelId}
+                onClick={() => setExpandedTheater(isExpanded ? -1 : theater.id)}
+                className="flex min-h-[64px] w-full items-center justify-between gap-4 px-4 py-3 text-left hover:bg-[#1d1d20]"
+              >
+                <span className="min-w-0">
+                  <span className="block truncate font-board text-2xl font-bold tracking-wide uppercase text-[#f4f1e8]">
+                    {theater.name || theaterShowtimes?.theaterName || `Teatro ${theater.id}`}
+                  </span>
+                  {theater.location && <span className="mt-0.5 block truncate text-sm text-[#8f8b80]">{theater.location}</span>}
+                </span>
+                <span className="flex shrink-0 items-center gap-3 font-data text-xs text-[#c3bfb2]">
+                  {showtimesLoading ? (
+                    <LoadingSpinner size="sm" />
+                  ) : (
+                    <>
+                      <span>{theaterShowtimes?.times?.length || 0} funciones</span>
+                      <ChevronDownIcon className={`h-5 w-5 ${isExpanded ? 'rotate-180' : ''}`} />
+                    </>
+                  )}
+                </span>
+              </button>
+
+              {isExpanded && (
+                <div id={panelId} className="border-t border-[#46464c]">
+                  <div className="flex items-center justify-between px-4 py-2 font-data text-xs text-[#8f8b80]">
+                    <span className="uppercase">
+                      Hoy · {new Date().toLocaleDateString('es-CO', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </span>
+                    {hasShowtimes && <span>{theaterShowtimes.times.filter(t => t.available).length} con sillas</span>}
+                  </div>
+
+                  {showtimesLoading ? (
+                    <div className="flex items-center gap-3 px-4 py-6">
+                      <LoadingSpinner size="sm" text="Cargando horarios" />
+                    </div>
+                  ) : hasShowtimes ? (
+                    <>
+                      <div className="hidden grid-cols-[96px_110px_80px_130px_minmax(0,1fr)_auto] gap-x-5 border-y border-[#2c2c30] px-4 py-1.5 font-data text-[11px] uppercase text-[#8f8b80] sm:grid" aria-hidden="true">
+                        <span>Hora</span><span>Formato</span><span>Sala</span><span>Sillas</span><span /><span className="text-right">Boleta</span>
+                      </div>
+                      <ul className="max-h-[420px] divide-y divide-[#2c2c30] overflow-y-auto">
+                        {theaterShowtimes.times.map((showtime) => (
+                          <li key={showtime.id}>
+                            <ShowtimeButton
+                              showtime={showtime}
+                              onSelect={(st) => handleShowtimeSelect(theater, st)}
+                              isSelected={selectedShowtime?.id === showtime.id && selectedTheater?.id === theater.id}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                    </>
+                  ) : (
+                    <div className="flex flex-col items-center gap-2 px-4 py-10 text-center">
+                      <TicketIcon className="h-8 w-8 text-[#8f8b80]" />
+                      <p className="font-board text-xl font-semibold tracking-wide uppercase text-[#c3bfb2]">Sin funciones hoy</p>
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
-          </GlassCard>
-        </div>
+          );
+        })}
       </div>
+
+      <p className="mt-6 max-w-5xl text-sm text-[#8f8b80]">
+        Los horarios se actualizan en tiempo real. El precio puede variar según el formato (IMAX, 3D). Elige una función para escoger tus sillas.
+      </p>
     </section>
 
       {/* Modales de autenticación para gate de horario */}

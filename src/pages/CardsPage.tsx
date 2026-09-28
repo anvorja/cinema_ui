@@ -13,8 +13,8 @@ import { purchaseService } from '../services/api';
 import useAuth from '../hooks/useAuth';
 
 const CARD_GRADIENTS = [
-  'from-blue-600 to-purple-700',
-  'from-purple-600 to-pink-700',
+  'bg-[#1d1d20] border border-[#46464c]',
+  'bg-[#1d1d20] border border-[#f2b705]/50',
   'from-slate-600 to-blue-700',
   'from-emerald-600 to-teal-700',
 ];
@@ -70,7 +70,7 @@ const CardsPage = () => {
   }, [isAuthenticated]);
 
   return (
-    <div className="min-h-screen pt-24">
+    <div className="pt-8 pb-12">
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8 max-w-3xl">
 
         {/* Header */}
@@ -146,7 +146,7 @@ const CardsPage = () => {
                   // Visual de tarjeta de crédito
                   <div
                     key={idx}
-                    className={`relative bg-gradient-to-br ${CARD_GRADIENTS[idx % CARD_GRADIENTS.length]} rounded-2xl p-5 shadow-xl overflow-hidden`}
+                    className={`relative ${CARD_GRADIENTS[idx % CARD_GRADIENTS.length]} rounded-[3px] p-5 overflow-hidden`}
                   >
                     {/* Card decoration */}
                     <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
@@ -182,7 +182,7 @@ const CardsPage = () => {
                   // PSE
                   <div
                     key={idx}
-                    className="relative bg-gradient-to-br from-teal-700 to-emerald-800 rounded-2xl p-5 shadow-xl overflow-hidden"
+                    className="relative bg-[#1d1d20] border border-[#7bd88f]/50 rounded-[3px] p-5 overflow-hidden"
                   >
                     <div className="absolute -top-6 -right-6 w-24 h-24 rounded-full bg-white/10" />
                     <div className="absolute -bottom-8 -right-8 w-32 h-32 rounded-full bg-white/5" />

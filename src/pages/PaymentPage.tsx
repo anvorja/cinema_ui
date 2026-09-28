@@ -15,7 +15,8 @@ import {
   DevicePhoneMobileIcon,
   LockClosedIcon,
 } from '@heroicons/react/24/outline';
-import { FloatingParticles, GlassCard, PremiumButton } from '../components/common';
+import { PremiumButton } from '../components/common';
+import BookingSteps from '../components/board/BookingSteps';
 import { useBooking } from '../hooks/useBooking';
 import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import useAuth from "../hooks/useAuth.js";
@@ -91,10 +92,10 @@ const PaymentPage = () => {
 
   if (!movie || !theater || !showtime) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-white text-xl mb-4">Información de pago no encontrada</p>
-          <PremiumButton onClick={() => navigate('/cartelera')}>Volver a Cartelera</PremiumButton>
+          <p className="mb-4 font-board text-2xl font-bold tracking-wide uppercase">Información de pago no encontrada</p>
+          <PremiumButton onClick={() => navigate('/')}>Volver a la cartelera</PremiumButton>
         </div>
       </div>
     );
@@ -122,168 +123,136 @@ const PaymentPage = () => {
 
   return (
     <>
-      <div className="min-h-screen pt-24 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <FloatingParticles count={25} className="opacity-20" />
+      <BookingSteps current="Pago" />
+      <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6">
+        <button
+          onClick={() => navigate(-1)}
+          disabled={busy}
+          className="mb-4 flex min-h-[44px] items-center gap-2 text-[#c3bfb2] hover:text-[#f4f1e8] disabled:opacity-40"
+        >
+          <ArrowLeftIcon className="h-5 w-5" />
+          <span className="font-board text-lg font-bold tracking-[0.08em]">VOLVER</span>
+        </button>
+        <h1 className="font-board text-4xl font-bold tracking-[0.06em] uppercase">Pagar tu compra</h1>
+        <p className="mt-2 max-w-[65ch] text-[17px] text-[#c3bfb2]">
+          Pagas en Wompi, la pasarela de Bancolombia. Los datos de tu tarjeta nunca pasan por CinemaPlus.
+        </p>
 
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="max-w-4xl mx-auto">
-            <div className="mb-8">
-              <button
-                onClick={() => navigate(-1)}
-                disabled={busy}
-                className="flex items-center gap-2 text-white/70 hover:text-white transition-colors duration-200 mb-4 disabled:opacity-40"
-              >
-                <ArrowLeftIcon className="w-5 h-5" />
-                Volver
-              </button>
-              <h1 className="text-3xl font-bold text-white mb-2">Realizar pago</h1>
-              <p className="text-white/70">Pagas en Wompi, la pasarela de Bancolombia. Tus datos nunca pasan por Cinema+.</p>
-            </div>
-
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-2 space-y-6">
-                <GlassCard className="p-6">
-                  <div className="flex items-center gap-3 mb-2">
-                    <LockClosedIcon className="w-6 h-6 text-green-400" />
-                    <h2 className="text-white font-semibold text-lg">Pago seguro con Wompi</h2>
-                  </div>
-                  <p className="text-white/70 text-sm">
-                    Pulsa <span className="text-white font-medium">Pagar con Wompi</span> y allí eliges cómo pagar.
-                    Al terminar vuelves aquí y ves tus boletas con su código QR.
-                  </p>
-                  <div className="mt-4 pt-4 border-t border-white/10">
-                    <p id="wompi-methods" className="text-white/50 text-xs mb-2">Medios que acepta Wompi</p>
-                    <ul aria-labelledby="wompi-methods" className="flex flex-wrap gap-x-5 gap-y-2">
-                      {WOMPI_METHODS.map(({ icon: Icon, name }) => (
-                        <li key={name} className="flex items-center gap-1.5 text-white/60 text-sm select-none">
-                          <Icon className="w-4 h-4 text-white/40 shrink-0" aria-hidden="true" />
-                          {name}
-                        </li>
-                      ))}
-                    </ul>
-                  </div>
-                </GlassCard>
-
-                {busy && (
-                  <GlassCard className="p-6" aria-live="polite">
-                    <ol className="space-y-3">
-                      {STAGES.map(({ id, label }, index) => {
-                        const current = STAGES.findIndex(s => s.id === stage);
-                        const state = index < current ? 'done' : index === current ? 'active' : 'todo';
-                        return (
-                          <li key={id} className="flex items-center gap-3">
-                            <span
-                              className={`flex h-6 w-6 items-center justify-center rounded-full text-xs font-bold ${
-                                state === 'done'
-                                  ? 'bg-green-500 text-white'
-                                  : state === 'active'
-                                    ? 'bg-blue-500 text-white animate-pulse'
-                                    : 'bg-white/10 text-white/40'
-                              }`}
-                            >
-                              {state === 'done' ? '✓' : index + 1}
-                            </span>
-                            <span className={state === 'todo' ? 'text-white/40' : 'text-white'}>{label}</span>
-                          </li>
-                        );
-                      })}
-                    </ol>
-                    <p className="text-white/40 text-xs mt-4">No cierres esta ventana.</p>
-                  </GlassCard>
-                )}
-
-                <GlassCard className="p-4">
-                  <div className="flex items-center gap-3">
-                    <ShieldCheckIcon className="w-6 h-6 text-green-400" />
-                    <div>
-                      <p className="text-white font-medium text-sm">Tus asientos quedan apartados mientras pagas</p>
-                      <p className="text-white/60 text-xs">Si no completas el pago a tiempo, se liberan y no se cobra nada.</p>
-                    </div>
-                  </div>
-                </GlassCard>
+        <div className="mt-8 grid gap-8 lg:grid-cols-[minmax(0,1fr)_380px]">
+          <div className="space-y-5">
+            <section className="border border-[#2c2c30] bg-[#151517] p-5" aria-labelledby="wompi-title">
+              <div className="mb-2 flex items-center gap-3">
+                <LockClosedIcon className="h-6 w-6 text-[#7bd88f]" />
+                <h2 id="wompi-title" className="font-board text-2xl font-bold tracking-wide uppercase">Pago seguro con Wompi</h2>
               </div>
+              <p className="text-[15px] leading-relaxed text-[#c3bfb2]">
+                Pulsa <strong className="text-[#f4f1e8]">Pagar con Wompi</strong> y allí eliges cómo pagar. Al terminar vuelves aquí y ves tus boletas con su código QR.
+              </p>
+              <div className="mt-4 border-t border-[#2c2c30] pt-4">
+                <p id="wompi-methods" className="mb-2 font-data text-[11px] uppercase text-[#8f8b80]">Medios que acepta Wompi</p>
+                <ul aria-labelledby="wompi-methods" className="flex flex-wrap gap-x-5 gap-y-2">
+                  {WOMPI_METHODS.map(({ icon: Icon, name }) => (
+                    <li key={name} className="flex select-none items-center gap-1.5 text-[15px] text-[#c3bfb2]">
+                      <Icon className="h-4 w-4 shrink-0 text-[#8f8b80]" aria-hidden="true" />
+                      {name}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </section>
 
-              <div className="lg:col-span-1">
-                <GlassCard className="p-6 sticky top-8">
-                  <h3 className="text-white font-semibold text-lg mb-4">Resumen de compra</h3>
-
-                  <div className="mb-6 flex gap-3">
-                    <img
-                      src={optimizeCloudinaryUrl(movie.images?.poster || movie.poster_url, 150)}
-                      alt={movie.title}
-                      className="w-16 h-24 rounded object-cover"
-                    />
-                    <div className="flex-1">
-                      <h4 className="text-white font-medium text-sm mb-1">{movie.title}</h4>
-                      <div className="text-xs text-white/70 space-y-1">
-                        <p>{theater.name}</p>
-                        <p>{showtime.time} - {showtime.format}</p>
-                        <p>{new Date(selectedDate).toLocaleDateString('es-CO')}</p>
-                        {selectedSeats?.length > 0 && <p>Asientos: {selectedSeats.join(', ')}</p>}
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2 mb-6" aria-live="polite">
-                    {quote.isPending && <p className="text-white/60 text-sm">Calculando el total…</p>}
-                    {quote.isError && (
-                      <p role="alert" className="text-red-300 text-sm">
-                        No pudimos calcular el total. Vuelve atrás e intenta de nuevo.
-                      </p>
-                    )}
-                    {quote.data?.lines.map(line => (
-                      <div key={`${line.kind}-${line.code}`} className="flex justify-between gap-2 text-sm">
-                        <span className="text-white/80">
-                          {line.quantity} × {line.description}
+            {busy && (
+              <section className="border border-[#f2b705]/50 bg-[#151517] p-5" aria-live="polite">
+                <ol className="space-y-3">
+                  {STAGES.map(({ id, label }, index) => {
+                    const current = STAGES.findIndex(s => s.id === stage);
+                    const state = index < current ? 'done' : index === current ? 'active' : 'todo';
+                    return (
+                      <li key={id} className="flex items-center gap-3">
+                        <span
+                          className={`flex h-7 w-7 items-center justify-center rounded-[2px] font-data text-xs font-bold ${
+                            state === 'done' ? 'bg-[#7bd88f] text-[#0c0c0d]' : state === 'active' ? 'bg-[#f2b705] text-[#0c0c0d] motion-safe:animate-pulse' : 'border border-[#46464c] text-[#8f8b80]'
+                          }`}
+                        >
+                          {state === 'done' ? '✓' : index + 1}
                         </span>
-                        <span className="text-white shrink-0">{formatPrice(line.line_total)}</span>
-                      </div>
-                    ))}
-                    <hr className="border-white/20" />
-                    <div className="flex justify-between">
-                      <span className="text-white font-semibold">Total</span>
-                      <span className="text-green-400 font-bold text-xl">{formatPrice(total)}</span>
-                    </div>
-                  </div>
+                        <span className={`font-board text-xl font-semibold tracking-wide uppercase ${state === 'todo' ? 'text-[#8f8b80]' : 'text-[#f4f1e8]'}`}>{label}</span>
+                      </li>
+                    );
+                  })}
+                </ol>
+                <p className="mt-4 font-data text-xs text-[#8f8b80]">No cierres esta ventana.</p>
+              </section>
+            )}
 
-                  {paymentError && (
-                    <div role="alert" className="mb-4 p-4 rounded-lg border text-sm bg-red-500/20 border-red-500/40 text-red-300">
-                      <p className="font-semibold mb-1">No se pudo iniciar el pago</p>
-                      <p className="text-xs opacity-90">{paymentError}</p>
-                    </div>
-                  )}
-
-                  <PremiumButton
-                    onClick={handlePayment}
-                    disabled={busy || !quote.data}
-                    className="w-full flex items-center justify-center gap-2"
-                    size="lg"
-                  >
-                    {busy ? (
-                      <>
-                        <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white"></div>
-                        Procesando…
-                      </>
-                    ) : (
-                      <>
-                        <LockClosedIcon className="w-5 h-5" />
-                        Pagar con Wompi {formatPrice(total)}
-                      </>
-                    )}
-                  </PremiumButton>
-
-                  {!isAuthenticated && (
-                    <p className="text-yellow-400 text-xs mt-3 text-center">Inicia sesión primero para completar el pago</p>
-                  )}
-
-                  <div className="mt-4 text-xs text-white/60 space-y-1">
-                    <p>Al continuar aceptas nuestros términos y condiciones</p>
-                    <p>• Válido solo para la función seleccionada</p>
-                  </div>
-                </GlassCard>
+            <div className="flex items-start gap-3 border border-[#2c2c30] p-4">
+              <ShieldCheckIcon className="mt-0.5 h-6 w-6 shrink-0 text-[#7bd88f]" />
+              <div>
+                <p className="font-medium">Tus sillas quedan apartadas mientras pagas</p>
+                <p className="mt-0.5 text-sm text-[#8f8b80]">Si no completas el pago a tiempo, se liberan y no se cobra nada.</p>
               </div>
             </div>
           </div>
+
+          {/* Tiquete */}
+          <aside aria-label="Resumen de compra">
+            <div className="b-stub p-5 lg:sticky lg:top-20" style={{ ['--stub-cut' as any]: '58%' }}>
+              <div className="flex gap-3">
+                <img
+                  src={optimizeCloudinaryUrl(movie.images?.poster || movie.poster_url, 150)}
+                  alt=""
+                  className="h-24 w-16 border border-[#2c2c30] object-cover"
+                />
+                <div className="min-w-0 flex-1">
+                  <h3 className="font-board text-2xl font-bold leading-none tracking-wide uppercase">{movie.title}</h3>
+                  <div className="mt-2 space-y-0.5 font-data text-xs text-[#c3bfb2]">
+                    <p>{theater.name}</p>
+                    <p>{showtime.time} · {showtime.format}</p>
+                    <p>{new Date(selectedDate).toLocaleDateString('es-CO')}</p>
+                    {selectedSeats?.length > 0 && <p className="text-[#f4f1e8]">Sillas {selectedSeats.join(', ')}</p>}
+                  </div>
+                </div>
+              </div>
+
+              <div className="mt-5 space-y-2 border-t border-dashed border-[#46464c] pt-4 font-data text-sm" aria-live="polite">
+                {quote.isPending && <p className="text-[#8f8b80]">Calculando el total…</p>}
+                {quote.isError && (
+                  <p role="alert" className="text-[#f0644d]">No pudimos calcular el total. Vuelve atrás e intenta de nuevo.</p>
+                )}
+                {quote.data?.lines.map(line => (
+                  <div key={`${line.kind}-${line.code}`} className="flex justify-between gap-3">
+                    <span className="text-[#c3bfb2]">{line.quantity} × {line.description}</span>
+                    <span className="shrink-0">{formatPrice(line.line_total)}</span>
+                  </div>
+                ))}
+                <div className="flex items-baseline justify-between border-t border-dashed border-[#46464c] pt-3">
+                  <span className="text-base font-bold">Total</span>
+                  <span className="text-2xl font-bold text-[#f2b705]">{formatPrice(total)}</span>
+                </div>
+              </div>
+
+              {paymentError && (
+                <div role="alert" className="mt-4 border border-[#d9412b] bg-[#1d1210] p-3 text-sm">
+                  <p className="font-board text-lg font-bold tracking-wide uppercase text-[#f0644d]">No se pudo iniciar el pago</p>
+                  <p className="mt-1 text-[#c3bfb2]">{paymentError}</p>
+                </div>
+              )}
+
+              <PremiumButton onClick={handlePayment} disabled={busy || !quote.data} className="mt-5 w-full" size="lg">
+                <LockClosedIcon className="h-5 w-5" />
+                {busy ? 'Procesando…' : `Pagar con Wompi ${formatPrice(total)}`}
+              </PremiumButton>
+
+              {!isAuthenticated && (
+                <p className="mt-3 text-center font-data text-xs text-[#f2b705]">Inicia sesión primero para completar el pago</p>
+              )}
+
+              <ul className="mt-4 space-y-1 text-xs text-[#8f8b80]">
+                <li>Al continuar aceptas nuestros términos y condiciones.</li>
+                <li>Válido solo para la función seleccionada.</li>
+              </ul>
+            </div>
+          </aside>
         </div>
       </div>
 

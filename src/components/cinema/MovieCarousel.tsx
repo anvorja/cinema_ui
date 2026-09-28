@@ -1,340 +1,142 @@
-// src/components/cinema/MovieCarousel.jsx
+// Héroe de la home: el tablero anuncia la próxima salida y lista las demás.
 import { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeftIcon, ChevronRightIcon, PlayIcon } from '@heroicons/react/24/outline';
-import {FloatingParticles, GlassCard, PremiumButton, ShimmerEffect} from '../common';
-import { HoverCard, HoverCardTrigger, HoverCardContent } from '../ui/hover-card';
-import { Badge } from '../ui/badge';
+import { Pause, Play } from 'lucide-react';
+import FlapText from '../board/FlapText';
+import { useMovieShowtimes } from '../../hooks/useMovieShowtimes';
 import { optimizeCloudinaryUrl } from '../../utils/movieUtils';
 
-const MovieCarousel = ({ movies = [], autoPlay = true, interval = 5000 }) => {
-  const [currentIndex, setCurrentIndex] = useState(0);
-  const [isPlaying, setIsPlaying] = useState(autoPlay);
-  const [isLoading, setIsLoading] = useState(true);
+const pad = (n: number) => String(n).padStart(2, '0');
 
-  // Auto-play functionality
-  const nextSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === movies.length - 1 ? 0 : prevIndex + 1
-    );
-  }, [movies.length]);
+const statusOf = (m: any) =>
+  m.is_presale ? 'PREVENTA' : m.status === 'coming_soon' ? 'PRÓXIMAMENTE' : 'EN CARTELERA';
 
-  const prevSlide = useCallback(() => {
-    setCurrentIndex((prevIndex) =>
-      prevIndex === 0 ? movies.length - 1 : prevIndex - 1
-    );
-  }, [movies.length]);
+// Próxima función real de hoy (la primera con sillas a partir de ahora).
+const NextDeparture = ({ movieId, upcoming }: { movieId: number | string; upcoming: boolean }) => {
+  const { showtimes, loading } = useMovieShowtimes(movieId);
+  if (upcoming) return null;
+  const now = new Date();
+  const nowKey = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+  const all = Object.values(showtimes as Record<string, any>).flatMap((t: any) =>
+    (t.times || []).map((x: any) => ({ ...x, theaterName: t.theaterName }))
+  ).filter((x: any) => x.available).sort((a: any, b: any) => String(a.time).localeCompare(String(b.time)));
+  const next = all.find((x: any) => String(x.time) >= nowKey) || all[0];
+  if (loading && !next) return <div className="h-[72px]" aria-hidden="true" />;
+  if (!next) return <p className="font-data text-sm text-[#8f8b80]">Hoy no hay funciones con sillas.</p>;
+  return (
+    <div className="flex flex-wrap items-baseline gap-x-6 gap-y-1 border border-[#46464c] bg-[#151517] px-4 py-3" aria-live="polite">
+      <span className="font-data text-[11px] uppercase text-[#8f8b80]">Próxima función</span>
+      <span className="font-data text-4xl font-bold leading-none text-[#f2b705]">{next.time}</span>
+      <span className="font-data text-sm font-bold">{next.hall_number ? `SALA ${next.hall_number}` : ''}</span>
+      <span className="font-data text-sm text-[#c3bfb2]">{next.theaterName}</span>
+    </div>
+  );
+};
 
-  const goToSlide = (index) => {
-    setCurrentIndex(index);
-  };
+const MovieCarousel = ({ movies = [], autoPlay = true, interval = 7000 }: { movies?: any[]; autoPlay?: boolean; interval?: number }) => {
+  const [index, setIndex] = useState(0);
+  const [playing, setPlaying] = useState(autoPlay);
+  const [hovering, setHovering] = useState(false);
 
-  // Auto-play effect
+  const reduced =
+    typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+
+  const next = useCallback(() => setIndex(i => (i + 1) % Math.max(movies.length, 1)), [movies.length]);
+
   useEffect(() => {
-    if (!isPlaying || movies.length <= 1) return;
+    if (!playing || hovering || reduced || movies.length <= 1) return;
+    const id = window.setInterval(next, interval);
+    return () => clearInterval(id);
+  }, [playing, hovering, reduced, movies.length, interval, next]);
 
-    const timer = setInterval(nextSlide, interval);
-    return () => clearInterval(timer);
-  }, [isPlaying, nextSlide, interval, movies.length]);
-
-  // Loading state
-  useEffect(() => {
-    if (movies.length > 0) {
-      setIsLoading(false);
-    }
-  }, [movies.length]);
-
-  if (isLoading) {
-    return (
-      <div className="relative h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (!movies.length) {
-    return (
-      <div className="relative h-screen flex items-center justify-center">
-        <p className="text-white text-xl">No hay películas disponibles</p>
-      </div>
-    );
-  }
-
-  const currentMovie = movies[currentIndex];
+  if (!movies.length) return null;
+  const movie = movies[Math.min(index, movies.length - 1)];
 
   return (
-    <div className="relative h-screen overflow-hidden">
-      {/* Background with blur and overlay */}
-      <div className="absolute inset-0">
-        {movies.map((movie, index) => (
-          <div
-            key={movie.id}
-            className={`absolute inset-0 transition-opacity duration-1000 ${
-              index === currentIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
+    <section
+      aria-label="Próximas salidas"
+      className="border-b border-[#2c2c30]"
+      onMouseEnter={() => setHovering(true)}
+      onMouseLeave={() => setHovering(false)}
+      onFocus={() => setHovering(true)}
+      onBlur={() => setHovering(false)}
+    >
+      <div className="mx-auto grid max-w-[1400px] gap-6 px-4 py-6 sm:px-6 lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-10 lg:py-8">
+        {/* Título en aletas + datos */}
+        <div className="flex min-w-0 flex-col gap-8 order-2 lg:order-1 lg:justify-center">
+          <div>
+            <h1 className="m-0">
+              <FlapText text={movie.title} size="clamp(2rem, 5vw, 4rem)" />
+            </h1>
+            {movie.subtitle && <p className="mt-3 font-board text-xl tracking-wide text-[#c3bfb2] uppercase">{movie.subtitle}</p>}
+
+            <dl className="mt-6 grid max-w-xl grid-cols-2 gap-x-6 gap-y-3 border-t border-[#2c2c30] pt-4 font-data text-sm sm:grid-cols-4">
+              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Estado</dt><dd className="mt-1 font-bold text-[#f2b705]">{statusOf(movie)}</dd></div>
+              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Duración</dt><dd className="mt-1 font-bold">{movie.duration_formatted || '—'}</dd></div>
+              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Género</dt><dd className="mt-1 font-bold">{movie.genre || '—'}</dd></div>
+              <div><dt className="text-[11px] uppercase text-[#8f8b80]">Desde</dt><dd className="mt-1 font-bold">{movie.price ? movie.price_formatted : '—'}</dd></div>
+            </dl>
+
+            <div className="mt-5"><NextDeparture movieId={movie.id} upcoming={movie.status === 'coming_soon' && !movie.is_presale} /></div>
+
+            {movie.description && (
+              <p className="mt-5 hidden line-clamp-2 max-w-[62ch] sm:block text-[17px] leading-relaxed text-[#c3bfb2]">{movie.description}</p>
+            )}
+          </div>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <Link
+              to={`/movie/${movie.id}`}
+              className="inline-flex h-14 items-center rounded-[3px] bg-[#f2b705] px-8 font-board text-xl font-bold tracking-[0.08em] text-[#0c0c0d] hover:bg-[#d9a304] active:translate-y-px"
+            >
+              {movie.is_presale ? 'COMPRAR EN PREVENTA' : 'VER HORARIOS Y COMPRAR'}
+            </Link>
+            {movies.length > 1 && !reduced && (
+              <button
+                type="button"
+                onClick={() => setPlaying(p => !p)}
+                aria-label={playing ? 'Pausar rotación' : 'Reanudar rotación'}
+                className="flex h-14 w-14 items-center justify-center rounded-[3px] border border-[#46464c] text-[#c3bfb2] hover:border-[#f4f1e8] hover:text-[#f4f1e8]"
+              >
+                {playing ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Póster + lista de salidas */}
+        <div className="order-1 grid grid-cols-[96px_minmax(0,1fr)] gap-4 lg:order-2 lg:grid-cols-1 lg:gap-4">
+          <Link to={`/movie/${movie.id}`} className="block self-start border border-[#2c2c30] bg-[#151517] p-1.5" aria-label={`Ver ${movie.title}`}>
             <img
-              src={optimizeCloudinaryUrl(movie.backdrop_url || movie.poster_url, 1200)}
-              alt={movie.title}
-              className="w-full h-full object-cover scale-110"
-              style={{ filter: 'blur(2px)' }}
+              key={movie.id}
+              src={optimizeCloudinaryUrl(movie.poster_url, 600)}
+              alt={`Póster de ${movie.title}`}
+              className="aspect-[2/3] w-full object-cover"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20" />
-            <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-transparent to-black/40" />
-          </div>
-        ))}
-      </div>
+          </Link>
 
-      {/* Floating Particles Effect */}
-      <FloatingParticles count={30} className="opacity-30" />
-
-      {/* Main Content */}
-      <div className="relative h-full flex items-center">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-
-            {/* Movie Poster - Mobile/Tablet */}
-            <div className="lg:hidden flex justify-center mb-8">
-              <HoverCard openDelay={300}>
-                <HoverCardTrigger asChild>
-                  <ShimmerEffect className="w-64 sm:w-80 cursor-pointer">
-                    <GlassCard variant="premium" className="p-2 premium-card">
-                      <img
-                        src={optimizeCloudinaryUrl(currentMovie.poster_url, 500)}
-                        alt={currentMovie.title}
-                        className="w-full rounded-lg shadow-2xl"
-                      />
-                    </GlassCard>
-                  </ShimmerEffect>
-                </HoverCardTrigger>
-                <MoviePosterHoverCard movie={currentMovie} />
-              </HoverCard>
-            </div>
-
-            {/* Movie Info */}
-            <div className="text-center lg:text-left space-y-6">
-              <div className="space-y-4">
-                <h1 className="text-4xl sm:text-5xl lg:text-6xl font-bold text-white leading-tight">
-                  {currentMovie.title}
-                </h1>
-
-                {currentMovie.subtitle && (
-                  <h2 className="text-lg sm:text-xl text-white/80 font-medium">
-                    {currentMovie.subtitle}
-                  </h2>
-                )}
-
-                <div className="flex flex-wrap justify-center lg:justify-start gap-4 text-sm text-white/70">
-                  <span>Estreno: {currentMovie.releaseDate}</span>
-                  <span>•</span>
-                  <span>Género: {currentMovie.genre}</span>
-                  <span>•</span>
-                  <span>{currentMovie.duration}</span>
-                </div>
-              </div>
-
-              {currentMovie.description && (
-                <p className="text-white/90 text-lg leading-relaxed max-w-2xl mx-auto lg:mx-0">
-                  {currentMovie.description}
-                </p>
-              )}
-
-              {/* Action Buttons */}
-              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start pt-4">
-                <ShimmerEffect>
-                  <PremiumButton
-                    variant="premium"
-                    size="lg"
-                    className="group"
-                    asChild
+          <ol className="self-end border-t border-[#2c2c30]" aria-label="Otras salidas">
+            {movies.map((m, i) => {
+              const active = i === index;
+              return (
+                <li key={m.id} className="border-b border-[#2c2c30]">
+                  <button
+                    type="button"
+                    onClick={() => setIndex(i)}
+                    aria-current={active ? 'true' : undefined}
+                    className={`flex min-h-[44px] w-full items-center gap-3 px-2 text-left ${active ? 'bg-[#1d1d20] text-[#f4f1e8]' : 'text-[#8f8b80] hover:text-[#f4f1e8]'}`}
                   >
-                    <Link to={`/movie/${currentMovie.id}`}>
-                      <PlayIcon className="w-5 h-5 mr-2 transition-transform group-hover:scale-110" />
-                      {currentMovie.ageRating}
-                    </Link>
-                  </PremiumButton>
-                </ShimmerEffect>
-
-                <PremiumButton
-                  variant="secondary"
-                  size="lg"
-                  asChild
-                >
-                  <Link to={`/movie/${currentMovie.id}`}>
-                    {currentMovie.buttonText || 'Ver Detalles'}
-                  </Link>
-                </PremiumButton>
-              </div>
-
-              {currentMovie.specialOffer && (
-                <div className="pt-4">
-                  <GlassCard variant="premium" className="inline-block px-6 py-3 glow-secondary">
-                    <p className="text-orange-400 font-semibold text-sm">
-                      {currentMovie.specialOffer}
-                    </p>
-                  </GlassCard>
-                </div>
-              )}
-            </div>
-
-            {/* Movie Poster - Desktop */}
-            <div className="hidden lg:flex justify-center">
-              <HoverCard openDelay={200}>
-                <HoverCardTrigger asChild>
-                  <ShimmerEffect className="w-96 cursor-pointer">
-                    <GlassCard variant="premium" className="p-3 premium-card transition-transform duration-300 hover:scale-[1.02]">
-                      <img
-                        src={optimizeCloudinaryUrl(currentMovie.poster_url, 500)}
-                        alt={currentMovie.title}
-                        className="w-full rounded-lg shadow-2xl"
-                      />
-                    </GlassCard>
-                  </ShimmerEffect>
-                </HoverCardTrigger>
-                <MoviePosterHoverCard movie={currentMovie} side="left" />
-              </HoverCard>
-            </div>
-          </div>
+                    <span className={`font-data text-xs font-bold ${active ? 'text-[#f2b705]' : ''}`}>{pad(i + 1)}</span>
+                    <span className="truncate font-board text-lg font-semibold tracking-wide uppercase">{m.title}</span>
+                  </button>
+                </li>
+              );
+            })}
+          </ol>
         </div>
       </div>
-
-      {/* Navigation Controls */}
-      <button
-        onClick={prevSlide}
-        className="absolute left-4 lg:left-8 top-1/2 transform -translate-y-1/2 p-3 rounded-full glass hover:glass-hover transition-all duration-200 group"
-      >
-        <ChevronLeftIcon className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-      </button>
-
-      <button
-        onClick={nextSlide}
-        className="absolute right-4 lg:right-8 top-1/2 transform -translate-y-1/2 p-3 rounded-full glass hover:glass-hover transition-all duration-200 group"
-      >
-        <ChevronRightIcon className="w-6 h-6 text-white group-hover:scale-110 transition-transform" />
-      </button>
-
-      {/* Dots Indicator */}
-      <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2">
-        <div className="flex space-x-3">
-          {movies.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => goToSlide(index)}
-              className={`w-3 h-3 rounded-full transition-all duration-300 ${
-                index === currentIndex
-                  ? 'bg-white scale-125'
-                  : 'bg-white/50 hover:bg-white/75'
-              }`}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Play/Pause Control */}
-      <div className="absolute top-8 right-8">
-        <button
-          onClick={() => setIsPlaying(!isPlaying)}
-          className="p-2 rounded-lg glass hover:glass-hover transition-all duration-200"
-        >
-          {isPlaying ? (
-            <svg className="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zM7 8a1 1 0 012 0v4a1 1 0 11-2 0V8zM13 8a1 1 0 10-2 0v4a1 1 0 102 0V8z" clipRule="evenodd" />
-            </svg>
-          ) : (
-            <PlayIcon className="w-5 h-5 text-white" />
-          )}
-        </button>
-      </div>
-    </div>
+    </section>
   );
 };
 
-// HoverCard con preview de la película
-const MoviePosterHoverCard = ({ movie, side = 'right' }: { movie: any; side?: 'left' | 'right' | 'top' | 'bottom' }) => (
-  <HoverCardContent
-    side={side}
-    sideOffset={12}
-    className="w-72 p-0 bg-slate-900/95 backdrop-blur-xl border-white/[0.12] shadow-2xl shadow-black/60 rounded-xl overflow-hidden"
-  >
-    {/* Backdrop mini */}
-    {movie.backdrop_url && (
-      <div className="relative h-24 overflow-hidden">
-        <img src={movie.backdrop_url} alt="" className="w-full h-full object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent to-slate-900/95" />
-      </div>
-    )}
-
-    <div className="p-4 space-y-3">
-      <div>
-        <h3 className="text-white font-bold text-base leading-tight">{movie.title}</h3>
-        {movie.subtitle && (
-          <p className="text-white/50 text-xs mt-0.5">{movie.subtitle}</p>
-        )}
-      </div>
-
-      <div className="flex flex-wrap gap-1.5">
-        {movie.genre && (
-          <Badge className="bg-purple-500/20 text-purple-300 border-purple-500/30 text-[10px]">
-            {movie.genre}
-          </Badge>
-        )}
-        {movie.ageRating && (
-          <Badge variant="outline" className="text-white/60 border-white/20 text-[10px]">
-            {movie.ageRating}
-          </Badge>
-        )}
-        {movie.duration && (
-          <Badge variant="outline" className="text-white/60 border-white/20 text-[10px]">
-            {movie.duration}
-          </Badge>
-        )}
-      </div>
-
-      {movie.description && (
-        <p className="text-white/60 text-xs leading-relaxed line-clamp-3">
-          {movie.description}
-        </p>
-      )}
-
-      <Link
-        to={`/movie/${movie.id}`}
-        className="block w-full text-center py-2 rounded-lg bg-blue-600/80 hover:bg-blue-600 text-white text-xs font-semibold transition-colors"
-      >
-        Ver detalles →
-      </Link>
-    </div>
-  </HoverCardContent>
-);
-
-// Componente para película individual del carrusel
-const MovieSlide = ({ movie, isActive }) => {
-  return (
-    <div className={`transition-all duration-500 ${isActive ? 'scale-100 opacity-100' : 'scale-95 opacity-60'}`}>
-      <GlassCard variant="premium" className="overflow-hidden premium-card">
-        <div className="aspect-[2/3] relative">
-          <img
-            src={optimizeCloudinaryUrl(movie.poster_url, 400)}
-            alt={movie.title}
-            className="w-full h-full object-cover"
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent" />
-
-          <div className="absolute bottom-0 left-0 right-0 p-4">
-            <h3 className="text-white font-bold text-lg mb-1">{movie.title}</h3>
-            <p className="text-white/80 text-sm mb-2">{movie.genre}</p>
-            <div className="flex items-center justify-between">
-              <span className="text-white/70 text-xs">{movie.duration}</span>
-              <span className="bg-blue-600 text-white text-xs px-2 py-1 rounded">
-                {movie.ageRating}
-              </span>
-            </div>
-          </div>
-        </div>
-      </GlassCard>
-    </div>
-  );
-};
-
-
-
-export { MovieCarousel, MovieSlide};
+export { MovieCarousel };

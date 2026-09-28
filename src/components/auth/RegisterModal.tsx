@@ -62,7 +62,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) onClose(); }}>
-      <DialogContent className="bg-slate-900/95 backdrop-blur-xl border-white/[0.12] text-white shadow-2xl shadow-black/60 max-w-md max-h-[90vh] overflow-y-auto [&>button]:text-white/50 [&>button]:hover:text-white">
+      <DialogContent className="bg-[#151517] border-[#46464c] rounded-[3px] text-white shadow-2xl shadow-black/60 max-w-md max-h-[90vh] overflow-y-auto [&>button]:text-white/50 [&>button]:hover:text-white">
         <DialogHeader className="pb-2 border-b border-white/[0.08]">
           <DialogTitle className="text-2xl font-bold text-white">Crear Cuenta</DialogTitle>
         </DialogHeader>
@@ -138,7 +138,7 @@ const RegisterModal = ({ isOpen, onClose, onSwitchToLogin }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-semibold transition-all text-sm shadow-lg shadow-blue-500/20"
+            className="w-full py-2.5 bg-[#f2b705] hover:bg-[#d9a304] text-[#0c0c0d] font-board text-lg font-bold tracking-[0.08em] disabled:opacity-50 disabled:cursor-not-allowed rounded-lg text-white font-semibold transition-all text-sm shadow-lg shadow-blue-500/20"
           >
             {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
           </button>

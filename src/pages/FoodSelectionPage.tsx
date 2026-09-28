@@ -5,12 +5,12 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ArrowLeftIcon, PlusIcon, MinusIcon } from '@heroicons/react/24/outline';
 import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import { usePricing } from '../hooks/usePricing';
+import BookingSteps from '../components/board/BookingSteps';
 
 const formatCOP = (n) => `$${Number(n).toLocaleString('es-CO')}`;
 
 // El menú y sus precios vienen de booking-service (GET /purchases/pricing):
 // son los mismos con que se calcula el cobro.
-const CATEGORY_EMOJI = { 'Confitería': '🍿', 'Sushi': '🍣', 'Cinepolitana': '🍕', 'Juan Valdez': '☕' };
 
 // ── Component ─────────────────────────────────────────────────────────────────
 const FoodSelectionPage = () => {
@@ -92,206 +92,149 @@ const FoodSelectionPage = () => {
 
   const items = allItems.filter(i => i.category === category);
 
-  // ── Shared order summary content ──────────────────────────────────────────
-  const SummaryContent = () => (
-    <>
-      <div className="flex items-center gap-3 mb-4">
-        {poster && (
-          <img src={poster} alt={title}
-            className="w-10 h-14 object-cover rounded shadow flex-shrink-0" />
-        )}
-        <h3 className="font-bold text-gray-800 text-sm leading-snug">{title}</h3>
+  // ── Resumen del pedido (tiquete) ───────────────────────────────────────────
+  const summary = (
+    <div className="b-stub p-5" style={{ ['--stub-cut' as any]: '72%' }}>
+      <div className="mb-4 flex items-center gap-3">
+        {poster && <img src={poster} alt="" className="h-14 w-10 flex-shrink-0 border border-[#2c2c30] object-cover" />}
+        <h3 className="font-board text-2xl font-bold leading-none tracking-wide uppercase">{title}</h3>
       </div>
 
-      <div className="space-y-1.5 mb-3 pb-3 border-b border-gray-100">
+      <ul className="space-y-1.5 border-t border-dashed border-[#46464c] pt-3 font-data text-sm text-[#c3bfb2]">
         {generalCount > 0 && (
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>{generalCount} Silla{generalCount > 1 ? 's' : ''} General</span>
-            <span>{formatCOP(generalCount * generalPrice)}</span>
-          </div>
+          <li className="flex justify-between gap-3"><span>{generalCount} silla{generalCount > 1 ? 's' : ''} general</span><span>{formatCOP(generalCount * generalPrice)}</span></li>
         )}
         {prefCount > 0 && (
-          <div className="flex justify-between text-sm text-gray-600">
-            <span>{prefCount} Silla{prefCount > 1 ? 's' : ''} Preferencial</span>
-            <span>{formatCOP(prefCount * prefPrice)}</span>
-          </div>
+          <li className="flex justify-between gap-3"><span>{prefCount} silla{prefCount > 1 ? 's' : ''} preferencial</span><span>{formatCOP(prefCount * prefPrice)}</span></li>
         )}
         {cartItems.map(({ item, qty }) => (
-          <div key={item!.code} className="flex justify-between text-sm text-gray-600">
-            <span className="truncate mr-2">{qty}× {item!.name}</span>
+          <li key={item!.code} className="flex justify-between gap-3">
+            <span className="truncate">{qty}× {item!.name}</span>
             <span className="flex-shrink-0">{formatCOP(item!.price * qty)}</span>
-          </div>
+          </li>
         ))}
-      </div>
+      </ul>
 
-      <div className="space-y-1 mb-5 text-sm">
-        <div className="flex justify-between text-gray-500">
-          <span>Subtotal</span>
-          <span>{formatCOP(ticketTotal + foodTotal)}</span>
-        </div>
-        <div className="flex justify-between text-gray-500">
-          <span>Valor por servicio</span>
-          <span>{formatCOP(SERVICE_FEE)}</span>
-        </div>
-        <div className="flex justify-between font-bold text-gray-900 text-base pt-1">
-          <span>Total</span>
-          <span>{formatCOP(grandWithFee)}</span>
-        </div>
-      </div>
+      <dl className="mt-4 space-y-1 border-t border-dashed border-[#46464c] pt-3 font-data text-sm">
+        <div className="flex justify-between text-[#8f8b80]"><dt>Subtotal</dt><dd>{formatCOP(ticketTotal + foodTotal)}</dd></div>
+        <div className="flex justify-between text-[#8f8b80]"><dt>Valor por servicio</dt><dd>{formatCOP(SERVICE_FEE)}</dd></div>
+        <div className="flex justify-between pt-2 text-lg font-bold"><dt>Total</dt><dd className="text-[#f2b705]">{formatCOP(grandWithFee)}</dd></div>
+      </dl>
 
       <button
+        type="button"
         onClick={handleContinue}
         disabled={!pricing}
-        className="w-full flex items-center justify-center gap-1 py-3 bg-blue-700 text-white
-                   rounded-full font-semibold text-sm hover:bg-blue-800 transition-colors disabled:opacity-40"
+        className="mt-5 h-14 w-full rounded-[3px] bg-[#f2b705] font-board text-lg font-bold tracking-[0.08em] text-[#0c0c0d] hover:bg-[#d9a304] disabled:opacity-40"
       >
-        Continuar con el pago <span className="text-blue-200 ml-1">›</span>
+        CONTINUAR AL PAGO
       </button>
       <button
+        type="button"
         onClick={handleSkip}
         disabled={!pricing}
-        className="w-full mt-2 py-2 text-gray-400 text-xs hover:text-gray-600 transition-colors"
+        className="mt-1 min-h-[44px] w-full font-data text-sm text-[#8f8b80] underline hover:text-[#f4f1e8]"
       >
-        Saltar este paso
+        Saltar la comida
       </button>
-    </>
+    </div>
   );
 
+  const stepBtn = 'flex h-11 w-11 items-center justify-center rounded-[3px] border border-[#46464c] text-[#f4f1e8] hover:border-[#f2b705]';
+
   return (
-    <div className="min-h-screen pt-20">
-      {/* Extra bottom padding on mobile to clear the sticky bottom bar */}
-      <div className="max-w-5xl mx-auto px-4 py-6 pb-28 lg:pb-6">
+    <div className="pb-24 lg:pb-0">
+      <BookingSteps current="Comida" />
 
-        {/* ── Main layout ─────────────────────────────────────────────────── */}
-        <div className="flex flex-col lg:flex-row gap-6">
-
-          {/* ── Food catalogue ──────────────────────────────────────────── */}
-          <div className="flex-1 min-w-0">
-            <h1 className="text-xl sm:text-2xl font-bold text-white mb-2">
-              Comprar comida y bebidas
-            </h1>
-            <p className="text-xs sm:text-sm text-white/75 bg-white/10 border border-white/20 rounded-lg p-3 mb-5 backdrop-blur-sm">
-              Presente su tiquete de compra para que preparemos y entreguemos su pedido.
-              La vigencia de la compra de comidas es de 8 días a partir de la fecha de compra.
+      <div className="mx-auto max-w-6xl px-4 py-6 sm:px-6">
+        <div className="flex flex-col gap-8 lg:flex-row">
+          {/* ── Menú ── */}
+          <div className="min-w-0 flex-1">
+            <h1 className="mb-2 font-board text-3xl font-bold tracking-[0.06em] uppercase">Comida y bebidas</h1>
+            <p className="mb-5 max-w-[65ch] text-[15px] leading-relaxed text-[#c3bfb2]">
+              Presenta tu tiquete de compra y preparamos tu pedido. Lo que compres aquí vale 8 días desde la fecha de compra.
             </p>
 
-            {/* Category tabs */}
-            <div className="flex gap-0.5 border-b border-white/20 mb-5 overflow-x-auto">
+            <div role="tablist" aria-label="Categorías del menú" className="mb-5 flex gap-1 overflow-x-auto border-b border-[#2c2c30]">
               {categories.map(cat => (
                 <button
                   key={cat}
+                  role="tab"
+                  aria-selected={category === cat}
                   onClick={() => setActiveCategory(cat)}
-                  className={`flex items-center gap-1 px-3 sm:px-4 py-2.5 text-xs sm:text-sm font-medium whitespace-nowrap border-b-2 transition-colors
-                    ${category === cat
-                      ? 'border-white text-white'
-                      : 'border-transparent text-white/60 hover:text-white/90'}`}
+                  className={`min-h-[48px] whitespace-nowrap border-b-2 px-4 font-board text-xl font-bold tracking-[0.08em] uppercase ${
+                    category === cat ? 'border-[#f2b705] text-[#f4f1e8]' : 'border-transparent text-[#8f8b80] hover:text-[#f4f1e8]'
+                  }`}
                 >
-                  {CATEGORY_EMOJI[cat]} {cat}
+                  {cat}
                 </button>
               ))}
             </div>
 
             {!pricing && (
-              <p role={pricingError ? 'alert' : 'status'} className="text-sm text-white/70 py-6">
-                {pricingError ? 'No pudimos cargar el menú. Intenta de nuevo en un momento.' : 'Cargando menú…'}
+              <p role={pricingError ? 'alert' : 'status'} className={`py-6 font-data text-sm ${pricingError ? 'text-[#f0644d]' : 'text-[#c3bfb2]'}`}>
+                {pricingError ? 'No pudimos cargar el menú. Intenta de nuevo en un momento.' : 'Cargando el menú…'}
               </p>
             )}
 
-            {/* Food grid: 2 cols on mobile, 3 on desktop */}
-            <div className="grid grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <ul className="grid gap-x-8 border-t border-[#46464c] md:grid-cols-2">
               {items.map(item => {
                 const qty = getQty(item.code);
                 return (
-                  <div key={item.code}
-                    className="bg-white rounded-xl border border-gray-100 shadow-sm overflow-hidden hover:shadow-md transition-shadow flex flex-col">
-
-                    <div className="h-24 sm:h-32 bg-gradient-to-br from-gray-100 to-gray-50 flex items-center justify-center text-4xl sm:text-5xl flex-shrink-0">
-                      {CATEGORY_EMOJI[category] || '🍽️'}
+                  <li key={item.code} className="flex items-center gap-3 border-b border-[#2c2c30] py-4">
+                    <div className="min-w-0 flex-1">
+                      <h3 className="font-board text-xl font-bold leading-tight tracking-wide uppercase">{item.name}</h3>
+                      {item.description && <p className="mt-0.5 line-clamp-2 text-sm text-[#8f8b80]">{item.description}</p>}
+                      <p className="mt-1 font-data text-sm font-bold text-[#f2b705]">{formatCOP(item.price)}</p>
                     </div>
-
-                    <div className="p-2.5 sm:p-3 flex flex-col flex-1">
-                      <h3 className="font-semibold text-gray-800 text-xs sm:text-sm leading-snug mb-1">
-                        {item.name}
-                      </h3>
-                      <p className="font-bold text-gray-900 text-sm mb-1">{formatCOP(item.price)}</p>
-                      {/* Description hidden on mobile to save space */}
-                      <p className="hidden sm:block text-xs text-gray-400 leading-relaxed mb-3 line-clamp-2 flex-1">
-                        {item.description || ' '}
-                      </p>
-                      {/* Spacer on mobile so button stays at bottom */}
-                      <div className="flex-1 sm:hidden" />
-
-                      {qty === 0 ? (
-                        <button
-                          onClick={() => addItem(item.code)}
-                          className="w-full flex items-center justify-center gap-1 py-1.5 bg-blue-700
-                                     text-white rounded-lg text-xs sm:text-sm hover:bg-blue-800 transition-colors mt-2"
-                        >
-                          <PlusIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> Agregar
-                        </button>
-                      ) : (
-                        <div className="flex items-center justify-between mt-2">
-                          <button onClick={() => removeItem(item.code)}
-                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-50">
-                            <MinusIcon className="w-3.5 h-3.5 text-gray-600" />
-                          </button>
-                          <span className="font-bold text-gray-800 text-sm">{qty}</span>
-                          <button onClick={() => addItem(item.code)}
-                            className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-blue-700 flex items-center justify-center hover:bg-blue-800">
-                            <PlusIcon className="w-3.5 h-3.5 text-white" />
-                          </button>
-                        </div>
-                      )}
-                    </div>
-                  </div>
+                    {qty === 0 ? (
+                      <button
+                        type="button"
+                        onClick={() => addItem(item.code)}
+                        aria-label={`Agregar ${item.name}`}
+                        className="flex h-11 items-center gap-1 rounded-[3px] border border-[#f2b705] px-3 font-board text-base font-bold tracking-[0.08em] text-[#f2b705] hover:bg-[#f2b705] hover:text-[#0c0c0d]"
+                      >
+                        <PlusIcon className="h-4 w-4" /> AGREGAR
+                      </button>
+                    ) : (
+                      <div className="flex items-center gap-1" role="group" aria-label={`Cantidad de ${item.name}`}>
+                        <button type="button" onClick={() => removeItem(item.code)} className={stepBtn} aria-label={`Quitar ${item.name}`}><MinusIcon className="h-4 w-4" /></button>
+                        <span className="w-8 text-center font-data text-lg font-bold" aria-live="polite">{qty}</span>
+                        <button type="button" onClick={() => addItem(item.code)} className={`${stepBtn} !border-[#f2b705] !bg-[#f2b705] !text-[#0c0c0d]`} aria-label={`Agregar otro ${item.name}`}><PlusIcon className="h-4 w-4" /></button>
+                      </div>
+                    )}
+                  </li>
                 );
               })}
-            </div>
+            </ul>
+
+            <button
+              type="button"
+              onClick={() => navigate(-1)}
+              className="mt-6 flex h-12 items-center gap-2 rounded-[3px] border border-[#46464c] px-4 text-[#c3bfb2] hover:border-[#f4f1e8] hover:text-[#f4f1e8]"
+            >
+              <ArrowLeftIcon className="h-5 w-5" /> <span className="font-board text-lg font-bold tracking-[0.08em]">ATRÁS</span>
+            </button>
           </div>
 
-          {/* ── Desktop sidebar summary ──────────────────────────────────── */}
-          <div className="hidden lg:block w-72 flex-shrink-0">
-            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sticky top-24">
-              <SummaryContent />
-            </div>
-          </div>
+          {/* ── Resumen escritorio ── */}
+          <aside className="hidden w-80 flex-shrink-0 lg:block" aria-label="Resumen del pedido">
+            <div className="sticky top-20">{summary}</div>
+          </aside>
         </div>
 
-        {/* ── Mobile: full summary panel below catalogue ───────────────── */}
-        <div className="lg:hidden mt-6 bg-white rounded-2xl border border-gray-100 shadow-sm p-5">
-          <SummaryContent />
-        </div>
-
-        {/* ── Back button ──────────────────────────────────────────────── */}
-        <div className="mt-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-5 py-2.5 border border-white/30 rounded-full
-                       text-white/90 hover:bg-white/10 transition-colors font-medium text-sm backdrop-blur-sm"
-          >
-            <ArrowLeftIcon className="w-4 h-4" /> Atrás
-          </button>
-        </div>
+        {/* ── Resumen móvil ── */}
+        <aside className="mt-8 lg:hidden" aria-label="Resumen del pedido">{summary}</aside>
       </div>
 
-      {/* ── Mobile sticky bottom bar ─────────────────────────────────────── */}
-      <div className="lg:hidden fixed bottom-0 inset-x-0 z-40 bg-white/95 backdrop-blur-xl border-t border-gray-200 px-4 py-3 flex items-center gap-3 shadow-2xl">
-        <div className="flex-1 min-w-0">
-          <p className="text-[10px] text-gray-400 leading-none mb-0.5">Total</p>
-          <p className="font-bold text-gray-900">{formatCOP(grandWithFee)}</p>
+      {/* ── Barra móvil ── */}
+      <div className="fixed inset-x-0 bottom-0 z-40 flex items-center gap-3 border-t border-[#46464c] bg-[#0c0c0d] px-4 py-3 lg:hidden">
+        <div className="min-w-0 flex-1 font-data">
+          <p className="text-xs text-[#8f8b80]">Total</p>
+          <p className="text-lg font-bold text-[#f2b705]">{formatCOP(grandWithFee)}</p>
         </div>
-        <button
-          onClick={handleSkip}
-          className="px-4 py-2.5 border border-gray-200 rounded-full text-gray-500 text-sm font-medium hover:bg-gray-50 transition-colors whitespace-nowrap"
-        >
-          Saltar
-        </button>
-        <button
-          onClick={handleContinue}
-          className="px-5 py-2.5 bg-blue-700 text-white rounded-full text-sm font-semibold hover:bg-blue-800 transition-colors whitespace-nowrap"
-        >
-          Continuar ›
-        </button>
+        <button type="button" onClick={handleSkip} className="h-14 rounded-[3px] border border-[#46464c] px-4 font-board text-lg font-bold tracking-[0.08em] text-[#c3bfb2]">SALTAR</button>
+        <button type="button" onClick={handleContinue} className="h-14 rounded-[3px] bg-[#f2b705] px-6 font-board text-lg font-bold tracking-[0.08em] text-[#0c0c0d]">PAGAR</button>
       </div>
     </div>
   );

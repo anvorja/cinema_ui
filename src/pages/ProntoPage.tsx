@@ -68,7 +68,7 @@ const ProntoPage = () => {
   // Manejar errores
   if (hasError && !isLoading && allMovies.length === 0) {
     return (
-      <div className="min-h-screen pt-24">
+      <div className="pt-8 pb-12">
         <FloatingParticles count={30} className="opacity-20" />
         <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="max-w-2xl mx-auto text-center">
@@ -96,7 +96,7 @@ const ProntoPage = () => {
   // Loading state
   if (isLoading && allMovies.length === 0) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="pt-8 pb-12 flex items-center justify-center">
         <FloatingParticles count={50} className="opacity-30" />
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -108,7 +108,7 @@ const ProntoPage = () => {
   }
 
   return (
-    <div className="min-h-screen pt-24">
+    <div className="pt-8 pb-12">
       <FloatingParticles count={30} className="opacity-20" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

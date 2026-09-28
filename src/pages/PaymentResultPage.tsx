@@ -14,7 +14,8 @@ import {
   ExclamationTriangleIcon,
   XCircleIcon,
 } from '@heroicons/react/24/outline';
-import { FloatingParticles, GlassCard, PremiumButton } from '../components/common';
+import { PremiumButton } from '../components/common';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import { LoginModal } from '../components/auth/LoginModal';
 import useAuth from '../hooks/useAuth.js';
 import { useBooking } from '../hooks/useBooking';
@@ -127,16 +128,15 @@ const PaymentResultPage = () => {
   }, [transactionId, isAuthenticated, isLoading, finishBooking, navigate]);
 
   const shell = (children) => (
-    <div className="min-h-screen pt-24 bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center px-4">
-      <FloatingParticles count={30} className="opacity-20" />
-      <div className="max-w-md w-full text-center" aria-live="polite">
-        <GlassCard className="p-8">{children}</GlassCard>
+    <div className="flex min-h-[70vh] items-center justify-center px-4 py-10">
+      <div className="w-full max-w-md text-center" aria-live="polite">
+        <div className="b-stub p-8" style={{ ['--stub-cut' as any]: '50%' }}>{children}</div>
       </div>
     </div>
   );
 
   const reference = (payment: Payment) => (
-    <p className="mt-4 text-white/40 text-xs break-all">
+    <p className="mt-4 text-[#8f8b80] text-xs break-all">
       Referencia: <span className="font-mono">{payment.reference}</span>
     </p>
   );
@@ -144,9 +144,9 @@ const PaymentResultPage = () => {
   if (!transactionId) {
     return shell(
       <>
-        <ExclamationTriangleIcon className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-        <h1 className="text-2xl font-bold text-white mb-2">No hay pago para mostrar</h1>
-        <p className="text-white/70 mb-6">Esta página se abre sola al volver de Wompi.</p>
+        <ExclamationTriangleIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+        <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">No hay pago para mostrar</h1>
+        <p className="text-[#c3bfb2] mb-6">Esta página se abre sola al volver de Wompi.</p>
         <PremiumButton onClick={() => navigate('/')}>Ir a la cartelera</PremiumButton>
       </>
     );
@@ -157,9 +157,9 @@ const PaymentResultPage = () => {
       <>
         {shell(
           <>
-            <ClockIcon className="w-16 h-16 text-blue-400 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold text-white mb-2">Inicia sesión para ver tu pago</h1>
-            <p className="text-white/70">Usa la misma cuenta con la que pagaste.</p>
+            <ClockIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+            <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">Inicia sesión para ver tu pago</h1>
+            <p className="text-[#c3bfb2]">Usa la misma cuenta con la que pagaste.</p>
           </>
         )}
         <LoginModal isOpen onClose={() => navigate('/')} onSwitchToRegister={() => {}} />
@@ -172,42 +172,42 @@ const PaymentResultPage = () => {
     case 'confirming':
       return shell(
         <>
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-400 mx-auto mb-6" />
-          <h1 className="text-2xl font-bold text-white mb-2">
+          <div className="mb-6 flex justify-center"><LoadingSpinner size="xl" /></div>
+          <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">
             {phase.kind === 'verifying' ? 'Confirmando tu pago con Wompi' : '¡Pago aprobado! Generando tus boletas'}
           </h1>
-          <p className="text-white/60 text-sm">No cierres esta ventana.</p>
+          <p className="text-[#8f8b80] text-sm">No cierres esta ventana.</p>
         </>
       );
     case 'pending':
       return shell(
         <>
-          <ClockIcon className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Tu pago está en proceso</h1>
-          <p className="text-white/70">
+          <ClockIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+          <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">Tu pago está en proceso</h1>
+          <p className="text-[#c3bfb2]">
             Algunos medios (como PSE) tardan unos minutos. Te avisaremos por correo cuando se confirme; también puedes
             revisarlo en tu historial de pagos.
           </p>
           {reference(phase.payment)}
           <div className="mt-6 flex justify-center">
-            <Link to="/profile/payments" className="text-blue-300 hover:text-blue-200 underline">Ver mis pagos</Link>
+            <Link to="/profile/payments" className="text-[#f2b705] hover:text-[#f4f1e8] underline">Ver mis pagos</Link>
           </div>
         </>
       );
     case 'recharged':
       return shell(
         <>
-          <CheckCircleIcon className="w-16 h-16 text-green-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">¡Recarga exitosa!</h1>
-          <p className="text-white/80 mb-1">Tu tarjeta Cinema+ se recargó con</p>
-          <p className="text-3xl font-bold text-green-400 mb-2">{formatCOP(phase.payment.amount)}</p>
-          <p className="text-white/60 text-sm">
+          <CheckCircleIcon className="w-16 h-16 text-[#7bd88f] mx-auto mb-4" />
+          <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">¡Recarga exitosa!</h1>
+          <p className="text-[#c3bfb2] mb-1">Tu tarjeta Cinema+ se recargó con</p>
+          <p className="text-3xl font-bold text-[#7bd88f] mb-2">{formatCOP(phase.payment.amount)}</p>
+          <p className="text-[#8f8b80] text-sm">
             {paymentMethodLabel(phase.payment.payment_method_type, phase.payment.last_four)}
           </p>
           {reference(phase.payment)}
           <div className="mt-6 flex flex-col gap-3">
             <PremiumButton onClick={() => navigate('/')}>Ir a la cartelera</PremiumButton>
-            <Link to="/profile/payments" className="text-blue-300 hover:text-blue-200 underline text-sm">Ver mis pagos</Link>
+            <Link to="/profile/payments" className="text-[#f2b705] hover:text-[#f4f1e8] underline text-sm">Ver mis pagos</Link>
           </div>
         </>
       );
@@ -216,11 +216,11 @@ const PaymentResultPage = () => {
       const retryTo = phase.payment.kind === 'recharge' ? '/recharge' : '/';
       return shell(
         <>
-          <XCircleIcon className="w-16 h-16 text-red-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">{copy.title}</h1>
-          <p className="text-white/70">{copy.message}</p>
+          <XCircleIcon className="w-16 h-16 text-[#f0644d] mx-auto mb-4" />
+          <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">{copy.title}</h1>
+          <p className="text-[#c3bfb2]">{copy.message}</p>
           {phase.payment.kind === 'tickets' && (
-            <p className="text-white/50 text-sm mt-2">Tus asientos se liberaron. Puedes elegirlos de nuevo.</p>
+            <p className="text-[#8f8b80] text-sm mt-2">Tus asientos se liberaron. Puedes elegirlos de nuevo.</p>
           )}
           {reference(phase.payment)}
           <div className="mt-6">
@@ -232,12 +232,12 @@ const PaymentResultPage = () => {
     case 'error':
       return shell(
         <>
-          <ExclamationTriangleIcon className="w-16 h-16 text-yellow-400 mx-auto mb-4" />
-          <h1 className="text-2xl font-bold text-white mb-2">Algo no salió como esperábamos</h1>
-          <p className="text-white/70">{phase.message}</p>
+          <ExclamationTriangleIcon className="w-16 h-16 text-[#f2b705] mx-auto mb-4" />
+          <h1 className="font-board text-3xl font-bold tracking-wide uppercase mb-2">Algo no salió como esperábamos</h1>
+          <p className="text-[#c3bfb2]">{phase.message}</p>
           <div className="mt-6 flex flex-col gap-3">
             <PremiumButton onClick={() => navigate('/profile/payments')}>Ver mis pagos</PremiumButton>
-            <Link to="/profile/purchases" className="text-blue-300 hover:text-blue-200 underline text-sm">Mis compras</Link>
+            <Link to="/profile/purchases" className="text-[#f2b705] hover:text-[#f4f1e8] underline text-sm">Mis compras</Link>
           </div>
         </>
       );

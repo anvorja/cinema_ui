@@ -3,7 +3,6 @@ import { useState, useMemo } from 'react';
 import { Search } from 'lucide-react';
 import { MovieCarousel } from '../components/cinema/MovieCarousel';
 import { MovieGrid } from '../components/cinema/MovieGrid';
-import { FloatingParticles } from '../components/common';
 import LoadingSpinner from '../components/common/LoadingSpinner';
 import ErrorMessage from '../components/common/ErrorMessage';
 import EmptyState from '../components/common/EmptyState';
@@ -44,7 +43,7 @@ const HomePage = () => {
 
   if (homeData.error && homeData.isEmpty) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="flex min-h-[70vh] items-center justify-center">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
           <ErrorMessage
             title="Error al cargar el contenido"
@@ -58,80 +57,89 @@ const HomePage = () => {
   }
 
   return (
-    <div className="min-h-screen">
-      {/* Hero Carousel */}
-      <section className="relative">
-        {homeData.featured.length > 0 ? (
-          <MovieCarousel movies={homeData.featured} />
-        ) : (
-          <div className="h-[60vh] bg-gradient-to-b from-purple-900/20 to-black/40 flex items-center justify-center">
-            {homeData.loading ? (
-              <LoadingSpinner size="large" />
-            ) : (
-              <EmptyState
-                icon={FilmIcon}
-                title="Próximamente"
-                message="Estamos preparando contenido increíble para ti"
-              />
-            )}
-          </div>
-        )}
-      </section>
+    <div>
+      {/* Próxima salida */}
+      {homeData.featured.length > 0 ? (
+        <MovieCarousel movies={homeData.featured} />
+      ) : (
+        <div className="flex min-h-[40vh] items-center justify-center border-b border-[#2c2c30]">
+          {homeData.loading ? (
+            <LoadingSpinner size="large" text="Cargando la cartelera" />
+          ) : (
+            <EmptyState
+              icon={FilmIcon}
+              title="Aún no hay funciones anunciadas"
+              description="Vuelve pronto: publicamos la cartelera apenas esté lista."
+            />
+          )}
+        </div>
+      )}
 
-      {/* Tabs + Search + Grid */}
-      <section className="py-6 md:py-10 relative">
-        <FloatingParticles count={20} className="opacity-20 hidden md:block" />
-
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Tabs */}
-          <div className="flex border-b border-white/20 mb-4 md:mb-6">
-            {TABS.map((tab) => (
-              <button
-                key={tab}
-                onClick={() => { setActiveTab(tab); setSearchQuery(''); }}
-                className={`flex-1 py-3 md:py-4 text-sm md:text-base font-semibold capitalize transition-colors ${
-                  activeTab === tab
-                    ? 'text-white border-b-2 border-white'
-                    : 'text-white/45 hover:text-white/70'
-                }`}
-              >
-                {tabLabel(tab)}
-              </button>
-            ))}
+      {/* Tablero */}
+      <section className="mx-auto max-w-[1400px] px-4 py-8 sm:px-6 md:py-12" aria-label="Cartelera">
+        <div className="mb-4 flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
+          <div role="tablist" aria-label="Secciones de la cartelera" className="flex gap-1 border-b border-[#2c2c30] md:border-b-0">
+            {TABS.map((tab) => {
+              const active = activeTab === tab;
+              return (
+                <button
+                  key={tab}
+                  role="tab"
+                  aria-selected={active}
+                  onClick={() => { setActiveTab(tab); setSearchQuery(''); }}
+                  className={`min-h-[48px] flex-1 whitespace-nowrap border-b-2 px-2 font-board text-lg sm:text-xl font-bold tracking-[0.08em] uppercase md:flex-none md:px-6 ${
+                    active ? 'border-[#f2b705] text-[#f4f1e8]' : 'border-transparent text-[#8f8b80] hover:text-[#f4f1e8]'
+                  }`}
+                >
+                  {tab === 'cartelera' ? 'En cartelera' : tabLabel(tab)}
+                </button>
+              );
+            })}
           </div>
 
-          {/* Search bar */}
-          <div className="relative mb-5 md:mb-8 md:max-w-lg md:mx-auto">
+          <div className="relative md:w-72">
+            <label htmlFor="home-search" className="sr-only">Buscar películas</label>
             <input
+              id="home-search"
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Buscar películas..."
-              className="w-full bg-[rgba(0,0,0,0.3)] border border-white/20 rounded-full py-2.5 md:py-3 pl-4 md:pl-5 pr-10 md:pr-11 text-white placeholder:text-white/40 text-sm outline-none focus:border-white/40 focus:bg-[rgba(0,0,0,0.4)] transition-all [color-scheme:dark]"
+              placeholder="Buscar película"
+              className="h-12 w-full rounded-[3px] border border-[#2c2c30] bg-[#151517] pl-10 pr-3 text-base text-[#f4f1e8] outline-none placeholder:text-[#8f8b80] focus:border-[#f2b705]"
             />
-            <Search className="absolute right-3.5 md:right-4 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[#8f8b80]" />
+          </div>
+        </div>
+
+        <div role="tabpanel">
+          <div className="hidden grid-cols-[40px_64px_minmax(0,1fr)_auto_auto] gap-x-6 border-t border-[#46464c] px-4 py-2 font-data text-[11px] uppercase text-[#8f8b80] sm:grid" aria-hidden="true">
+            <span>N.º</span><span /><span>Película</span><span className="w-[92px]">Estado</span><span className="w-28 text-right">Boleta</span>
           </div>
 
-          {/* Movie grid */}
           {isTabLoading ? (
-            <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 gap-3 md:gap-4">
-              {[...Array(8)].map((_, i) => (
-                <div key={i} className="animate-pulse">
-                  <div className="aspect-[2/3] bg-white/10 rounded-lg mb-2" />
-                  <div className="h-3 bg-white/10 rounded mb-1" />
-                  <div className="h-2.5 bg-white/10 rounded w-2/3" />
+            <div className="border-t border-[#46464c]" aria-busy="true">
+              {[...Array(6)].map((_, i) => (
+                <div key={i} className="flex items-center gap-4 border-b border-[#2c2c30] px-2 py-3 sm:px-4">
+                  <div className="h-[84px] w-14 bg-[#151517] motion-safe:animate-pulse sm:h-24 sm:w-16" />
+                  <div className="flex-1 space-y-2">
+                    <div className="h-6 w-2/3 bg-[#151517] motion-safe:animate-pulse" />
+                    <div className="h-3 w-1/3 bg-[#151517] motion-safe:animate-pulse" />
+                  </div>
                 </div>
               ))}
             </div>
           ) : filteredMovies.length > 0 ? (
-            <MovieGrid
-              movies={filteredMovies}
-              className="grid-cols-2 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"
-              showDetailsButton={false}
-            />
+            <MovieGrid movies={filteredMovies} />
           ) : (
-            <div className="py-12 text-center text-white/40 text-sm">
-              {searchQuery ? `Sin resultados para "${searchQuery}"` : 'Sin películas disponibles'}
+            <div className="border-t border-[#46464c] py-14 text-center">
+              <p className="font-board text-2xl font-bold tracking-wide text-[#c3bfb2] uppercase">
+                {searchQuery ? `Sin resultados para «${searchQuery}»` : 'Sin películas en esta sección'}
+              </p>
+              {searchQuery && (
+                <button onClick={() => setSearchQuery('')} className="mt-3 min-h-[44px] px-4 font-data text-sm text-[#f2b705] underline">
+                  Limpiar búsqueda
+                </button>
+              )}
             </div>
           )}
         </div>

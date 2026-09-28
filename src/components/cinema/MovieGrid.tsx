@@ -1,189 +1,69 @@
-// src/components/cinema/MovieGrid.jsx
+// Filas del tablero: una función por fila, con miniatura, datos en mono y estado.
 import { Link } from 'react-router-dom';
-import { ClockIcon, CurrencyDollarIcon, TicketIcon } from '@heroicons/react/24/outline';
-import { GlassCard, PremiumButton } from '../common';
 import { transformMovieData, optimizeCloudinaryUrl } from '../../utils/movieUtils';
-import { Badge } from '../ui/badge';
-import { Skeleton } from '../ui/skeleton';
 
-const MovieGrid = ({ movies = [], className = '', showStats = false, showDetailsButton = true }) => {
-  const transformedMovies = movies.map(transformMovieData).filter(Boolean);
+const tagFor = (m: any) => {
+  if (m.isSoldOut && m.status === 'in_theaters') return { text: 'AGOTADO', cls: 'b-tag--alarm' };
+  if (m.is_presale) return { text: 'PREVENTA', cls: 'b-tag--amber' };
+  if (m.status === 'coming_soon') return { text: 'PRONTO', cls: '' };
+  if (m.soldOutPercentage > 80) return { text: 'POCAS SILLAS', cls: 'b-tag--alarm' };
+  return { text: 'ABIERTA', cls: 'b-tag--ok' };
+};
 
-  if (!transformedMovies || transformedMovies.length === 0) {
-    return (
-      <div className="text-center py-12">
-        <div className="text-white/60 mb-4">
-          <TicketIcon className="w-16 h-16 mx-auto mb-4" />
-          <p className="text-lg">No hay películas disponibles</p>
+const MovieRow = ({ movie, index }: { movie: any; index: number }) => {
+  const tag = tagFor(movie);
+  return (
+    <li className="border-b border-[#2c2c30]">
+      <Link
+        to={`/movie/${movie.id}`}
+        className="group grid grid-cols-[56px_minmax(0,1fr)_auto] items-center gap-x-4 gap-y-1 px-2 py-3 hover:bg-[#151517] sm:grid-cols-[40px_64px_minmax(0,1fr)_auto_auto] sm:px-4 sm:gap-x-6"
+      >
+        <span className="hidden font-data text-sm font-bold text-[#8f8b80] group-hover:text-[#f2b705] sm:block">
+          {String(index + 1).padStart(2, '0')}
+        </span>
+
+        <img
+          src={movie.poster_url ? optimizeCloudinaryUrl(movie.poster_url, 200) : '/placeholder-movie.jpg'}
+          alt=""
+          loading="lazy"
+          className="h-[84px] w-14 border border-[#2c2c30] object-cover sm:h-24 sm:w-16"
+          onError={(e) => { (e.target as HTMLImageElement).style.visibility = 'hidden'; }}
+        />
+
+        <div className="min-w-0">
+          <h3 className="truncate font-board text-[22px] font-bold leading-tight tracking-wide uppercase text-[#f4f1e8] group-hover:text-[#f2b705] sm:text-[28px]">
+            {movie.title}
+          </h3>
+          <p className="mt-0.5 truncate text-sm text-[#8f8b80]">
+            {[movie.status === 'coming_soon' ? `Estreno ${movie.release_date_short}` : null, movie.genre, movie.duration_formatted !== 'N/A' ? movie.duration_formatted : null, movie.ageRating].filter(Boolean).join(' · ')}
+          </p>
+          <span className={`b-tag mt-2 sm:hidden ${tag.cls}`}>{tag.text}</span>
         </div>
-      </div>
-    );
+
+        <span className={`b-tag hidden sm:inline-flex ${tag.cls}`}>{tag.text}</span>
+
+        <span className="text-right font-data text-sm font-bold text-[#f4f1e8] sm:w-28 sm:text-base">
+          {movie.price ? <><span className="block text-[10px] font-normal uppercase text-[#8f8b80] sm:inline sm:mr-2">desde</span>{movie.price_formatted}</> : ''}
+        </span>
+      </Link>
+    </li>
+  );
+};
+
+const MovieGrid = ({ movies = [] }: { movies?: any[]; className?: string; showStats?: boolean; showDetailsButton?: boolean }) => {
+  const rows = movies.map(transformMovieData).filter(Boolean);
+
+  if (rows.length === 0) {
+    return <p className="py-12 text-center font-data text-sm text-[#8f8b80]">No hay películas disponibles</p>;
   }
 
   return (
-    <div className={`grid gap-3 sm:gap-6 ${className || 'grid-cols-2 lg:grid-cols-4 xl:grid-cols-5'}`}>
-      {transformedMovies.map((movie) => (
-        <MovieCard
-          key={movie.id}
-          movie={movie}
-          showStats={showStats}
-          showDetailsButton={showDetailsButton}
-        />
+    <ol className="border-t border-[#46464c]">
+      {rows.map((movie, i) => (
+        <MovieRow key={movie.id} movie={movie} index={i} />
       ))}
-    </div>
+    </ol>
   );
 };
 
-const MovieCard = ({ movie, showStats = false, showDetailsButton = true }) => {
-  const statusBadge = movie.statusBadge;
-
-  return (
-    <GlassCard className="group overflow-hidden hover:scale-[1.02] transition-all duration-300">
-      {!showDetailsButton ? (
-        <Link to={`/movie/${movie.id}`} className="block">
-          <MovieCardContent movie={movie} statusBadge={statusBadge} showStats={showStats} showDetailsButton={false} />
-        </Link>
-      ) : (
-        <MovieCardContent
-          movie={movie}
-          statusBadge={statusBadge}
-          showStats={showStats}
-          showDetailsButton={true}
-        />
-      )}
-    </GlassCard>
-  );
-};
-
-const MovieCardContent = ({ movie, statusBadge, showDetailsButton = true }: { movie: any; statusBadge: any; showStats?: any; showDetailsButton?: any }) => {
-  return (
-    <>
-      <div className="aspect-[2/3] relative">
-        {/* Badge de estado */}
-        {statusBadge && (
-          <div className="absolute top-2 left-2 z-10">
-            <Badge className={`backdrop-blur-sm font-bold tracking-wide text-[10px] ${statusBadge.className}`}>
-              {statusBadge.text}
-            </Badge>
-          </div>
-        )}
-
-        {/* Indicador de disponibilidad */}
-        <div className="absolute top-2 right-2 z-10">
-          {movie.isSoldOut ? (
-            <Badge className="bg-red-500/20 text-red-300 border-red-500/40 backdrop-blur-sm font-bold text-[10px]">
-              AGOTADO
-            </Badge>
-          ) : movie.soldOutPercentage > 80 ? (
-            <Badge className="bg-orange-500/20 text-orange-300 border-orange-500/40 backdrop-blur-sm font-bold text-[10px]">
-              POCAS
-            </Badge>
-          ) : null}
-        </div>
-
-        <img
-          src={optimizeCloudinaryUrl(movie.images?.poster || movie.poster_url, 500) || '/placeholder-movie.jpg'}
-          alt={movie.title}
-          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-          onError={(e) => {
-            (e.target as HTMLImageElement).src = optimizeCloudinaryUrl(movie.images?.backdrop || movie.backdrop_url, 500) || '/placeholder-movie.jpg';
-          }}
-        />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-      </div>
-
-      {/* Info debajo de la imagen */}
-      <div className="p-3">
-        {!showDetailsButton ? (
-          /* ── Vista simplificada (Home mobile / sin botón) ── */
-          <>
-            <h3 className="text-white font-bold text-sm leading-tight line-clamp-2 mb-1">
-              {movie.title}
-            </h3>
-            {movie.original_title && movie.original_title !== movie.title && (
-              <p className="text-white/50 text-xs line-clamp-1 mb-1.5">
-                {movie.original_title}
-              </p>
-            )}
-            {movie.ageRating && (
-              <span className="inline-block bg-white/10 text-white/70 border border-white/15 rounded text-[10px] px-1.5 py-0.5 mb-1.5">
-                {movie.ageRating}
-              </span>
-            )}
-            {movie.release_date_short && (
-              <p className="text-white/55 text-xs">
-                <span className="font-medium text-white/70">Estreno:</span> {movie.release_date_short}
-              </p>
-            )}
-          </>
-        ) : (
-          /* ── Vista completa (Cartelera / con botón) ── */
-          <>
-            <h3 className="text-white font-bold text-sm mb-1 line-clamp-2">
-              {movie.title}
-            </h3>
-            <p className="text-white/70 text-xs mb-2">
-              {movie.genre || 'Sin género'} • {movie.duration_formatted}
-            </p>
-
-            <div className="flex items-center justify-between text-xs text-white/60 mb-2">
-              <span className="flex items-center">
-                <ClockIcon className="w-3 h-3 mr-1" />
-                {movie.duration_formatted}
-              </span>
-              <span className="bg-blue-600 text-white px-2 py-0.5 rounded text-[10px] font-medium">
-                {movie.ageRating}
-              </span>
-            </div>
-
-            {movie.price && (
-              <p className="text-green-400 font-bold text-sm mb-1">
-                {movie.price_formatted}
-              </p>
-            )}
-
-            {movie.available_tickets !== undefined && (
-              <div className="flex items-center text-xs text-white/60 mb-2">
-                <div className="w-2 h-2 bg-green-400 rounded-full mr-1" />
-                {movie.available_tickets} disponibles
-              </div>
-            )}
-
-            {movie.release_date && (
-              <p className="text-white/60 text-xs mb-2">
-                Estreno: {movie.release_date_short}
-              </p>
-            )}
-
-            <div className="mt-2">
-              <Link to={`/movie/${movie.id}`}>
-                <PremiumButton size="sm" className="w-full">
-                  Ver detalles
-                </PremiumButton>
-              </Link>
-            </div>
-          </>
-        )}
-      </div>
-    </>
-  );
-};
-
-export const MovieGridSkeleton = ({ count = 8, className = '' }) => {
-  return (
-    <div className={`grid gap-3 sm:gap-6 ${className || 'grid-cols-2 lg:grid-cols-4 xl:grid-cols-5'}`}>
-      {[...Array(count)].map((_, i) => (
-        <div key={i} className="flex flex-col gap-3">
-          <Skeleton className="aspect-[2/3] w-full rounded-xl bg-white/[0.07]" />
-          <div className="px-1 space-y-2">
-            <Skeleton className="h-4 w-3/4 rounded-md bg-white/[0.07]" />
-            <Skeleton className="h-3 w-1/2 rounded-md bg-white/[0.05]" />
-          </div>
-        </div>
-      ))}
-    </div>
-  );
-};
-
-export { MovieGrid, MovieCard };
+export { MovieGrid };

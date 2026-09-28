@@ -13,7 +13,7 @@ const PaymentForm = ({ bookingData, onSubmit, isProcessing, formData, setFormDat
 
   if (isProcessing) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
+      <div className="pt-8 pb-12 flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-blue-500 mx-auto mb-4"></div>
           <p className="text-white text-xl mb-2">Procesando pago...</p>
@@ -24,7 +24,7 @@ const PaymentForm = ({ bookingData, onSubmit, isProcessing, formData, setFormDat
   }
 
   return (
-    <div className="min-h-screen pt-24">
+    <div className="pt-8 pb-12">
       <FloatingParticles count={20} className="opacity-20" />
 
       <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-8">

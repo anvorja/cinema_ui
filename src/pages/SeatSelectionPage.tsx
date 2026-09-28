@@ -9,7 +9,7 @@ import {
 import CinemaSeatMap, { LAYOUT } from '../components/seats/CinemaSeatMap';
 import { useBooking } from '../hooks/useBooking';
 import { useMovieShowtimes } from '../hooks/useMovieShowtimes';
-import { Badge } from '../components/ui/badge';
+import BookingSteps from '../components/board/BookingSteps';
 import { optimizeCloudinaryUrl } from '../utils/movieUtils';
 import { isPreferentialSeat, usePricing } from '../hooks/usePricing';
 
@@ -108,14 +108,14 @@ const SeatSelectionPage = () => {
 
   if (!movie || !theater) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="flex min-h-[60vh] items-center justify-center px-4">
         <div className="text-center">
-          <p className="text-gray-600 mb-4">No se encontró información de la reserva.</p>
+          <p className="mb-4 text-[#c3bfb2]">No encontramos la información de tu reserva.</p>
           <button
-            onClick={() => navigate('/cartelera')}
-            className="px-6 py-2 bg-blue-700 text-white rounded-full"
+            onClick={() => navigate('/')}
+            className="h-12 rounded-[3px] bg-[#f2b705] px-6 font-board text-lg font-bold tracking-[0.08em] text-[#0c0c0d]"
           >
-            Volver a Cartelera
+            VOLVER A LA CARTELERA
           </button>
         </div>
       </div>
@@ -154,120 +154,75 @@ const SeatSelectionPage = () => {
   const dateLabel = formatDate(typeof selectedDate === 'string' ? selectedDate : selectedDate?.date);
   const ageRating  = movie.ageRating || movie.age_rating || '';
 
+  const money = (n: number) =>
+    new Intl.NumberFormat('es-CO', { style: 'currency', currency: 'COP', minimumFractionDigits: 0 }).format(n);
+  const ticketsTotal = pricing
+    ? generalCount * pricing.ticket_prices.general + prefCount * pricing.ticket_prices.preferential
+    : null;
+
   return (
-    <div className="min-h-screen pt-20">
-      <div className="max-w-4xl mx-auto px-4 py-6">
+    <div className="pb-32">
+      <BookingSteps current="Sillas" />
 
-        {/* ── Info card ──────────────────────────────────────────────────────── */}
-        <div className="bg-slate-900/80 backdrop-blur-xl rounded-2xl border border-white/[0.08] p-5 mb-6">
-          <div className="flex gap-4 items-start">
-            {poster && (
-              <img src={poster} alt={title}
-                className="w-16 h-24 object-cover rounded-lg shadow-lg ring-1 ring-white/10 flex-shrink-0" />
-            )}
-            <div className="flex-1 min-w-0">
-              <div className="flex items-start gap-2 flex-wrap mb-1">
-                <h2 className="text-lg font-bold text-white">{title}</h2>
-                {ageRating && (
-                  <Badge variant="outline" className="text-white/60 border-white/20 text-[10px] shrink-0">
-                    {ageRating}
-                  </Badge>
-                )}
-              </div>
+      <div className="mx-auto max-w-4xl px-4 py-6 sm:px-6">
+        {/* Tiquete de la función */}
+        <div className="b-stub mb-8 grid grid-cols-[72px_minmax(0,1fr)] gap-4 p-4 sm:grid-cols-[88px_minmax(0,1fr)] sm:p-5">
+          {poster && <img src={poster} alt={`Póster de ${title}`} className="aspect-[2/3] w-full border border-[#2c2c30] object-cover" />}
+          <div className="min-w-0">
+            <h2 className="font-board text-3xl font-bold leading-none tracking-wide uppercase text-[#f4f1e8] sm:text-4xl">{title}</h2>
+            <p className="mt-1 font-data text-xs text-[#8f8b80]">{[format, ageRating].filter(Boolean).join(' · ')}</p>
 
-              {/* Format badges */}
-              <div className="flex gap-1.5 mb-3">
-                {format.split(' ').map((tag, i) => (
-                  <Badge key={i} className="bg-white/10 text-white/80 border-white/15 text-[10px] font-bold">
-                    {tag}
-                  </Badge>
-                ))}
-              </div>
-
-              <div className="grid grid-cols-2 sm:grid-cols-4 gap-x-6 gap-y-2 text-sm">
-                <div className="flex items-center gap-1.5 text-white/60">
-                  <MapPinIcon className="w-4 h-4 text-white/30 shrink-0" />
-                  <div>
-                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Multiplex</div>
-                    <div className="font-medium text-white/80 text-xs">{theaterName}</div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-white/60">
-                  <ComputerDesktopIcon className="w-4 h-4 text-white/30 shrink-0" />
-                  <div>
-                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Sala</div>
-                    <div className="font-medium text-white/80 text-xs">
-                      SALA {showtime?.hall_number || 1}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-white/60">
-                  <CalendarDaysIcon className="w-4 h-4 text-white/30 shrink-0" />
-                  <div>
-                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Fecha y horario</div>
-                    <div className="font-medium text-white/80 text-xs">
-                      {dateLabel} {time && `${time} P.M.`}
-                    </div>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-1.5 text-white/60">
-                  <ClockIcon className="w-4 h-4 text-white/30 shrink-0" />
-                  <div>
-                    <div className="text-[10px] text-white/30 uppercase tracking-wide">Duración</div>
-                    <div className="font-medium text-white/80 text-xs">
-                      {movie.duration_formatted || movie.duration || '–'}
-                    </div>
-                  </div>
-                </div>
-
-                {selectedList.length > 0 && (
-                  <div className="flex items-center gap-1.5 text-white/60 col-span-2 sm:col-span-4">
-                    <TicketIcon className="w-4 h-4 text-white/30 shrink-0" />
-                    <div>
-                      <div className="text-[10px] text-white/30 uppercase tracking-wide">Sillas</div>
-                      <div className="font-medium text-white/80 text-xs">
-                        {selectedList.join(', ')}
-                      </div>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
+            <dl className="mt-4 grid grid-cols-2 gap-x-5 gap-y-3 border-t border-dashed border-[#46464c] pt-3 sm:grid-cols-4">
+              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Cine</dt><dd className="mt-1 font-data text-sm font-bold">{theaterName}</dd></div>
+              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Sala</dt><dd className="mt-1 font-data text-sm font-bold">{showtime?.hall_number || 1}</dd></div>
+              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Fecha</dt><dd className="mt-1 font-data text-sm font-bold">{dateLabel || 'Hoy'}</dd></div>
+              <div><dt className="font-data text-[10px] uppercase text-[#8f8b80]">Hora</dt><dd className="mt-1 font-data text-sm font-bold text-[#f2b705]">{time || '—'}</dd></div>
+            </dl>
           </div>
         </div>
 
-        {/* ── Seat selection title ───────────────────────────────────────────── */}
-        <h1 className="text-2xl font-bold text-white mb-4">Seleccione sus sillas</h1>
+        <h1 className="mb-4 font-board text-3xl font-bold tracking-[0.06em] uppercase">Elige tus sillas</h1>
 
-        {/* ── Seat map ───────────────────────────────────────────────────────── */}
         <CinemaSeatMap
           selectedSeats={selectedSeats}
           onToggle={handleToggle}
           occupiedSeats={occupiedSeats}
         />
+      </div>
 
-        {/* ── Navigation ─────────────────────────────────────────────────────── */}
-        <div className="flex justify-between items-center mt-6">
+      {/* Tiquete en construcción */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t border-[#46464c] bg-[#0c0c0d]">
+        <div className="mx-auto flex max-w-4xl items-center gap-3 px-4 py-3 sm:gap-5 sm:px-6">
           <button
+            type="button"
             onClick={() => navigate(-1)}
-            className="flex items-center gap-2 px-5 py-2.5 border border-white/30 rounded-full text-white/90 hover:bg-white/10 transition-colors font-medium text-sm backdrop-blur-sm"
+            className="flex h-14 w-12 shrink-0 items-center justify-center rounded-[3px] border border-[#46464c] text-[#c3bfb2] hover:border-[#f4f1e8] hover:text-[#f4f1e8] sm:w-auto sm:gap-2 sm:px-4"
+            aria-label="Volver"
           >
-            <ArrowLeftIcon className="w-4 h-4" />
-            Atrás
+            <ArrowLeftIcon className="h-5 w-5" />
+            <span className="hidden font-board text-lg font-bold tracking-[0.08em] sm:inline">ATRÁS</span>
           </button>
 
+          <div className="min-w-0 flex-1" aria-live="polite">
+            {selectedList.length > 0 ? (
+              <>
+                <p className="truncate font-data text-sm font-bold text-[#f4f1e8]">{selectedList.join(' · ')}</p>
+                <p className="font-data text-xs text-[#8f8b80]">
+                  {selectedList.length} {selectedList.length === 1 ? 'silla' : 'sillas'}{ticketsTotal !== null ? ` · ${money(ticketsTotal)}` : ''}
+                </p>
+              </>
+            ) : (
+              <p className="font-data text-sm text-[#8f8b80]">Toca una silla libre para empezar</p>
+            )}
+          </div>
+
           <button
+            type="button"
             onClick={handleContinue}
             disabled={selectedSeats.size === 0 || !pricing}
-            className="flex items-center gap-2 px-6 py-2.5 bg-blue-700 text-white rounded-full
-                       hover:bg-blue-800 disabled:opacity-40 disabled:cursor-not-allowed
-                       transition-colors font-semibold text-sm"
+            className="flex h-14 shrink-0 items-center gap-2 rounded-[3px] bg-[#f2b705] px-5 font-board text-lg font-bold tracking-[0.08em] text-[#0c0c0d] hover:bg-[#d9a304] disabled:cursor-not-allowed disabled:opacity-40 sm:px-8"
           >
-            Seleccionar boletas
-            <span className="text-blue-200">›</span>
+            CONTINUAR
           </button>
         </div>
       </div>

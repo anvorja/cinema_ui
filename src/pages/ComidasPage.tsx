@@ -1,7 +1,7 @@
 // src/pages/ComidasPage.jsx
 import { useState, useEffect } from 'react';
 import { FoodCategoryGrid } from '../components/cinema/FoodCategoryGrid.jsx';
-import {FloatingParticles, GlassCard} from '../components/common';
+import LoadingSpinner from '../components/common/LoadingSpinner';
 import FoodCarousel from "../components/cinema/FoodCarousel.jsx";
 
 const ComidasPage = () => {
@@ -81,62 +81,31 @@ const ComidasPage = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen pt-24 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-t-2 border-b-2 border-orange-500 mx-auto mb-4"></div>
-          <p className="text-white text-xl">Cargando menú...</p>
-        </div>
+      <div className="flex min-h-[60vh] items-center justify-center">
+        <LoadingSpinner size="xl" text="Cargando el menú" />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen pt-24">
-      <FloatingParticles count={25} className="opacity-20" />
+    <div>
+      <FoodCarousel combos={foodCombos} />
 
-      {/* Hero Carousel de Comidas */}
-      <section className="mb-16">
-        <FoodCarousel combos={foodCombos} />
-      </section>
+      <section className="mx-auto max-w-[1400px] px-4 py-10 sm:px-6">
+        <h2 className="font-board text-4xl font-bold tracking-[0.06em] uppercase">Menú</h2>
+        <p className="mt-3 max-w-[65ch] text-[17px] leading-relaxed text-[#c3bfb2]">
+          Esta sección es informativa. <strong className="text-[#f2b705]">Agrega tu comida durante la compra de boletas.</strong>
+        </p>
 
-      {/* Información y Categorías */}
-      <section className="py-8">
-        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="mb-12">
-            <h2 className="text-3xl lg:text-4xl font-bold text-white mb-4">Comidas</h2>
-            <GlassCard variant="default" className="p-6 max-w-4xl">
-              <p className="text-white/90 leading-relaxed">
-                Esta sección es informativa.{' '}
-                <span className="font-semibold text-orange-400">
-                  Podrás agregar tu comida en el proceso de compra de boletas.
-                </span>
-              </p>
-            </GlassCard>
-          </div>
-
+        <div className="mt-8">
           <FoodCategoryGrid categories={categories} />
-
-          {/* Disclaimers */}
-          <div className="mt-12 space-y-4 max-w-4xl">
-            <GlassCard variant="default" className="p-4">
-              <p className="text-white/70 text-sm">
-                *PRODUCTOS SUJETOS A DISPONIBILIDAD DEL PUNTO DE VENTA.
-              </p>
-            </GlassCard>
-
-            <GlassCard variant="default" className="p-4">
-              <p className="text-white/70 text-sm">
-                **LOS PRECIOS DE LISTA PARA ALGUNOS PRODUCTOS SON DIFERENTES EN LOS MULTIPLEX BÍO CAUCA, MERCURIO Y VENTURA TERREROS.
-              </p>
-            </GlassCard>
-
-            <GlassCard variant="default" className="p-4">
-              <p className="text-white/70 text-sm">
-                ***IMÁGENES DE REFERENCIA.
-              </p>
-            </GlassCard>
-          </div>
         </div>
+
+        <ul className="mt-10 max-w-3xl space-y-1 font-data text-xs text-[#8f8b80]">
+          <li>* Productos sujetos a disponibilidad del punto de venta.</li>
+          <li>** Los precios de lista para algunos productos son diferentes en los multiplex Bío Cauca, Mercurio y Ventura Terreros.</li>
+          <li>*** Imágenes de referencia.</li>
+        </ul>
       </section>
     </div>
   );
