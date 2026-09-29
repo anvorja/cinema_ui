@@ -188,14 +188,13 @@ const Header = () => {
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => setIsSidebarOpen(true)}
-                                    className="text-white/80 hover:text-white hover:bg-white/10 h-10 w-10 rounded-xl"
+                                    className="text-white hover:text-white bg-white/10 hover:bg-white/20 border border-white/20 h-10 w-10 rounded-xl"
                                     aria-label="Abrir menú"
                                 >
                                     <Menu className="h-5 w-5" />
                                 </Button>
 
                                 <Link to="/" className="flex items-center gap-2.5 group transition-all duration-200">
-                                    <img src="/icons8.png" alt="" className="w-8 h-8 rounded-lg shrink-0" />
                                     <span className="text-white font-bold text-base sm:text-lg tracking-widest">
                                         CINEMAPLUS
                                     </span>

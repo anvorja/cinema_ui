@@ -51,6 +51,7 @@ const Footer = () => (
           {/* Brand */}
           <div className="space-y-4">
             <Link to="/" className="inline-flex items-center gap-2.5 group">
+              <img src="/icons8.png" alt="" className="w-5 h-5 rounded-md opacity-70 group-hover:opacity-100 transition-opacity" />
               <span className="text-white font-bold text-xl tracking-widest group-hover:text-white/80 transition-colors">
                 CINEMAPLUS
               </span>
