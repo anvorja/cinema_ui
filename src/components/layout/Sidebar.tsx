@@ -1,19 +1,15 @@
 // src/components/layout/Sidebar.tsx
-import { useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Clapperboard, User, CreditCard, LogOut, Utensils, Ticket, ArrowRight } from 'lucide-react';
+import { Home, CreditCard, LogOut, Utensils } from 'lucide-react';
 import { Sheet, SheetContent, SheetTitle } from '../ui/sheet';
-import { Separator } from '../ui/separator';
 import { ScrollArea } from '../ui/scroll-area';
-import UserProfile from "../auth/UserProfile.jsx";
 import useAuth from "../../hooks/useAuth.js";
 
 interface NavItem {
     name: string;
-    href?: string;
+    href: string;
     icon: React.ElementType;
     color: string;
-    action?: () => void;
 }
 
 interface SidebarProps {
@@ -25,18 +21,12 @@ interface SidebarProps {
 }
 
 const baseNavItems: NavItem[] = [
-    { name: 'Películas', href: '/',        icon: Clapperboard, color: 'text-blue-300 bg-blue-500/15' },
+    { name: 'Películas', href: '/',        icon: Home,         color: 'text-blue-300 bg-blue-500/15' },
     { name: 'Comidas',   href: '/comidas', icon: Utensils,     color: 'text-orange-300 bg-orange-500/15' },
 ];
 
-const accountNavItems: NavItem[] = [
-    { name: 'Mis compras',  href: '/profile/purchases', icon: Ticket,     color: 'text-emerald-300 bg-emerald-500/15' },
-    { name: 'Mis tarjetas', href: '/profile/cards',     icon: CreditCard, color: 'text-violet-300 bg-violet-500/15' },
-];
-
 const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProps) => {
-    const { user, isAuthenticated, logout } = useAuth();
-    const [showUserProfile, setShowUserProfile] = useState(false);
+    const { isAuthenticated, logout } = useAuth();
     const location = useLocation();
     const navigate = useNavigate();
 
@@ -44,11 +34,6 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
         if (href === '/') return location.pathname === '/';
         return location.pathname.startsWith(href);
     };
-
-    const displayName = user?.first_name
-        ? [user.first_name, user.last_name].filter(Boolean).join(' ')
-        : user?.name || '';
-    const initials = (displayName || 'U').split(' ').map((n: string) => n[0]).join('').toUpperCase().slice(0, 2);
 
     const handleLogout = async () => {
         try {
@@ -62,13 +47,7 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
         }
     };
 
-    const navItems: NavItem[] = isAuthenticated
-        ? [
-            ...baseNavItems,
-            ...accountNavItems,
-            { name: 'Mi perfil', icon: User, color: 'text-cyan-300 bg-cyan-500/15', action: () => setShowUserProfile(true) },
-        ]
-        : baseNavItems;
+    const navItems: NavItem[] = baseNavItems;
 
     const itemClass = (active: boolean) => [
         'group flex items-center gap-3.5 w-full min-h-12 pl-2 pr-3 py-2 rounded-2xl text-[15px] font-medium',
@@ -91,38 +70,18 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                     <div aria-hidden="true" className="pointer-events-none absolute -top-24 -left-16 h-64 w-64 rounded-full bg-blue-500/20 blur-3xl" />
                     <div aria-hidden="true" className="pointer-events-none absolute bottom-16 -right-20 h-64 w-64 rounded-full bg-purple-500/15 blur-3xl" />
 
-                    {/* Cabecera: identidad de usuario o marca */}
-                    <div className="relative shrink-0 px-5 pt-5 pb-4">
-                        {isAuthenticated ? (
-                            <button
-                                onClick={() => setShowUserProfile(true)}
-                                className="flex items-center gap-3 pr-10 text-left w-full rounded-2xl focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/70"
-                            >
-                                <span className="h-12 w-12 shrink-0 rounded-2xl glass flex items-center justify-center text-base font-bold text-white">
-                                    {initials}
-                                </span>
-                                <span className="min-w-0">
-                                    <span className="block truncate text-base font-semibold text-white">{displayName || 'Mi cuenta'}</span>
-                                    <span className="block truncate text-sm text-white/65">{user?.email}</span>
-                                </span>
-                            </button>
-                        ) : (
-                            <div className="flex items-center gap-3">
-                                <img src="/icons8.png" alt="" className="w-10 h-10 rounded-xl shrink-0" />
-                                <div>
-                                    <p className="text-white font-bold text-base tracking-widest">CINEMAPLUS</p>
-                                    <p className="text-sm text-white/65">Elige tu función en segundos</p>
-                                </div>
-                            </div>
-                        )}
+                    {/* Cabecera: marca */}
+                    <div className="relative shrink-0 flex items-center gap-3 px-5 py-4 border-b border-white/10">
+                        <img src="/icons8.png" alt="" className="w-9 h-9 rounded-xl shrink-0" />
+                        <span className="text-white font-bold text-base tracking-widest">CINEMAPLUS</span>
                     </div>
 
                     <ScrollArea className="relative flex-1">
                         <nav className="px-3 pb-4" aria-label="Principal">
                             <ul className="space-y-1">
-                                {navItems.map((item, idx) => {
+                                {navItems.map((item) => {
                                     const Icon = item.icon;
-                                    const active = item.href ? isItemActive(item.href) : false;
+                                    const active = isItemActive(item.href);
                                     const inner = (
                                         <>
                                             <span className={`h-9 w-9 shrink-0 rounded-xl flex items-center justify-center ${item.color}`}>
@@ -133,16 +92,9 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                                     );
                                     return (
                                         <li key={item.name}>
-                                            {isAuthenticated && idx === baseNavItems.length && (
-                                                <Separator className="bg-white/10 my-3" />
-                                            )}
-                                            {item.action ? (
-                                                <button onClick={item.action} className={itemClass(false)}>{inner}</button>
-                                            ) : (
-                                                <Link to={item.href!} onClick={onClose} aria-current={active ? 'page' : undefined} className={itemClass(active)}>
-                                                    {inner}
-                                                </Link>
-                                            )}
+                                            <Link to={item.href} onClick={onClose} aria-current={active ? 'page' : undefined} className={itemClass(active)}>
+                                                {inner}
+                                            </Link>
                                         </li>
                                     );
                                 })}
@@ -153,13 +105,9 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                                 className="group mt-4 w-full text-left rounded-2xl p-4 bg-gradient-to-br from-amber-400/20 to-orange-500/10 border border-amber-300/25 hover:border-amber-300/45 transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/70"
                                 onClick={() => { onClose(); navigate('/recharge'); }}
                             >
-                                <span className="flex items-center gap-2 text-amber-200 text-sm font-semibold">
-                                    <CreditCard className="w-4 h-4" />
-                                    Tarjeta Cinema+
-                                </span>
-                                <span className="mt-1 flex items-center justify-between text-sm text-white/75">
-                                    Recarga y paga más rápido
-                                    <ArrowRight className="w-4 h-4 transition-transform group-hover:translate-x-1" />
+                                <span className="flex items-center gap-3">
+                                    <CreditCard className="w-[18px] h-[18px] text-amber-300 shrink-0" />
+                                    <span className="text-amber-100 font-semibold text-sm tracking-wide">RECARGAR TARJETA CINEMA+</span>
                                 </span>
                             </button>
                         </nav>
@@ -181,23 +129,19 @@ const Sidebar = ({ isOpen, onClose, onLoginClick, onRegisterClick }: SidebarProp
                                     onClick={() => { onClose(); onLoginClick(); }}
                                     className="w-full min-h-11 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-500 hover:to-blue-600 text-white font-semibold text-sm transition-colors shadow-lg shadow-blue-500/25 focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/70"
                                 >
-                                    Iniciar sesión
+                                    Iniciar Sesión
                                 </button>
                                 <button
                                     onClick={() => { onClose(); onRegisterClick(); }}
                                     className="w-full min-h-11 px-4 rounded-xl border border-white/20 hover:bg-white/[0.08] text-white/80 hover:text-white font-medium text-sm transition-colors focus-visible:outline focus-visible:outline-2 focus-visible:outline-white/70"
                                 >
-                                    Crear una cuenta
+                                    ¿No tienes cuenta? Regístrate
                                 </button>
                             </div>
                         )}
                     </div>
                 </SheetContent>
             </Sheet>
-
-            {showUserProfile && (
-                <UserProfile onClose={() => setShowUserProfile(false)} />
-            )}
         </>
     );
 };

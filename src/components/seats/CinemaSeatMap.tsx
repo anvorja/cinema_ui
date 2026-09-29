@@ -177,8 +177,11 @@ const CinemaSeatMap = ({ selectedSeats, onToggle, occupiedSeats = new Set() }) =
           >
             {/* Screen */}
             <div className="flex flex-col items-center mb-6">
-              <div className="w-64 h-2 bg-gray-300 rounded-sm" />
-              <span className="text-gray-400 text-xs mt-1">Pantalla</span>
+              <div
+                className="h-2 w-full bg-gray-400 drop-shadow-[0_4px_6px_rgba(0,0,0,0.15)]"
+                style={{ clipPath: 'polygon(2% 0, 98% 0, 100% 100%, 0 100%)' }}
+              />
+              <span className="text-gray-500 text-xs mt-2 uppercase tracking-[0.3em]">Pantalla</span>
             </div>
 
             {/* Rows */}
