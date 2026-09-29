@@ -37,6 +37,10 @@ const Header = () => {
     const [isSearching, setIsSearching] = useState(false);
     const [showSearchResults, setShowSearchResults] = useState(false);
     const [isSearchFocused, setIsSearchFocused] = useState(false);
+    const [showMobileSearch, setShowMobileSearch] = useState(false);
+    const [searchAnchor, setSearchAnchor] = useState<{ top: number; right: number } | null>(null);
+    const searchInputRef = useRef<HTMLInputElement | null>(null);
+    const mobileSearchInputRef = useRef<HTMLInputElement | null>(null);
 
     const location = useLocation();
     const navigate = useNavigate();
@@ -61,14 +65,41 @@ const Header = () => {
     // Close sidebar on route change
     useEffect(() => {
         setIsSidebarOpen(false);
+        setShowMobileSearch(false);
     }, [location]);
+
+    // Atajo "/" para enfocar la búsqueda (solo fuera de campos de texto)
+    useEffect(() => {
+        const onKey = (e: KeyboardEvent) => {
+            const t = e.target as HTMLElement;
+            if (e.key !== '/' || t.closest('input, textarea, [contenteditable="true"]')) return;
+            e.preventDefault();
+            searchInputRef.current?.focus();
+        };
+        document.addEventListener('keydown', onKey);
+        return () => document.removeEventListener('keydown', onKey);
+    }, []);
+
+    // Ancla el desplegable de resultados al campo de búsqueda visible
+    useEffect(() => {
+        if (!showSearchResults) return;
+        const place = () => {
+            const el = document.querySelector<HTMLElement>(showMobileSearch ? '.search-container-mobile' : '.search-container');
+            if (!el) return;
+            const r = el.getBoundingClientRect();
+            setSearchAnchor({ top: r.bottom + 8, right: Math.max(window.innerWidth - r.right, 8) });
+        };
+        place();
+        window.addEventListener('resize', place);
+        return () => window.removeEventListener('resize', place);
+    }, [showSearchResults, showMobileSearch, isScrolled]);
 
     // Close search dropdown on outside click
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
             if (showSearchResults) {
                 const el = event.target as Element;
-                if (!el.closest('.search-container') && !el.closest('.search-results-portal')) {
+                if (!el.closest('.search-container') && !el.closest('.search-container-mobile') && !el.closest('.search-results-portal')) {
                     setShowSearchResults(false);
                 }
             }
@@ -142,14 +173,14 @@ const Header = () => {
     return (
         <TooltipProvider delayDuration={300}>
             <>
-                <header className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${isScrolled ? 'py-2' : 'py-4'} ${!isHeaderVisible ? '-translate-y-full' : 'translate-y-0'}`}>
+                <header className={`fixed top-0 left-0 right-0 z-50 transition-[padding,transform] duration-300 ease-out ${isScrolled ? 'py-2' : 'py-3 sm:py-4'} ${!isHeaderVisible && !showMobileSearch ? '-translate-y-full' : 'translate-y-0'}`}>
                     <GlassCard
                         variant="premium"
-                        className={`mx-4 transition-all duration-300 ${
-                            isScrolled ? 'bg-black/30 backdrop-blur-xl' : 'bg-white/10 backdrop-blur-md'
+                        className={`mx-3 sm:mx-4 lg:mx-auto lg:max-w-7xl rounded-2xl transition-all duration-300 ${
+                            isScrolled ? 'bg-slate-950/55 backdrop-blur-2xl border-white/15' : 'bg-white/10 backdrop-blur-md'
                         }`}
                     >
-                        <div className="flex items-center justify-between px-4 py-2.5">
+                        <div className="flex items-center justify-between gap-2 px-3 sm:px-4 py-2">
 
                             {/* ── Left: hamburger (mobile only) + logo ── */}
                             <div className="flex items-center gap-3">
@@ -157,14 +188,15 @@ const Header = () => {
                                     variant="ghost"
                                     size="icon"
                                     onClick={() => setIsSidebarOpen(true)}
-                                    className="lg:hidden text-white/80 hover:text-white hover:bg-white/10 h-9 w-9 rounded-xl"
+                                    className="text-white/80 hover:text-white hover:bg-white/10 h-10 w-10 rounded-xl"
                                     aria-label="Abrir menú"
                                 >
                                     <Menu className="h-5 w-5" />
                                 </Button>
 
                                 <Link to="/" className="flex items-center gap-2.5 group transition-all duration-200">
-                                    <span className="text-white font-bold text-lg tracking-widest">
+                                    <img src="/icons8.png" alt="" className="w-8 h-8 rounded-lg shrink-0" />
+                                    <span className="text-white font-bold text-base sm:text-lg tracking-widest">
                                         CINEMAPLUS
                                     </span>
                                 </Link>
@@ -178,10 +210,10 @@ const Header = () => {
                                         to={item.href}
                                         end={item.href === '/'}
                                         className={({ isActive }) =>
-                                            `px-5 py-2 rounded-xl text-sm font-medium transition-all duration-200 ${
+                                            `relative px-5 py-2 rounded-xl text-sm font-medium transition-colors duration-200 after:absolute after:left-1/2 after:bottom-0.5 after:h-0.5 after:-translate-x-1/2 after:rounded-full after:bg-white after:transition-all after:duration-300 ${
                                                 isActive
-                                                    ? 'bg-white/20 text-white shadow-sm'
-                                                    : 'text-white/70 hover:text-white hover:bg-white/[0.1]'
+                                                    ? 'text-white after:w-5'
+                                                    : 'text-white/70 hover:text-white hover:bg-white/[0.08] after:w-0'
                                             }`
                                         }
                                     >
@@ -205,24 +237,30 @@ const Header = () => {
                                 {/* Desktop search */}
                                 <div className="hidden md:flex items-center relative search-container">
                                     <input
+                                        ref={searchInputRef}
                                         type="text"
+                                        aria-label="Buscar películas"
                                         value={searchQuery}
                                         onChange={handleSearchChange}
                                         onFocus={() => setIsSearchFocused(true)}
                                         onBlur={() => setIsSearchFocused(false)}
                                         placeholder="Buscar películas..."
                                         style={{
-                                            background: isSearchFocused ? 'rgba(0,0,0,0.30)' : 'rgba(255,255,255,0.08)',
+                                            background: isSearchFocused ? 'rgba(0,0,0,0.30)' : 'rgba(0,0,0,0.28)',
                                             borderColor: isSearchFocused ? 'rgba(255,255,255,0.28)' : 'rgba(255,255,255,0.12)',
                                         }}
-                                        className="w-40 xl:w-56 pl-9 pr-8 h-9 rounded-xl border text-sm text-white transition-all duration-200 outline-none placeholder:text-white/40"
+                                        className={`${isSearchFocused || searchQuery ? 'w-56 xl:w-72' : 'w-40 xl:w-56'} pl-9 pr-9 h-10 rounded-xl border text-sm text-white transition-[width,background-color,border-color] duration-300 ease-out outline-none placeholder:text-white/55 focus-visible:ring-2 focus-visible:ring-white/40`}
                                     />
-                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40 pointer-events-none" />
+                                    <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
+                                    {!searchQuery && !isSearchFocused && (
+                                        <kbd className="hidden xl:block absolute right-2.5 top-1/2 -translate-y-1/2 rounded-md border border-white/20 px-1.5 text-[11px] font-medium text-white/55">/</kbd>
+                                    )}
                                     {searchQuery && !isSearching && (
                                         <button
                                             type="button"
                                             onClick={clearSearch}
-                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition-colors"
+                                            aria-label="Limpiar búsqueda"
+                                            className="absolute right-2.5 top-1/2 -translate-y-1/2 text-white/60 hover:text-white transition-colors"
                                         >
                                             <X className="w-3.5 h-3.5" />
                                         </button>
@@ -233,6 +271,21 @@ const Header = () => {
                                         </div>
                                     )}
                                 </div>
+
+                                {/* Móvil: abre la fila de búsqueda */}
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    onClick={() => {
+                                        setShowMobileSearch((v) => !v);
+                                        setTimeout(() => mobileSearchInputRef.current?.focus(), 50);
+                                    }}
+                                    className="md:hidden text-white/80 hover:text-white hover:bg-white/10 h-10 w-10 rounded-xl"
+                                    aria-label={showMobileSearch ? 'Cerrar búsqueda' : 'Buscar películas'}
+                                    aria-expanded={showMobileSearch}
+                                >
+                                    {showMobileSearch ? <X className="h-5 w-5" /> : <Search className="h-5 w-5" />}
+                                </Button>
 
                                 {/* User area */}
                                 {isAuthenticated ? (
@@ -280,14 +333,33 @@ const Header = () => {
                                 )}
                             </div>
                         </div>
+
+                        {/* Fila de búsqueda móvil */}
+                        <div className={`md:hidden grid transition-[grid-template-rows] duration-300 ease-out ${showMobileSearch ? 'grid-rows-[1fr]' : 'grid-rows-[0fr]'}`}>
+                            <div className="overflow-hidden">
+                                <div className="search-container-mobile relative px-3 pb-3">
+                                    <Search className="absolute left-6 top-[calc(50%-6px)] -translate-y-1/2 w-4 h-4 text-white/60 pointer-events-none" />
+                                    <input
+                                        ref={mobileSearchInputRef}
+                                        type="search"
+                                        aria-label="Buscar películas"
+                                        value={searchQuery}
+                                        onChange={handleSearchChange}
+                                        tabIndex={showMobileSearch ? 0 : -1}
+                                        placeholder="Buscar películas..."
+                                        className="w-full h-11 pl-10 pr-4 rounded-xl border border-white/20 bg-black/25 text-base text-white outline-none placeholder:text-white/55 focus-visible:border-white/40 focus-visible:ring-2 focus-visible:ring-white/30"
+                                    />
+                                </div>
+                            </div>
+                        </div>
                     </GlassCard>
                 </header>
 
                 {/* Search results portal */}
                 {showSearchResults && createPortal(
                     <div
-                        className="fixed w-80 search-results-portal"
-                        style={{ top: '76px', right: '120px', zIndex: 99999 }}
+                        className="fixed w-[calc(100vw-1.5rem)] sm:w-80 search-results-portal"
+                        style={{ top: searchAnchor?.top ?? 76, right: searchAnchor?.right ?? 12, zIndex: 99999 }}
                     >
                         <GlassCard variant="premium" className="p-0 overflow-hidden shadow-2xl max-h-96 overflow-y-auto">
                             {searchResults.length > 0 ? (
@@ -296,7 +368,7 @@ const Header = () => {
                                         <button
                                             key={movie.id}
                                             onClick={() => handleSearchResultClick(movie)}
-                                            className="w-full flex items-center gap-3 p-3 hover:bg-white/[0.05] transition-colors text-left"
+                                            className="w-full flex items-center gap-3 p-3 hover:bg-white/[0.08] transition-colors text-left"
                                         >
                                             {movie.poster_url ? (
                                                 <img
